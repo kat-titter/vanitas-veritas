@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:#0B0A09;}
+  ::selection{background:#D2914F; color:#0B0A09;}
+  @keyframes vvbob{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(7px);opacity:1}}
+  @keyframes vvbubup{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}18%{opacity:.9}100%{transform:translate(-50%,calc(-50% - 240px)) scale(1.15);opacity:0}}
+</style>
+</helmet>
+
+<div data-root style="background:#0B0A09; color:#ECE7DD; font-family:'Space Grotesk',sans-serif; overflow-x:hidden;">
+
+  <!-- ============ HERO ============ -->
+  <section data-screen-label="Hero" style="position:relative; height:100vh; min-height:640px; overflow:hidden;">
+    <img src="assets/self_portrait.png" alt="self-portrait" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 30%;">
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,7,6,.62) 0%, rgba(8,7,6,.34) 38%, rgba(8,7,6,.55) 70%, rgba(8,7,6,.96) 100%);"></div>
+    <div style="position:absolute; inset:0; box-shadow:inset 0 0 220px 50px rgba(0,0,0,.6);"></div>
+
+    <div style="position:absolute; inset:0; display:flex; flex-direction:column; justify-content:space-between; padding:34px clamp(22px,5vw,64px) 40px; box-sizing:border-box;">
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:520; letter-spacing:.16em; text-transform:uppercase; color:#E8E3D9; text-shadow:0 1px 8px rgba(0,0,0,.9);">
+        <span>tiat &middot; Epistemologies of Slop</span>
+        <span style="color:#E2A461;">San Francisco &middot; 2026</span>
+      </div>
+      <div>
+        <div data-swaptitle style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; line-height:.9; letter-spacing:-.02em; font-size:clamp(56px,12vw,150px); text-shadow:0 3px 30px rgba(0,0,0,.8); cursor:pointer; display:inline-block;">v<span style="color:#E2A461;">[<span data-swapletters style="display:inline-block; min-width:1.5em; text-align:center;">an</span>]</span>itas</div>
+        <div style="margin-top:16px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#CFC8BC; display:flex; align-items:center; gap:9px; text-shadow:0 1px 10px rgba(0,0,0,.9);"><span style="width:18px; height:1px; background:#E2A461;"></span>hover &mdash; the whole difference is a choice</div>
+        <div style="margin-top:24px; max-width:560px; font-family:'Bricolage Grotesque',sans-serif; font-weight:400; font-size:clamp(17px,2.3vw,23px); line-height:1.4; color:#ECE7DD; text-shadow:0 1px 14px rgba(0,0,0,.9);">A figure bowed over a sink, bringing up something gold &mdash; treasure, or vomit. A memento mori for the age of slop.</div>
+      </div>
+      <div style="display:flex; justify-content:center;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; animation:vvbob 2.4s ease-in-out infinite; font-size:9px; font-weight:520; letter-spacing:.2em; text-transform:uppercase; color:#CFC8BC;">scroll<span style="font-size:15px;">&darr;</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT IT IS · diagram ============ -->
+  <section data-screen-label="What it is" style="max-width:1080px; margin:0 auto; padding:clamp(80px,12vh,150px) clamp(22px,5vw,64px);">
+    <div data-reveal style="display:flex; align-items:baseline; gap:22px; flex-wrap:wrap;">
+      <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:clamp(40px,7vw,76px); line-height:.92; letter-spacing:-.025em; color:#F0ECE4;">it&rsquo;s a sink.</div>
+      <div style="font-size:clamp(13px,1.5vw,15px); line-height:1.6; color:#A8A298; max-width:430px;">A glossy self-portrait rises above a real stainless basin on a slim post &mdash; lure and mirror. A screen sits where the drain should be, looping the slop. <span style="color:#ECE7DD;">The faucet is the only off-switch.</span></div>
+    </div>
+
+    <div data-reveal style="margin-top:clamp(40px,6vh,70px);">
+      <div data-diagramfit style="width:100%; max-width:660px; margin:0 auto; position:relative;">
+        <div data-diagram style="position:relative; width:640px; height:512px; transform-origin:top left;">
+
+          <!-- top-down view (3 · the basin): the feed loops inside the bowl, as stills -->
+          <div style="position:absolute; left:2px; top:138px; width:208px; height:208px;">
+            <img src="assets/sink_top_cut.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain;">
+            <div style="position:absolute; left:31px; top:46px; width:148px; height:106px; overflow:hidden; clip-path:polygon(13% 2%, 87% 2%, 99% 98%, 1% 98%); box-shadow:inset 0 0 18px rgba(0,0,0,.7);">
+              <img data-basinframe src="assets/feed1.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+            </div>
+            <div style="position:absolute; right:8px; bottom:8px; display:flex; align-items:center; gap:5px; font-family:'Space Grotesk',sans-serif; font-size:7.5px; font-weight:520; letter-spacing:.12em; text-transform:uppercase; color:#F0ECE4; background:rgba(11,10,9,.5); padding:3px 7px; border-radius:20px;"><span style="font-size:9px; line-height:1;">&#8635;</span>loop</div>
+          </div>
+          <div style="position:absolute; left:2px; top:352px; width:206px; font-family:'Space Grotesk',sans-serif; font-size:9px; line-height:1.5; color:#8A8378;"><span style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:14px; color:#F0ECE4;"><span style="color:#D2914F;">3</span>&nbsp; the basin</span><br><span style="color:#A8A298;">A screen where the drain should be, looping the slop &mdash; top-down.</span><br>30 &times; 25 &times; 39&frac12; in &middot; bowl 26 &times; 21 &times; 9&frac34; in</div>
+
+          <!-- print (the mirror), to scale -->
+          <div style="position:absolute; left:296px; top:26px; width:130px; height:156px; border:1px solid rgba(236,231,221,.42); overflow:hidden; background:#26292b; box-shadow:0 7px 22px rgba(0,0,0,.55);">
+            <img src="assets/self_h.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.85; object-position:50% 26%;">
+            <div style="position:absolute; inset:0; background:linear-gradient(122deg, rgba(235,238,240,.5) 0%, rgba(150,154,157,.06) 32%, rgba(216,220,223,.3) 55%, rgba(70,74,77,.12) 100%);"></div>
+            <div style="position:absolute; top:-26px; left:24px; width:28px; height:214px; background:rgba(255,255,255,.2); transform:rotate(18deg); filter:blur(4px);"></div>
+          </div>
+          <div style="position:absolute; left:296px; top:186px; width:130px; text-align:center; font-family:'Space Grotesk',sans-serif; font-size:8px; font-weight:430; letter-spacing:.14em; text-transform:uppercase; color:#6f6a5f;">the mirror &middot; 20 &times; 24 in</div>
+          <!-- post -->
+          <div style="position:absolute; left:357px; top:182px; width:7px; height:32px; background:linear-gradient(90deg,#6f7478,#c6cacc,#65696d);"></div>
+
+          <!-- front-on sink (real photo, cut out) -->
+          <div style="position:absolute; left:250px; top:212px; width:222px; height:256px;">
+            <img src="assets/sink_front_cut.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain;">
+          </div>
+          <!-- orange handle (off switch) -->
+          <div data-hold role="button" tabindex="0" title="Hold to still the feed" style="position:absolute; left:349px; top:229px; width:23px; height:32px; cursor:pointer; touch-action:none;">
+            <div style="position:absolute; left:7px; top:7px; width:9px; height:21px; background:#D2914F; border-radius:4px;"></div>
+            <div style="position:absolute; left:2px; top:2px; width:19px; height:9px; background:#D2914F; border-radius:5px;"></div>
+          </div>
+
+          <!-- PERSON · single cohesive silhouette, approx. to scale -->
+          <svg viewBox="0 0 72 432" style="position:absolute; left:214px; top:42px; width:76px; height:430px;" aria-hidden="true">
+            <g fill="#D8884A" opacity="0.4">
+              <circle cx="36" cy="30" r="20"></circle>
+              <path d="M16 74 Q16 54 36 54 Q56 54 56 74 L54 252 L50 430 L40 430 L37 258 L35 258 L32 430 L22 430 L18 252 Z"></path>
+            </g>
+          </svg>
+          <div style="position:absolute; left:120px; top:440px; width:88px; text-align:right; font-family:'Space Grotesk',sans-serif; font-size:8.5px; line-height:1.4; color:#8A8378;">viewer<br>approx. to scale</div>
+
+          <!-- floor -->
+          <div style="position:absolute; left:150px; top:468px; width:380px; height:1px; background:rgba(236,231,221,.18);"></div>
+          <div style="position:absolute; left:236px; top:478px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:430; letter-spacing:.04em; color:#8A8378;">freestanding &middot; no wall &middot; footprint &asymp; 30 &times; 25 in &middot; one outlet</div>
+
+          <!-- CALLOUTS, right -->
+          <div style="position:absolute; left:426px; top:104px; width:56px; height:1px; background:rgba(236,231,221,.3);"></div>
+          <div style="position:absolute; left:423px; top:101px; width:6px; height:6px; border-radius:50%; background:#D2914F;"></div>
+          <div style="position:absolute; left:482px; top:73px; width:158px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:15px; color:#F0ECE4;"><span style="color:#D2914F;">1</span> &nbsp;the mirror</div>
+            <div style="margin-top:5px; font-family:'Space Grotesk',sans-serif; font-size:11px; line-height:1.45; color:#A8A298;">A glossy aluminium self-portrait, lit so <span style="color:#ECE7DD;">your reflection lands on her face.</span></div>
+          </div>
+          <div style="position:absolute; left:366px; top:243px; width:116px; height:1px; background:rgba(236,231,221,.28);"></div>
+          <div style="position:absolute; left:360px; top:240px; width:6px; height:6px; border-radius:50%; background:#D2914F;"></div>
+          <div style="position:absolute; left:482px; top:194px; width:158px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:15px; color:#F0ECE4;"><span style="color:#D2914F;">2</span> &nbsp;the off-switch</div>
+            <div style="margin-top:5px; font-family:'Space Grotesk',sans-serif; font-size:11px; line-height:1.45; color:#A8A298;">The faucet handle &mdash; hold it, the slop freezes. <span style="color:#ECE7DD;">No water comes.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- interaction strip -->
+      <div style="max-width:660px; margin:20px auto 0; display:flex; gap:12px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:240px; background:#131210; border:1px solid rgba(236,231,221,.08); padding:16px 18px; display:flex; align-items:center; gap:14px;">
+          <div data-hold role="button" tabindex="0" style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:13px; color:#0B0A09; background:#D2914F; padding:7px 13px; border-radius:5px; white-space:nowrap; cursor:pointer; user-select:none; touch-action:none;">hold the handle</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:12.5px; color:#B4AEA4;">&rarr; the slop <span style="color:#ECE7DD;">freezes</span>. stillness, on purpose.</div>
+        </div>
+        <div style="flex:1; min-width:240px; background:#131210; border:1px solid rgba(236,231,221,.08); padding:16px 18px; display:flex; align-items:center; gap:14px;">
+          <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:13px; color:#ECE7DD; border:1px solid rgba(236,231,221,.25); padding:7px 11px; border-radius:5px; white-space:nowrap;">let go</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:12.5px; color:#B4AEA4;">&rarr; it <span style="color:#ECE7DD;">floods back</span>. you can&rsquo;t wash your hands of it.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATEMENT ============ -->
+  <section data-screen-label="Statement" style="max-width:880px; margin:0 auto; padding:clamp(80px,12vh,150px) clamp(22px,5vw,64px);">
+    <div data-reveal style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:520; letter-spacing:.22em; text-transform:uppercase; color:#D2914F;">The statement</div>
+    <div data-reveal style="margin-top:22px; font-family:'Bricolage Grotesque',sans-serif; font-weight:520; font-size:clamp(26px,3.6vw,40px); line-height:1.18; letter-spacing:-.015em; color:#F0ECE4;">vanitas and veritas are nearly the same word &mdash; one swap of letters apart. the whole difference between them is <span style="color:#D2914F;">a choice.</span></div>
+
+    <div data-reveal style="margin-top:40px; font-size:clamp(14px,1.6vw,16px); line-height:1.75; color:#C2BCB1; display:flex; flex-direction:column; gap:20px;">
+      <p style="margin:0;">A big print pulls you across the room. A figure bowed over a sink, face blown to white and stippled into halftone, bringing up one gold blob. Vomit, or a nugget. You genuinely can&rsquo;t tell. You reach the basin already in her posture &mdash; hunched, mid-purge, washing up or throwing up. The tap gives no water: a font that cannot clean you, nothing to wash in but more image.</p>
+      <p style="margin:0;"><span data-gloss="vanitas" style="border-bottom:1px dotted rgba(226,164,97,.55);">Vanitas</span> is a 400-year-old genre &mdash; Dutch still lifes crammed with skulls, dead flowers and soap bubbles, all murmuring the same thing. You are going to die; put down the goblet. The bubble was the favorite symbol. <span data-gloss="homo" style="color:#E2A461; border-bottom:1px dotted rgba(226,164,97,.55);">Homo bulla</span>, man is a bubble: shiny, inflated, then not there. Mine are AI bubbles, and I mean it twice &mdash; the soap bubble the Dutch painted for fragility, and the speculative one a lot of us quietly fear we are standing inside.</p>
+      <p style="margin:0;">The print up top is the one piece of me in the room: a self-portrait, hung and lit as a mirror so your face lands on mine and briefly wears the dissolve. It is my face on the front. Standing at the basin, it is also yours. I am not above the slop; I am admitting, on aluminium, that I am sometimes sloppy too.</p>
+      <p style="margin:0;">The faucet handle is the off switch: hold it and the slop pauses, let go and it floods back. I freedive, and holding the handle is the same as holding a breath underwater &mdash; stillness on purpose, against everything in you that wants to let go. Pilate asked what truth was, then washed his hands of the answer. This asks the reverse. The <span data-gloss="veritas" style="color:#E2A461; border-bottom:1px dotted rgba(226,164,97,.55);">veritas</span> is the hand that stays, the eye that chose these frames from a hundred thousand. In a room of generated everything, that choice is the only ground truth left.</p>
+    </div>
+  </section>
+
+  <!-- ============ THE OBJECT ============ -->
+  <section data-screen-label="The object" style="border-top:1px solid rgba(236,231,221,.08); background:#0D0C0A;">
+    <div style="max-width:1080px; margin:0 auto; padding:clamp(80px,12vh,150px) clamp(22px,5vw,64px); display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:clamp(36px,5vw,64px); align-items:center;">
+      <div data-reveal>
+        <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:clamp(28px,4vw,46px); line-height:1.08; letter-spacing:-.025em; color:#F0ECE4;">a sink with no water,</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:clamp(28px,4vw,46px); line-height:1.08; letter-spacing:-.025em; color:#D2914F; margin-bottom:22px;">so you can&rsquo;t wash your hands of it.</div>
+        <div style="font-size:14px; line-height:1.7; color:#B4AEA4; display:flex; flex-direction:column; gap:13px;">
+          <p style="margin:0;">The glossy 20&times;24 print rises from the sink on a slim, load-bearing post &mdash; lure and mirror, so the whole work is freestanding and needs no wall.</p>
+          <p style="margin:0;">A small bright screen sits in the basin under sealed acrylic, looping the polished feed. You reach for the tap the way you would reach to wash, and no water comes. It boots straight into the loop; a power cut just restarts it playing.</p>
+        </div>
+      </div>
+      <div data-reveal style="border:1px solid rgba(236,231,221,.1); background:#0B0A09;">
+        <div style="display:flex; justify-content:space-between; padding:15px 22px; border-bottom:1px solid rgba(236,231,221,.07); font-size:13px;"><span style="font-weight:430; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Form</span><span style="color:#ECE7DD;">Freestanding interactive</span></div>
+        <div style="display:flex; justify-content:space-between; padding:15px 22px; border-bottom:1px solid rgba(236,231,221,.07); font-size:13px;"><span style="font-weight:430; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Print</span><span style="color:#ECE7DD;">Dye-sub on aluminium, 20&times;24&Prime;</span></div>
+        <div style="display:flex; justify-content:space-between; padding:15px 22px; border-bottom:1px solid rgba(236,231,221,.07); font-size:13px;"><span style="font-weight:430; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Sink</span><span style="color:#ECE7DD;">Stainless, 30&times;25&times;39&frac12;&Prime;</span></div>
+        <div style="display:flex; justify-content:space-between; padding:15px 22px; border-bottom:1px solid rgba(236,231,221,.07); font-size:13px;"><span style="font-weight:430; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Power</span><span style="color:#ECE7DD;">One outlet, auto-boot</span></div>
+        <div style="display:flex; justify-content:space-between; padding:15px 22px; font-size:13px;"><span style="font-weight:430; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Edition</span><span style="color:#ECE7DD;">Unique (1 / 1)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BASIN FEED ============ -->
+  <section data-screen-label="Basin feed" style="max-width:1180px; margin:0 auto; padding:clamp(80px,12vh,150px) clamp(22px,5vw,64px);">
+    <div data-reveal style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:520; letter-spacing:.22em; text-transform:uppercase; color:#D2914F;">The basin feed</div>
+    <div data-reveal style="margin-top:20px; max-width:780px; font-family:'Bricolage Grotesque',sans-serif; font-weight:520; font-size:clamp(20px,2.6vw,28px); line-height:1.22; letter-spacing:-.01em; color:#F0ECE4;">eight vanitas frames grown from the self-portrait&rsquo;s own style code &mdash; faces dissolving into bubbles, blooms and bone, interpolated into <span style="color:#D2914F;">one continuous loop</span> with no first frame and no last.</div>
+
+    <div data-reveal style="margin-top:26px; max-width:600px;">
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#8A8378; margin-bottom:9px;">Midjourney style reference</div>
+      <code style="display:block; font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace; font-size:12.5px; line-height:1.65; color:#E2A461; background:#131210; border:1px solid rgba(236,231,221,.12); border-left:2px solid #D2914F; padding:13px 16px; border-radius:4px; word-break:break-all; user-select:all; cursor:text;">vanitas --chaos 100 --ar 4:3<br>--sref https://s.mj.run/wu_593e27c3-dba9-4f16-a306-024296c16d64</code>
+      <div style="margin-top:9px; font-size:11.5px; line-height:1.55; color:#8A8378;">The portrait&rsquo;s own code, run at maximum chaos &mdash; one of five sibling <span style="color:#A8A298;">--sref</span> seeds chosen by hand from the spread.</div>
+    </div>
+
+    <div data-reveal style="margin-top:38px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div style="font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#8A8378;">The eight source frames &mdash; click to enlarge</div>
+      <div style="display:flex; align-items:center; gap:7px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:520; letter-spacing:.16em; text-transform:uppercase; color:#E2A461;"><span style="font-size:13px; line-height:1;">&#8635;</span> 08 returns to 01 &mdash; seamless</div>
+    </div>
+    <div data-reveal style="margin-top:12px; display:grid; grid-template-columns:repeat(8,1fr); gap:6px;">
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed1.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed1.png" data-cap="Basin feed &middot; frame 01 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">01</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed2.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed2.png" data-cap="Basin feed &middot; frame 02 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">02</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed3.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed3.png" data-cap="Basin feed &middot; frame 03 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">03</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed4.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed4.png" data-cap="Basin feed &middot; frame 04 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">04</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed5.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed5.png" data-cap="Basin feed &middot; frame 05 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">05</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed6.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed6.png" data-cap="Basin feed &middot; frame 06 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">06</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed7.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed7.png" data-cap="Basin feed &middot; frame 07 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">07</span></div>
+      <div style="position:relative; aspect-ratio:4/3; overflow:hidden; background:#000;"><img src="assets/feed8.png" loading="lazy" data-lbgroup="feed" data-lbitem="assets/feed8.png" data-cap="Basin feed &middot; frame 08 / 08" style="width:100%;height:100%;object-fit:cover;"><span style="position:absolute; left:5px; top:4px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:600; color:#F0ECE4; background:rgba(11,10,9,.55); padding:1px 5px; border-radius:3px;">08</span><span style="position:absolute; right:5px; bottom:4px; font-family:'Space Grotesk',sans-serif; font-size:11px; color:#E2A461; background:rgba(11,10,9,.55); padding:0 5px; border-radius:3px;">&#8635;</span></div>
+    </div>
+  </section>
+
+  <!-- ============ LINEAGE ============ -->
+  <section data-screen-label="Lineage" style="border-top:1px solid rgba(236,231,221,.08); background:#0D0C0A;">
+    <div style="max-width:1180px; margin:0 auto; padding:clamp(80px,12vh,150px) clamp(22px,5vw,64px);">
+      <div data-reveal style="max-width:720px; font-family:'Bricolage Grotesque',sans-serif; font-weight:520; font-size:clamp(22px,3vw,32px); line-height:1.2; letter-spacing:-.015em; color:#F0ECE4;">a 400-year-old Dutch genre. <span style="color:#D2914F;">i keep the grammar and swap the objects.</span></div>
+      <div data-reveal style="margin-top:36px; display:grid; grid-template-columns:repeat(3,1fr); gap:18px 16px;">
+        <div><div style="aspect-ratio:3/2; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.12);"><img loading="lazy" src="assets/ref1_pereda.jpg" data-lbgroup="ref" data-lbitem="assets/ref1_pereda.jpg" data-cap="Antonio de Pereda &middot; Allegory of Vanity, c.1636 &middot; KHM Vienna" style="width:100%;height:100%;object-fit:cover;"></div><div style="margin-top:9px; font-size:10px; line-height:1.4; color:#8A8378;"><span style="color:#CFC9BE;">1 &middot; Antonio de Pereda</span><br>Allegory of Vanity &middot; c.1636</div></div>
+        <div><div style="aspect-ratio:3/2; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.12);"><img loading="lazy" src="assets/ref2_steenwijck.jpg" data-lbgroup="ref" data-lbitem="assets/ref2_steenwijck.jpg" data-cap="Harmen Steenwijck &middot; Allegory of the Vanities of Human Life, c.1640 &middot; National Gallery" style="width:100%;height:100%;object-fit:cover;"></div><div style="margin-top:9px; font-size:10px; line-height:1.4; color:#8A8378;"><span style="color:#CFC9BE;">2 &middot; Harmen Steenwijck</span><br>Allegory of the Vanities &middot; c.1640</div></div>
+        <div><div style="aspect-ratio:3/2; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.12);"><img loading="lazy" src="assets/ref3_oosterwijck.jpg" data-lbgroup="ref" data-lbitem="assets/ref3_oosterwijck.jpg" data-cap="Maria van Oosterwijck &middot; Vanitas with a Sunflower, 1668 &middot; Rijksmuseum" style="width:100%;height:100%;object-fit:cover; object-position:center 35%;"></div><div style="margin-top:9px; font-size:10px; line-height:1.4; color:#8A8378;"><span style="color:#CFC9BE;">3 &middot; Maria van Oosterwijck</span><br>Vanitas with a Sunflower &middot; 1668</div></div>
+        <div><div style="aspect-ratio:3/2; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.12);"><img loading="lazy" src="assets/ref4_obelisk.png" data-lbgroup="ref" data-lbitem="assets/ref4_obelisk.png" data-cap="Pieter Claesz &middot; Vanitas Still Life (detail), 1630 &middot; Mauritshuis" style="width:100%;height:100%;object-fit:cover;"></div><div style="margin-top:9px; font-size:10px; line-height:1.4; color:#8A8378;"><span style="color:#CFC9BE;">4 &middot; Pieter Claesz</span><br>Vanitas Still Life (detail) &middot; 1630</div></div>
+        <div><div style="aspect-ratio:3/2; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.12);"><img loading="lazy" src="assets/ref5_russo.jpg" data-lbgroup="ref" data-lbitem="assets/ref5_russo.jpg" data-cap="Carlo Russo &middot; Vanitas Still Life &middot; contemporary, &copy; the artist" style="width:100%;height:100%;object-fit:cover;"></div><div style="margin-top:9px; font-size:10px; line-height:1.4; color:#8A8378;"><span style="color:#CFC9BE;">5 &middot; Carlo Russo</span><br>Vanitas Still Life &middot; contemporary</div></div>
+        <div><div style="aspect-ratio:3/2; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.12);"><img loading="lazy" src="assets/ref6_misc.jpg" data-lbgroup="ref" data-lbitem="assets/ref6_misc.jpg" data-cap="Dutch School &middot; Vanitas Still Life &middot; dated 1650" style="width:100%;height:100%;object-fit:cover;"></div><div style="margin-top:9px; font-size:10px; line-height:1.4; color:#8A8378;"><span style="color:#CFC9BE;">6 &middot; Dutch School</span><br>Vanitas Still Life &middot; dated 1650</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COLOPHON ============ -->
+  <section data-screen-label="Colophon" style="border-top:1px solid rgba(236,231,221,.08);">
+    <div style="max-width:1080px; margin:0 auto; padding:clamp(80px,12vh,150px) clamp(22px,5vw,64px);">
+      <div data-reveal style="font-family:'Bricolage Grotesque',sans-serif; font-weight:600; font-size:clamp(30px,4.5vw,52px); line-height:1; letter-spacing:-.025em; color:#F0ECE4;">the fine print.</div>
+
+      <div data-reveal style="margin-top:46px; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:clamp(30px,4vw,54px);">
+        <div>
+          <div style="font-size:10px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#D2914F; margin-bottom:14px;">Accent colour</div>
+          <div style="display:flex; gap:14px;">
+            <div style="width:48px; height:48px; flex:none; border-radius:8px; background:#D2914F; box-shadow:0 0 18px rgba(210,145,79,.45);"></div>
+            <div style="font-size:12.5px; line-height:1.55; color:#A8A298;"><span style="color:#ECE7DD; font-weight:520; letter-spacing:.03em;">#D2914F</span> &mdash; lifted from the feed&rsquo;s gold, kept near the clay-orange of the labs that build these models. Vanitas gold and the tool&rsquo;s signature at once; the only saturated colour in a cool monochrome.</div>
+          </div>
+          <div style="margin-top:26px; font-size:10px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#D2914F; margin-bottom:12px;">The words</div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:12.5px; line-height:1.45; color:#A8A298;">
+            <div><span style="color:#ECE7DD;">vanitas</span> &mdash; Latin <span style="color:#CFC9BE;">vanus</span>, empty; futility, transience.</div>
+            <div><span style="color:#ECE7DD;">veritas</span> &mdash; Latin, truth. One letter&rsquo;s swap from vanitas.</div>
+            <div><span style="color:#ECE7DD;">homo bulla</span> &mdash; &ldquo;man is a bubble&rdquo; (Varro, via Erasmus).</div>
+            <div><span style="color:#ECE7DD;">aner</span> &mdash; Greek <span style="color:#CFC9BE;">an&#275;r</span>, man &mdash; the figure the bubble stands in for.</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#D2914F; margin-bottom:12px;">Context &mdash; tiat &middot; slop &middot; sink</div>
+          <div style="font-size:12.5px; line-height:1.6; color:#A8A298;">Made for <span style="color:#CFC9BE;">tiat</span>&rsquo;s open call <span style="color:#CFC9BE;">Epistemologies of Slop</span> (151 Powell St, SF), a show on AI &ldquo;slop.&rdquo; Slop is &ldquo;everything but the kitchen sink&rdquo; &mdash; so the work throws the kitchen sink at it: a Pearlhaus freestanding stainless utility sink, two-day shipped from Amazon as part of the joke.</div>
+          <div style="margin-top:24px; font-size:10px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#D2914F; margin-bottom:12px;">Citations</div>
+          <div style="font-size:11px; line-height:1.55; color:#8A8378;">Reference plates: public domain via Wikimedia Commons (Pereda, Steenwijck, van Oosterwijck, Claesz; Russo &mdash; contemporary, &copy; the artist; Dutch School). Sink: Whitehaus Pearlhaus WH302510. Tools: Midjourney (style codes), Claude &amp; Claude Code (this site; the loop). Type: Bricolage Grotesque, Space Grotesk.</div>
+        </div>
+      </div>
+
+      <div data-reveal style="margin-top:40px; padding:26px 30px; background:#131210; border:1px solid rgba(236,231,221,.08); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:24px;">
+        <div style="max-width:480px;">
+          <div style="font-size:10px; font-weight:520; letter-spacing:.18em; text-transform:uppercase; color:#8A8378;">List price &mdash; entirely arbitrary</div>
+          <div style="margin-top:8px; font-size:12.5px; line-height:1.55; color:#A8A298;">There is no formula and no appraisal. The number just felt right for a memento mori &mdash; and yes, it hides a 666. Sold as a unique work; splits 60 / 40, artist / tiat.</div>
+        </div>
+        <div style="text-align:right; white-space:nowrap;">
+          <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:520; font-size:clamp(34px,5vw,46px); color:#D2914F;">$14,666</div>
+          <div style="font-size:11px; color:#8A8378; margin-top:3px;">$8,800 &middot; $5,866</div>
+        </div>
+      </div>
+
+      <div data-reveal style="margin-top:44px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; border-top:1px solid rgba(236,231,221,.1); padding-top:34px;">
+        <div style="width:88px; height:88px; flex:none; border-radius:50%; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.2);"><img src="assets/artist_h.png" style="width:100%; height:100%; object-fit:cover; object-position:center 30%;"></div>
+        <div style="flex:1; min-width:240px;">
+          <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:520; font-size:18px; color:#F0ECE4;">Katherine (Kat) Titterton</div>
+          <div style="margin-top:7px; font-size:12.5px; line-height:1.6; color:#A8A298; max-width:560px;">San Francisco based scientist and generative artist. Since 2023 she trains her own diffusion style codes rather than prompting off the shelf &mdash; the choosing is the <span style="color:#E2A461;">veritas</span>.</div>
+          <div style="margin-top:10px; font-size:12px; color:#ECE7DD;">katherinetitterton@gmail.com &middot; <a href="https://macrofluidic.me" target="_blank" rel="noopener" style="color:#E2A461; text-decoration:none; border-bottom:1px solid rgba(226,164,97,.4);">macrofluidic.me</a></div>
+        </div>
+      </div>
+
+      <div style="margin-top:54px; font-family:'Bricolage Grotesque',sans-serif; font-weight:400; font-size:clamp(14px,1.6vw,16px); color:#8A8378;">Made at a sink in San Francisco, with Midjourney, Claude, and one held breath.</div>
+    </div>
+  </section>
+
+  <!-- interaction bubble layer (homo bulla) -->
+  <div data-bubblelayer aria-hidden="true" style="position:fixed; inset:0; z-index:82; pointer-events:none; overflow:hidden;"></div>
+
+  <!-- ============ HELD-BREATH HUD ============ -->
+  <div data-stillhud style="position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(14px); z-index:80; display:flex; align-items:center; gap:12px; padding:11px 19px; border-radius:30px; background:rgba(11,10,9,.84); border:1px solid rgba(210,145,79,.42); backdrop-filter:blur(6px); opacity:0; pointer-events:none; transition:opacity .35s, transform .35s;">
+    <span style="width:8px; height:8px; border-radius:50%; background:#D2914F; box-shadow:0 0 10px rgba(210,145,79,.8);"></span>
+    <span style="font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:520; letter-spacing:.14em; text-transform:uppercase; color:#ECE7DD;">the slop is still</span>
+    <span data-stilltimer style="font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; color:#E2A461; min-width:34px; text-align:right;">0.0s</span>
+  </div>
+
+  <!-- glossary tooltip -->
+  <div data-glosstip style="position:fixed; z-index:85; max-width:262px; padding:11px 14px; background:#16140F; border:1px solid rgba(210,145,79,.4); border-radius:7px; box-shadow:0 14px 40px rgba(0,0,0,.6); font-family:'Space Grotesk',sans-serif; font-size:12.5px; line-height:1.55; color:#D9D3C8; opacity:0; transform:translateY(6px); transition:opacity .2s, transform .2s; pointer-events:none;"></div>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div data-lb style="position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center; background:rgba(6,5,4,.95); backdrop-filter:blur(5px); padding:clamp(20px,5vw,56px); box-sizing:border-box;">
+    <img data-lb-img alt="" style="max-width:92vw; max-height:82vh; object-fit:contain; box-shadow:0 30px 90px rgba(0,0,0,.75); border:1px solid rgba(236,231,221,.1);">
+    <div data-lb-cap style="position:absolute; left:0; right:0; bottom:26px; text-align:center; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:520; letter-spacing:.14em; text-transform:uppercase; color:#CFC8BC;"></div>
+    <button data-lb-close aria-label="Close" style="position:absolute; top:22px; right:24px; width:44px; height:44px; border-radius:50%; border:1px solid rgba(236,231,221,.3); background:rgba(11,10,9,.6); color:#ECE7DD; font-size:19px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#10005;</button>
+    <button data-lb-prev aria-label="Previous" style="position:absolute; left:clamp(10px,2vw,26px); top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:50%; border:1px solid rgba(236,231,221,.3); background:rgba(11,10,9,.6); color:#ECE7DD; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#8249;</button>
+    <button data-lb-next aria-label="Next" style="position:absolute; right:clamp(10px,2vw,26px); top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:50%; border:1px solid rgba(236,231,221,.3); background:rgba(11,10,9,.6); color:#ECE7DD; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#8250;</button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const root = this.el || document;
+    const $ = (s) => Array.from((root.querySelector ? root : document).querySelectorAll(s));
+    setTimeout(() => {
+      try { this.initDiagramFit(); } catch (e) {}
+      try { this.initLightbox(); } catch (e) {}
+      try { this.initSwap(); } catch (e) {}
+      try { this.initGlossary(); } catch (e) {}
+    }, 0);
+
+    // ---- scroll reveals ----
+    const items = $('[data-reveal]');
+    items.forEach((el) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(26px)';
+      el.style.transition = 'opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1)';
+      el.style.willChange = 'opacity, transform';
+    });
+    const show = (el) => { el.style.opacity = '1'; el.style.transform = 'none'; };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } });
+      }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+      items.forEach((el) => io.observe(el));
+    } else {
+      items.forEach(show);
+    }
+    this._fallback = setTimeout(() => items.forEach(show), 2600);
+
+    // ---- hold-to-still (global mechanic) + interaction bubbles ----
+    const notes = $('[data-holdnote]');
+    const rootEl = document.querySelector('[data-root]');
+    const hud = document.querySelector('[data-stillhud]');
+    const tEl = hud ? hud.querySelector('[data-stilltimer]') : null;
+    const layer = document.querySelector('[data-bubblelayer]');
+    if (rootEl) rootEl.style.transition = 'filter .45s ease';
+    let held = false, holdStart = 0, holdRAF = 0, holdEl = null, bubbleInt = 0;
+    const spawnBubble = (cx, cy) => {
+      if (!layer) return;
+      const size = 46 + Math.random() * 58;
+      const jx = (Math.random() * 2 - 1) * 62;
+      const b = document.createElement('div');
+      b.style.cssText = 'position:fixed; left:' + (cx + jx) + 'px; top:' + cy + 'px; width:' + size + 'px; height:' + size + 'px; border-radius:50%; background:rgba(210,145,79,.22); border:2px solid rgba(226,164,97,.9); pointer-events:none; transform:translate(-50%,-50%); animation:vvbubup ' + (1.7 + Math.random() * 0.9).toFixed(2) + 's ease-out forwards;';
+      layer.appendChild(b);
+      b.addEventListener('animationend', () => b.remove());
+    };
+    const startBubbles = () => {
+      if (!holdEl || !layer) return;
+      const burst = () => { const r = holdEl.getBoundingClientRect(); spawnBubble(r.left + r.width / 2, r.top + r.height / 2); };
+      burst();
+      bubbleInt = setInterval(burst, 300);
+    };
+    const stopBubbles = () => { clearInterval(bubbleInt); };
+    const setHeld = (on) => {
+      if (held === on) return;
+      held = on;
+      $('video').forEach((v) => { try { on ? v.pause() : v.play(); } catch (e) {} });
+      $('[data-hold]').forEach((b) => { b.style.filter = on ? 'brightness(1.25)' : 'none'; });
+      notes.forEach((n) => { n.style.color = on ? '#E2A461' : '#8A8378'; });
+      if (rootEl) rootEl.style.filter = on ? 'saturate(0.55) brightness(0.9)' : '';
+      if (hud) { hud.style.opacity = on ? '1' : '0'; hud.style.transform = 'translateX(-50%) translateY(' + (on ? '0' : '14px') + ')'; }
+      if (on) {
+        holdStart = performance.now();
+        const tick = () => { if (!held) return; if (tEl) tEl.textContent = ((performance.now() - holdStart) / 1000).toFixed(1) + 's'; holdRAF = requestAnimationFrame(tick); };
+        tick();
+        startBubbles();
+      } else {
+        cancelAnimationFrame(holdRAF);
+        stopBubbles();
+      }
+    };
+    $('[data-hold]').forEach((b) => {
+      b.addEventListener('pointerdown', (e) => { e.preventDefault(); holdEl = b; setHeld(true); });
+      b.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); holdEl = b; setHeld(true); } });
+      b.addEventListener('keyup', () => setHeld(false));
+    });
+    window.addEventListener('pointerup', () => setHeld(false));
+    window.addEventListener('pointercancel', () => setHeld(false));
+
+    // ---- basin still-feed slideshow (the loop, as stills; pauses when held) ----
+    const basinFrame = document.querySelector('[data-basinframe]');
+    if (basinFrame) {
+      const frames = ['assets/feed1.png','assets/feed2.png','assets/feed3.png','assets/feed4.png','assets/feed5.png','assets/feed6.png','assets/feed7.png','assets/feed8.png'];
+      frames.forEach((src) => { const im = new Image(); im.src = src; });
+      basinFrame.style.transition = 'opacity .16s ease';
+      let bi = 0;
+      this._basinTimer = setInterval(() => {
+        if (held) return;
+        bi = (bi + 1) % frames.length;
+        basinFrame.style.opacity = '0';
+        setTimeout(() => { basinFrame.src = frames[bi]; basinFrame.style.opacity = '1'; }, 160);
+      }, 1100);
+    }
+  }
+
+  initDiagramFit() {
+    const fit = document.querySelector('[data-diagramfit]');
+    const dia = document.querySelector('[data-diagram]');
+    if (!fit || !dia) return;
+    const apply = () => {
+      const w = fit.clientWidth;
+      const s = Math.min(1, w / 640);
+      dia.style.transform = 'scale(' + s + ')';
+      fit.style.height = (512 * s) + 'px';
+    };
+    apply();
+    this._diagResize = apply;
+    window.addEventListener('resize', this._diagResize);
+    setTimeout(apply, 300);
+  }
+
+  initSwap() {
+    const title = document.querySelector('[data-swaptitle]');
+    const t = document.querySelector('[data-swapletters]');
+    if (!title || !t) return;
+    t.style.display = 'inline-block';
+    let locked = false;
+    const swap = (to) => {
+      if (t.textContent === to) return;
+      t.style.transition = 'transform .17s ease, opacity .17s ease';
+      t.style.transform = 'translateY(-55%)';
+      t.style.opacity = '0';
+      setTimeout(() => {
+        t.textContent = to;
+        t.style.transform = 'translateY(55%)';
+        requestAnimationFrame(() => { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; });
+      }, 170);
+    };
+    title.addEventListener('pointerenter', () => { locked = true; swap('er'); });
+    title.addEventListener('pointerleave', () => { locked = false; swap('an'); });
+    this._swapTimer = setInterval(() => { if (!locked) swap(t.textContent === 'an' ? 'er' : 'an'); }, 3800);
+  }
+
+  initGlossary() {
+    const tip = document.querySelector('[data-glosstip]');
+    if (!tip) return;
+    const defs = {
+      vanitas: '<b style="color:#F0ECE4">vanitas</b> &nbsp;Latin <i>vanus</i>, &ldquo;empty.&rdquo; A 400-year-old genre on futility and transience.',
+      veritas: '<b style="color:#F0ECE4">veritas</b> &nbsp;Latin, &ldquo;truth.&rdquo; One letter&rsquo;s swap from vanitas &mdash; the choice that stays.',
+      homo: '<b style="color:#F0ECE4">homo bulla</b> &nbsp;&ldquo;man is a bubble&rdquo; &mdash; Varro, via Erasmus. Shiny, inflated, then not there.'
+    };
+    const place = (el) => {
+      tip.innerHTML = defs[el.getAttribute('data-gloss')] || '';
+      tip.style.opacity = '1';
+      tip.style.transform = 'translateY(0)';
+      const r = el.getBoundingClientRect();
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      let left = r.left + r.width / 2 - tw / 2;
+      left = Math.max(12, Math.min(left, window.innerWidth - tw - 12));
+      let top = r.top - th - 10;
+      if (top < 12) top = r.bottom + 10;
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    };
+    const hide = () => { tip.style.opacity = '0'; tip.style.transform = 'translateY(6px)'; };
+    document.querySelectorAll('[data-gloss]').forEach((el) => {
+      el.style.cursor = 'help';
+      el.setAttribute('tabindex', '0');
+      el.addEventListener('pointerenter', () => place(el));
+      el.addEventListener('pointerleave', hide);
+      el.addEventListener('focus', () => place(el));
+      el.addEventListener('blur', hide);
+    });
+  }
+
+  initLightbox() {
+    const lb = document.querySelector('[data-lb]');
+    if (!lb) return;
+    const img = lb.querySelector('[data-lb-img]');
+    const cap = lb.querySelector('[data-lb-cap]');
+    let group = [], idx = 0;
+    const render = () => {
+      const el = group[idx];
+      if (!el) return;
+      img.src = el.getAttribute('data-lbitem');
+      cap.innerHTML = el.getAttribute('data-cap') || '';
+    };
+    const open = (g, i) => { group = g; idx = i; lb.style.display = 'flex'; document.body.style.overflow = 'hidden'; render(); };
+    const close = () => { lb.style.display = 'none'; document.body.style.overflow = ''; };
+    const step = (d) => { if (!group.length) return; idx = (idx + d + group.length) % group.length; render(); };
+    document.querySelectorAll('[data-lbitem]').forEach((el) => {
+      el.style.cursor = 'zoom-in';
+      el.addEventListener('click', () => {
+        const grp = el.getAttribute('data-lbgroup');
+        const arr = Array.from(document.querySelectorAll('[data-lbgroup="' + grp + '"]'));
+        open(arr, Math.max(0, arr.indexOf(el)));
+      });
+    });
+    lb.querySelector('[data-lb-close]').addEventListener('click', close);
+    lb.querySelector('[data-lb-prev]').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+    lb.querySelector('[data-lb-next]').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+    lb.addEventListener('click', (e) => { if (e.target === lb || e.target === img) close(); });
+    window.addEventListener('keydown', (e) => {
+      if (lb.style.display === 'none' || lb.style.display === '') return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
+    });
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this._fallback);
+    clearInterval(this._swapTimer);
+    clearInterval(this._basinTimer);
+    if (this._diagResize) window.removeEventListener('resize', this._diagResize);
+  }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# large / regenerable — not for the public repo
+video/
+_archive/
+_order_tests/
+source/
+code/models/
+*.pt
+*.log
+.progress
+.DS_Store
+__pycache__/
+*.pyc
+research/

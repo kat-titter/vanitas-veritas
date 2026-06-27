@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;}
+  @media print{
+    .vv-doc{background:#000 !important; padding:0 !important; gap:0 !important;}
+    .vv-page{box-shadow:none !important; page-break-after:always; break-after:page;}
+    @page{size:816px 1056px; margin:0;}
+  }
+</style>
+</helmet>
+
+<div class="vv-doc" style="background:#26221d; padding:38px 0; display:flex; flex-direction:column; align-items:center; gap:36px; min-height:100vh; font-family:'Space Grotesk',sans-serif;">
+
+  <!-- ===================== PAGE 1 · OVERVIEW ===================== -->
+  <section class="vv-page" data-screen-label="Build · Overview" style="width:816px; height:1056px; background:#0B0A09; box-shadow:0 24px 70px rgba(0,0,0,.6); position:relative; overflow:hidden; box-sizing:border-box; padding:54px 70px; display:flex; flex-direction:column; color:#ECE7DD;">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:#8A8378;">
+      <span>Vanitas Veritas</span>
+      <span style="color:#D2914F;">Interaction Build Guide</span>
+    </div>
+    <div style="height:1px; background:rgba(236,231,221,.14); margin-top:12px;"></div>
+
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-top:26px;">
+      <div style="font-family:'Bricolage Grotesque',sans-serif; line-height:.86; letter-spacing:-.01em;">
+        <div style="font-size:44px; font-weight:620; color:#ECE7DD; white-space:nowrap;">v<span style="color:#E2A461;">[an]</span>itas v<span style="color:#E2A461;">[er]</span>itas</div>
+      </div>
+      <div style="text-align:right; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#8A8378; padding-bottom:6px;">Pull the faucet,<br>the slop pauses</div>
+    </div>
+
+    <div style="margin-top:20px; font-family:'Space Grotesk',sans-serif; font-size:13px; line-height:1.65; color:#B4AEA4; max-width:680px;">A small computer (a Raspberry Pi) plays the basin video on a loop, forever. A magnet on the faucet lever passes a sensor wired to the Pi: while the magnet is near, the video pauses; the moment it moves away, it resumes. <span style="color:#ECE7DD;">Hold the handle, the slop freezes; let go, it floods back.</span> No internet, no upkeep.</div>
+
+    <!-- schematic -->
+    <div style="margin-top:28px; background:#121110; border:1px solid rgba(236,231,221,.08); padding:24px 26px; display:flex; align-items:center; justify-content:space-between; gap:14px;">
+      <div style="text-align:center; flex:1;">
+        <div style="border:1px solid rgba(217,119,87,.5); padding:16px 10px; color:#ECE7DD; font-size:11px; letter-spacing:.04em;">Basin screen</div>
+        <div style="font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:#8A8378; margin-top:8px;">under acrylic</div>
+      </div>
+      <div style="text-align:center; color:#8A8378; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase;">&mdash; HDMI &rarr;</div>
+      <div style="text-align:center; flex:1.1;">
+        <div style="border:1px solid rgba(217,119,87,.5); padding:16px 10px; color:#ECE7DD; font-size:11px; letter-spacing:.04em;">Raspberry Pi 4</div>
+        <div style="font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:#8A8378; margin-top:8px;">plays video, reads sensor</div>
+      </div>
+      <div style="text-align:center; color:#8A8378; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase;">&larr; VCC&middot;GND&middot;OUT &mdash;</div>
+      <div style="text-align:center; flex:1;">
+        <div style="border:1px solid rgba(217,119,87,.5); padding:16px 10px; color:#ECE7DD; font-size:11px; letter-spacing:.04em;">Hall sensor</div>
+        <div style="font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:#8A8378; margin-top:8px;">magnet on lever = pause</div>
+      </div>
+    </div>
+
+    <!-- parts -->
+    <div style="margin-top:28px; flex:1;">
+      <div style="font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:#D2914F; margin-bottom:14px;">Parts to order &mdash; Amazon, all 2-day</div>
+      <div style="display:flex; font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:#8A8378; padding-bottom:9px; border-bottom:1px solid rgba(236,231,221,.14);">
+        <span style="flex:1.5;">Item</span><span style="flex:2;">Spec / search term</span><span style="flex:.5; text-align:right;">~ Price</span><span style="flex:2.4; padding-left:18px;">Why it matters</span>
+      </div>
+      <div style="font-size:11px; color:#CFC9BE;">
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">Raspberry Pi 4</span><span style="flex:2; color:#A8A298;">Pi 4 Model B, 2&ndash;4GB</span><span style="flex:.5; text-align:right; color:#D2914F;">$55</span><span style="flex:2.4; padding-left:18px;">the computer; plays video smoothly</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">microSD card</span><span style="flex:2; color:#A8A298;">SanDisk High Endurance 32GB</span><span style="flex:.5; text-align:right; color:#D2914F;">$10</span><span style="flex:2.4; padding-left:18px;">survives 24/7 + power cycles</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">USB-C supply</span><span style="flex:2; color:#A8A298;">Official Pi 27W USB-C</span><span style="flex:.5; text-align:right; color:#D2914F;">$12</span><span style="flex:2.4; padding-left:18px;">weak power crashes a Pi; use the real one</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">HDMI IPS screen</span><span style="flex:2; color:#A8A298;">8&Prime; 1024&times;768, 4:3</span><span style="flex:.5; text-align:right; color:#D2914F;">$55</span><span style="flex:2.4; padding-left:18px;">4:3 fills the bowl; measure first</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">Micro-HDMI cable</span><span style="flex:2; color:#A8A298;">micro-HDMI to HDMI</span><span style="flex:.5; text-align:right; color:#D2914F;">$8</span><span style="flex:2.4; padding-left:18px;">Pi 4 has a micro port, not full size</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">Hall sensor</span><span style="flex:2; color:#A8A298;">A3144 module, 5-pack</span><span style="flex:.5; text-align:right; color:#D2914F;">$7</span><span style="flex:2.4; padding-left:18px;">the trigger; solid-state, no wear</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">Neodymium magnets</span><span style="flex:2; color:#A8A298;">6mm disc magnets</span><span style="flex:.5; text-align:right; color:#D2914F;">$7</span><span style="flex:2.4; padding-left:18px;">one on the lever; spares for tuning</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(236,231,221,.06);"><span style="flex:1.5; color:#ECE7DD;">GPIO terminal HAT</span><span style="flex:2; color:#A8A298;">Pi GPIO screw-terminal HAT</span><span style="flex:.5; text-align:right; color:#D2914F;">$9</span><span style="flex:2.4; padding-left:18px;">screw wires down so they can&rsquo;t fall out</span></div>
+        <div style="display:flex; align-items:baseline; padding:9px 0;"><span style="flex:1.5; color:#ECE7DD;">Case with fan</span><span style="flex:2; color:#A8A298;">Pi 4 case, fan + heatsink</span><span style="flex:.5; text-align:right; color:#D2914F;">$10</span><span style="flex:2.4; padding-left:18px;">keeps it cool running video all day</span></div>
+      </div>
+      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:baseline; padding-top:12px; border-top:1px solid rgba(217,119,87,.4);">
+        <span style="font-size:10px; letter-spacing:.06em; color:#A8A298;">Also on hand: SD reader, USB keyboard, USB stick, loop video, marine silicone, acrylic disc.</span>
+        <span style="font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Total electronics &asymp; <span style="color:#D2914F;">$170</span></span>
+      </div>
+    </div>
+
+    <div style="height:1px; background:rgba(236,231,221,.1); margin-bottom:12px;"></div>
+    <div style="display:flex; justify-content:space-between; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#8A8378;">
+      <span>01 / 05</span><span>Hold the handle &middot; the slop freezes</span>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 2 · THE GENERATION ===================== -->
+  <section class="vv-page" data-screen-label="Build · Generation" style="width:816px; height:1056px; background:#0B0A09; box-shadow:0 24px 70px rgba(0,0,0,.6); position:relative; overflow:hidden; box-sizing:border-box; padding:54px 70px; display:flex; flex-direction:column; color:#ECE7DD;">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:#8A8378;">
+      <span>Vanitas Veritas &middot; Build Guide</span>
+      <span style="color:#D2914F;">How the loop is generated</span>
+    </div>
+    <div style="height:1px; background:rgba(236,231,221,.14); margin-top:12px;"></div>
+
+    <div style="flex:1; display:flex; gap:42px; padding-top:26px;">
+      <div style="flex:1.12; display:flex; flex-direction:column;">
+        <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:620; font-size:27px; line-height:1.05; letter-spacing:-.02em; color:#F0ECE4;">dreamed anchors</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif; font-weight:620; font-size:27px; line-height:1.05; letter-spacing:-.02em; color:#D2914F; margin-bottom:16px;">+ smooth drift</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:12px; line-height:1.6; color:#B4AEA4; margin-bottom:20px;">Re-dreaming every frame <span style="color:#CFC9BE;">boils and flickers</span>; warping pixels reads as <span style="color:#CFC9BE;">water</span>. Both were tried and rejected. The engine instead decouples what the loop looks like from how it moves.</div>
+
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:22px; color:#D2914F; line-height:1; min-width:20px;">1</span>
+          <div><div style="font-size:12px; color:#ECE7DD; font-weight:430; margin-bottom:4px;">Dream a sparse ring of anchors</div><div style="font-size:11px; line-height:1.55; color:#A8A298;">An <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#D9A77F;">img2img</span> pass re-imagines blended source frames into the style. Anchors <span style="color:#CFC9BE;">at</span> the sources stay discernible; anchors <span style="color:#CFC9BE;">between</span> are dreamed harder &mdash; gooey, uncanny. Encoded to latents and cached.</div></div>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:22px; color:#D2914F; line-height:1; min-width:20px;">2</span>
+          <div><div style="font-size:12px; color:#ECE7DD; font-weight:430; margin-bottom:4px;">Interpolate &mdash; don&rsquo;t re-dream</div><div style="font-size:11px; line-height:1.55; color:#A8A298;">Between anchors the latents are blended along a <span style="color:#CFC9BE;">Catmull-Rom spline</span> and decoded. Decoding is deterministic, so motion is glassy-smooth with <span style="color:#CFC9BE;">zero flicker</span> &mdash; and cheap (~1 s/frame), so slowness is free.</div></div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:22px; color:#D2914F; line-height:1; min-width:20px;">3</span>
+          <div><div style="font-size:12px; color:#ECE7DD; font-weight:430; margin-bottom:4px;">Grade &mdash; don&rsquo;t warp</div><div style="font-size:11px; line-height:1.55; color:#A8A298;">A finish pass with <span style="color:#CFC9BE;">no geometric distortion</span>: gloss bloom, deepened blacks, a gold tint in the highlights, film grain, a grime vignette, and a <span style="color:#CFC9BE;">palette lock</span> holding the cool-silver + gold.</div></div>
+        </div>
+
+        <div style="margin-top:auto;">
+          <div style="font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:#8A8378; margin-bottom:8px;">Reproduce</div>
+          <div style="background:#08110D; border:1px solid rgba(236,231,221,.1); border-left:2px solid #D2914F; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:9.5px; line-height:1.5; color:#C7C0B4; white-space:pre-wrap; word-break:break-all;">python3 morph_v44.py --fresh   <span style="color:#8A8378;"># omit --fresh to reuse cache</span></div>
+          <div style="margin-top:8px; font-size:10px; line-height:1.5; color:#8A8378;">Knobs: <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">D</span> anchor density &middot; <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">M</span> frames/gap (length + slowness) &middot; <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">LOW_STR / HIGH_STR</span> discernible &harr; gooey.</div>
+        </div>
+      </div>
+
+      <div style="flex:.88; background:#121110; border:1px solid rgba(236,231,221,.08); padding:24px; box-sizing:border-box; display:flex; flex-direction:column;">
+        <div style="font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:#D2914F; margin-bottom:16px;">Generation spec</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Models</span><span style="font-size:11px; color:#ECE7DD;">Stable Diffusion v1.5 + LCM-LoRA</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Stack</span><span style="font-size:11px; color:#ECE7DD;">Diffusers, PyTorch (MPS), ffmpeg</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Hardware</span><span style="font-size:11px; color:#ECE7DD;">Apple M-series &middot; fully local, no cloud</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Sampler</span><span style="font-size:11px; color:#ECE7DD;">LCMScheduler &middot; 8 steps &middot; guidance 1.5</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">img2img strength</span><span style="font-size:11px; color:#ECE7DD;">0.42 discernible &rarr; 0.70 gooey</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Loop</span><span style="font-size:11px; color:#ECE7DD;">8 &times; 4 = 32 anchors &middot; 64 frames/gap &middot; 2,048 frames</span></div>
+          <div style="display:flex; flex-direction:column; gap:2px; padding-bottom:10px; border-bottom:1px solid rgba(236,231,221,.07);"><span style="font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#8A8378;">Output</span><span style="font-size:11px; color:#ECE7DD;">1920&times;1440 &middot; 12 fps &middot; ~2:50 &middot; H.264</span></div>
+        </div>
+        <div style="margin-top:auto; padding-top:18px; border-top:1px solid rgba(217,119,87,.4); display:flex; justify-content:space-between; align-items:baseline;">
+          <span style="font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:#8A8378;">Seed</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#D2914F;">7 &middot; reproducible</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px; background:rgba(236,231,221,.1); margin-bottom:12px;"></div>
+    <div style="display:flex; justify-content:space-between; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#8A8378;">
+      <span>02 / 05</span><span>Interaction Build Guide</span>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 2 · BUILD, PHASES 1-2 ===================== -->
+  <section class="vv-page" data-screen-label="Build · Phases 1-2" style="width:816px; height:1056px; background:#0B0A09; box-shadow:0 24px 70px rgba(0,0,0,.6); position:relative; overflow:hidden; box-sizing:border-box; padding:54px 70px; display:flex; flex-direction:column; color:#ECE7DD;">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:#8A8378;">
+      <span>Vanitas Veritas &middot; Build Guide</span>
+      <span style="color:#D2914F;">Build it &middot; on your computer + on the Pi</span>
+    </div>
+    <div style="height:1px; background:rgba(236,231,221,.14); margin-top:12px;"></div>
+
+    <div style="flex:1; padding-top:26px;">
+      <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:22px; color:#ECE7DD; margin-bottom:4px;">Eight steps, four phases.</div>
+      <div style="font-size:11px; letter-spacing:.04em; color:#8A8378; margin-bottom:24px;">Do them in order; type the commands exactly as written.</div>
+
+      <div style="display:flex; gap:40px;">
+        <div style="flex:1;">
+          <div style="font-size:10px; letter-spacing:.26em; text-transform:uppercase; color:#D2914F; margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid rgba(217,119,87,.4);">Phase 1 &middot; On your computer</div>
+
+          <div style="display:flex; gap:12px; margin-bottom:18px;">
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">1</span>
+            <div>
+              <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">Put the software on the SD card</div>
+              <div style="font-size:11px; line-height:1.6; color:#A8A298;">Open Raspberry Pi Imager (raspberrypi.com/software). Choose <span style="color:#CFC9BE;">Device</span> = Pi 4, <span style="color:#CFC9BE;">OS</span> = Raspberry Pi OS (64-bit), <span style="color:#CFC9BE;">Storage</span> = your card. Edit Settings: set username <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">pi</span> + a password, your Wi-Fi, enable SSH. Write, then eject.</div>
+            </div>
+          </div>
+
+          <div style="font-size:10px; letter-spacing:.26em; text-transform:uppercase; color:#D2914F; margin:22px 0 16px; padding-bottom:8px; border-bottom:1px solid rgba(217,119,87,.4);">Phase 2 &middot; On the Pi</div>
+
+          <div style="display:flex; gap:12px; margin-bottom:16px;">
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">2</span>
+            <div>
+              <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">First boot &amp; install the player</div>
+              <div style="font-size:11px; line-height:1.6; color:#A8A298;">Insert the card, connect the screen (micro-HDMI nearest the USB-C corner) + a keyboard, power on. At the login, enter your username + password, then install the player:</div>
+              <div style="margin-top:9px; background:#08110D; border:1px solid rgba(236,231,221,.1); border-left:2px solid #D2914F; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:9.5px; line-height:1.5; color:#C7C0B4; white-space:pre-wrap; word-break:break-all;">sudo apt update && sudo apt install -y mpv python3-gpiozero</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px;">
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">3</span>
+            <div>
+              <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">Put your video on the Pi</div>
+              <div style="font-size:11px; line-height:1.6; color:#A8A298;">Name the loop <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">loop.mp4</span> (H.264, 4:3, seamless). Copy via USB stick:</div>
+              <div style="margin-top:9px; background:#08110D; border:1px solid rgba(236,231,221,.1); border-left:2px solid #D2914F; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:9.5px; line-height:1.5; color:#C7C0B4; white-space:pre-wrap; word-break:break-all;">cp /media/pi/NAME/loop.mp4 /home/pi/loop.mp4</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;">
+          <div style="display:flex; gap:12px;">
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">4</span>
+            <div style="flex:1;">
+              <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">Create the program</div>
+              <div style="font-size:11px; line-height:1.6; color:#A8A298;">Run <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">nano /home/pi/vanitas.py</span> and type this exactly. Save with Ctrl+O, exit Ctrl+X.</div>
+              <div style="margin-top:9px; background:#08110D; border:1px solid rgba(236,231,221,.1); border-left:2px solid #D2914F; padding:12px 13px; font-family:'JetBrains Mono',monospace; font-size:9px; line-height:1.55; color:#C7C0B4; white-space:pre-wrap; word-break:break-word;"><span style="color:#7FA8D9;">import</span> subprocess, socket, json, time
+<span style="color:#7FA8D9;">from</span> gpiozero <span style="color:#7FA8D9;">import</span> Button
+
+subprocess.Popen([<span style="color:#D9A77F;">"mpv"</span>,<span style="color:#D9A77F;">"--fullscreen"</span>,
+  <span style="color:#D9A77F;">"--loop-file=inf"</span>,<span style="color:#D9A77F;">"--hwdec=auto"</span>,<span style="color:#D9A77F;">"--vo=gpu"</span>,
+  <span style="color:#D9A77F;">"--no-osc"</span>,<span style="color:#D9A77F;">"--input-ipc-server=/tmp/mpvsocket"</span>,
+  <span style="color:#D9A77F;">"/home/pi/loop.mp4"</span>])
+time.sleep(<span style="color:#D2914F;">4</span>)
+
+<span style="color:#7FA8D9;">def</span> cmd(p):
+  s = socket.socket(socket.AF_UNIX)
+  s.connect(<span style="color:#D9A77F;">"/tmp/mpvsocket"</span>)
+  s.send((json.dumps({<span style="color:#D9A77F;">"command"</span>:
+    [<span style="color:#D9A77F;">"set_property"</span>,<span style="color:#D9A77F;">"pause"</span>,p]})+<span style="color:#D9A77F;">"\n"</span>).encode())
+  s.close()
+
+btn = Button(<span style="color:#D2914F;">17</span>, pull_up=<span style="color:#7FA8D9;">True</span>)
+btn.when_pressed  = <span style="color:#7FA8D9;">lambda</span>: cmd(<span style="color:#7FA8D9;">True</span>)
+btn.when_released = <span style="color:#7FA8D9;">lambda</span>: cmd(<span style="color:#7FA8D9;">False</span>)
+<span style="color:#7FA8D9;">from</span> signal <span style="color:#7FA8D9;">import</span> pause; pause()</div>
+              <div style="font-size:10px; line-height:1.55; color:#8A8378; margin-top:10px;">The magnet on GPIO17 pauses on the current frame; releasing it plays. The next page wires it to auto-start and lock down.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px; background:rgba(236,231,221,.1); margin-bottom:12px;"></div>
+    <div style="display:flex; justify-content:space-between; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#8A8378;">
+      <span>03 / 05</span><span>Interaction Build Guide</span>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 3 · BUILD, PHASES 3-4 ===================== -->
+  <section class="vv-page" data-screen-label="Build · Phases 3-4" style="width:816px; height:1056px; background:#0B0A09; box-shadow:0 24px 70px rgba(0,0,0,.6); position:relative; overflow:hidden; box-sizing:border-box; padding:54px 70px; display:flex; flex-direction:column; color:#ECE7DD;">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:#8A8378;">
+      <span>Vanitas Veritas &middot; Build Guide</span>
+      <span style="color:#D2914F;">Auto-start &middot; wire &middot; lock down</span>
+    </div>
+    <div style="height:1px; background:rgba(236,231,221,.14); margin-top:12px;"></div>
+
+    <div style="flex:1; padding-top:26px; display:flex; gap:40px;">
+      <div style="flex:1;">
+        <div style="display:flex; gap:12px; margin-bottom:18px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">5</span>
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">Turn it on for good</div>
+            <div style="font-size:11px; line-height:1.6; color:#A8A298;">Create <span style="font-family:'JetBrains Mono',monospace; color:#D9A77F;">/etc/systemd/system/vanitas.service</span> so it relaunches on boot and after any crash:</div>
+            <div style="margin-top:9px; background:#08110D; border:1px solid rgba(236,231,221,.1); border-left:2px solid #D2914F; padding:11px 12px; font-family:'JetBrains Mono',monospace; font-size:9px; line-height:1.5; color:#C7C0B4; white-space:pre-wrap; word-break:break-word;"><span style="color:#8A8378;">[Service]</span>
+ExecStart=/usr/bin/python3 /home/pi/vanitas.py
+Restart=always
+User=pi
+<span style="color:#8A8378;">[Install]</span>
+WantedBy=multi-user.target</div>
+            <div style="margin-top:9px; background:#08110D; border:1px solid rgba(236,231,221,.1); border-left:2px solid #D2914F; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:9.5px; line-height:1.5; color:#C7C0B4; white-space:pre-wrap; word-break:break-all;">sudo systemctl enable vanitas.service && sudo reboot</div>
+          </div>
+        </div>
+
+        <div style="font-size:10px; letter-spacing:.26em; text-transform:uppercase; color:#D2914F; margin:8px 0 16px; padding-bottom:8px; border-bottom:1px solid rgba(217,119,87,.4);">Phase 3 &middot; Wire &amp; mount</div>
+
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">6</span>
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">Wire the sensor &mdash; Pi powered off</div>
+            <div style="font-size:11px; line-height:1.6; color:#A8A298;">The hall module has three pins. Use <span style="color:#CFC9BE;">3.3V (pin 1)</span>, not 5V.</div>
+            <div style="margin-top:9px; display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; color:#CFC9BE; border-bottom:1px solid rgba(236,231,221,.07); padding-bottom:5px;"><span style="color:#D9A77F;">VCC</span><span>&rarr; physical pin 1 &middot; 3.3V</span></div>
+              <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; color:#CFC9BE; border-bottom:1px solid rgba(236,231,221,.07); padding-bottom:5px;"><span style="color:#D9A77F;">GND</span><span>&rarr; physical pin 6</span></div>
+              <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; color:#CFC9BE;"><span style="color:#D9A77F;">OUT</span><span>&rarr; physical pin 11 &middot; GPIO17</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">7</span>
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#ECE7DD; margin-bottom:6px; font-weight:430;">Aim the magnet</div>
+            <div style="font-size:11px; line-height:1.6; color:#A8A298;">Glue the magnet to the moving part of the lever; stick the sensor to the fixed body, facing its path. Power on, slide the sensor until a normal pull reliably pauses with a little margin, then fix it with epoxy.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;">
+        <div style="font-size:10px; letter-spacing:.26em; text-transform:uppercase; color:#D2914F; margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid rgba(217,119,87,.4);">Phase 4 &middot; Lock it down</div>
+
+        <div style="display:flex; gap:12px; margin-bottom:18px;">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:24px; color:#D2914F; line-height:1; min-width:22px;">8</span>
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#ECE7DD; margin-bottom:8px; font-weight:430;">Make it unbreakable &mdash; do this last</div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="font-size:11px; line-height:1.55; color:#A8A298;"><span style="color:#CFC9BE;">Kill Wi-Fi</span> so there&rsquo;s nothing to glitch: <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#D9A77F;">sudo rfkill block wifi</span></div>
+              <div style="font-size:11px; line-height:1.55; color:#A8A298;"><span style="color:#CFC9BE;">Read-only card</span> so a yanked plug can&rsquo;t corrupt it: raspi-config &rarr; Performance Options &rarr; Overlay File System &rarr; Enable &rarr; reboot.</div>
+              <div style="font-size:11px; line-height:1.55; color:#A8A298;"><span style="color:#CFC9BE;">Burn in:</span> run it 24&ndash;48 h, then pull the plug ~10 times. Every time it must return to the playing loop with the handle still pausing. If it does, it&rsquo;s gallery-ready.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#121110; border:1px solid rgba(236,231,221,.08); padding:20px 22px; margin-top:8px;">
+          <div style="font-family:'Bricolage Grotesque',sans-serif; font-style:italic; font-size:17px; color:#ECE7DD; margin-bottom:14px;">The only still moment in the room is a held breath.</div>
+          <div style="font-size:11px; line-height:1.6; color:#A8A298;">Pausing is the active command, so if the sensor ever fails the loop simply keeps running &mdash; it can never fall to a black screen. Plays by default; the gesture only ever <span style="color:#CFC9BE;">subtracts</span> motion.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px; background:rgba(236,231,221,.1); margin-bottom:12px;"></div>
+    <div style="display:flex; justify-content:space-between; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#8A8378;">
+      <span>04 / 05</span><span>Interaction Build Guide</span>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 4 · TROUBLESHOOTING + WHY ===================== -->
+  <section class="vv-page" data-screen-label="Build · Troubleshooting" style="width:816px; height:1056px; background:#0B0A09; box-shadow:0 24px 70px rgba(0,0,0,.6); position:relative; overflow:hidden; box-sizing:border-box; padding:54px 70px; display:flex; flex-direction:column; color:#ECE7DD;">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:#8A8378;">
+      <span>Vanitas Veritas &middot; Build Guide</span>
+      <span style="color:#D2914F;">If something&rsquo;s wrong &middot; why it&rsquo;s built this way</span>
+    </div>
+    <div style="height:1px; background:rgba(236,231,221,.14); margin-top:12px;"></div>
+
+    <div style="flex:1; padding-top:28px; display:flex; flex-direction:column;">
+      <div style="font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:#D2914F; margin-bottom:18px;">If something&rsquo;s wrong</div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; gap:18px; padding-bottom:14px; border-bottom:1px solid rgba(236,231,221,.08);"><span style="flex:none; width:185px; font-size:11px; color:#ECE7DD; font-weight:430;">Black screen</span><span style="flex:1; font-size:11px; line-height:1.55; color:#A8A298;">The micro-HDMI must be in the Pi port nearest the USB-C corner. Reseat the cable; check the screen is powered and on the right input. Some cables are charge-only &mdash; try another.</span></div>
+        <div style="display:flex; gap:18px; padding-bottom:14px; border-bottom:1px solid rgba(236,231,221,.08);"><span style="flex:none; width:185px; font-size:11px; color:#ECE7DD; font-weight:430;">Plays but won&rsquo;t pause</span><span style="flex:1; font-size:11px; line-height:1.55; color:#A8A298;">Re-check the three sensor wires and pin numbers. Run <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#D9A77F;">python3 /home/pi/vanitas.py</span> by hand and move the magnet. If nothing, swap in another sensor from the 5-pack.</span></div>
+        <div style="display:flex; gap:18px; padding-bottom:14px; border-bottom:1px solid rgba(236,231,221,.08);"><span style="flex:none; width:185px; font-size:11px; color:#ECE7DD; font-weight:430;">Pause feels laggy</span><span style="flex:1; font-size:11px; line-height:1.55; color:#A8A298;">Make sure the video is H.264 sized to the screen (Step 3). A huge or wrong-format file makes the Pi struggle.</span></div>
+        <div style="display:flex; gap:18px;"><span style="flex:none; width:185px; font-size:11px; color:#ECE7DD; font-weight:430;">Won&rsquo;t start on boot</span><span style="flex:1; font-size:11px; line-height:1.55; color:#A8A298;">Run <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#D9A77F;">sudo systemctl status vanitas</span> to read the error &mdash; usually a typo in the program or service file. Re-open with nano and compare line by line.</span></div>
+      </div>
+
+      <div style="margin-top:auto; padding-top:34px;">
+        <div style="font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:#D2914F; margin-bottom:18px;">Why it&rsquo;s built this way</div>
+        <div style="display:flex; gap:26px;">
+          <div style="flex:1; background:#121110; border:1px solid rgba(236,231,221,.08); padding:22px 24px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:20px; color:#ECE7DD; margin-bottom:12px;">Feels instant</div>
+            <div style="font-size:11px; line-height:1.6; color:#A8A298;">A hall sensor (not a clicky switch) has no bounce and nothing to wear out over thousands of pulls. The program reacts the instant the pin changes (~1 ms) and pauses on the current frame &mdash; you feel the freeze in the same blink you pull. That immediacy is what makes the piece feel alive instead of like a screensaver.</div>
+          </div>
+          <div style="flex:1; background:#121110; border:1px solid rgba(236,231,221,.08); padding:22px 24px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:20px; color:#ECE7DD; margin-bottom:12px;">Can&rsquo;t break</div>
+            <div style="font-size:11px; line-height:1.6; color:#A8A298;">Plays by default, so a failed sensor just leaves the loop running &mdash; never a black screen. The read-only card means power cuts can&rsquo;t corrupt it, and <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#D9A77F;">Restart=always</span> relaunches any crash. No moving parts in the trigger. These three are why it survives three unattended weekends.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px; background:rgba(236,231,221,.1); margin-bottom:12px;"></div>
+    <div style="display:flex; justify-content:space-between; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#8A8378;">
+      <span>05 / 05</span><span style="font-style:italic; font-family:'Bricolage Grotesque',sans-serif; letter-spacing:.02em; text-transform:none; font-size:12px; color:#A8A298;">Made at a sink in San Francisco, with one held breath.</span>
+    </div>
+  </section>
+
+</div>
+
+</x-dc>
+</body>
+</html>

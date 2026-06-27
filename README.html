@@ -1,0 +1,397 @@
+<!doctype html><meta charset=utf-8><style>body{max-width:860px;margin:40px auto;padding:0 24px;font:16px/1.6 -apple-system,Helvetica,Arial,sans-serif;color:#1a1a1a}
+h1,h2{border-bottom:1px solid #eee;padding-bottom:.3em}code,pre{background:#f6f6f6;border-radius:4px}pre{padding:14px;overflow:auto}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#fafafa}
+blockquote{border-left:4px solid #d9b310;margin:0;padding:.4em 1em;background:#fdfbf3;color:#444}
+.mermaid{background:#fbfbfb;border:1px solid #eee;border-radius:8px;padding:16px;text-align:center}</style><script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:'neutral'});</script><h1>Vanitas / Veritas — a dream-like slop loop</h1>
+<p>An endless, slow, gooey video loop that melts eight vanitas portraits into one
+another and back again — faces and skulls dissolving into clustered soap bubbles
+and sprays of gold, sometimes recognizable, sometimes lost. Built entirely with
+open-source diffusion models, rendered locally on an Apple M5.</p>
+<blockquote>
+<p><strong>Note for the submission writer (Cowork):</strong> this README is the source of
+truth for the <em>how</em> and the <em>why</em>. Pull freely from any section. Technical
+specs for a caption/colophon are in <strong>§7</strong>. The conceptual framing for body
+copy is in <strong>§2</strong> and <strong>§6</strong>. The making-of narrative is in <strong>§5</strong>.</p>
+</blockquote>
+<hr />
+<h2>1. The artifact</h2>
+<ul>
+<li><strong>Form:</strong> a single seamless video loop, designed to play on repeat
+  indefinitely (gallery / installation context).</li>
+<li><strong>Final render:</strong> <code>video/veritas_loop_v45_4k.mp4</code> — ~8 min 30 s, <strong>2560×1920</strong>
+  (Real-ESRGAN 4× super-res), 12 fps, H.264.
+  <em>(Earlier 1080p cut <code>video/veritas_final_v44.mp4</code>, ~2:50, kept as a fallback.)</em></li>
+<li><strong>Loop:</strong> mathematically seamless — the last frame eases back into the first,
+  so there is no visible cut or "reset." Watched long enough, the loop point
+  dissolves and it reads as endless.</li>
+<li><strong>Source:</strong> eight AI-generated vanitas frames (<code>source/veritas/</code>), 2544×1904, 4:3.</li>
+</ul>
+<hr />
+<h2>2. Concept</h2>
+<p><strong>Vanitas</strong> is the classical still-life genre of <em>memento mori</em> — skulls, guttering
+candles, and <strong>soap bubbles</strong> as emblems of the fragility and transience of life
+(<em>homo bulla</em>, "man is a bubble"). This piece takes that vocabulary and runs it
+through the dream-logic of a diffusion model: a face becomes a skull becomes a
+swelling bubble that you worry might pop, becomes gold dust, becomes a face
+again. Nothing holds its form; everything is mid-dissolve.</p>
+<p>The title pun — <strong>Vanitas / Veritas</strong> (vanity / truth) — frames the loop as a
+meditation: the "truth" underneath the vanity is that all of it is in flux, a
+slow churn of becoming and un-becoming. The aesthetic is deliberately <strong>"slop"</strong>
+— the gooey, melty, half-hallucinated texture native to generative models — but
+treated with restraint and luxury so it reads as intentional and beautiful
+rather than accidental.</p>
+<p><strong>Intended viewing:</strong> ambient and meditative — something you can watch for
+minutes at a time, getting lost in.</p>
+<h3>Art-directed feeling (the words that drove the final look)</h3>
+<p>liquid · gooey · clear (not hazy) · endless · lost · <em>slooow building bubble you
+worry might pop</em> · luxury · simultaneously clean and dirty.</p>
+<hr />
+<h2>3. Source material</h2>
+<p>Eight vanitas portraits generated in <strong>Midjourney</strong> (<code>source/veritas/*.png</code>),
+sharing a tight visual language that makes them ideal for morphing — faces and
+skull-profiles dissolving into particles, the white flower/bloom frames, and a
+<em>daisy-skull-bubble</em> frame that holds the whole vanitas trinity (flower + skull +
+bubble) in a single image:</p>
+<ul>
+<li>a central face or skull on a deep black ground;</li>
+<li>the figure dissolving into <strong>beaded particles, soap bubbles, and foam</strong>;</li>
+<li>sprays and flecks of <strong>gold</strong> light;</li>
+<li>a luminous, near-monochrome palette with warm gold accents.</li>
+</ul>
+<p>Because every frame is <em>already</em> a portrait caught mid-dissolution, the
+transitions between them feel native rather than forced — the morph is just
+continuing a dissolution the source images began.</p>
+<hr />
+<h2>4. How it works — "Dreamed Anchors + Smooth Drift"</h2>
+<p>The core engine (<code>code/morph_v44.py</code>) is built around one idea: <strong>decouple what
+the loop looks like from how it moves.</strong></p>
+<p>Naive approaches (re-dreaming every single frame, or warping pixels with a
+displacement field) fail in characteristic ways — independent per-frame
+diffusion makes fine detail <em>boil/flicker</em> (reads as frantic), and periodic
+displacement fields read as literal <em>waves/water</em>. Both were tried and rejected.</p>
+<p>The final architecture instead does this:</p>
+<ol>
+<li>
+<p><strong>Dream a sparse ring of "anchor" frames.</strong> Around the loop, at evenly spaced
+   points, a Stable Diffusion <strong>img2img</strong> pass re-imagines a blended source
+   image into the target style. Anchors <em>at</em> the original source positions are
+   only lightly dreamed (so the source remains <strong>discernible</strong>); anchors
+   <em>between</em> sources are dreamed harder (so they become <strong>gooey, abstract,
+   weird</strong>). This rhythm produces the "sometimes recognizable, sometimes lost"
+   quality. Anchors are encoded to latent space and <strong>cached</strong> to disk
+   (<code>code/anchors_final.pt</code>).</p>
+</li>
+<li>
+<p><strong>Interpolate, don't re-dream.</strong> Between consecutive anchors, the latent
+   vectors are blended along a <strong>Catmull-Rom spline</strong> (a smooth curve that
+   passes <em>through</em> each anchor without stopping or kinking) and simply
+   <strong>decoded</strong>. Decoding is deterministic, so the motion is <strong>glassy-smooth with
+   zero flicker</strong>, and it is cheap (~1 s/frame) — which means many slow frames
+   can be packed between anchors. Slowness and length are free.</p>
+</li>
+<li>
+<p><strong>Grade, don't warp.</strong> A light color/finish pass (no geometric distortion at
+   all) gives the final look: a faint dream-softness, a glossy specular bloom
+   (wet luxury sheen), deepened blacks, a <strong>palette lock</strong> (cool monochrome base
+   with goldish-orange accents isolated to the regions that were warm in the
+   source), fine film grain, and a grime vignette. This is where <strong>clear +
+   luxurious + "clean and dirty"</strong> come from.</p>
+</li>
+</ol>
+<p>Because the expensive diffusion only happens on ~32 cached anchors, the loop's
+length, slowness, resolution, and grade can all be re-tuned by re-running only
+the cheap decode+grade stage.</p>
+<h3>Pipeline at a glance</h3>
+<div class="mermaid">flowchart TD
+    A["8 source veritas frames"] -->|"VAE encode"| B["source latents"]
+    B -->|"apply loop order + blend pairs"| C["blended latents"]
+    C -->|"img2img · LCM few-step<br/>low strength at sources (discernible)<br/>high strength between (gooey)"| D[("32 dreamed anchors<br/>cached to disk")]
+    D -->|"Catmull-Rom latent spline<br/>+ VAE decode · 190 frames/gap"| E["6080 decoded frames @640×480"]
+    E -->|"colour grade: palette lock + contrast<br/>gloss · deep blacks"| F["graded frames"]
+    F -->|"Real-ESRGAN 4×"| H["upscaled frames @2560×1920"]
+    H -->|"finish: grain + vignette (full-res)"| I["finished frames"]
+    I -->|"ffmpeg H.264"| G["seamless 2560×1920 loop · ~8:30"]
+
+    subgraph EXPENSIVE [" runs once · cached "]
+      C; D
+    end
+    subgraph CHEAP [" re-tunable cheaply · length / grade / super-res "]
+      E; F; H; I; G
+    end
+</div>
+<p><em>The expensive diffusion happens only on the 32 cached anchors; loop length,
+slowness, and grade are all re-tuned by re-running just the cheap decode+grade
+stage.</em></p>
+<hr />
+<h2>5. Process / evolution (the making-of)</h2>
+<p>The piece went through a deliberate, feedback-driven iteration:</p>
+<ol>
+<li><strong>v1 — per-frame melt.</strong> Latent SLERP between the 8 frames with a per-frame
+   img2img "re-dream" peaking at each transition midpoint. Beautiful stills, but
+   it (a) <em>paused</em> on each keyframe (an easing artifact) and (b) boiled/flickered.</li>
+<li><strong>Never-still pass.</strong> Replaced the easing with a Catmull-Rom spline through
+   the latents so motion never stops — important because, in the intended
+   installation, the <em>only</em> still moment is a physical pause.</li>
+<li><strong>Liquify experiments.</strong> A post-process displacement field was tried for
+   "liquid" — but periodic waves read as <em>ocean/puddle</em>. Rejected. Key
+   correction: the desired texture is <strong>bubbly</strong> (rounded, soap-film, foam), not
+   <strong>wavy</strong>. No displacement warps in the final.</li>
+<li><strong>Grid search on style.</strong> A 3×3 sweep (prompt family × img2img strength)
+   established that strength <strong>~0.6</strong> is the gooey sweet spot — higher (~0.78)
+   resolves into crisp marble busts/skulls (too hard), lower (~0.45) barely
+   departs from the source.</li>
+<li><strong>v3 — "Dreamed Anchors."</strong> The architecture above; solved the flicker and
+   the waviness in one move (smoothness now comes from <em>interpolation</em>, not
+   warping).</li>
+<li><strong>v4 — final grade + direction.</strong> Tuned to the art-direction words in §2:
+   removed the hazy fog, deepened the blacks for luxury, added gloss + gold +
+   grain + grime ("clean and dirty"), pushed the prompt toward liquid, swelling,
+   about-to-pop bubbles, then slowed and lengthened the loop for the meditative,
+   endless, "lost" feeling.</li>
+<li><strong>v4.4 — final tuning.</strong> Slowed further (M=64) and made the transitions <em>more
+   uncanny</em> by densifying and intensifying the dreamed waypoints (D=4, strength
+   to 0.70) — leaning into emergent hallucination rather than literal morphing.
+   Added a <strong>palette lock</strong> to preserve the source's signature colour — a cool
+   monochrome base with gold-orange accents — so the diffusion can't drift it.
+   Settled here: the speed reads as "uncanny valley," the palette is intact.</li>
+<li><strong>Loop ordering.</strong> One source frame was swapped for a new
+   <em>daisy-skull-bubble</em> image (the literal vanitas trinity — flower + skull +
+   bubble in one). The <strong>order</strong> the eight frames cycle in is its own artistic
+   variable: it sets the loop's flow, arc, and surprise. Two tools made this
+   fast to iterate:</li>
+<li>a <strong>perceptual distance matrix</strong> (downscaled, blurred luminance + a warm/gold
+     map) over the eight frames, with a brute-force search for the smoothest
+     Hamiltonian <em>cycle</em> — an objective measure of how seamless an ordering is;</li>
+<li>a <strong>fast preview harness</strong> (<code>code/order_preview.py</code>) that morphs the <em>real</em>
+     frames via VAE latent spline (no diffusion) at low res — ~1 min per candidate
+     vs ~50 min for a full render — because the gooey look is identical across
+     orderings; only the sequence changes.</li>
+</ol>
+<p>Three philosophies were compared — <em>smoothest</em> (pure minimal-jump), <em>vanitas
+   narrative</em> (life → dissolution → death → bloom), and <em>bloom-climax</em> (the three
+   flower frames clustered as a crescendo) — then <strong>combined by constrained
+   optimisation</strong>: solve for the smoothest order that is <em>required</em> to keep the
+   narrative spine (skull → trinity-pivot → blooms) and the bloom cluster. The
+   result has a deliberate dramatic shape — a calm, flowing opening that builds to
+   a surprising bloom crescendo, then resets — rather than uniform smoothness.
+9. <strong>Harmonization.</strong> Two <strong>self-portraits</strong> (a photographic "real" selfie and an
+   AI-styled "mirror" one) were brought into the body of work — as <strong>stills, not
+   loop frames</strong>. The moving loop stays the <strong>eight veritas frames</strong>; the
+   self-portraits live alongside it as harmonized submission imagery (the artist
+   present at the edges of the work, not inside the dream). A single grade
+   (<code>code/harmonize.py</code>) unifies the whole set — luminance → cool monochrome base,
+   gold-orange re-introduced only where the source was warm, plus a contrast
+   S-curve — so the warm photographic selfie now sits in the same palette and
+   punch as the veritas frames. Full-res harmonized versions live in
+   <code>source/harmonized/</code>, and the render pipeline's grade was aligned to the same
+   constants so the moving loop matches the harmonized stills.
+10. <strong>Max-quality super-res (final).</strong> The loop was slowed 3× more (M=190 →
+    <strong>6,080 frames, ~8:30</strong>) and every frame run through <strong>Real-ESRGAN 4×</strong>
+    (<code>code/morph_v45_sr.py</code>, spandrel + <code>RealESRGAN_x4plus</code>, fp16) for a native
+    <strong>2560×1920</strong> output — far cleaner than a lanczos upscale. The colour grade
+    is applied <em>before</em> super-res and the <strong>grain + vignette are re-added after</strong>,
+    at full resolution, so the "clean and dirty" texture survives the upscale
+    instead of being smoothed away. The expensive anchors are reused from cache;
+    only the decode + super-res stage re-runs (~6 hr overnight render).</p>
+<hr />
+<h2>6. Style notes</h2>
+<ul>
+<li><strong>Palette:</strong> a strict, locked profile — a <strong>cool silver monochrome base</strong> over
+  deep velvety black, with <strong>goldish-orange accents</strong> isolated only to the regions
+  that were warm in the source (the gold sprays and flecks). The diffusion cannot
+  drift the colour; the white forms stay cool-white, the gold stays gold. Jewel-like,
+  opulent, restrained.</li>
+<li><strong>Texture:</strong> "clean and dirty" — crisp, glossy, well-defined forms wearing a
+  layer of fine grain and a grimy edge vignette. Pristine and decaying at once,
+  which is itself a vanitas idea.</li>
+<li><strong>Motion:</strong> very slow, continuous, smooth. Forms swell and ooze and dissolve;
+  bubbles build with a faint tension. No stutter, no waves.</li>
+<li><strong>Legibility:</strong> rhythmically in and out — a face or skull surfaces clearly,
+  then loses itself in gooey abstraction, then re-forms.</li>
+</ul>
+<hr />
+<h2>7. Technical specifications (for caption / colophon)</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Models (open-source)</strong></td>
+<td>Stable Diffusion v1.5 + LCM-LoRA (<code>latent-consistency/lcm-lora-sdv1-5</code>); Real-ESRGAN x4plus (super-res)</td>
+</tr>
+<tr>
+<td><strong>Frameworks</strong></td>
+<td>🤗 Diffusers, PyTorch (MPS), spandrel, scipy/PIL/NumPy, ffmpeg</td>
+</tr>
+<tr>
+<td><strong>Hardware</strong></td>
+<td>Apple M5, 16 GB, fully local (no cloud compute)</td>
+</tr>
+<tr>
+<td><strong>Sampler</strong></td>
+<td>LCMScheduler, 8 steps, guidance 1.5, fp32</td>
+</tr>
+<tr>
+<td><strong>Diffusion working resolution</strong></td>
+<td>640×480 (super-res to 2560×1920)</td>
+</tr>
+<tr>
+<td><strong>img2img strength</strong></td>
+<td>0.42 at source anchors (discernible) → 0.70 between (gooey/uncanny)</td>
+</tr>
+<tr>
+<td><strong>Loop order</strong></td>
+<td><code>0 → 1 → 4 → 3 → 2 → 7 → 6 → 5</code> (constrained-optimal: smoothest order keeping the narrative spine + bloom cluster)</td>
+</tr>
+<tr>
+<td><strong>Loop structure</strong></td>
+<td>8 sources × 4 anchors = 32 dreamed anchors; Catmull-Rom interpolation; 190 decoded frames per anchor gap = 6,080 frames</td>
+</tr>
+<tr>
+<td><strong>Interpolation</strong></td>
+<td>spherical/Catmull-Rom blend in VAE latent space</td>
+</tr>
+<tr>
+<td><strong>Finish</strong></td>
+<td>colour grade (palette lock + contrast S-curve, gloss, deep blacks) → <strong>Real-ESRGAN 4×</strong> → grain + grime vignette (re-added at full res)</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td><strong>2560×1920</strong>, 12 fps, ~8 min 30 s, H.264 (seamless loop)</td>
+</tr>
+<tr>
+<td><strong>Seed</strong></td>
+<td>7 (reproducible)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Folder layout</h2>
+<pre><code>tiat_slop_2026/
+├── README.md · README.html        this document
+├── documents/                    the submission doc bundle (Submission · Build Guide · Web, self-contained HTML + assets)
+├── video/                         the final render + basin loop
+├── research/                      vanitas paper, references, ref images
+├── source/                        source artwork (veritas frames + harmonized + self-portraits)
+├── code/                          the pipeline + the final cached anchors
+├── _order_tests/                 fast loop-order preview clips
+└── _archive/                      superseded versions, frames, logs (kept, not deleted)
+</code></pre>
+<h3>Key files</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>documents/Vanitas Veritas - Submission.dc.html</code></td>
+<td><strong>the submission</strong> doc (self-contained HTML)</td>
+</tr>
+<tr>
+<td><code>documents/Vanitas Veritas - Build Guide.dc.html</code></td>
+<td>install / build guide</td>
+</tr>
+<tr>
+<td><code>documents/Vanitas Veritas - Web.dc.html</code></td>
+<td>web presentation doc</td>
+</tr>
+<tr>
+<td><code>documents/assets/</code></td>
+<td>images/video the docs embed</td>
+</tr>
+<tr>
+<td><code>video/veritas_final_v44.mp4</code></td>
+<td><strong>the final render</strong> (the artwork)</td>
+</tr>
+<tr>
+<td><code>video/Vanitas_Veritas_basin_loop.mp4</code></td>
+<td>the basin loop variant</td>
+</tr>
+<tr>
+<td><code>source/veritas/</code></td>
+<td>8 source vanitas frames (Midjourney)</td>
+</tr>
+<tr>
+<td><code>research/Vanitas_research_paper.pdf</code></td>
+<td>art-historical paper on the vanitas tradition</td>
+</tr>
+<tr>
+<td><code>research/vanitas_references/</code></td>
+<td>public-domain reference plates</td>
+</tr>
+<tr>
+<td><code>code/morph_v45_sr.py</code></td>
+<td><strong>the final render</strong> — reuses anchors, decodes slow loop, Real-ESRGAN 4× → 2560×1920</td>
+</tr>
+<tr>
+<td><code>code/morph_v44.py</code></td>
+<td>the dreamed-anchors engine (dreams + caches the anchors; 1080p path)</td>
+</tr>
+<tr>
+<td><code>code/anchors_final.pt</code></td>
+<td>cached dreamed anchor latents (the expensive, reusable part)</td>
+</tr>
+<tr>
+<td><code>code/models/RealESRGAN_x4plus.pth</code></td>
+<td>super-res weights (open-source)</td>
+</tr>
+<tr>
+<td><code>code/morph_v3.py</code></td>
+<td>the v4 engine (earlier grade, superseded by v44)</td>
+</tr>
+<tr>
+<td><code>code/morph_loop.py</code></td>
+<td>the earliest per-frame engine (superseded; kept for history)</td>
+</tr>
+<tr>
+<td><code>code/order_preview.py</code></td>
+<td><strong>fast loop-order iteration</strong> — VAE-only morph proxy (~1 min/candidate)</td>
+</tr>
+<tr>
+<td><code>code/harmonize.py</code></td>
+<td><strong>palette/warmth/contrast harmonizer</strong> — unifies the veritas frames + self-portraits</td>
+</tr>
+<tr>
+<td><code>source/harmonized/</code></td>
+<td>full-res harmonized versions of the whole set (cohesive grade)</td>
+</tr>
+<tr>
+<td><code>source/IMG_6975.jpeg</code> · <code>source/…wash_your_hands…png</code></td>
+<td>the <strong>self-portraits</strong> (real + mirror)</td>
+</tr>
+<tr>
+<td><code>code/dream_test.py</code></td>
+<td>the 3×3 style grid-search harness</td>
+</tr>
+<tr>
+<td><code>code/liquify.py</code></td>
+<td>the rejected displacement experiment (kept for history)</td>
+</tr>
+<tr>
+<td><code>code/dream_styles_grid.png</code></td>
+<td>the grid-search result image (itself a nice artifact)</td>
+</tr>
+<tr>
+<td><code>_archive/</code></td>
+<td>old renders (v1–v4.4), frame dumps, logs, superseded checkpoints</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>9. Reproducing it</h2>
+<pre><code class="language-bash">pip install --user diffusers transformers accelerate safetensors \
+                   peft imageio imageio-ffmpeg scipy pillow
+python3 code/morph_v44.py --fresh   # dream anchors + render (omit --fresh to reuse cache)
+</code></pre>
+<p>Tunable knobs at the top of <code>morph_v44.py</code>: <code>D</code> (anchor density / uniqueness),
+<code>M</code> (frames per gap → loop length &amp; slowness), <code>LOW_STR</code>/<code>HIGH_STR</code>
+(discernible↔gooey), <code>SUBSET</code> (render a 2-frame test instead of all 8), the
+prompt, and the grade constants — <code>GLOSS_W</code>, <code>BLACK_GAMMA</code>, and the palette lock
+(<code>COOL</code>, <code>GOLD_TONE</code>, <code>WARM_SCALE</code>), <code>GRAIN</code>, <code>VIG_STR</code>.</p>
