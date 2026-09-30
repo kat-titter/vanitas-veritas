@@ -13,6 +13,8 @@
   body { margin:0; overflow:hidden; background:var(--ink); color:var(--dim); font:12.5px/1.75 var(--mono); }
   canvas { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:none; }
   /* the words are plumbed into the basin: a line runs from the tap to the title */
+  #lead { position:fixed; left:0; top:0; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; cursor:pointer; }
+  #lead:focus-visible { outline:1px solid var(--gold); }
   #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9;
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
@@ -39,6 +41,7 @@
 </head>
 <body>
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with lace. Faces, skulls and flowers melt toward the drain and return from the tap."></canvas>
+<a id="lead" href="proposal.html" title="the proposal" aria-label="The full proposal"></a>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
 <pre aria-label="Poem"><span>sink = [sync] * n</span><span>n -&gt; &infin;</span><span>sink == sync</span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
@@ -279,7 +282,8 @@ void main(){
   vec3 col = vec3(0.0012,0.0012,0.0015);
   // the lace parts round the words: a clearing with soft edges, so they sit in the piece, not beside it
   vec2 wo = max(uWords.xy-gl_FragCoord.xy, gl_FragCoord.xy-uWords.zw);
-  float clear = mix(0.10, 1., smoothstep(0., 0.16*uRes.y, length(max(wo,0.))));
+  float clear = mix(0.10, 1., smoothstep(0., 0.10*uRes.y, length(max(wo,0.))));
+  clear = mix(1., clear, smoothstep(R+0.01, R+0.10, r));
 
   // ash, falling upward
   {
@@ -307,9 +311,8 @@ void main(){
     float fall = smoothstep(-0.035,0.030,rr)*smoothstep(1.,0.45,lp.y)*exp(-max(rr,0.)*3.2);
     float lace = (thread*(0.34+0.30*pulse+0.9*signal*thread) + body*0.045 + thread*glint*1.4)*fall;
     // under it, what is left of the rays: fine hair
-    float hair = pow(vnoise(dir*150.+rr*4.)*vnoise(dir*37.+3.+rr*2.-uTime*0.02)*2., 3.)*exp(-max(rr,0.)*20.)*smoothstep(0.012,0.04,rr)*0.22;
     float live = (1.-0.5*uHold)*(1.+1.4*uSurge)*(1.+1.8*uFlash+0.6*uWhole);
-    col += mix(GOLD, BONE, smoothstep(0.,0.09,rr))*(lace*0.85+hair)*live*clear;
+    col += mix(GOLD, BONE, smoothstep(0.,0.09,rr))*lace*0.95*live*clear;
   }
 
   // the return: a ring of cuts. What drained lights them, six o'clock round to the tap.
@@ -340,14 +343,15 @@ void main(){
     vec2 up1 = rot(vec2(0.,1.));
 
     // each flute drags bright edges out along itself: the fringe
-    float reach = (0.004+0.034*tooth*tooth)*pow(1.-abs(s-0.5)*2., 0.8)*L;
+    float reach = (0.003+0.026*tooth*tooth)*pow(1.-abs(s-0.5)*2., 0.8)*L;
     vec3 dye = texture(uDye, p).rgb;
     for(int k=1;k<=6;k++){
       float t = float(k)/6.;
       vec3 a = texture(uDye, p+up1*t*reach).rgb, b = texture(uDye, p-up1*t*reach).rgb;
-      dye = max(dye, max(a,b)*(0.80-0.60*t));
+      dye = max(dye, max(a,b)*(0.70-0.55*t));
     }
     vec3 c = mix(dye, still(p), 0.96*(1.-L));
+    c = mix(c, c*c*(3.-2.*c), 0.30)*1.12;                          // a little more bite in the picture
     float pulse = beat(uBeats - length(p-uTap)*1.5);            // leaves the tap, arrives late at the drain
 
     // wet light, and breath on the glass
@@ -367,7 +371,7 @@ void main(){
     float bowl = mix(0.5,1.,smoothstep(R,R-0.12,r));
     float breathe = mix(1.+0.10*pulse, 0.88+0.12*sin(uHeldSecs*1.3), uHold);
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl*breathe + BONE*glass*(0.006+0.05*lum(c))
-           + glow/8.*0.22*lit*L + BONE*scr*lit;
+           + glow/8.*0.10*lit*L + BONE*scr*lit;
 
     // drain
     b *= smoothstep(RD*0.5, RD*2.4, r);                         // a well, not a hole
@@ -392,7 +396,7 @@ void main(){
   // fog: it drifts across the rim and thickens on the beat
   {
     float fg = pow(fbm(q*1.7+vec2(uTime*0.012,-uTime*0.008)), 2.6)*1.9;
-    float band = smoothstep(0.25,0.45,r)*smoothstep(1.10,0.50,r);
+    float band = smoothstep(R+0.01,R+0.20,r)*smoothstep(1.10,0.50,r);
     float F = clamp(fg*band*(0.22+0.05*beat(uBeats-r*2.))*(1.+0.8*uSurge)*(1.-0.75*uWhole)*(1.-0.6*uHold), 0., 0.5)*clear;
     col = mix(col, BONE*0.30, F);
   }
@@ -415,14 +419,16 @@ void main(){
 
 post: `
 uniform sampler2D uScene, uBlur;
-uniform vec2 uRes, uCursor;
-uniform float uTime, uHold, uArc, uCursorOn, uDpr, uFocus;
+uniform vec2 uRes, uCursor, uCenter;
+uniform float uTime, uHold, uArc, uCursorOn, uDpr, uFocus, uS;
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
 void main(){
   vec2 uv = gl_FragCoord.xy/uRes;
   vec3 sc = texture(uScene, uv).rgb, bl = texture(uBlur, uv).rgb;
-  vec3 col = mix(sc, bl, 0.36) + bl*0.20;                              // soft focus, and light that spills
+  float rb = length(gl_FragCoord.xy-uCenter)/uS;
+  float soft = mix(0.12, 0.34, smoothstep(0.37, 0.47, rb));             // the picture keeps its detail; the lace is softer
+  vec3 col = mix(sc, bl, soft) + bl*mix(0.08, 0.20, smoothstep(0.37, 0.47, rb));
 
   // the hand: a ring that tightens as the picture comes clear; the arc is how long you have kept it there
   float cd = length(gl_FragCoord.xy-uCursor)/uDpr;
@@ -549,7 +555,7 @@ const OUTLINE = [
   ['what it is', 'a screen where the drain should be.', 'eight signs. one card in your pocket.'],
 ];
 document.getElementById('outline').innerHTML = OUTLINE.map(([name, a, b]) =>
-  `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027</p>';
+  `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></p>';
 const N = FRAMES.length;
 const read = new Array(8).fill(false);
 const lineOf = (i) => OUTLINE[i >> 1][1 + (i & 1)];
@@ -658,7 +664,7 @@ function step(dt){
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex);
   bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]);
   gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
-  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uFeed, 0.85);
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uFeed, 1.15);
   gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform3f(u.uInflow, inflow[0], inflow[1], inflow[2]);
   draw(dye.write); dye.swap();
 
@@ -707,6 +713,7 @@ function render(){
   gl.uniform1f(p.uHold, holdAmt); gl.uniform1f(p.uFocus, focus);
   gl.uniform1f(p.uArc, !held ? 0 : pause.done ? 1 : Math.min(1, pause.kept/READ_SECONDS));
   gl.uniform1f(p.uDpr, view.dpr); gl.uniform1f(p.uCursorOn, hand.on ? 1 : 0);
+  gl.uniform1f(p.uS, view.S*view.dpr); gl.uniform2f(p.uCenter, view.cx*view.dpr, (view.h-view.cy)*view.dpr);
   gl.uniform2f(p.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   draw(null);
 }
@@ -725,11 +732,12 @@ function resize(){
   } else {
     Rb = Math.min(0.47*w, (h-wh-70)/(RING+0.92));
     cx = 0.46*w; cy = 0.92*Rb;
-    wx = Math.max(24, Math.min(w-ww-24, cx-0.35*Rb)); wy = cy+RING*Rb+34;
+    wx = Math.max(24, Math.min(w-ww-24, cx-0.35*Rb)); wy = cy+RING*Rb+52;
   }
   words.style.width = ww+'px';
   words.style.transform = `translate(${Math.round(wx)}px,${Math.round(wy)}px)`;
   const lead = [wx-14, wy+13];                       // just left of the title's first letter
+  document.getElementById('lead').style.transform = `translate(${Math.round(lead[0])}px,${Math.round(lead[1])}px)`;
   const turn = Math.atan2(lead[0]-cx, cy-lead[1]);
   ROT[0] = Math.cos(turn); ROT[1] = Math.sin(turn);
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
