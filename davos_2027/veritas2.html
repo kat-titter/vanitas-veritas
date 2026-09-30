@@ -41,6 +41,11 @@
   #say { margin:16px 0 0; height:6.2em; color:var(--bone); white-space:pre-wrap; }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
   #say.quiet { color:var(--dim); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; }
+  /* the ask: one line, once. Nothing happens without the click. */
+  #ask { display:none; margin:6px 0 0; font-size:11.5px; line-height:1.6; color:var(--dim); }
+  #ask.on { display:block; }
+  #ask a { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px solid var(--gold); }
+  #ask a:hover { color:var(--bone); border-bottom-color:var(--bone); }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
   @media (prefers-reduced-motion: reduce) { .slot { animation:none; } pre { transition:none; } }
 </style>
@@ -54,6 +59,7 @@
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
+  <p id="ask"><a href="#" id="see">let it see you</a><span> &middot; one frame. kept ten seconds. never sent.</span></p>
   <div id="err"></div>
 </main>
 
@@ -658,6 +664,54 @@ const view = { w:1, h:1, cx:0, cy:0, S:1, dpr:1, box:[0,0,0,0], lead:[0,0] };
 const drainRGBA = new Uint8Array(4);      // only the probe uses this now
 let imgTex = [];
 
+// ---- the face: the viewer's own, if they allow it. One frame, poured into the loop, forgotten with the rest. ----
+let faceTex = null, facePour = 0, faceHolds = 0, asked = false, seeing = false;
+const ask = document.getElementById('ask');
+function grade(cx){                 // the same grade as the stills: cool mono, a little gold in the light, dark at the edges
+  const im = cx.getImageData(0, 0, 512, 512), d = im.data;
+  for (let i = 0, n = 0; i < d.length; i += 4, n++) {
+    let l = (0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2])/255;
+    l = l*l*(3-2*l); l = Math.pow(l, 1.15);
+    const x = (n % 512)/512-0.5, y = Math.floor(n/512)/512-0.5, v = 1-0.7*Math.max(0, Math.hypot(x, y)-0.28)/0.22;
+    l *= Math.max(0, Math.min(1, v));
+    const g = Math.max(0, (l-0.72)/0.28);
+    d[i] = 255*Math.min(1, l*(0.93+0.29*g)); d[i+1] = 255*Math.min(1, l*(0.98-0.18*g)); d[i+2] = 255*Math.min(1, l*(1.09-0.79*g));
+  }
+  cx.putImageData(im, 0, 0);
+}
+async function see(ev){
+  ev.preventDefault();
+  if (seeing || !navigator.mediaDevices?.getUserMedia) { ask.innerHTML = '<span>this page needs https to see you.</span>'; return; }
+  seeing = true; ask.innerHTML = '<span>looking.</span>';
+  let stream = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio:false });
+    const v = document.createElement('video'); v.srcObject = stream; v.muted = true; v.playsInline = true; await v.play();
+    await new Promise(r => setTimeout(r, 1100));                       // long enough to be looking at it
+    const sz = Math.min(v.videoWidth, v.videoHeight);
+    const cv = document.createElement('canvas'); cv.width = cv.height = 512;
+    const cx = cv.getContext('2d', { willReadFrequently:true });
+    cx.translate(512, 0); cx.scale(-1, 1);                            // as in a mirror
+    cx.drawImage(v, (v.videoWidth-sz)/2, (v.videoHeight-sz)/2, sz, sz, 0, 0, 512, 512);
+    stream.getTracks().forEach(t => t.stop()); v.srcObject = null; stream = null;   // the camera is off again here
+    grade(cx);
+    if (!faceTex) faceTex = texture(gl.LINEAR);
+    gl.bindTexture(gl.TEXTURE_2D, faceTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    facePour = 1.8; faceHolds = 2;
+    ask.innerHTML = '<span>it has you. it forgets in ten seconds.</span>';
+    setTimeout(() => ask.classList.remove('on'), 6000);
+  } catch (e) {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    ask.innerHTML = '<span>it did not see you.</span>';
+    setTimeout(() => ask.classList.remove('on'), 4000);
+  }
+  seeing = false;
+}
+document.getElementById('see').addEventListener('click', see);
+
 function step(dt){
   const hb = heart(beats);
   const Q = 0.038*(0.55 + 1.6*hb)*(1 + 2.6*surge)*(1 + 2*end);  // let go, and it floods back; at the end, the drain takes it
@@ -688,12 +742,14 @@ function step(dt){
   draw(vel.write); vel.swap();
 
   // the still pours in during its first breaths, less each day; what returns is dimmer each pass, and each day
-  const pour = end > 0.02 ? 0 : (gph < 0.12 ? 2.2 : 0)*(1-loss);
+  const pour = facePour > 0 ? 2.6 : end > 0.02 ? 0 : (gph < 0.12 ? 2.2 : 0)*(1-loss);
+  if (facePour > 0) facePour -= dt;
   const fade = 0.03 + 0.20*loss + 2.5*end;
   const slot = Math.floor(headF) % RET_N;
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uRet, ret.tex);
-  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]);
-  gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
+  const pA = facePour > 0 ? faceTex : imgTex[sign], pB = facePour > 0 ? faceTex : imgTex[(sign+1) % N];
+  bind(u.uImgA, pA); bind(u.uImgB, pB);
+  gl.uniform1f(u.uMix, facePour > 0 ? 0 : mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
   gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uPour, pour); gl.uniform1f(u.uFade, fade);
   gl.uniform1f(u.uSlot, (slot+1) % RET_N); gl.uniform1f(u.uRetGain, (0.94-0.45*loss)*(1-end));
   gl.uniform2f(u.uTap, tap[0], tap[1]);
@@ -719,7 +775,7 @@ function render(){
   const u = use(P.display); bind(u.uDye, dye.read.tex);
   gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, end); gl.uniform1f(u.uJelly, jelly.x);
   gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
-  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, imgTex[pause.p]); bind(u.uRD, rdA.tex);
+  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, pause.face && faceTex ? faceTex : imgTex[pause.p]); bind(u.uRD, rdA.tex);
   gl.uniform4f(u.uPA, ...pause.A); gl.uniform4f(u.uPB, ...pause.B);
   gl.uniform2f(u.uPFlip, ...pause.flip); gl.uniform1f(u.uPSeed, pause.seed);
   gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
@@ -815,6 +871,7 @@ function tick(now){
   }
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
   intro = Math.max(0, intro-dt);
+  if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; ask.classList.add('on'); }
   const showStill = held || intro > 0 || ghost.on;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.45));
   if (intro > 0) focus = 1;
@@ -920,6 +977,7 @@ function compose(){
   const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
   pause.p = (sign + 3 + Math.floor(Math.random()*(N-6))) % N;
   pause.A = frame(1.25, 0.12); pause.B = frame(1.9, 0.6);
+  pause.face = faceHolds > 0; if (pause.face) { faceHolds--; pause.B = frame(1.15, 0.08); pause.flip = [1, 1]; }
   pause.flip = [1, Math.random() < 0.5 ? -1 : 1];
   pause.seed = rnd(0, 60);
   // the clear place: anywhere in the basin but the drain, and not where the hand already is
