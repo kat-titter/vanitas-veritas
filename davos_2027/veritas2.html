@@ -255,7 +255,7 @@ void main(){
 // what is going down the drain right now
 display: `
 uniform sampler2D uDye, uRD;
-uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd;
+uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd, uJelly;
 uniform float uRead, uWhole, uFlash, uDepth, uFocus;
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
@@ -328,7 +328,10 @@ void main(){
     // the glass only goes fully clear when you have found the place: see seek, below
     float win = smoothstep(0.19, 0.05, length(q-uSpot));                 // a window of clear glass, to be found
     float L = 1.-smoothstep(0.,1.,uHold)*max(mix(0.24,1.,uFocus), win);
-    float fx = q.x*NR, fi = floor(fx), s = fx-fi;               // s: position across one flute
+    // the glass gives under the hand: the flutes bow away from a press and spring back
+    vec2 cq = q-(uCursor-uCenter)/uS;
+    vec2 qj = q + cq*exp(-dot(cq,cq)/0.014)*uJelly*0.30;
+    float fx = qj.x*NR, fi = floor(fx), s = fx-fi;              // s: position across one flute
     float tooth = hash1(fi);
     vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.42)/NR, L), q.y+(tooth-0.5)*0.010*L);
     vec2 p = C+rot(ql);
@@ -410,6 +413,7 @@ post: `
 uniform sampler2D uScene, uBlur;
 uniform vec2 uRes, uCursor, uCenter;
 uniform float uTime, uHold, uArc, uCursorOn, uDpr, uFocus, uS;
+uniform vec2 uGhost; uniform float uGhostOn, uGhostArc;
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
 void main(){
@@ -425,6 +429,12 @@ void main(){
   vec2 cv = gl_FragCoord.xy-uCursor;
   float arc = smoothstep(1.8,0.,abs(cd-21.)-0.3)*step(fract(atan(cv.x,cv.y)/6.28318+1.), uArc)*uHold;
   col = mix(col, vec3(0.80,0.77,0.70), 0.85*max(ringc,arc)*uCursorOn);
+  // a ghost of a hand, showing what to do
+  float gd = length(gl_FragCoord.xy-uGhost)/uDpr;
+  float gring = smoothstep(1.8,0.,abs(gd-mix(15.,8.,uGhostArc))-0.3);
+  vec2 gv = gl_FragCoord.xy-uGhost;
+  float garc = smoothstep(1.8,0.,abs(gd-21.)-0.3)*step(fract(atan(gv.x,gv.y)/6.28318+1.), uGhostArc);
+  col = mix(col, vec3(0.80,0.77,0.70), 0.5*max(gring,garc)*uGhostOn);
 
   col = mix(vec3(lum(col)), col, 0.58)*0.86*vec3(1.,0.985,0.955);      // quieter colour, lower light, one warmth
   col = pow(max(col,0.),vec3(1./2.2));
@@ -636,6 +646,10 @@ let headF = 0, beats = 0, sign = 0, mixAB = 0, gph = 0, end = 0;
 const dayParam = parseFloat(new URLSearchParams(location.search).get('day'));
 const loss = Math.min(1, Math.max(0, (Number.isFinite(dayParam) ? dayParam*864e5 : Date.now()-LAUNCH)/(DAVOS-LAUNCH)));
 let holdAmt = 0, surge = 0, holdStart = 0, heldSecs = 0, flash = 0, depth = 0, whole = 0;
+const jelly = { x:0, v:0 };                  // a spring: pressed in, it overshoots on the way back
+let intro = 3.2;                             // the first breaths: the picture is shown clear, then let go
+let idle = 0, ghost = { on:false, t:0 };     // if no one touches it, a hand shows how
+let quiet = true;
 const stir = { x:0.5, y:0.5, vx:0, vy:0, px:null, py:null };
 const pause = { p:0, A:[1,0,0,0], B:[1,0,0,0], flip:[1,1], seed:0, spot:[0,0], line:-1, kept:0, done:false, byKey:false };
 let focus = 0;
@@ -662,7 +676,7 @@ function step(dt){
   draw(vel.write); vel.swap(); stir.vx = stir.vy = 0;
 
   u = use(P.advect); bind(u.uVel, vel.read.tex); bind(u.uSrc, vel.read.tex);
-  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uDiss, 0.25); draw(vel.write); vel.swap();
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uDiss, 0.9); draw(vel.write); vel.swap();   // and it settles, like something thick
 
   u = use(P.diverge); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H);
   gl.uniform1f(u.uQ, Q); gl.uniform2f(u.uTap, tap[0], tap[1]); draw(dvg);
@@ -703,7 +717,8 @@ function step(dt){
 
 function render(){
   const u = use(P.display); bind(u.uDye, dye.read.tex);
-  gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, end);
+  gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, end); gl.uniform1f(u.uJelly, jelly.x);
+  gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, imgTex[pause.p]); bind(u.uRD, rdA.tex);
   gl.uniform4f(u.uPA, ...pause.A); gl.uniform4f(u.uPB, ...pause.B);
   gl.uniform2f(u.uPFlip, ...pause.flip); gl.uniform1f(u.uPSeed, pause.seed);
@@ -732,6 +747,14 @@ function render(){
   gl.uniform2f(p.uRes, canvas.width, canvas.height); gl.uniform1f(p.uTime, simTime);
   gl.uniform1f(p.uHold, holdAmt); gl.uniform1f(p.uFocus, focus);
   gl.uniform1f(p.uArc, !held ? 0 : pause.done ? 1 : Math.min(1, pause.kept/READ_SECONDS));
+  {  // the ghost hand: two seconds to arrive, then it closes over one heartbeat, then it fades
+    const t = ghost.t, e = Math.min(1, t/2), ease = e*e*(3-2*e);
+    const from = [view.cx+0.55*view.S, view.cy+0.45*view.S], to = [view.cx+pause.spot[0]*view.S, view.cy-pause.spot[1]*view.S];
+    const gx = from[0]+(to[0]-from[0])*ease, gy = from[1]+(to[1]-from[1])*ease;
+    gl.uniform2f(p.uGhost, gx*view.dpr, (view.h-gy)*view.dpr);
+    gl.uniform1f(p.uGhostOn, ghost.on ? Math.min(1, t*2)*Math.min(1, (6-t)*2) : 0);
+    gl.uniform1f(p.uGhostArc, Math.max(0, Math.min(1, (t-2)/READ_SECONDS)));
+  }
   gl.uniform1f(p.uDpr, view.dpr); gl.uniform1f(p.uCursorOn, hand.on ? 1 : 0);
   gl.uniform1f(p.uS, view.S*view.dpr); gl.uniform2f(p.uCenter, view.cx*view.dpr, (view.h-view.cy)*view.dpr);
   gl.uniform2f(p.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
@@ -777,7 +800,7 @@ function tick(now){
   const dt = Math.max(0, Math.min((now-last)/1000, 1/30)); last = now;
   resize();
   if (!held && touch.z > 0) { wiped += dt; if (wiped > 2.4 && !read[WIPE_LINE]) { mark([(hand.x-view.cx)/view.S, (view.cy-hand.y)/view.S]); reveal(WIPE_LINE); flash = 1; announce(WIPE_LINE, now); } }
-  if (!held && dt > 0) step(dt);
+  if (!held && dt > 0) { sound(dt); step(dt); }
   // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
   // Keep it there for a heartbeat and the next line is yours. Every hold hides it somewhere else.
   let want = 0;
@@ -787,11 +810,20 @@ function tick(now){
     want = pause.byKey ? 1 : ss(0.40, 0.07, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));
     if (!pause.done) {
       pause.kept = focus > 0.8 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
-      if (pause.kept >= READ_SECONDS) { pause.done = true; flash = 1; if (pause.line >= 0) { mark(pause.spot); reveal(pause.line); } }
+      if (pause.kept >= READ_SECONDS) { pause.done = true; flash = 1; if (pause.line >= 0) { mark(pause.spot); reveal(pause.line); note(); } }
     }
   }
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
-  holdAmt += ((held ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.45));
+  intro = Math.max(0, intro-dt);
+  const showStill = held || intro > 0 || ghost.on;
+  holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.45));
+  if (intro > 0) focus = 1;
+  // the glass as a spring
+  jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*60*dt - jelly.v*7*dt; jelly.x += jelly.v*dt;
+  // attract: after eight untouched seconds a ghost ring drifts to the clear place and closes there
+  idle = hand.on || held ? 0 : idle+dt;
+  if (!ghost.on && idle > 8 && intro <= 0 && !read.some(Boolean)) { ghost.on = true; ghost.t = 0; }
+  if (ghost.on) { ghost.t += dt; if (ghost.t > 6 || hand.on || held) ghost.on = false; }
   depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
   if (whole > 0.5) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
@@ -818,7 +850,7 @@ const toBasin = (ev) => {
 canvas.addEventListener('pointermove', (ev) => {
   const [x, y] = toBasin(ev); hand.on = true;
   if (stir.px !== null) {
-    const k = 0.9, cap = 0.12;
+    const k = 4.0, cap = 0.6;                       // the picture is a paste: it goes where the hand pushes it
     stir.vx += Math.max(-cap, Math.min(cap, (x-stir.px)*k));
     stir.vy += Math.max(-cap, Math.min(cap, (y-stir.py)*k));
   }
@@ -827,7 +859,47 @@ canvas.addEventListener('pointermove', (ev) => {
   if (rr > 0 && rr < 0.26) { touch.x = Math.atan2(qy, qx)/(2*Math.PI)+0.5; touch.y = (rr-0.006)/0.24; touch.z = 0.5; }
 });
 canvas.addEventListener('pointerleave', () => { stir.px = stir.py = null; if (!hand.pressing) hand.on = false; });
+// sound is made, not loaded: a low thump on each beat, noise that swells with the hand, one note for a line read
+let ac = null, swash = null, swashGain = null, lastBeat = -1;
+function wake(){
+  if (ac || !window.AudioContext) return;
+  ac = new AudioContext();
+  const len = ac.sampleRate*2, buf = ac.createBuffer(1, len, ac.sampleRate), ch = buf.getChannelData(0);
+  let b0 = 0, b1 = 0; for (let i = 0; i < len; i++) { const w = Math.random()*2-1; b0 = 0.99*b0+w*0.01; b1 = 0.96*b1+w*0.03; ch[i] = (b0*4+b1)*0.6; }
+  swash = ac.createBufferSource(); swash.buffer = buf; swash.loop = true;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420;
+  swashGain = ac.createGain(); swashGain.gain.value = 0;
+  swash.connect(lp).connect(swashGain).connect(ac.destination); swash.start();
+}
+function thump(strength, at){
+  if (!ac || quiet) return;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(52, at); o.frequency.exponentialRampToValueAtTime(34, at+0.18);
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.16*strength, at+0.012); g.gain.exponentialRampToValueAtTime(0.0001, at+0.26);
+  o.connect(g).connect(ac.destination); o.start(at); o.stop(at+0.3);
+}
+function note(){
+  if (!ac || quiet) return;
+  const at = ac.currentTime;
+  for (const [f, d] of [[392, 1.4], [588, 1.9]]) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.05, at+0.04); g.gain.exponentialRampToValueAtTime(0.0001, at+d);
+    o.connect(g).connect(ac.destination); o.start(at); o.stop(at+d);
+  }
+}
+let stirLevel = 0;
+function sound(dt){
+  if (!ac) return;
+  const bt = Math.floor(beats);
+  if (bt !== lastBeat && !held) { lastBeat = bt; const at = ac.currentTime+0.01; thump(1, at); thump(0.6, at+0.30*BEAT_SECONDS); }
+  const speed = Math.hypot(stir.vx, stir.vy);
+  stirLevel += (Math.min(1, speed*4)-stirLevel)*(1-Math.exp(-dt/0.25));
+  swashGain.gain.setTargetAtTime(quiet ? 0 : 0.10*stirLevel*(1-end), ac.currentTime, 0.08);
+}
+
 canvas.addEventListener('pointerdown', (ev) => {
+  wake(); if (ac && ac.state === 'suspended') ac.resume(); quiet = false;
   toBasin(ev); hand.on = true; hand.pressing = true;
   try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
   clearTimeout(hand.timer);
@@ -878,6 +950,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { setHeld(true); pause.byKey = true; } }   // with no hand to seek with, the place finds you
   else if (e.code === 'ArrowRight') turnPage();
   else if (e.key === 'r' && !e.metaKey && !e.ctrlKey) record(15);
+  else if (e.key === 'm') quiet = !quiet;
 });
 window.addEventListener('keyup', (e) => { if (e.code === 'Space') setHeld(false); });
 window.addEventListener('blur', () => { hand.pressing = false; clearTimeout(hand.timer); setHeld(false); });
