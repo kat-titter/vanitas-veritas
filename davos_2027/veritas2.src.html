@@ -42,6 +42,11 @@
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
   #say.quiet { color:var(--dim); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; }
   /* the ask: one line, once. Nothing happens without the click. */
+  pre b { font-weight:400; color:var(--dim); }
+  #bio { margin-top:14px; }
+  #bio .how { color:#5a5e64; font-size:11px; }
+  .knob { color:var(--gold) !important; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
+  .knob:focus-visible { outline:none; border-bottom-style:solid; }
   #ask { display:none; margin:6px 0 0; font-size:11.5px; line-height:1.6; color:var(--dim); }
   #ask.on { display:block; }
   #ask a { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px solid var(--gold); }
@@ -55,7 +60,8 @@
 <a id="lead" href="proposal.html" title="the proposal" aria-label="The full proposal"></a>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
-<pre aria-label="Poem"><span>sink = [sync] * n</span><span>n -&gt; &infin;</span><span>sink == sync</span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
+<pre aria-label="Poem, running"><span>sink = drain(sink)<b id="pN">   // n = 0</b></span><span>n -&gt; &infin;<b id="pT">   // 00:00</b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
+<pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span><span class="how">// drag a number. the culture on the rim changes as you do.</span></pre>
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
@@ -237,7 +243,7 @@ void main(){ o = vec4(texture(uDye, C+(vUv-0.5)*0.15).rgb, 1.); }`,
 // the lace: two chemicals, one feeding on the other (Gray-Scott). x is the way round the rim, y is outward.
 // Near the rim it grows as a net with holes; further out it breaks into cells that divide.
 lace: `
-uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed; uniform vec3 uTouch;
+uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed, uDf, uDk; uniform vec3 uTouch;
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 void main(){
   vec2 c = texture(uRD, vUv).rg;
@@ -245,13 +251,18 @@ void main(){
   vec2 lap = -c + 0.13*(texture(uRD,vUv+e).rg + texture(uRD,vUv-e).rg) + 0.27*(texture(uRD,vUv+n).rg + texture(uRD,vUv-n).rg)
            + 0.05*(texture(uRD,vUv+e+n).rg + texture(uRD,vUv+e-n).rg + texture(uRD,vUv-e+n).rg + texture(uRD,vUv-e-n).rg);
   float a = vUv.x*6.28318;
-  float f = mix(0.0390, 0.0367, vUv.y) + 0.0009*sin(a*3.+uTime*0.021) + 0.0006*sin(a*7.-uTime*0.013);
-  float k = mix(0.0580, 0.0649, vUv.y) + 0.0006*sin(a*2.-uTime*0.017+1.);
+  float f = mix(0.0390, 0.0367, vUv.y) + uDf + 0.0009*sin(a*3.+uTime*0.021) + 0.0006*sin(a*7.-uTime*0.013);
+  float k = mix(0.0580, 0.0649, vUv.y) + uDk + 0.0006*sin(a*2.-uTime*0.017+1.);
   float r = c.r*c.g*c.g;
   vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
   // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
   float sd = step(0.994, hash(vec2(floor(vUv.x*440.), uSeed)))*step(vUv.y,0.06);
   v.g = max(v.g, sd*0.45);
+  float ev = floor(uTime*0.22);                                         // a patch dies every few seconds, somewhere
+  vec2 pc = vec2(hash(vec2(ev,1.7)), 0.15+0.7*hash(vec2(ev,9.2)));
+  vec2 dp = vec2(min(abs(vUv.x-pc.x), 1.-abs(vUv.x-pc.x))*6., vUv.y-pc.y);
+  float age = fract(uTime*0.22);
+  v = mix(v, vec2(1.,0.), 0.5*exp(-dot(dp,dp)/0.0015)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
   vec2 dt = vec2(min(abs(vUv.x-uTouch.x), 1.-abs(vUv.x-uTouch.x))*6., vUv.y-uTouch.y);
   float wipe = uTouch.z*exp(-dot(dt,dt)/0.002);
   v = mix(v, vec2(1.,0.), wipe);
@@ -261,7 +272,7 @@ void main(){
 // what is going down the drain right now
 display: `
 uniform sampler2D uDye, uRD;
-uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd, uJelly;
+uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd, uJelly, uWaltz;
 uniform float uRead, uWhole, uFlash, uDepth, uFocus;
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
@@ -308,10 +319,10 @@ void main(){
   clear = mix(1., clear, smoothstep(R+0.01, R+0.10, r));
 
   // corona: lace grown on the rim. Threads follow the edges of the culture; signals run out along them on the beat.
-  if(r > R-0.035){
+  if(r > R-0.09-0.40*uEnd){                                              // the culture reaches in over the picture; at the end, all the way
     float rr = r-R;
     vec2 dir = q/r;
-    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5, (rr-LACE0)/LACE1);
+    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5+uTime*0.0012, (abs(rr)-LACE0)/(LACE1*(1.+0.06*uWaltz)));   // it turns, it breathes; inside the rim it is its own mirror
     float v = texture(uRD, lp).g;
     vec2 gv = vec2(texture(uRD, lp+vec2(0.0006,0.)).g-texture(uRD, lp-vec2(0.0006,0.)).g, texture(uRD, lp+vec2(0.,0.01)).g-texture(uRD, lp-vec2(0.,0.01)).g);
     vec2 tn = normalize(gv+1e-5);                                           // across the thread, in lace space
@@ -323,12 +334,15 @@ void main(){
     float glint = smoothstep(0.78,1.,vnoise(q*330.+vec2(uTime*0.35,-uTime*0.22)))*smoothstep(0.6,1.,vnoise(q*41.-uTime*0.06));
     float pulse = 0.5+0.5*cos(6.28318*(uBeats*0.5-rr*1.2));                     // a slow swell that moves outward, never a flash
     float signal = smoothstep(0.78,1.,vnoise(vec2(lp.x*60., rr*8.-uBeats*0.35)));   // something travelling outward, faint
-    float lobe = 0.10*cos(13.*atan(q.y,q.x)+uTime*0.02) + 0.05*cos(5.*atan(q.y,q.x)-uTime*0.013) + 0.03*pulse;
-    float fall = smoothstep(-0.035,0.030,rr)*smoothstep(1.,0.45-0.3*uLoss,lp.y-lobe)*exp(-max(rr,0.)*(3.2-1.6*uLoss));
+    float lobe = 0.10*cos(13.*atan(q.y,q.x)+uTime*0.012) + 0.05*cos(5.*atan(q.y,q.x)-uTime*0.008) + 0.04*uWaltz;
+    float fall = smoothstep(-0.09,0.04,rr)*smoothstep(1.,0.45-0.3*uLoss,lp.y-lobe)*exp(-max(rr,0.)*(3.2-1.6*uLoss));
     float lace = (thread*(0.24+0.34*relief+0.09*pulse+0.22*signal*thread) + body*0.045 + thread*glint*0.5)*fall;
     // under it, what is left of the rays: fine hair
     float live = (1.-0.35*uHold)*(1.+0.45*uSurge)*(1.+0.5*uFlash)*(1.+0.9*uLoss)*(1.-0.85*uEnd);
-    col += mix(GOLD, BONE, smoothstep(0.,0.09,rr))*lace*0.95*live*clear;
+    // near the rim the threads take the colour of the picture beneath them, so neither ends where the other begins
+    vec3 under = texture(uDye, C+rot(dir*min(r, R-0.01))).rgb;
+    vec3 tint = mix(mix(GOLD, BONE, smoothstep(0.,0.09,rr)), under*1.4+0.15, smoothstep(0.12,-0.06,rr));
+    col += tint*lace*0.95*live*clear;
   }
 
   // rim: a lens bezel. Two hairlines, twelve marks, the light on the upper left of the ring
@@ -338,7 +352,7 @@ void main(){
     float markw = abs(ma)*6.28318*r/12.;
     bez += 0.5*smoothstep(0.0012+aa*2.,0.0012,markw)*smoothstep(R+0.004,R+0.006,r)*smoothstep(R+0.012,R+0.010,r);
     float sheen = 0.6+0.6*max(0., dot(q/r, normalize(vec2(-0.6,0.8))));
-    col = mix(col, BONE*0.30*sheen, bez);
+    col = mix(col, BONE*0.30*sheen, bez*0.45);
   }
 
   // basin, seen through fluted glass. Held, the glass goes flat and the picture is simply there.
@@ -375,7 +389,7 @@ void main(){
     float seam = 1.-0.30*L*smoothstep(0.34,0.5,abs(s-0.5));
     float glass = pow(max(cos(6.28318*(s-0.30)),0.),10.)*L;
     float bowl = mix(0.5,1.,smoothstep(R,R-0.12,r))*(1.+0.10*dot(q/R, normalize(vec2(-0.6,0.8))));
-    float breathe = mix(1.+0.035*pulse, 0.93+0.07*sin(uHeldSecs*1.3), uHold);
+    float breathe = mix(1.+0.03*uWaltz, 0.93+0.07*sin(uHeldSecs*1.3), uHold);
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl*breathe + BONE*glass*(0.006+0.05*lum(c))
            + glow/8.*0.10*lit*L + BONE*scr*lit;
 
@@ -393,10 +407,10 @@ void main(){
 
     // drain
     b *= smoothstep(RD*0.5, RD*2.4, r);                         // a well, not a hole
-    float beacon = pow(0.5+0.5*cos(6.28318*uBeats/6.), 6.);      // once in six beats the pupil breathes light
+    float beacon = pow(uWaltz, 6.);                               // on the crest of the phase the pupil breathes light
     b += BONE*beacon*0.35*exp(-r*r/0.006)*(1.-uEnd);
     b = mix(b, BONE*(0.20+0.5*beacon), 0.6*smoothstep(aa*3.,0.,abs(r-RD)-0.0004));
-    col = mix(col, b, smoothstep(R+0.004,R-0.034,r));           // the picture thins out into the lace
+    col = mix(col, b, smoothstep(R+0.03,R-0.10,r));             // the picture thins out into the lace, over a wide band
   }
 
   // tap: a small mouth, and one line that runs from it out through the ring to the title
@@ -412,6 +426,14 @@ void main(){
   }
 
   col *= mix(1., smoothstep(0.95,0.40,r), 0.8*uDepth);             // the longer you hold, the further down
+  // the spotlight: at the end the pupil's light turns to wherever your hand is. you can't hide.
+  {
+    vec2 cq = (uCursor-uCenter)/uS;
+    float ca = atan(cq.y, cq.x), pa = atan(q.y, q.x);
+    float da = abs(atan(sin(pa-ca), cos(pa-ca)));
+    float beam = smoothstep(0.22, 0.0, da)*smoothstep(0.0, 0.08, r)*exp(-r*1.6);
+    col += BONE*beam*0.28*uEnd*uCursorOn;
+  }
 
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
   col *= 1.-(0.75+0.5*uLoss)*dot(sc,sc);
@@ -544,6 +566,7 @@ function grow(n){
   const u = use(P.lace);
   gl.uniform2f(u.uTx, 1/RDW, 1/RDH); gl.uniform1f(u.uTime, simTime);
   gl.uniform1f(u.uSeed, Math.floor(beats)); gl.uniform3f(u.uTouch, touch.x, touch.y, touch.z);
+  gl.uniform1f(u.uDf, bio.f-0.0390); gl.uniform1f(u.uDk, bio.k-0.0580);
   gl.viewport(0,0,RDW,RDH);
   for (let i = 0; i < n; i++) {
     unit = 0; bind(u.uRD, rdA.tex);
@@ -565,13 +588,15 @@ const ret = (() => {
 })();
 
 // ---- the outline: two images to a thought, folded shut until each has been held and read ----
+// Kat's words. Each line is earned by the gesture it is about.
 const OUTLINE = [
-  ['thesis',     'nothing goes away. it comes back as slop.',            'models drink what they pour. so do we.'],
-  ['vision',     'a sink you cannot empty. a picture you can hold still.', 'two basins. two cities. one loop.'],
-  ['impact',     'the culture grows on the rim. wipe it; it grows back.',  'stillness takes two. hold your breath together.'],
-  ['what it is', 'a screen where the drain should be, under fluted glass.', 'eight stills. one card in your pocket.'],
+  ['a new biology', 'we need a new biology.',   'merge.'],
+  ['resistance',    'resistance is futile.',    "it's all ok."],
+  ['ok',            'it shall be ok.',          'beautiful even. great even.'],
+  ['the spotlight', "you can't hide.",          'the spotlight.'],
 ];
-const WIPE_LINE = 4;                  // the line the lace itself teaches: earned by wiping, not by holding
+const WIPE_LINE = 2;                  // wipe the culture away, it grows back: resistance is futile
+const FACE_LINE = 6;                  // let it see you: you can't hide
 document.getElementById('outline').innerHTML = OUTLINE.map(([name, a, b]) =>
   `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></p>';
 const N = FRAMES.length;
@@ -616,11 +641,58 @@ function cipher(text, k, salt){
 }
 const probe = new URLSearchParams(location.search).has('probe') ? [] : null;   // ?probe: keep render times for checking
 let shown = '', linger = 0, wiped = 0;
+// the two numbers that make the culture what it is. Drag them and it becomes something else, live.
+const bio = { f:0.0390, k:0.0580 };
+for (const el of document.querySelectorAll('.knob')) {
+  let x0 = 0, v0 = 0;
+  el.addEventListener('pointerdown', (ev) => { ev.preventDefault(); ev.stopPropagation(); x0 = ev.clientX; v0 = bio[el.dataset.k]; el.dragging = true; try { el.setPointerCapture(ev.pointerId); } catch (e) {} });
+  for (const t of ['pointerup', 'pointercancel']) el.addEventListener(t, () => { el.dragging = false; });
+  el.addEventListener('pointermove', (ev) => {
+    if (!el.dragging) return;
+    const k = el.dataset.k, lo = k === 'f' ? 0.020 : 0.050, hi = k === 'f' ? 0.070 : 0.070;
+    bio[k] = Math.max(lo, Math.min(hi, v0 + (ev.clientX-x0)*0.00004));
+    el.textContent = bio[k].toFixed(4);
+  });
+  el.addEventListener('keydown', (ev) => {
+    const d = ev.key === 'ArrowRight' || ev.key === 'ArrowUp' ? 0.0002 : ev.key === 'ArrowLeft' || ev.key === 'ArrowDown' ? -0.0002 : 0;
+    if (!d) return; ev.preventDefault();
+    const k = el.dataset.k, lo = k === 'f' ? 0.020 : 0.050, hi = k === 'f' ? 0.070 : 0.070;
+    bio[k] = Math.max(lo, Math.min(hi, bio[k]+d)); el.textContent = bio[k].toFixed(4);
+  });
+}
 function announce(i, now){
   shown = `<b>${OUTLINE[i >> 1][0]}</b>${lineOf(i)}`;
   say.innerHTML = shown; say.classList.remove('quiet'); linger = now+4200;
 }
+function poem(){
+  const n = Math.floor(headF/RET_N), t = Math.floor(simTime);
+  document.getElementById('pN').textContent = `   // n = ${n}`;
+  document.getElementById('pT').textContent = `   // ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+  const sv = sync > 0.985 ? 'True' : sync.toFixed(2);
+  if (sv !== shownSync) { shownSync = sv; document.getElementById('pS').textContent = `   // ${sv}`; }
+}
+let whisper = null, lastSign = -1;
 function tell(now){
+  if ((now|0) % 4 === 0) poem();
+  if (sign !== lastSign) {                                            // a new still: sometimes, a line, unprompted
+    lastSign = sign;
+    if (!held && sign % 2 === 0 && intro <= 0) {
+      const given = read.map((r, i) => r ? i : -1).filter(i => i >= 0);
+      const i = given.length ? given[Math.floor(Math.random()*given.length)] : (sign >= 2 ? 0 : -1);
+      if (i >= 0) whisper = { i, t0: now };
+    }
+  }
+  if (whisper && !held && now < linger) whisper = null;
+  if (whisper && !held) {
+    const age = now-whisper.t0;
+    if (age > 7000) { whisper = null; }
+    else {
+      const k = Math.min(1, age/2600)*(age < 5200 ? 1 : Math.max(0, 1-(age-5200)/1800));
+      const html = `<b>${OUTLINE[whisper.i >> 1][0]}</b>${cipher(lineOf(whisper.i), k, Math.floor(now/90))}`;
+      if (html !== shown) { shown = html; say.innerHTML = html; say.classList.remove('quiet'); }
+      return;
+    }
+  }
   let html, quiet = false;
   if (held) {
     const i = pause.line, salt = Math.floor(now/90);
@@ -651,7 +723,7 @@ const TAP = [0.5, 0.5+0.27];
 const RETURN_SECONDS = 10;            // how long the loop remembers before it pours
 const LAUNCH = Date.UTC(2026, 8, 29), DAVOS = Date.UTC(2027, 0, 18);
 const BEAT_SECONDS = 1.6;             // ~38 bpm: a freediver's heart on a breath-hold
-const SIGN_BEATS = 6;                 // each still has six heartbeats
+const SIGN_BEATS = 9;                 // each still has nine heartbeats
 const READ_SECONDS = 1.6;             // one heartbeat kept in the clear place
 const HOLD_AFTER = 220;               // ms: shorter is a tap, longer is a hold
 const ROT = [1, 0];                   // the basin is turned so the tap points at the title; set in resize()
@@ -666,8 +738,9 @@ let headF = 0, beats = 0, sign = 0, mixAB = 0, gph = 0, end = 0;
 const dayParam = parseFloat(new URLSearchParams(location.search).get('day'));
 const loss = Math.min(1, Math.max(0, (Number.isFinite(dayParam) ? dayParam*864e5 : Date.now()-LAUNCH)/(DAVOS-LAUNCH)));
 let holdAmt = 0, surge = 0, holdStart = 0, heldSecs = 0, flash = 0, depth = 0, whole = 0;
+let sync = 0, shownSync = '';
 const jelly = { x:0, v:0 };                  // a spring: pressed in, it overshoots on the way back
-let intro = 3.2;                             // the first breaths: the picture is shown clear, then let go
+let intro = 4.5;                             // the first breaths: the picture is shown clear, then let go
 let idle = 0, ghost = { on:false, t:0 };     // if no one touches it, a hand shows how
 let quiet = true;
 const stir = { x:0.5, y:0.5, vx:0, vy:0, px:null, py:null };
@@ -715,6 +788,7 @@ async function see(ev){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     facePour = 1.8; faceHolds = 2;
+    if (!read[FACE_LINE]) { mark([0, 0]); reveal(FACE_LINE); flash = 1; announce(FACE_LINE, performance.now()); }
     ask.innerHTML = '<span>it has you. it forgets in ten seconds.</span>';
     setTimeout(() => ask.classList.remove('on'), 6000);
   } catch (e) {
@@ -732,7 +806,8 @@ function step(dt){
   const gT = beats/SIGN_BEATS; gph = gT-Math.floor(gT);
   sign = Math.floor(gT) % N;
   mixAB = ss(0.72, 1.0, gph);                               // the last breaths of one image are the first of the next
-  const gamma = 0.017*Math.sin(Math.PI*gT)*(0.85+0.3*hb);   // the drain turns one way, then the other
+  const waltz = 0.5+0.5*Math.sin(2*Math.PI*beats/6);        // one slow phase, six beats long, that everything moves to
+  const gamma = 0.011*Math.sin(Math.PI*gT)*(0.6+0.8*waltz);  // the drain turns one way, then the other, and leans into the phase
   const tap = [TAP[0] + 0.004*Math.sin(simTime*0.7), TAP[1] + 0.003*Math.sin(simTime*0.9+1)];
 
   let u = use(P.curl); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(curl);
@@ -756,7 +831,7 @@ function step(dt){
   draw(vel.write); vel.swap();
 
   // the still pours in during its first breaths, less each day; what returns is dimmer each pass, and each day
-  const pour = facePour > 0 ? 2.6 : end > 0.02 ? 0 : (gph < 0.12 ? 2.2 : 0)*(1-loss);
+  const pour = facePour > 0 ? 2.6 : end > 0.02 ? 0 : 2.2*ss(0, 0.04, gph)*(1-ss(0.10, 0.18, gph))*(1-loss);   // the still arrives and lets go softly
   if (facePour > 0) facePour -= dt;
   const fade = 0.03 + 0.20*loss + 2.5*end;
   const slot = Math.floor(headF) % RET_N;
@@ -772,6 +847,14 @@ function step(dt){
   // the drain remembers: one small picture per slot, RET_N slots per RETURN_SECONDS
   const before = Math.floor(headF);
   headF += dt/RETURN_SECONDS*RET_N;
+  if (Math.floor(headF) !== before && (Math.floor(headF) % 8) === 0) {      // now and then, compare what drains with what returns
+    const a = new Float32Array(RET_PX*RET_PX*4), b = new Float32Array(RET_PX*RET_PX*4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, ret.fbo);
+    gl.readPixels(0, (Math.floor(headF) % RET_N)*RET_PX, RET_PX, RET_PX, gl.RGBA, gl.FLOAT, a);
+    gl.readPixels(0, ((Math.floor(headF)+1) % RET_N)*RET_PX, RET_PX, RET_PX, gl.RGBA, gl.FLOAT, b);
+    let d = 0, m = 0; for (let i = 0; i < a.length; i += 4) { d += Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]); m += a[i]+a[i+1]+a[i+2]+b[i]+b[i+1]+b[i+2]; }
+    sync = m > 0.02 ? Math.max(0, Math.min(1, 1-5*d/m)) : 0;
+  }
   if (Math.floor(headF) !== before) {
     u = use(P.crop); bind(u.uDye, dye.read.tex);
     gl.bindFramebuffer(gl.FRAMEBUFFER, ret.fbo); gl.viewport(0, (Math.floor(headF) % RET_N)*RET_PX, RET_PX, RET_PX);
@@ -779,7 +862,7 @@ function step(dt){
   }
   if (headF > RET_N*1000) headF -= RET_N*1000;
 
-  grow(6);
+  grow(7);
   surge *= Math.exp(-dt/2.0);
   beats += dt/BEAT_SECONDS;
   simTime += dt;
@@ -788,6 +871,7 @@ function step(dt){
 function render(){
   const u = use(P.display); bind(u.uDye, dye.read.tex);
   gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, end); gl.uniform1f(u.uJelly, jelly.x);
+  gl.uniform1f(u.uWaltz, 0.5+0.5*Math.sin(2*Math.PI*beats/6));
   gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, pause.face && faceTex ? faceTex : imgTex[pause.p]); bind(u.uRD, rdA.tex);
   gl.uniform4f(u.uPA, ...pause.A); gl.uniform4f(u.uPB, ...pause.B);
@@ -818,12 +902,12 @@ function render(){
   gl.uniform1f(p.uHold, holdAmt); gl.uniform1f(p.uFocus, focus);
   gl.uniform1f(p.uArc, !held ? 0 : pause.done ? 1 : Math.min(1, pause.kept/READ_SECONDS));
   {  // the ghost hand: two seconds to arrive, then it closes over one heartbeat, then it fades
-    const t = ghost.t, e = Math.min(1, t/2), ease = e*e*(3-2*e);
+    const t = ghost.t, e = Math.min(1, t/3), ease = e*e*(3-2*e);
     const from = [view.cx+0.55*view.S, view.cy+0.45*view.S], to = [view.cx+pause.spot[0]*view.S, view.cy-pause.spot[1]*view.S];
     const gx = from[0]+(to[0]-from[0])*ease, gy = from[1]+(to[1]-from[1])*ease;
     gl.uniform2f(p.uGhost, gx*view.dpr, (view.h-gy)*view.dpr);
-    gl.uniform1f(p.uGhostOn, ghost.on ? Math.min(1, t*2)*Math.min(1, (6-t)*2) : 0);
-    gl.uniform1f(p.uGhostArc, Math.max(0, Math.min(1, (t-2)/READ_SECONDS)));
+    gl.uniform1f(p.uGhostOn, ghost.on ? Math.min(1, t)*Math.min(1, (7-t)) : 0);
+    gl.uniform1f(p.uGhostArc, Math.max(0, Math.min(1, (t-3)/READ_SECONDS)));
   }
   gl.uniform1f(p.uDpr, view.dpr); gl.uniform1f(p.uCursorOn, hand.on ? 1 : 0);
   gl.uniform1f(p.uS, view.S*view.dpr); gl.uniform2f(p.uCenter, view.cx*view.dpr, (view.h-view.cy)*view.dpr);
@@ -887,14 +971,14 @@ function tick(now){
   intro = Math.max(0, intro-dt);
   if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; ask.classList.add('on'); }
   const showStill = held || intro > 0 || ghost.on;
-  holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.45));
+  holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
   if (intro > 0) focus = 1;
   // the glass as a spring
-  jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*60*dt - jelly.v*7*dt; jelly.x += jelly.v*dt;
+  jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;
   // attract: after eight untouched seconds a ghost ring drifts to the clear place and closes there
   idle = hand.on || held ? 0 : idle+dt;
   if (!ghost.on && idle > 8 && intro <= 0 && !read.some(Boolean)) { ghost.on = true; ghost.t = 0; }
-  if (ghost.on) { ghost.t += dt; if (ghost.t > 6 || hand.on || held) ghost.on = false; }
+  if (ghost.on) { ghost.t += dt; if (ghost.t > 7 || hand.on || held) ghost.on = false; }
   depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
   if (whole > 0.5) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
