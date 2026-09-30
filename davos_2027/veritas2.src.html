@@ -60,12 +60,12 @@
 <a id="lead" href="proposal.html" title="the proposal" aria-label="The full proposal"></a>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
-<pre aria-label="Poem, running"><span>sink = drain(sink)<b id="pN">   // n = 0</b></span><span>n -&gt; &infin;<b id="pT">   // 00:00</b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
-<pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span><span class="how">// drag a number. the culture on the rim changes as you do.</span></pre>
+<pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
+<pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
-  <p id="ask"><a href="#" id="see">let it see you</a><span> &middot; one frame. kept ten seconds. never sent.</span></p>
+  <p id="ask"><a href="#" id="see">let it see you</a><span> &middot; one frame, never sent</span></p>
   <div id="err"></div>
 </main>
 
@@ -251,18 +251,20 @@ void main(){
   vec2 lap = -c + 0.13*(texture(uRD,vUv+e).rg + texture(uRD,vUv-e).rg) + 0.27*(texture(uRD,vUv+n).rg + texture(uRD,vUv-n).rg)
            + 0.05*(texture(uRD,vUv+e+n).rg + texture(uRD,vUv+e-n).rg + texture(uRD,vUv-e+n).rg + texture(uRD,vUv-e-n).rg);
   float a = vUv.x*6.28318;
-  float f = mix(0.0390, 0.0367, vUv.y) + uDf + 0.0009*sin(a*3.+uTime*0.021) + 0.0006*sin(a*7.-uTime*0.013);
+  float f = mix(0.0390, 0.0367, vUv.y) + uDf + 0.0018*sin(a*3.+uTime*0.05) + 0.0012*sin(a*7.-uTime*0.031) + 0.0010*sin(vUv.y*9.-uTime*0.08);
   float k = mix(0.0580, 0.0649, vUv.y) + uDk + 0.0006*sin(a*2.-uTime*0.017+1.);
   float r = c.r*c.g*c.g;
   vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
   // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
   float sd = step(0.994, hash(vec2(floor(vUv.x*440.), uSeed)))*step(vUv.y,0.06);
   v.g = max(v.g, sd*0.45);
-  float ev = floor(uTime*0.22);                                         // a patch dies every few seconds, somewhere
+  float ev = floor(uTime*0.5);                                          // a patch dies every two seconds, somewhere
   vec2 pc = vec2(hash(vec2(ev,1.7)), 0.15+0.7*hash(vec2(ev,9.2)));
   vec2 dp = vec2(min(abs(vUv.x-pc.x), 1.-abs(vUv.x-pc.x))*6., vUv.y-pc.y);
-  float age = fract(uTime*0.22);
-  v = mix(v, vec2(1.,0.), 0.5*exp(-dot(dp,dp)/0.0015)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
+  float age = fract(uTime*0.5);
+  v = mix(v, vec2(1.,0.), 0.6*exp(-dot(dp,dp)/0.0025)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
+  // and the whole culture creeps outward, a little, all the time
+  v = mix(v, texture(uRD, vUv-vec2(0., uTx.y*0.35)).rg, 0.06);
   vec2 dt = vec2(min(abs(vUv.x-uTouch.x), 1.-abs(vUv.x-uTouch.x))*6., vUv.y-uTouch.y);
   float wipe = uTouch.z*exp(-dot(dt,dt)/0.002);
   v = mix(v, vec2(1.,0.), wipe);
@@ -276,7 +278,7 @@ uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLos
 uniform float uRead, uWhole, uFlash, uDepth, uFocus;
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
-uniform vec2 uPath[8]; uniform float uPathN;          // the places you have found, in order: your path
+uniform vec2 uPath[8]; uniform float uPathN, uGrow;   // the places you have found, in order: your path; the last still arriving
 uniform vec2 uOther[8]; uniform float uOtherN;        // a path someone else found, if they sent it
 uniform vec2 uLead;                                   // where the line from the tap arrives
 uniform vec2 uTap, uCenter, uRes, uCursor;
@@ -322,7 +324,7 @@ void main(){
   if(r > R-0.09-0.40*uEnd){                                              // the culture reaches in over the picture; at the end, all the way
     float rr = r-R;
     vec2 dir = q/r;
-    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5+uTime*0.0012, (abs(rr)-LACE0)/(LACE1*(1.+0.06*uWaltz)));   // it turns, it breathes; inside the rim it is its own mirror
+    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5+uTime*0.0022, (abs(rr)-LACE0)/(LACE1*(1.+0.06*uWaltz)));   // it turns, it breathes; inside the rim it is its own mirror
     float v = texture(uRD, lp).g;
     vec2 gv = vec2(texture(uRD, lp+vec2(0.0006,0.)).g-texture(uRD, lp-vec2(0.0006,0.)).g, texture(uRD, lp+vec2(0.,0.01)).g-texture(uRD, lp-vec2(0.,0.01)).g);
     vec2 tn = normalize(gv+1e-5);                                           // across the thread, in lace space
@@ -396,9 +398,14 @@ void main(){
     // the path: every place found is marked, and joined to the last. No two visitors draw the same one.
     {
       float dm = 9., dd = 9.;
-      for(int i=0;i<8;i++){ if(float(i) >= uPathN) break; dd = min(dd, abs(length(q-uPath[i])-0.008)); if(i>0) dm = min(dm, seg(q, uPath[i-1], uPath[i])); }
+      for(int i=0;i<8;i++){
+        if(float(i) >= uPathN) break;
+        float g = float(i) == uPathN-1. ? uGrow : 1.;                                  // the newest mark is still arriving
+        dd = min(dd, abs(length(q-uPath[i])-0.008*g));
+        if(i>0) dm = min(dm, seg(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)));
+      }
       float th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd);
-      b = mix(b, BONE, th*(0.55+0.45*uWhole));
+      b = mix(b, BONE, th*mix(0.30, 1.0, max(uHold, uWhole)));          // faint while it flows, bright while you are still
       dm = 9.; dd = 9.;
       for(int i=0;i<8;i++){ if(float(i) >= uOtherN) break; dd = min(dd, abs(length(q-uOther[i])-0.008)); if(i>0) dm = min(dm, seg(q, uOther[i-1], uOther[i])); }
       th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd);
@@ -607,7 +614,8 @@ const path = [], other = [];
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
 const encodePath = (pts) => pts.map(([x, y]) => [x, y].map(v => Math.round((v+0.4)/0.8*255).toString(16).padStart(2,'0')).join('')).join('');
 const decodePath = (str) => { const pts = []; for (let i = 0; i+4 <= str.length && pts.length < 8; i += 4) pts.push([parseInt(str.slice(i,i+2),16)/255*0.8-0.4, parseInt(str.slice(i+2,i+4),16)/255*0.8-0.4]); return pts.filter(p => p.every(Number.isFinite)); };
-function mark(pt){ if (path.length < 8) path.push([pt[0], pt[1]]); }
+let growT = 1;
+function mark(pt){ if (path.length < 8) { path.push([pt[0], pt[1]]); growT = 0; } save(); }
 function signOf(pts){
   const d = pts.map(([x, y], i) => (i ? 'L' : 'M') + (50+x*110).toFixed(1) + ' ' + (50-y*110).toFixed(1)).join('');
   const dots = pts.map(([x, y]) => `<circle cx="${(50+x*110).toFixed(1)}" cy="${(50-y*110).toFixed(1)}" r="1.6"/>`).join('');
@@ -616,16 +624,33 @@ function signOf(pts){
 function reveal(i){
   if (read[i]) return;
   read[i] = true;
-  if (read.every(Boolean)) {
+  save();
+  if (read.every(Boolean)) finish();
+}
+function finish(){
+  {
     document.body.classList.add('whole');
     const url = location.origin + location.pathname + '?p=' + encodePath(path);
     const sign = document.getElementById('sign');
-    sign.innerHTML = signOf(path) + `<span>your sign. no one else will draw it.<br><a href="${url}" id="send">send it -&gt;</a></span>`;
+    sign.innerHTML = signOf(path) + `<span>your sign<br><a href="${url}" id="send">send it -&gt;</a></span>`;
     document.getElementById('send').addEventListener('click', (ev) => {
       ev.preventDefault();
-      navigator.clipboard?.writeText(url).then(() => { ev.target.textContent = 'copied. paste it to someone.'; }, () => { location.href = url; });
+      navigator.clipboard?.writeText(url).then(() => { ev.target.textContent = 'copied'; }, () => { location.href = url; });
     });
   }
+}
+// what the page keeps, on this machine only: which lines you have, where you found them, the culture you made
+function save(){
+  try { localStorage.setItem('veritas.ii', JSON.stringify({ read, path, bio })); } catch (e) {}
+}
+function restore(){
+  try {
+    const k = JSON.parse(localStorage.getItem('veritas.ii') || 'null'); if (!k) return;
+    if (Array.isArray(k.read)) k.read.forEach((v, i) => { read[i] = !!v; });
+    if (Array.isArray(k.path)) path.push(...k.path.slice(0, 8).filter(p => Array.isArray(p) && p.length === 2));
+    if (k.bio) { bio.f = +k.bio.f || bio.f; bio.k = +k.bio.k || bio.k; document.querySelectorAll('.knob').forEach(el => { el.textContent = bio[el.dataset.k].toFixed(4); }); }
+    if (read.every(Boolean)) finish();
+  } catch (e) {}
 }
 // ---- the reveal: the line arrives in the script and resolves, letter by letter, over one breath.
 // Let go early and it is lost again. A line already read resolves at once.
@@ -651,7 +676,7 @@ for (const el of document.querySelectorAll('.knob')) {
     if (!el.dragging) return;
     const k = el.dataset.k, lo = k === 'f' ? 0.020 : 0.050, hi = k === 'f' ? 0.070 : 0.070;
     bio[k] = Math.max(lo, Math.min(hi, v0 + (ev.clientX-x0)*0.00004));
-    el.textContent = bio[k].toFixed(4);
+    el.textContent = bio[k].toFixed(4); save();
   });
   el.addEventListener('keydown', (ev) => {
     const d = ev.key === 'ArrowRight' || ev.key === 'ArrowUp' ? 0.0002 : ev.key === 'ArrowLeft' || ev.key === 'ArrowDown' ? -0.0002 : 0;
@@ -666,7 +691,7 @@ function announce(i, now){
 }
 function poem(){
   const n = Math.floor(headF/RET_N), t = Math.floor(simTime);
-  document.getElementById('pN').textContent = `   // n = ${n}`;
+  document.getElementById('pN').textContent = n > 0 ? `   // ${n}` : '';
   document.getElementById('pT').textContent = `   // ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
   const sv = sync > 0.985 ? 'True' : sync.toFixed(2);
   if (sv !== shownSync) { shownSync = sv; document.getElementById('pS').textContent = `   // ${sv}`; }
@@ -699,7 +724,7 @@ function tell(now){
     if (i < 0) html = '';                                       // everything has been read; the pictures go on
     else {
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
-      const head = pause.done || focus > 0.45 ? cipher(OUTLINE[i >> 1][0], pause.done ? 1 : focus, salt) : (heldSecs > 1.4 ? 'seek the clear glass' : 'seek');
+      const head = pause.done || focus > 0.45 ? cipher(OUTLINE[i >> 1][0], pause.done ? 1 : focus, salt) : 'seek';
       html = `<b>${head}</b>${cipher(lineOf(i), k, salt)}`;
     }
     linger = pause.done ? now+3200 : 0;
@@ -862,7 +887,7 @@ function step(dt){
   }
   if (headF > RET_N*1000) headF -= RET_N*1000;
 
-  grow(7);
+  grow(10);
   surge *= Math.exp(-dt/2.0);
   beats += dt/BEAT_SECONDS;
   simTime += dt;
@@ -882,7 +907,7 @@ function render(){
   gl.uniform1f(u.uRead, read.reduce((m, r, i) => m + (r ? 1 << i : 0), 0));
   gl.uniform1f(u.uWhole, whole); gl.uniform1f(u.uFlash, flash); gl.uniform1f(u.uDepth, depth);
   gl.uniform1f(u.uFocus, focus); gl.uniform2f(u.uSpot, pause.spot[0], pause.spot[1]);
-  gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, path.length);
+  gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
   gl.uniform2fv(u['uOther[0]'], pathFlat(other)); gl.uniform1f(u.uOtherN, other.length);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
   gl.uniform2f(u.uLead, view.lead[0]*view.dpr, (view.h-view.lead[1])*view.dpr);
@@ -969,6 +994,7 @@ function tick(now){
   }
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
   intro = Math.max(0, intro-dt);
+  growT = Math.min(1, growT + dt/2.2);
   if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; ask.classList.add('on'); }
   const showStill = held || intro > 0 || ghost.on;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
@@ -1097,6 +1123,7 @@ Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image()
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   const params = new URLSearchParams(location.search);
   other.push(...decodePath(params.get('p') || ''));      // a path someone sent: it is already in the basin when you arrive
+  restore();                                              // and what you left here last time is still here
   const preroll = Math.min(600, Math.max(0, parseFloat(params.get('t') ?? '6') || 0));
   grow(2600);                                   // let the lace establish itself before anyone sees it
   for (let i = 0; i < preroll*30; i++) step(1/30);
