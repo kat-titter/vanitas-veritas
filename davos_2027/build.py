@@ -6,8 +6,11 @@ Reads  video/veritas_loop_v45_4k.mp4   (gitignored): 24 stills taken evenly roun
        If the loop is missing, falls back to the eight harmonized stills in source/harmonized/.
 Writes davos_2027/veritas.html          (gitignored: it carries the images).
 """
-import base64, glob, io, json, os, subprocess, tempfile
+import base64, glob, io, json, os, subprocess, sys, tempfile
 from PIL import Image
+
+SRC = sys.argv[1] if len(sys.argv) > 1 else 'veritas.src.html'      # python3 build.py [veritas2.src.html [veritas2.html]]
+OUT = sys.argv[2] if len(sys.argv) > 2 else SRC.replace('.src.html', '.html')
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -47,8 +50,8 @@ else:
         frames.append(uri); total += n
     print(f'loop not found: {len(frames)} harmonized stills, {total / 1e6:.2f} MB')
 
-src = open(os.path.join(HERE, 'veritas.src.html'), encoding='utf-8').read()
+src = open(os.path.join(HERE, SRC), encoding='utf-8').read()
 assert src.count('[/*FRAMES*/]') == 1
 out = src.replace('[/*FRAMES*/]', json.dumps(frames))
-open(os.path.join(HERE, 'veritas.html'), 'w', encoding='utf-8').write(out)
-print(f'veritas.html  {len(out) / 1e6:.2f} MB')
+open(os.path.join(HERE, OUT), 'w', encoding='utf-8').write(out)
+print(f'{OUT}  {len(out) / 1e6:.2f} MB')

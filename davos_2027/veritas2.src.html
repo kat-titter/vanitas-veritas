@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>veri+as · ii</title>
+<meta name="description" content="A sink that has been draining since September. By January there will be nothing in it but lace. Hold, and it is still.">
+<style>
+  :root { --bone:#e4dfd2; --gold:#c2a27a; --ink:#030304; --dim:#8a8d93;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body { margin:0; overflow:hidden; background:var(--ink); color:var(--dim); font:12.5px/1.75 var(--mono); }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:none; }
+  /* the words are plumbed into the basin: a line runs from the tap to the title */
+  #lead { position:fixed; left:0; top:0; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; cursor:pointer; }
+  #lead:focus-visible { outline:1px solid var(--gold); }
+  #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9;
+    text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
+  h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
+  h1 i { font-style:normal; color:var(--gold); }
+  pre { margin:20px 0 0; font:inherit; }
+  pre span { display:block; min-height:1.75em; }
+  .slot { display:inline-block; width:.62em; height:1.05em; vertical-align:-.18em; background:var(--gold); animation:blink 1.6s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+  /* read all eight and the poem gives way to the outline */
+  #outline { display:none; margin:18px 0 0; font-size:11.5px; line-height:1.6; color:var(--bone); }
+  #outline h2 { margin:8px 0 0; font:400 10px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
+  #outline p { margin:0; }
+  body.whole pre { display:none; }
+  body.whole #outline { display:block; }
+  #sign { display:none; margin:14px 0 0; align-items:center; gap:14px; color:var(--bone); font-size:11.5px; line-height:1.6; }
+  body.whole #sign { display:flex; }
+  body.whole #say { display:none; }
+  #sign svg { width:64px; height:64px; flex:none; fill:var(--bone); stroke:var(--bone); stroke-width:.9; stroke-linejoin:round; }
+  #sign svg path { fill:none; }
+  #sign a { color:var(--gold); pointer-events:auto; }
+  pre { transition:opacity .8s; }
+  body.held pre { opacity:.22; }
+  /* one line at a time. It arrives as script and resolves into words while you hold. */
+  #say { margin:16px 0 0; height:6.2em; color:var(--bone); white-space:pre-wrap; }
+  #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
+  #say.quiet { color:var(--dim); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; }
+  #err { display:none; color:var(--bone); margin:18px 0 0; }
+  @media (prefers-reduced-motion: reduce) { .slot { animation:none; } pre { transition:none; } }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with lace. Faces, skulls and flowers melt toward the drain and return from the tap."></canvas>
+<a id="lead" href="proposal.html" title="the proposal" aria-label="The full proposal"></a>
+<main id="words">
+  <h1>veri<i>+</i>as</h1>
+<pre aria-label="Poem"><span>sink = [sync] * n</span><span>n -&gt; &infin;</span><span>sink == sync</span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
+  <div id="outline"></div>
+  <p id="sign"></p>
+  <p id="say" class="quiet" aria-live="polite">hold</p>
+  <div id="err"></div>
+</main>
+
+<script>
+(() => {
+'use strict';
+const FRAMES = [/*FRAMES*/];      // eight stills, in loop order, inlined by build.py
+
+const canvas = document.getElementById('c');
+const words = document.getElementById('words');
+const say = document.getElementById('say');
+const errBox = document.getElementById('err');
+const fail = (m) => { errBox.textContent = m; errBox.style.display = 'block'; };
+
+const gl = canvas.getContext('webgl2', { alpha:false, antialias:false, depth:false, stencil:false, preserveDrawingBuffer:false });
+if (!gl) { fail('This needs WebGL2, which this browser did not provide.'); return; }
+if (!gl.getExtension('EXT_color_buffer_float')) { fail('This needs float render targets (EXT_color_buffer_float).'); return; }
+if (!FRAMES.length) { fail('No images were built into this file. Run build.py.'); return; }
+
+// ---- geometry of the sink, in sim UV (0..1), shared by every shader ----
+const SIM = 256, DYE = 1024, PIPE_N = 256;
+const COMMON = `#version 300 es
+precision highp float;
+precision highp sampler2D;
+in vec2 vUv;
+out vec4 o;
+const vec2  C   = vec2(0.5);
+const float R   = 0.395;   // basin wall
+const float RD  = 0.030;   // drain
+const float SF  = 0.034;   // tap footprint
+const float SD  = 0.030;   // drain footprint
+float wall(vec2 p){ return 1.0 - smoothstep(R-0.004, R, length(p-C)); }
+bool inside(vec2 p){ return length(p-C) < R; }
+`;
+
+// the image that is being poured: the current still, dissolving into the next
+const IMG_FN = `
+uniform vec2 uRot;                                     // the basin is turned: cos, sin
+uniform sampler2D uImgA, uImgB;
+uniform float uMix;
+vec2 rot(vec2 v){ return vec2(uRot.x*v.x-uRot.y*v.y, uRot.y*v.x+uRot.x*v.y); }      // screen -> basin
+vec2 unrot(vec2 v){ return vec2(uRot.x*v.x+uRot.y*v.y, -uRot.y*v.x+uRot.x*v.y); }   // basin -> screen
+vec3 img(vec2 p){
+  vec2 g = unrot(p-C)/(2.*R)+0.5;                      // upright for the viewer
+  return pow(mix(texture(uImgA,g).rgb, texture(uImgB,g).rgb, uMix), vec3(2.2));
+}`;
+
+// what you see when you hold: this moment of the loop, grown through with another,
+// each cropped, turned and mirrored by chance. It is composed once, at the press, and never again.
+const STILL_FN = `
+uniform sampler2D uImgP;
+uniform vec4 uPA, uPB;                                 // zoom, offset x, offset y, turn
+uniform vec2 uPFlip; uniform float uPSeed;
+float h2(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+  return mix(mix(h2(i),h2(i+vec2(1,0)),f.x), mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x), f.y); }
+vec2 xf(vec2 g, vec4 t, float flip){
+  g -= 0.5; g.x *= flip;
+  float c = cos(t.w), s = sin(t.w);
+  return vec2(c*g.x-s*g.y, s*g.x+c*g.y)/t.x + t.yz + 0.5;
+}
+vec3 still(vec2 p){
+  vec2 g = unrot(p-C)/(2.*R)+0.5;
+  vec2 ga = xf(g, uPA, uPFlip.x);
+  vec3 a = pow(mix(texture(uImgA,ga).rgb, texture(uImgB,ga).rgb, uMix), vec3(2.2));
+  vec3 b = pow(texture(uImgP, xf(g, uPB, uPFlip.y)).rgb, vec3(2.2));
+  float m = 0.55*n2(g*2.1+uPSeed) + 0.30*n2(g*4.7-uPSeed) + 0.15*n2(g*11.+uPSeed*2.);
+  m = smoothstep(0.40,0.60,m);
+  return mix(mix(a,b,m), max(a,b), 0.30);
+}`;
+
+const VS = `#version 300 es
+in vec2 aPos; out vec2 vUv;
+void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.,1.); }`;
+
+const FS = {
+curl: `
+uniform sampler2D uVel; uniform float uH;
+void main(){
+  float L = texture(uVel, vUv-vec2(uH,0.)).y, Rr = texture(uVel, vUv+vec2(uH,0.)).y;
+  float B = texture(uVel, vUv-vec2(0.,uH)).x, T  = texture(uVel, vUv+vec2(0.,uH)).x;
+  o = vec4(((Rr-L)-(T-B))*0.5/uH, 0.,0.,1.);
+}`,
+
+// body forces: vorticity confinement, the drain's turn, and the hand stirring
+force: `
+uniform sampler2D uVel, uCurl;
+uniform float uH, uDt, uConf, uGamma, uRelax;
+uniform vec2 uStirPos, uStirVel;
+void main(){
+  vec2 v = texture(uVel, vUv).xy;
+  float cL = texture(uCurl, vUv-vec2(uH,0.)).x, cR = texture(uCurl, vUv+vec2(uH,0.)).x;
+  float cB = texture(uCurl, vUv-vec2(0.,uH)).x, cT = texture(uCurl, vUv+vec2(0.,uH)).x;
+  float cC = texture(uCurl, vUv).x;
+  vec2 f = 0.5*vec2(abs(cT)-abs(cB), abs(cR)-abs(cL));
+  f /= length(f)+1e-4; f *= uConf*cC; f.y *= -1.;
+  v += f*uDt;
+  vec2 d = vUv-C; float r2 = dot(d,d); float r = sqrt(r2)+1e-5;
+  vec2 th = vec2(-d.y, d.x)/r;
+  v += th*(uGamma*r/(r2+0.0036)-dot(v,th))*(1.-exp(-uRelax*uDt));
+  vec2 s = vUv-uStirPos;
+  v += uStirVel*exp(-dot(s,s)/0.0022);
+  o = vec4(v*wall(vUv),0.,1.);
+}`,
+
+advect: `
+uniform sampler2D uVel, uSrc; uniform float uDt, uDiss;
+void main(){
+  vec2 p = vUv - uDt*texture(uVel, vUv).xy;
+  o = texture(uSrc, p)*exp(-uDiss*uDt)*wall(vUv);
+}`,
+
+// divergence minus what the tap adds and the drain removes
+diverge: `
+uniform sampler2D uVel; uniform float uH, uQ; uniform vec2 uTap;
+void main(){
+  float L = texture(uVel, vUv-vec2(uH,0.)).x, Rr = texture(uVel, vUv+vec2(uH,0.)).x;
+  float B = texture(uVel, vUv-vec2(0.,uH)).y, T  = texture(uVel, vUv+vec2(0.,uH)).y;
+  float div = ((Rr-L)+(T-B))*0.5/uH;
+  vec2 a = vUv-uTap, b = vUv-C;
+  float src = uQ/(3.14159*SF*SF)*exp(-dot(a,a)/(SF*SF))
+            - uQ/(3.14159*SD*SD)*exp(-dot(b,b)/(SD*SD));
+  o = vec4(div-src,0.,0.,1.);
+}`,
+
+pressure: `
+uniform sampler2D uP, uDiv; uniform float uH;
+void main(){
+  float pC = texture(uP, vUv).x;
+  vec2 l=vUv-vec2(uH,0.), r=vUv+vec2(uH,0.), b=vUv-vec2(0.,uH), t=vUv+vec2(0.,uH);
+  float pL = inside(l)?texture(uP,l).x:pC, pR = inside(r)?texture(uP,r).x:pC;
+  float pB = inside(b)?texture(uP,b).x:pC, pT = inside(t)?texture(uP,t).x:pC;
+  o = vec4((pL+pR+pB+pT - uH*uH*texture(uDiv,vUv).x)*0.25,0.,0.,1.);
+}`,
+
+project: `
+uniform sampler2D uP, uVel; uniform float uH;
+void main(){
+  float pC = texture(uP, vUv).x;
+  vec2 l=vUv-vec2(uH,0.), r=vUv+vec2(uH,0.), b=vUv-vec2(0.,uH), t=vUv+vec2(0.,uH);
+  float pL = inside(l)?texture(uP,l).x:pC, pR = inside(r)?texture(uP,r).x:pC;
+  float pB = inside(b)?texture(uP,b).x:pC, pT = inside(t)?texture(uP,t).x:pC;
+  vec2 v = texture(uVel, vUv).xy - vec2(pR-pL, pT-pB)*0.5/uH;
+  o = vec4(v*wall(vUv),0.,1.);
+}`,
+
+// the picture is the pigment: it is carried by the flow, and keeps re-forming out of the still
+dye: `
+uniform sampler2D uVel, uDye, uRet;
+uniform float uDt, uPour, uFade, uSlot, uRetGain;
+uniform vec2 uTap;
+${IMG_FN}
+const float RET_N = 256.;
+void main(){
+  vec2 p = vUv - uDt*texture(uVel, vUv).xy;
+  vec4 d = texture(uDye, p);
+  d.rgb *= exp(-uFade*uDt);
+  // the still is poured in once, at its beginning; then it is left to the loop
+  float keep = smoothstep(RD, 0.15, length(vUv-C));
+  d.rgb = mix(d.rgb, img(vUv)*1.1, (1.-exp(-uPour*uDt))*keep);
+  // what comes out of the tap is a copy of what went down the drain a while ago: a copy of a copy of a copy
+  vec2 a = vUv-uTap;
+  float g = smoothstep(SF*1.7, SF*0.5, length(a));
+  vec2 cuv = clamp(a/(SF*1.7)*0.5+0.5, 0., 1.);
+  vec3 back = texture(uRet, vec2(cuv.x, (uSlot+cuv.y)/RET_N)).rgb*uRetGain;
+  d.rgb = mix(d.rgb, back, g*(1.-exp(-5.*uDt)));
+  o = d*wall(vUv);
+}`,
+
+// the drain takes a small picture of what is going down it. 256 of them, in turn, are the loop's memory.
+crop: `
+uniform sampler2D uDye;
+void main(){ o = vec4(texture(uDye, C+(vUv-0.5)*0.15).rgb, 1.); }`,
+
+// the lace: two chemicals, one feeding on the other (Gray-Scott). x is the way round the rim, y is outward.
+// Near the rim it grows as a net with holes; further out it breaks into cells that divide.
+lace: `
+uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed; uniform vec3 uTouch;
+float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+void main(){
+  vec2 c = texture(uRD, vUv).rg;
+  vec2 e = vec2(uTx.x,0.), n = vec2(0.,uTx.y);
+  vec2 lap = -c + 0.2*(texture(uRD,vUv+e).rg + texture(uRD,vUv-e).rg + texture(uRD,vUv+n).rg + texture(uRD,vUv-n).rg)
+           + 0.05*(texture(uRD,vUv+e+n).rg + texture(uRD,vUv+e-n).rg + texture(uRD,vUv-e+n).rg + texture(uRD,vUv-e-n).rg);
+  float a = vUv.x*6.28318;
+  float f = mix(0.0390, 0.0367, vUv.y) + 0.0009*sin(a*3.+uTime*0.021) + 0.0006*sin(a*7.-uTime*0.013);
+  float k = mix(0.0580, 0.0649, vUv.y) + 0.0006*sin(a*2.-uTime*0.017+1.);
+  float r = c.r*c.g*c.g;
+  vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
+  // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
+  float sd = step(0.994, hash(vec2(floor(vUv.x*440.), uSeed)))*step(vUv.y,0.06);
+  v.g = max(v.g, sd*0.45);
+  vec2 dt = vec2(min(abs(vUv.x-uTouch.x), 1.-abs(vUv.x-uTouch.x))*6., vUv.y-uTouch.y);
+  float wipe = uTouch.z*exp(-dot(dt,dt)/0.002);
+  v = mix(v, vec2(1.,0.), wipe);
+  o = vec4(clamp(v,0.,1.),0.,1.);
+}`,
+
+// what is going down the drain right now
+display: `
+uniform sampler2D uDye, uRD;
+uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd;
+uniform float uRead, uWhole, uFlash, uDepth, uFocus;
+uniform vec4 uWords;                                  // the words' box, in pixels
+uniform vec2 uSpot;                                   // where the glass is clear, this hold
+uniform vec2 uPath[8]; uniform float uPathN;          // the places you have found, in order: your path
+uniform vec2 uOther[8]; uniform float uOtherN;        // a path someone else found, if they sent it
+uniform vec2 uLead;                                   // where the line from the tap arrives
+uniform vec2 uTap, uCenter, uRes, uCursor;
+${IMG_FN}
+${STILL_FN}
+float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+float hash1(float n){ return fract(sin(n*127.1+3.7)*43758.5453); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y);
+}
+float fbm(vec2 p){ float a = 0.5, v = 0.; for(int i=0;i<4;i++){ v += a*vnoise(p); p = p*2.03+17.; a *= 0.5; } return v; }
+float seg(vec2 p, vec2 a, vec2 b){ vec2 pa=p-a, ba=b-a; return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.,1.)); }
+float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
+float bit(float n, float k){ return step(1., mod(floor(n/k),2.)); }
+// lub-dub
+float beat(float ph){
+  ph = fract(ph);
+  float a = ph/0.10, a2 = (ph-1.)/0.10, b = (ph-0.30)/0.11;
+  return exp(-a*a)+exp(-a2*a2)+0.6*exp(-b*b);
+}
+const vec3 BONE = vec3(0.95,0.91,0.82);
+const vec3 GOLD = vec3(0.62,0.40,0.20);
+const float LACE0 = 0.006, LACE1 = 0.24;   // the lace begins just off the rim and runs this far out
+const float NR = 58.;      // flutes per basin unit
+
+void main(){
+  vec2 q = (gl_FragCoord.xy-uCenter)/uS;     // screen-aligned, in basin units, origin at the drain
+  vec2 d = rot(q);                           // the same point in the basin's own turned frame
+  float r = length(q);
+  float aa = 1.5/uS;
+  vec3 col = vec3(0.0012,0.0012,0.0015);
+  // the lace parts round the words: a clearing with soft edges, so they sit in the piece, not beside it
+  vec2 wc = 0.5*(uWords.xy+uWords.zw), wh = 0.5*(uWords.zw-uWords.xy);
+  float rad = min(wh.x, wh.y)*0.9;
+  vec2 dd = abs(gl_FragCoord.xy-wc)-(wh-rad);
+  float sd = length(max(dd,0.))+min(max(dd.x,dd.y),0.)-rad;
+  sd += (fbm(q*2.6+vec2(uTime*0.03,-uTime*0.02))-0.5)*0.06*uRes.y;
+  float clear = mix(0.18, 1., smoothstep(-0.02*uRes.y, 0.13*uRes.y, sd));
+  clear = mix(1., clear, smoothstep(R+0.01, R+0.10, r));
+
+  // corona: lace grown on the rim. Threads follow the edges of the culture; signals run out along them on the beat.
+  if(r > R-0.035){
+    float rr = r-R;
+    vec2 dir = q/r;
+    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5, (rr-LACE0)/LACE1);
+    float v = texture(uRD, lp).g;
+    float w = fwidth(v)*1.9+0.018;
+    float thread = (1.-smoothstep(0.,w,abs(v-0.20))) + 0.6*(1.-smoothstep(0.,w,abs(v-0.31)));
+    float body = smoothstep(0.16,0.34,v);
+    float glint = smoothstep(0.72,1.,vnoise(q*330.+vec2(uTime*0.8,-uTime*0.5)))*smoothstep(0.55,1.,vnoise(q*41.-uTime*0.11));
+    float pulse = beat(uBeats-rr*3.);
+    float signal = smoothstep(0.7,1.,vnoise(vec2(lp.x*90., rr*14.-uBeats*0.9)));   // something travelling outward
+    float fall = smoothstep(-0.035,0.030,rr)*smoothstep(1.,0.45-0.3*uLoss,lp.y)*exp(-max(rr,0.)*(3.2-1.6*uLoss));
+    float lace = (thread*(0.34+0.30*pulse+0.9*signal*thread) + body*0.045 + thread*glint*1.4)*fall;
+    // under it, what is left of the rays: fine hair
+    float live = (1.-0.5*uHold)*(1.+1.4*uSurge)*(1.+1.8*uFlash)*(1.+0.9*uLoss)*(1.-0.85*uEnd);
+    col += mix(GOLD, BONE, smoothstep(0.,0.09,rr))*lace*0.95*live*clear;
+  }
+
+  // rim: barely a line
+  col = mix(col, BONE*0.22, 0.7*smoothstep(aa*3.,0.,abs(r-R)-0.0004));
+
+  // basin, seen through fluted glass. Held, the glass goes flat and the picture is simply there.
+  if(r < R+0.004){
+    // the glass only goes fully clear when you have found the place: see seek, below
+    float win = smoothstep(0.19, 0.05, length(q-uSpot));                 // a window of clear glass, to be found
+    float L = 1.-smoothstep(0.,1.,uHold)*max(mix(0.24,1.,uFocus), win);
+    float fx = q.x*NR, fi = floor(fx), s = fx-fi;               // s: position across one flute
+    float tooth = hash1(fi);
+    vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.42)/NR, L), q.y+(tooth-0.5)*0.010*L);
+    vec2 p = C+rot(ql);
+    vec2 up1 = rot(vec2(0.,1.));
+
+    vec3 dye = texture(uDye, p).rgb;
+    vec3 c = mix(dye, still(p), 0.96*(1.-L));
+    c = mix(c, c*c*(3.-2.*c), 0.30)*1.12;                          // a little more bite in the picture
+    float pulse = beat(uBeats - length(p-uTap)*1.5);            // leaves the tap, arrives late at the drain
+
+    // wet light, and breath on the glass
+    float e = 3./1024.;
+    vec2 gr = vec2(lum(texture(uDye,p+vec2(e,0.)).rgb)-lum(texture(uDye,p-vec2(e,0.)).rgb),
+                   lum(texture(uDye,p+vec2(0.,e)).rgb)-lum(texture(uDye,p-vec2(0.,e)).rgb));
+    vec3 n = normalize(vec3(-unrot(gr)*2.2, 0.09));
+    vec3 Hh = normalize(normalize(vec3(-0.45,0.62,0.65))+vec3(0.,0.,1.));
+    c += BONE*pow(max(dot(n,Hh),0.),40.)*0.20*L;
+    vec3 glow = vec3(0.);
+    for(int k=0;k<8;k++){ float a = float(k)*0.7854+0.3; glow += texture(uDye, p+0.034*vec2(cos(a),sin(a))).rgb; }
+    float scr = smoothstep(0.80,1.,vnoise(vec2(q.x*700., q.y*5.+3.)))*0.026 + smoothstep(0.93,1.,vnoise(q*260.))*0.030;
+
+    float lit = mix(1., 0.80+0.20*cos(6.28318*(s-0.30)), L);
+    float seam = 1.-0.30*L*smoothstep(0.34,0.5,abs(s-0.5));
+    float glass = pow(max(cos(6.28318*(s-0.30)),0.),10.)*L;
+    float bowl = mix(0.5,1.,smoothstep(R,R-0.12,r));
+    float breathe = mix(1.+0.10*pulse, 0.88+0.12*sin(uHeldSecs*1.3), uHold);
+    vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl*breathe + BONE*glass*(0.006+0.05*lum(c))
+           + glow/8.*0.10*lit*L + BONE*scr*lit;
+
+    // the path: every place found is marked, and joined to the last. No two visitors draw the same one.
+    {
+      float dm = 9., dd = 9.;
+      for(int i=0;i<8;i++){ if(float(i) >= uPathN) break; dd = min(dd, abs(length(q-uPath[i])-0.008)); if(i>0) dm = min(dm, seg(q, uPath[i-1], uPath[i])); }
+      float th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd);
+      b = mix(b, BONE, th*(0.55+0.45*uWhole));
+      dm = 9.; dd = 9.;
+      for(int i=0;i<8;i++){ if(float(i) >= uOtherN) break; dd = min(dd, abs(length(q-uOther[i])-0.008)); if(i>0) dm = min(dm, seg(q, uOther[i-1], uOther[i])); }
+      th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd);
+      b = mix(b, GOLD*1.6, th*0.8);
+    }
+
+    // drain
+    b *= smoothstep(RD*0.5, RD*2.4, r);                         // a well, not a hole
+    b = mix(b, BONE*0.20, 0.6*smoothstep(aa*3.,0.,abs(r-RD)-0.0004));
+    col = mix(col, b, smoothstep(R+0.004,R-0.034,r));           // the picture thins out into the lace
+  }
+
+  // tap: a small mouth, and one line that runs from it out through the ring to the title
+  {
+    vec2 m = uTap-C;
+    vec2 le = (uLead-uCenter)/uS;
+    float ln = min(seg(d, m+vec2(0.,0.012), vec2(0.,R+0.012)), seg(q, unrot(vec2(0.,R+0.012)), le));
+    col = mix(col, BONE*0.34, 0.8*smoothstep(0.0006+aa*2.,0.0006,ln));
+    col = mix(col, BONE*0.55, 0.8*smoothstep(0.0030+aa*2.,0.0030,length(q-le)));
+    float mr = length(d-m);
+    col *= smoothstep(0.004,0.022,mr);
+    col = mix(col, BONE*0.34, 0.7*smoothstep(aa*3.,0.,abs(mr-0.012)-0.0005));
+  }
+
+  col *= mix(1., smoothstep(0.95,0.40,r), 0.8*uDepth);             // the longer you hold, the further down
+
+  vec2 sc = gl_FragCoord.xy/uRes-0.5;
+  col *= 1.-(0.75+0.5*uLoss)*dot(sc,sc);
+
+  o = vec4(max(col,0.),1.);
+}`,
+
+// one soft pass over everything, so basin, lace and lines share the same air
+blur: `
+uniform sampler2D uSrc; uniform vec2 uDir;
+void main(){
+  vec3 c = texture(uSrc, vUv).rgb*0.227;
+  c += (texture(uSrc, vUv+uDir*1.385).rgb + texture(uSrc, vUv-uDir*1.385).rgb)*0.316;
+  c += (texture(uSrc, vUv+uDir*3.231).rgb + texture(uSrc, vUv-uDir*3.231).rgb)*0.070;
+  o = vec4(c,1.);
+}`,
+
+post: `
+uniform sampler2D uScene, uBlur;
+uniform vec2 uRes, uCursor, uCenter;
+uniform float uTime, uHold, uArc, uCursorOn, uDpr, uFocus, uS;
+float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
+void main(){
+  vec2 uv = gl_FragCoord.xy/uRes;
+  vec3 sc = texture(uScene, uv).rgb, bl = texture(uBlur, uv).rgb;
+  float rb = length(gl_FragCoord.xy-uCenter)/uS;
+  float soft = mix(0.12, 0.34, smoothstep(0.37, 0.47, rb));             // the picture keeps its detail; the lace is softer
+  vec3 col = mix(sc, bl, soft) + bl*mix(0.08, 0.20, smoothstep(0.37, 0.47, rb));
+
+  // the hand: a ring that tightens as the picture comes clear; the arc is how long you have kept it there
+  float cd = length(gl_FragCoord.xy-uCursor)/uDpr;
+  float ringc = smoothstep(1.8,0.,abs(cd-mix(15.,mix(11.,6.,uFocus),uHold))-0.3);
+  vec2 cv = gl_FragCoord.xy-uCursor;
+  float arc = smoothstep(1.8,0.,abs(cd-21.)-0.3)*step(fract(atan(cv.x,cv.y)/6.28318+1.), uArc)*uHold;
+  col = mix(col, vec3(0.80,0.77,0.70), 0.85*max(ringc,arc)*uCursorOn);
+
+  col = mix(vec3(lum(col)), col, 0.58)*0.86*vec3(1.,0.985,0.955);      // quieter colour, lower light, one warmth
+  col = pow(max(col,0.),vec3(1./2.2));
+  col = mix(col, col*col*(3.-2.*col), 0.20);
+  col += (hash(gl_FragCoord.xy+fract(uTime)*91.7)-0.5)*0.030;
+  o = vec4(col,1.);
+}`
+};
+
+// ---- GL plumbing ----
+function shader(type, src){
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const vs = shader(gl.VERTEX_SHADER, VS);
+function program(name){
+  const p = gl.createProgram();
+  gl.attachShader(p, vs); gl.attachShader(p, shader(gl.FRAGMENT_SHADER, COMMON + FS[name]));
+  gl.bindAttribLocation(p, 0, 'aPos'); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(name+': '+gl.getProgramInfoLog(p));
+  const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i=0;i<n;i++){ const nm = gl.getActiveUniform(p,i).name; u[nm] = gl.getUniformLocation(p,nm); }
+  return { p, u };
+}
+let P;
+try { P = Object.fromEntries(Object.keys(FS).map(k => [k, program(k)])); }
+catch (e) { fail('Shader error: '+e.message); console.error(e); return; }
+
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+function texture(filter, wrapS){
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS || gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return tex;
+}
+function target(size, float=true){
+  const tex = texture(gl.LINEAR);
+  if (float) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, size, size, 0, gl.RGBA, gl.HALF_FLOAT, null);
+  else       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.viewport(0,0,size,size); gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
+  return { tex, fbo, w:size, h:size };
+}
+function sheet(w, h){
+  const tex = texture(gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  return { tex, fbo, w, h };
+}
+let scene = null, softA = null, softB = null;
+const pair = (size) => { let a = target(size), b = target(size);
+  return { get read(){return a;}, get write(){return b;}, swap(){ [a,b] = [b,a]; } }; };
+
+const vel = pair(SIM), prs = pair(SIM), dye = pair(DYE);
+const curl = target(SIM), dvg = target(SIM), drainPx = target(1, false);
+
+// the lace culture: 4096 round, 256 outward
+const RDW = 4096, RDH = 256;
+function field(w, h, data){
+  const tex = texture(gl.LINEAR, gl.REPEAT);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.FLOAT, data);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  return { tex, fbo, w, h };
+}
+const rdSeed = new Float32Array(RDW*RDH*4);
+for (let i = 0; i < RDW*RDH; i++) { rdSeed[i*4] = 1; rdSeed[i*4+3] = 1; }
+for (let n = 0; n < 4200; n++) {                       // small colonies, scattered; single cells die
+  const x0 = Math.floor(Math.random()*RDW), y0 = Math.floor(Math.random()*(RDH-6));
+  for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) {
+    const i = ((y0+y)*RDW + (x0+x) % RDW)*4;
+    rdSeed[i] = 0.5; rdSeed[i+1] = 0.25+0.25*Math.random();
+  }
+}
+let rdA = field(RDW, RDH, rdSeed), rdB = field(RDW, RDH, null);
+let rdBeat = -1;
+const touch = { x:0, y:0, z:0 };
+function grow(n){
+  const u = use(P.lace);
+  gl.uniform2f(u.uTx, 1/RDW, 1/RDH); gl.uniform1f(u.uTime, simTime);
+  gl.uniform1f(u.uSeed, Math.floor(beats)); gl.uniform3f(u.uTouch, touch.x, touch.y, touch.z);
+  gl.viewport(0,0,RDW,RDH);
+  for (let i = 0; i < n; i++) {
+    unit = 0; bind(u.uRD, rdA.tex);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, rdB.fbo); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    [rdA, rdB] = [rdB, rdA];
+  }
+  touch.z = 0;
+}
+
+// the loop's memory: 256 small pictures of the drain, written in turn, read back a while later at the tap
+const RET_N = 256, RET_PX = 48;
+const ret = (() => {
+  const tex = texture(gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, RET_PX, RET_PX*RET_N, 0, gl.RGBA, gl.HALF_FLOAT, null);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
+  return { tex, fbo };
+})();
+
+// ---- the outline: two images to a thought, folded shut until each has been held and read ----
+const OUTLINE = [
+  ['thesis',     'nothing goes away. it comes back as slop.',            'models drink what they pour. so do we.'],
+  ['vision',     'a sink you cannot empty. a picture you can hold still.', 'two basins. two cities. one loop.'],
+  ['impact',     'the culture grows on the rim. wipe it; it grows back.',  'stillness takes two. hold your breath together.'],
+  ['what it is', 'a screen where the drain should be, under fluted glass.', 'eight stills. one card in your pocket.'],
+];
+const WIPE_LINE = 4;                  // the line the lace itself teaches: earned by wiping, not by holding
+document.getElementById('outline').innerHTML = OUTLINE.map(([name, a, b]) =>
+  `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></p>';
+const N = FRAMES.length;
+const read = new Array(8).fill(false);
+const lineOf = (i) => OUTLINE[i >> 1][1 + (i & 1)];
+// your path: the eight places, in the order you found them. Encoded in a link, it can be sent; opened, it is drawn in gold.
+const path = [], other = [];
+const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
+const encodePath = (pts) => pts.map(([x, y]) => [x, y].map(v => Math.round((v+0.4)/0.8*255).toString(16).padStart(2,'0')).join('')).join('');
+const decodePath = (str) => { const pts = []; for (let i = 0; i+4 <= str.length && pts.length < 8; i += 4) pts.push([parseInt(str.slice(i,i+2),16)/255*0.8-0.4, parseInt(str.slice(i+2,i+4),16)/255*0.8-0.4]); return pts.filter(p => p.every(Number.isFinite)); };
+function mark(pt){ if (path.length < 8) path.push([pt[0], pt[1]]); }
+function signOf(pts){
+  const d = pts.map(([x, y], i) => (i ? 'L' : 'M') + (50+x*110).toFixed(1) + ' ' + (50-y*110).toFixed(1)).join('');
+  const dots = pts.map(([x, y]) => `<circle cx="${(50+x*110).toFixed(1)}" cy="${(50-y*110).toFixed(1)}" r="1.6"/>`).join('');
+  return `<svg viewBox="0 0 100 100" aria-label="your sign"><path d="${d}"/>${dots}</svg>`;
+}
+function reveal(i){
+  if (read[i]) return;
+  read[i] = true;
+  if (read.every(Boolean)) {
+    document.body.classList.add('whole');
+    const url = location.origin + location.pathname + '?p=' + encodePath(path);
+    const sign = document.getElementById('sign');
+    sign.innerHTML = signOf(path) + `<span>your sign. no one else will draw it.<br><a href="${url}" id="send">send it -&gt;</a></span>`;
+    document.getElementById('send').addEventListener('click', (ev) => {
+      ev.preventDefault();
+      navigator.clipboard?.writeText(url).then(() => { ev.target.textContent = 'copied. paste it to someone.'; }, () => { location.href = url; });
+    });
+  }
+}
+// ---- the reveal: the line arrives in the script and resolves, letter by letter, over one breath.
+// Let go early and it is lost again. A line already read resolves at once.
+const SCRIPT = '\u2524\u255f\u256b\u253c\u256a\u256c\u251c\u252c\u2534\u2565\u2568\u2552\u2553\u2555\u2556\u2558\u2559\u255b\u255c\u255e\u2561';
+function cipher(text, k, salt){
+  const n = Math.floor(text.length*k);
+  let out = text.slice(0, n);
+  for (let i = n; i < text.length; i++) {
+    const h = Math.abs(Math.sin((i+1)*12.9898 + salt*78.233)*43758.5453);
+    out += text[i] === ' ' ? ' ' : SCRIPT[Math.floor((h % 1)*SCRIPT.length)];
+  }
+  return out;
+}
+const probe = new URLSearchParams(location.search).has('probe') ? [] : null;   // ?probe: keep render times for checking
+let shown = '', linger = 0, wiped = 0;
+function announce(i, now){
+  shown = `<b>${OUTLINE[i >> 1][0]}</b>${lineOf(i)}`;
+  say.innerHTML = shown; say.classList.remove('quiet'); linger = now+4200;
+}
+function tell(now){
+  let html, quiet = false;
+  if (held) {
+    const i = pause.line, salt = Math.floor(now/90);
+    if (i < 0) html = '';                                       // everything has been read; the pictures go on
+    else {
+      const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
+      const head = pause.done || focus > 0.45 ? cipher(OUTLINE[i >> 1][0], pause.done ? 1 : focus, salt) : (heldSecs > 1.4 ? 'seek the clear glass' : 'seek');
+      html = `<b>${head}</b>${cipher(lineOf(i), k, salt)}`;
+    }
+    linger = pause.done ? now+3200 : 0;
+  } else if (now < linger) return;                     // what was read stays a moment after you let go
+  else { html = 'hold'; quiet = true; }
+  if (html !== shown) { shown = html; say.innerHTML = html; say.classList.toggle('quiet', quiet); }
+}
+
+let unit = 0;
+function use(prog){ gl.useProgram(prog.p); unit = 0; return prog.u; }
+function bind(loc, tex){ gl.activeTexture(gl.TEXTURE0+unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(loc, unit++); }
+function draw(t){
+  if (t) { gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo); gl.viewport(0,0,t.w,t.h); }
+  else   { gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0,0,canvas.width,canvas.height); }
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+// ---- state ----
+const H = 1/SIM;
+const TAP = [0.5, 0.5+0.27];
+const RETURN_SECONDS = 10;            // how long the loop remembers before it pours
+const LAUNCH = Date.UTC(2026, 8, 29), DAVOS = Date.UTC(2027, 0, 18);
+const BEAT_SECONDS = 1.6;             // ~38 bpm: a freediver's heart on a breath-hold
+const SIGN_BEATS = 6;                 // each still has six heartbeats
+const READ_SECONDS = 1.6;             // one heartbeat kept in the clear place
+const HOLD_AFTER = 220;               // ms: shorter is a tap, longer is a hold
+const ROT = [1, 0];                   // the basin is turned so the tap points at the title; set in resize()
+const OUTER = 0.50;                   // where the marks end, in basin units
+const ss = (a,b,x) => { const t = Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); };
+const heart = (ph) => { ph -= Math.floor(ph); const a = ph/0.10, a2 = (ph-1)/0.10, b = (ph-0.30)/0.11;
+  return Math.exp(-a*a)+Math.exp(-a2*a2)+0.6*Math.exp(-b*b); };
+
+let simTime = 0, last = performance.now(), held = false;
+let headF = 0, beats = 0, sign = 0, mixAB = 0, gph = 0, end = 0;
+// how far along the one clock we are: 0 on the day it was published, 1 on the first day of Davos (?day=N to look ahead)
+const dayParam = parseFloat(new URLSearchParams(location.search).get('day'));
+const loss = Math.min(1, Math.max(0, (Number.isFinite(dayParam) ? dayParam*864e5 : Date.now()-LAUNCH)/(DAVOS-LAUNCH)));
+let holdAmt = 0, surge = 0, holdStart = 0, heldSecs = 0, flash = 0, depth = 0, whole = 0;
+const stir = { x:0.5, y:0.5, vx:0, vy:0, px:null, py:null };
+const pause = { p:0, A:[1,0,0,0], B:[1,0,0,0], flip:[1,1], seed:0, spot:[0,0], line:-1, kept:0, done:false, byKey:false };
+let focus = 0;
+const hand = { x:0, y:0, on:false, pressing:false, timer:0 };
+const view = { w:1, h:1, cx:0, cy:0, S:1, dpr:1, box:[0,0,0,0], lead:[0,0] };
+const drainRGBA = new Uint8Array(4);      // only the probe uses this now
+let imgTex = [];
+
+function step(dt){
+  const hb = heart(beats);
+  const Q = 0.038*(0.55 + 1.6*hb)*(1 + 2.6*surge)*(1 + 2*end);  // let go, and it floods back; at the end, the drain takes it
+  const gT = beats/SIGN_BEATS; gph = gT-Math.floor(gT);
+  sign = Math.floor(gT) % N;
+  mixAB = ss(0.72, 1.0, gph);                               // the last breaths of one image are the first of the next
+  const gamma = 0.017*Math.sin(Math.PI*gT)*(0.85+0.3*hb);   // the drain turns one way, then the other
+  const tap = [TAP[0] + 0.004*Math.sin(simTime*0.7), TAP[1] + 0.003*Math.sin(simTime*0.9+1)];
+
+  let u = use(P.curl); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(curl);
+
+  u = use(P.force); bind(u.uVel, vel.read.tex); bind(u.uCurl, curl.tex);
+  gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uConf, 0.02);
+  gl.uniform1f(u.uGamma, gamma); gl.uniform1f(u.uRelax, 0.9);
+  gl.uniform2f(u.uStirPos, stir.x, stir.y); gl.uniform2f(u.uStirVel, stir.vx, stir.vy);
+  draw(vel.write); vel.swap(); stir.vx = stir.vy = 0;
+
+  u = use(P.advect); bind(u.uVel, vel.read.tex); bind(u.uSrc, vel.read.tex);
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uDiss, 0.25); draw(vel.write); vel.swap();
+
+  u = use(P.diverge); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H);
+  gl.uniform1f(u.uQ, Q); gl.uniform2f(u.uTap, tap[0], tap[1]); draw(dvg);
+
+  u = use(P.pressure); gl.uniform1f(u.uH, H);
+  for (let i=0;i<36;i++){ unit = 0; bind(u.uP, prs.read.tex); bind(u.uDiv, dvg.tex); draw(prs.write); prs.swap(); }
+
+  u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H);
+  draw(vel.write); vel.swap();
+
+  // the still pours in during its first breaths, less each day; what returns is dimmer each pass, and each day
+  const pour = end > 0.02 ? 0 : (gph < 0.12 ? 2.2 : 0)*(1-loss);
+  const fade = 0.03 + 0.20*loss + 2.5*end;
+  const slot = Math.floor(headF) % RET_N;
+  u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uRet, ret.tex);
+  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]);
+  gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uPour, pour); gl.uniform1f(u.uFade, fade);
+  gl.uniform1f(u.uSlot, (slot+1) % RET_N); gl.uniform1f(u.uRetGain, (0.94-0.45*loss)*(1-end));
+  gl.uniform2f(u.uTap, tap[0], tap[1]);
+  draw(dye.write); dye.swap();
+
+  // the drain remembers: one small picture per slot, RET_N slots per RETURN_SECONDS
+  const before = Math.floor(headF);
+  headF += dt/RETURN_SECONDS*RET_N;
+  if (Math.floor(headF) !== before) {
+    u = use(P.crop); bind(u.uDye, dye.read.tex);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, ret.fbo); gl.viewport(0, (Math.floor(headF) % RET_N)*RET_PX, RET_PX, RET_PX);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  if (headF > RET_N*1000) headF -= RET_N*1000;
+
+  grow(6);
+  surge *= Math.exp(-dt/0.9);
+  beats += dt/BEAT_SECONDS;
+  simTime += dt;
+}
+
+function render(){
+  const u = use(P.display); bind(u.uDye, dye.read.tex);
+  gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, end);
+  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, imgTex[pause.p]); bind(u.uRD, rdA.tex);
+  gl.uniform4f(u.uPA, ...pause.A); gl.uniform4f(u.uPB, ...pause.B);
+  gl.uniform2f(u.uPFlip, ...pause.flip); gl.uniform1f(u.uPSeed, pause.seed);
+  gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
+  gl.uniform1f(u.uTime, simTime); gl.uniform1f(u.uBeats, beats);
+  gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uSurge, surge); gl.uniform1f(u.uHeldSecs, heldSecs);
+  gl.uniform1f(u.uRead, read.reduce((m, r, i) => m + (r ? 1 << i : 0), 0));
+  gl.uniform1f(u.uWhole, whole); gl.uniform1f(u.uFlash, flash); gl.uniform1f(u.uDepth, depth);
+  gl.uniform1f(u.uFocus, focus); gl.uniform2f(u.uSpot, pause.spot[0], pause.spot[1]);
+  gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, path.length);
+  gl.uniform2fv(u['uOther[0]'], pathFlat(other)); gl.uniform1f(u.uOtherN, other.length);
+  gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
+  gl.uniform2f(u.uLead, view.lead[0]*view.dpr, (view.h-view.lead[1])*view.dpr);
+  gl.uniform1f(u.uS, view.S*view.dpr);
+  gl.uniform2f(u.uCenter, view.cx*view.dpr, (view.h-view.cy)*view.dpr);
+  gl.uniform2f(u.uRes, canvas.width, canvas.height);
+  gl.uniform2f(u.uTap, TAP[0], TAP[1]);
+  draw(scene);
+
+  const b = use(P.blur);
+  const pass = (src, dst, dx, dy) => { unit = 0; bind(b.uSrc, src.tex); gl.uniform2f(b.uDir, dx, dy); draw(dst); };
+  pass(scene, softA, 1/softA.w, 0); pass(softA, softB, 0, 1/softA.h);
+  pass(softB, softA, 2/softA.w, 0); pass(softA, softB, 0, 2/softA.h);
+
+  const p = use(P.post); bind(p.uScene, scene.tex); bind(p.uBlur, softB.tex);
+  gl.uniform2f(p.uRes, canvas.width, canvas.height); gl.uniform1f(p.uTime, simTime);
+  gl.uniform1f(p.uHold, holdAmt); gl.uniform1f(p.uFocus, focus);
+  gl.uniform1f(p.uArc, !held ? 0 : pause.done ? 1 : Math.min(1, pause.kept/READ_SECONDS));
+  gl.uniform1f(p.uDpr, view.dpr); gl.uniform1f(p.uCursorOn, hand.on ? 1 : 0);
+  gl.uniform1f(p.uS, view.S*view.dpr); gl.uniform2f(p.uCenter, view.cx*view.dpr, (view.h-view.cy)*view.dpr);
+  gl.uniform2f(p.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
+  draw(null);
+}
+
+// ---- one composition. Wide: the disc is cropped by the left edge and the words stand to its right.
+// Tall: the disc is cropped by the top and the words stand under it. Either way the tap is turned to face them.
+const RING = 0.470/0.395;             // the ring of cuts, in basin radii
+function resize(){
+  const w = window.innerWidth, h = window.innerHeight;
+  const ww = Math.min(300, w-48), wh = words.offsetHeight;
+  let Rb, cx, cy, wx, wy;
+  if (w > 1.3*h) {
+    Rb = 0.47*h; cy = 0.54*h;
+    cx = Math.min(0.40*w, w-ww-40-RING*Rb-36);
+    wx = cx+RING*Rb+36; wy = Math.max(0.12*h, cy-0.62*Rb-wh/2);
+  } else {
+    Rb = Math.min(0.47*w, (h-wh-70)/(RING+0.92));
+    cx = 0.46*w; cy = 0.92*Rb;
+    wx = Math.max(24, Math.min(w-ww-24, cx-0.35*Rb)); wy = cy+RING*Rb+52;
+  }
+  words.style.width = ww+'px';
+  words.style.transform = `translate(${Math.round(wx)}px,${Math.round(wy)}px)`;
+  const lead = [wx-14, wy+13];                       // just left of the title's first letter
+  document.getElementById('lead').style.transform = `translate(${Math.round(lead[0])}px,${Math.round(lead[1])}px)`;
+  const turn = Math.atan2(lead[0]-cx, cy-lead[1]);
+  ROT[0] = Math.cos(turn); ROT[1] = Math.sin(turn);
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (w*h*dpr*dpr > 3.6e6) dpr = Math.sqrt(3.6e6/(w*h));
+  Object.assign(view, { w, h, cx, cy, S:Rb/0.395, dpr, box:[wx-10, wy-6, wx+ww, wy+wh+6], lead });
+  const pw = Math.max(2, Math.round(w*dpr)), ph = Math.max(2, Math.round(h*dpr));
+  if (canvas.width !== pw || canvas.height !== ph || !scene) {
+    canvas.width = pw; canvas.height = ph;
+    for (const t of [scene, softA, softB]) if (t) { gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fbo); }
+    scene = sheet(pw, ph);
+    softA = sheet(Math.ceil(pw/4), Math.ceil(ph/4)); softB = sheet(softA.w, softA.h);
+  }
+}
+
+function frame(now){ tick(now); requestAnimationFrame(frame); }
+function tick(now){
+  const dt = Math.max(0, Math.min((now-last)/1000, 1/30)); last = now;
+  resize();
+  if (!held && touch.z > 0) { wiped += dt; if (wiped > 2.4 && !read[WIPE_LINE]) { mark([(hand.x-view.cx)/view.S, (view.cy-hand.y)/view.S]); reveal(WIPE_LINE); flash = 1; announce(WIPE_LINE, now); } }
+  if (!held && dt > 0) step(dt);
+  // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
+  // Keep it there for a heartbeat and the next line is yours. Every hold hides it somewhere else.
+  let want = 0;
+  if (held) {
+    heldSecs = (now-holdStart)/1000;
+    const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S;
+    want = pause.byKey ? 1 : ss(0.40, 0.07, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));
+    if (!pause.done) {
+      pause.kept = focus > 0.8 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
+      if (pause.kept >= READ_SECONDS) { pause.done = true; flash = 1; if (pause.line >= 0) { mark(pause.spot); reveal(pause.line); } }
+    }
+  }
+  focus += (want-focus)*(1-Math.exp(-dt/0.22));
+  holdAmt += ((held ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.45));
+  depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
+  whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
+  if (whole > 0.5) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
+  flash *= Math.exp(-dt/0.8);
+  tell(now);
+  const t0 = performance.now();
+  render();
+  if (probe) {   // ?probe: force the GPU to finish, keep the timings, and let a test drive the clock
+    gl.readPixels(0,0,1,1, gl.RGBA, gl.UNSIGNED_BYTE, drainRGBA);
+    probe.push(performance.now()-t0); if (probe.length > 120) probe.shift();
+    window.__veritas = { ms:probe, tick, pause, view, read, loss, get end(){ return end; }, get held(){ return held; }, get holdAmt(){ return holdAmt; }, get whole(){ return whole; }, get simTime(){ return simTime; },
+      dyeAt(x, y){ const px = new Float32Array(4); gl.bindFramebuffer(gl.FRAMEBUFFER, dye.read.fbo); gl.readPixels(Math.floor(x*DYE), Math.floor(y*DYE), 1, 1, gl.RGBA, gl.FLOAT, px); return Array.from(px); },
+      get fadeNow(){ return 0.03 + 0.20*loss + 2.5*end; } };
+  }
+}
+
+// ---- hands: move stirs, a tap turns the page, a hold is stillness ----
+const toBasin = (ev) => {
+  const b = canvas.getBoundingClientRect();
+  hand.x = ev.clientX-b.left; hand.y = ev.clientY-b.top;
+  const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S;
+  return [0.5+ROT[0]*qx-ROT[1]*qy, 0.5+ROT[1]*qx+ROT[0]*qy];
+};
+canvas.addEventListener('pointermove', (ev) => {
+  const [x, y] = toBasin(ev); hand.on = true;
+  if (stir.px !== null) {
+    const k = 0.9, cap = 0.12;
+    stir.vx += Math.max(-cap, Math.min(cap, (x-stir.px)*k));
+    stir.vy += Math.max(-cap, Math.min(cap, (y-stir.py)*k));
+  }
+  stir.x = x; stir.y = y; stir.px = x; stir.py = y;
+  const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S, rr = Math.hypot(qx, qy)-0.395;
+  if (rr > 0 && rr < 0.26) { touch.x = Math.atan2(qy, qx)/(2*Math.PI)+0.5; touch.y = (rr-0.006)/0.24; touch.z = 0.5; }
+});
+canvas.addEventListener('pointerleave', () => { stir.px = stir.py = null; if (!hand.pressing) hand.on = false; });
+canvas.addEventListener('pointerdown', (ev) => {
+  toBasin(ev); hand.on = true; hand.pressing = true;
+  try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
+  clearTimeout(hand.timer);
+  hand.timer = setTimeout(() => { if (hand.pressing) setHeld(true); }, HOLD_AFTER);
+});
+canvas.addEventListener('pointerup', (ev) => {
+  if (!hand.pressing) return;
+  hand.pressing = false; clearTimeout(hand.timer);
+  if (held) setHeld(false); else turnPage();
+  if (ev.pointerType !== 'mouse') hand.on = false;
+});
+canvas.addEventListener('pointercancel', () => { hand.pressing = false; hand.on = false; clearTimeout(hand.timer); if (held) setHeld(false); });
+canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
+
+// the still for this hold: a partner from somewhere else in the loop, and a chance framing for each
+function compose(){
+  const rnd = (a, b) => a + Math.random()*(b-a);
+  const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
+  pause.p = (sign + 3 + Math.floor(Math.random()*(N-6))) % N;
+  pause.A = frame(1.25, 0.12); pause.B = frame(1.9, 0.6);
+  pause.flip = [1, Math.random() < 0.5 ? -1 : 1];
+  pause.seed = rnd(0, 60);
+  // the clear place: anywhere in the basin but the drain, and not where the hand already is
+  const hx = (hand.x-view.cx)/view.S, hy = (view.cy-hand.y)/view.S;
+  for (let n = 0; n < 24; n++) {
+    const a = rnd(0, 2*Math.PI), rad = rnd(0.10, 0.31);
+    pause.spot = [rad*Math.cos(a), rad*Math.sin(a)];
+    if (Math.hypot(pause.spot[0]-hx, pause.spot[1]-hy) > 0.18) break;
+  }
+  pause.line = read.indexOf(false); pause.kept = 0; pause.done = false;
+}
+
+function turnPage(){          // begin dissolving into the next image now
+  const gT = beats/SIGN_BEATS, gph = gT-Math.floor(gT);
+  if (gph < 0.72) beats = (Math.floor(gT)+0.72)*SIGN_BEATS;
+}
+function setHeld(v){
+  if (v === held) return;
+  held = v;
+  if (v) {
+    holdStart = performance.now(); heldSecs = 0;
+    compose();
+  }
+  else { surge = 1; pause.byKey = false; }
+  document.body.classList.toggle('held', v);
+}
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { setHeld(true); pause.byKey = true; } }   // with no hand to seek with, the place finds you
+  else if (e.code === 'ArrowRight') turnPage();
+  else if (e.key === 'r' && !e.metaKey && !e.ctrlKey) record(15);
+});
+window.addEventListener('keyup', (e) => { if (e.code === 'Space') setHeld(false); });
+window.addEventListener('blur', () => { hand.pressing = false; clearTimeout(hand.timer); setHeld(false); });
+
+// r: keep fifteen seconds of the basin as a clip
+let recording = false;
+function record(seconds){
+  if (recording || !canvas.captureStream || !window.MediaRecorder) return;
+  const type = ['video/mp4;codecs=avc1', 'video/webm;codecs=vp9', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t));
+  if (!type) return;
+  recording = true;
+  const chunks = [], rec = new MediaRecorder(canvas.captureStream(60), { mimeType:type, videoBitsPerSecond:16e6 });
+  rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(chunks, { type }));
+    a.download = 'veritas.' + (type.includes('mp4') ? 'mp4' : 'webm');
+    a.click(); recording = false;
+  };
+  rec.start(); setTimeout(() => rec.stop(), seconds*1000);
+}
+
+// ---- begin, once the stills are in ----
+Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; })))
+.then((ims) => {
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  imgTex = ims.map((im) => { const t = texture(gl.LINEAR); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, im); return t; });
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  const params = new URLSearchParams(location.search);
+  other.push(...decodePath(params.get('p') || ''));      // a path someone sent: it is already in the basin when you arrive
+  const preroll = Math.min(600, Math.max(0, parseFloat(params.get('t') ?? '6') || 0));
+  grow(2600);                                   // let the lace establish itself before anyone sees it
+  for (let i = 0; i < preroll*30; i++) step(1/30);
+  compose();
+  last = performance.now();
+  resize();
+  requestAnimationFrame(frame);
+})
+.catch(() => fail('The images did not load.'));
+})();
+</script>
+</body>
+</html>
