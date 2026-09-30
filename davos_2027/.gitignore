@@ -1,0 +1,6 @@
+# the piece itself (veritas.html) is committed on purpose: it carries its images so the link works.
+# the older study and the working notes stay local.
+sink_cycle.html
+working_notes.html
+*.webm
+*.mp4
