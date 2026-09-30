@@ -32,7 +32,7 @@
   pre { transition:opacity .8s; }
   body.held pre { opacity:.22; }
   /* one line at a time. It arrives as script and resolves into words while you hold. */
-  #say { margin:16px 0 0; height:4.4em; color:var(--bone); white-space:pre; }
+  #say { margin:16px 0 0; height:6.2em; color:var(--bone); white-space:pre-wrap; }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
   #say.quiet { color:var(--dim); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
@@ -248,6 +248,7 @@ uniform sampler2D uDye, uPipe, uBits, uRD;
 uniform float uTime, uHead, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs;
 uniform float uRead, uWhole, uFlash, uDepth, uFocus;
 uniform vec4 uWords;                                  // the words' box, in pixels
+uniform vec2 uSpot;                                   // where the glass is clear, this hold
 uniform vec2 uLead;                                   // where the line from the tap arrives
 uniform vec2 uTap, uCenter, uRes, uCursor;
 ${IMG_FN}
@@ -281,8 +282,12 @@ void main(){
   float aa = 1.5/uS;
   vec3 col = vec3(0.0012,0.0012,0.0015);
   // the lace parts round the words: a clearing with soft edges, so they sit in the piece, not beside it
-  vec2 wo = max(uWords.xy-gl_FragCoord.xy, gl_FragCoord.xy-uWords.zw);
-  float clear = mix(0.10, 1., smoothstep(0., 0.10*uRes.y, length(max(wo,0.))));
+  vec2 wc = 0.5*(uWords.xy+uWords.zw), wh = 0.5*(uWords.zw-uWords.xy);
+  float rad = min(wh.x, wh.y)*0.9;
+  vec2 dd = abs(gl_FragCoord.xy-wc)-(wh-rad);
+  float sd = length(max(dd,0.))+min(max(dd.x,dd.y),0.)-rad;
+  sd += (fbm(q*2.6+vec2(uTime*0.03,-uTime*0.02))-0.5)*0.06*uRes.y;
+  float clear = mix(0.18, 1., smoothstep(-0.02*uRes.y, 0.13*uRes.y, sd));
   clear = mix(1., clear, smoothstep(R+0.01, R+0.10, r));
 
   // ash, falling upward
@@ -335,7 +340,8 @@ void main(){
   // basin, seen through fluted glass. Held, the glass goes flat and the picture is simply there.
   if(r < R+0.004){
     // the glass only goes fully clear when you have found the place: see seek, below
-    float L = 1.-smoothstep(0.,1.,uHold)*mix(0.28,1.,uFocus);
+    float win = smoothstep(0.19, 0.05, length(q-uSpot));                 // a window of clear glass, to be found
+    float L = 1.-smoothstep(0.,1.,uHold)*max(mix(0.24,1.,uFocus), win);
     float fx = q.x*NR, fi = floor(fx), s = fx-fi;               // s: position across one flute
     float tooth = hash1(fi);
     vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.42)/NR, L), q.y+(tooth-0.5)*0.010*L);
@@ -549,11 +555,12 @@ const bitsTex = texture(gl.NEAREST);
 
 // ---- the outline: two images to a thought, folded shut until each has been held and read ----
 const OUTLINE = [
-  ['thesis',     'there is no away.',                   'models drink what they pour.'],
-  ['vision',     'two basins. two cities. one loop.',   'a memento mori you can hold still.'],
-  ['impact',     'nobody washes their hands alone.',    'two handles. too far apart for one person.'],
-  ['what it is', 'a screen where the drain should be.', 'eight signs. one card in your pocket.'],
+  ['thesis',     'nothing goes away. it comes back as slop.',            'models drink what they pour. so do we.'],
+  ['vision',     'a sink you cannot empty. a picture you can hold still.', 'two basins. two cities. one loop.'],
+  ['impact',     'the culture grows on the rim. wipe it; it grows back.',  'stillness takes two. hold your breath together.'],
+  ['what it is', 'a screen where the drain should be, under fluted glass.', 'eight stills. one card in your pocket.'],
 ];
+const WIPE_LINE = 4;                  // the line the lace itself teaches: earned by wiping, not by holding
 document.getElementById('outline').innerHTML = OUTLINE.map(([name, a, b]) =>
   `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></p>';
 const N = FRAMES.length;
@@ -577,7 +584,11 @@ function cipher(text, k, salt){
   return out;
 }
 const probe = new URLSearchParams(location.search).has('probe') ? [] : null;   // ?probe: keep render times for checking
-let shown = '', linger = 0;
+let shown = '', linger = 0, wiped = 0;
+function announce(i, now){
+  shown = `<b>${OUTLINE[i >> 1][0]}</b>${lineOf(i)}`;
+  say.innerHTML = shown; say.classList.remove('quiet'); linger = now+4200;
+}
 function tell(now){
   let html, quiet = false;
   if (held) {
@@ -585,7 +596,7 @@ function tell(now){
     if (i < 0) html = '';                                       // everything has been read; the pictures go on
     else {
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
-      const head = pause.done || focus > 0.45 ? cipher(OUTLINE[i >> 1][0], pause.done ? 1 : focus, salt) : 'seek';
+      const head = pause.done || focus > 0.45 ? cipher(OUTLINE[i >> 1][0], pause.done ? 1 : focus, salt) : (heldSecs > 1.4 ? 'seek the clear glass' : 'seek');
       html = `<b>${head}</b>${cipher(lineOf(i), k, salt)}`;
     }
     linger = pause.done ? now+3200 : 0;
@@ -694,7 +705,7 @@ function render(){
   gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uSurge, surge); gl.uniform1f(u.uHeldSecs, heldSecs);
   gl.uniform1f(u.uRead, read.reduce((m, r, i) => m + (r ? 1 << i : 0), 0));
   gl.uniform1f(u.uWhole, whole); gl.uniform1f(u.uFlash, flash); gl.uniform1f(u.uDepth, depth);
-  gl.uniform1f(u.uFocus, focus);
+  gl.uniform1f(u.uFocus, focus); gl.uniform2f(u.uSpot, pause.spot[0], pause.spot[1]);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
   gl.uniform2f(u.uLead, view.lead[0]*view.dpr, (view.h-view.lead[1])*view.dpr);
   gl.uniform1f(u.uS, view.S*view.dpr);
@@ -756,6 +767,7 @@ function frame(now){ tick(now); requestAnimationFrame(frame); }
 function tick(now){
   const dt = Math.max(0, Math.min((now-last)/1000, 1/30)); last = now;
   resize();
+  if (!held && touch.z > 0) { wiped += dt; if (wiped > 2.4 && !read[WIPE_LINE]) { reveal(WIPE_LINE); flash = 1; announce(WIPE_LINE, now); } }
   if (!held && dt > 0) step(dt);
   // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
   // Keep it there for a heartbeat and the next line is yours. Every hold hides it somewhere else.
