@@ -47,10 +47,13 @@
   #bio .how { color:#5a5e64; font-size:11px; }
   .knob { color:var(--gold) !important; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
   .knob:focus-visible { outline:none; border-bottom-style:solid; }
-  #ask { display:none; margin:6px 0 0; font-size:11.5px; line-height:1.6; color:var(--dim); }
-  #ask.on { display:block; }
-  #ask a { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px solid var(--gold); }
-  #ask a:hover { color:var(--bone); border-bottom-color:var(--bone); }
+  /* the eye: the drain is a button once it has started looking at you. Its words show when you come near. */
+  #eye { position:fixed; left:0; top:0; width:44px; height:44px; margin:-22px 0 0 -22px; border-radius:50%; display:none; cursor:pointer; }
+  #eye.on { display:block; }
+  #ask { position:absolute; left:52px; top:50%; transform:translateY(-50%); margin:0; white-space:nowrap; font-size:11.5px; color:var(--bone);
+    opacity:0; transition:opacity .6s; pointer-events:none; text-shadow:0 0 2px #030304, 0 0 6px #030304, 0 0 14px #030304; }
+  #eye:hover #ask, #eye:focus-visible #ask, #eye.said #ask { opacity:1; }
+  #ask b { font-weight:400; color:var(--gold); }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
   @media (prefers-reduced-motion: reduce) { .slot { animation:none; } pre { transition:none; } }
 </style>
@@ -58,6 +61,7 @@
 <body>
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with lace. Faces, skulls and flowers melt toward the drain and return from the tap."></canvas>
 <a id="lead" href="proposal.html" title="the proposal" aria-label="The full proposal"></a>
+<button id="eye" type="button" aria-label="Let it see you: one frame from your camera, never sent"><span id="ask"><b>look back</b> &middot; one frame, never sent</span></button>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
 <pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
@@ -65,7 +69,6 @@
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
-  <p id="ask"><a href="#" id="see">let it see you</a><span> &middot; one frame, never sent</span></p>
   <div id="err"></div>
 </main>
 
@@ -275,7 +278,7 @@ void main(){
 display: `
 uniform sampler2D uDye, uRD;
 uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd, uJelly, uWaltz;
-uniform float uRead, uWhole, uFlash, uDepth, uFocus;
+uniform float uRead, uWhole, uFlash, uDepth, uFocus, uGaze;
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
 uniform vec2 uPath[8]; uniform float uPathN, uGrow;   // the places you have found, in order: your path; the last still arriving
@@ -413,10 +416,14 @@ void main(){
     }
 
     // drain
-    b *= smoothstep(RD*0.5, RD*2.4, r);                         // a well, not a hole
+    // the pupil: it turns a little toward your hand, and it widens when it is waiting for you to look back
+    vec2 look = (uCursor-uCenter)/uS;
+    vec2 pq = q - normalize(look+1e-4)*min(length(look),1.)*0.010*uCursorOn;
+    float rp = length(pq), RDp = RD*(1.+0.25*uGaze+0.15*uHold);
+    b *= smoothstep(RDp*0.5, RDp*2.4, rp);                      // a well, not a hole
     float beacon = pow(uWaltz, 6.);                               // on the crest of the phase the pupil breathes light
-    b += BONE*beacon*0.35*exp(-r*r/0.006)*(1.-uEnd);
-    b = mix(b, BONE*(0.20+0.5*beacon), 0.6*smoothstep(aa*3.,0.,abs(r-RD)-0.0004));
+    b += BONE*(beacon*0.22+0.08*uGaze)*exp(-rp*rp/0.004)*(1.-uEnd);
+    b = mix(b, BONE*(0.20+0.5*beacon+0.25*uGaze), 0.6*smoothstep(aa*3.,0.,abs(rp-RDp)-0.0004));
     col = mix(col, b, smoothstep(R+0.03,R-0.10,r));             // the picture thins out into the lace, over a wide band
   }
 
@@ -614,7 +621,7 @@ const path = [], other = [];
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
 const encodePath = (pts) => pts.map(([x, y]) => [x, y].map(v => Math.round((v+0.4)/0.8*255).toString(16).padStart(2,'0')).join('')).join('');
 const decodePath = (str) => { const pts = []; for (let i = 0; i+4 <= str.length && pts.length < 8; i += 4) pts.push([parseInt(str.slice(i,i+2),16)/255*0.8-0.4, parseInt(str.slice(i+2,i+4),16)/255*0.8-0.4]); return pts.filter(p => p.every(Number.isFinite)); };
-let growT = 1;
+let growT = 1, gaze = 0;
 function mark(pt){ if (path.length < 8) { path.push([pt[0], pt[1]]); growT = 0; } save(); }
 function signOf(pts){
   const d = pts.map(([x, y], i) => (i ? 'L' : 'M') + (50+x*110).toFixed(1) + ' ' + (50-y*110).toFixed(1)).join('');
@@ -777,7 +784,7 @@ const drainRGBA = new Uint8Array(4);      // only the probe uses this now
 let imgTex = [];
 
 // ---- the face: the viewer's own, if they allow it. One frame, poured into the loop, forgotten with the rest. ----
-let faceTex = null, facePour = 0, faceHolds = 0, asked = false, seeing = false;
+let faceTex = null, facePour = 0, faceHolds = 0, asked = false, seeing = false, meet = 0;
 const ask = document.getElementById('ask');
 function grade(cx){                 // the same grade as the stills: cool mono, a little gold in the light, dark at the edges
   const im = cx.getImageData(0, 0, 512, 512), d = im.data;
@@ -793,8 +800,8 @@ function grade(cx){                 // the same grade as the stills: cool mono, 
 }
 async function see(ev){
   ev.preventDefault();
-  if (seeing || !navigator.mediaDevices?.getUserMedia) { ask.innerHTML = '<span>this page needs https to see you.</span>'; return; }
-  seeing = true; ask.innerHTML = '<span>looking.</span>';
+  if (seeing || !navigator.mediaDevices?.getUserMedia) { told('<b>it cannot see you here</b> &middot; needs https', 4000); return; }
+  seeing = true; told('<b>looking</b>');
   let stream = null;
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio:false });
@@ -812,18 +819,19 @@ async function see(ev){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    facePour = 1.8; faceHolds = 2;
+    // seeing each other: for three breaths the glass goes clear on the two of you, one picture. Then it is poured.
+    faceHolds = 2; compose(); meet = 4.5; focus = 1;
     if (!read[FACE_LINE]) { mark([0, 0]); reveal(FACE_LINE); flash = 1; announce(FACE_LINE, performance.now()); }
-    ask.innerHTML = '<span>it has you. it forgets in ten seconds.</span>';
-    setTimeout(() => ask.classList.remove('on'), 6000);
+    told('<b>it has you</b> &middot; it forgets in ten seconds', 7000);
   } catch (e) {
     if (stream) stream.getTracks().forEach(t => t.stop());
-    ask.innerHTML = '<span>it did not see you.</span>';
-    setTimeout(() => ask.classList.remove('on'), 4000);
+    told('<b>it did not see you</b>', 4000);
   }
   seeing = false;
 }
-document.getElementById('see').addEventListener('click', see);
+const eye = document.getElementById('eye');
+eye.addEventListener('click', see);
+function told(html, ms){ ask.innerHTML = html; eye.classList.add('said'); clearTimeout(told.t); if (ms) told.t = setTimeout(() => { eye.classList.remove('said'); if (ms > 5000) eye.classList.remove('on'); }, ms); }
 
 function step(dt){
   const hb = heart(beats);
@@ -907,6 +915,7 @@ function render(){
   gl.uniform1f(u.uRead, read.reduce((m, r, i) => m + (r ? 1 << i : 0), 0));
   gl.uniform1f(u.uWhole, whole); gl.uniform1f(u.uFlash, flash); gl.uniform1f(u.uDepth, depth);
   gl.uniform1f(u.uFocus, focus); gl.uniform2f(u.uSpot, pause.spot[0], pause.spot[1]);
+  gl.uniform1f(u.uGaze, gaze);
   gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
   gl.uniform2fv(u['uOther[0]'], pathFlat(other)); gl.uniform1f(u.uOtherN, other.length);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
@@ -960,6 +969,7 @@ function resize(){
   words.style.transform = `translate(${Math.round(wx)}px,${Math.round(wy)}px)`;
   const lead = [wx-14, wy+13];                       // just left of the title's first letter
   document.getElementById('lead').style.transform = `translate(${Math.round(lead[0])}px,${Math.round(lead[1])}px)`;
+  document.getElementById('eye').style.transform = `translate(${Math.round(cx)}px,${Math.round(cy)}px)`;
   const turn = Math.atan2(lead[0]-cx, cy-lead[1]);
   ROT[0] = Math.cos(turn); ROT[1] = Math.sin(turn);
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -995,10 +1005,12 @@ function tick(now){
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
   intro = Math.max(0, intro-dt);
   growT = Math.min(1, growT + dt/2.2);
-  if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; ask.classList.add('on'); }
-  const showStill = held || intro > 0 || ghost.on;
+  gaze += (((asked && !faceTex) ? 1 : 0)-gaze)*(1-Math.exp(-dt/1.5));   // it starts looking once it is ready to be looked at
+  if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; eye.classList.add('on'); }
+  if (meet > 0) { meet -= dt; if (meet <= 0) facePour = 1.8; }      // after the meeting, the pour
+  const showStill = held || intro > 0 || ghost.on || meet > 0;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
-  if (intro > 0) focus = 1;
+  if (intro > 0 || meet > 0) focus = 1;
   // the glass as a spring
   jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;
   // attract: after eight untouched seconds a ghost ring drifts to the clear place and closes there
