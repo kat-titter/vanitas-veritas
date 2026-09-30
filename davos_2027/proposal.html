@@ -178,6 +178,7 @@ sink == sync
     <li><b>Glass:</b> 58 flutes per basin width; each compresses its slice sideways and drags bright edges into a fringe. Holding flattens the glass in proportion to how near you are to the clear place.</li>
     <li><b>Stills:</b> 24 frames sampled evenly round the 8:26 loop, centre-cropped to 768&sup2; WebP and inlined by <code>build.py</code>. Each hold composes a new one: the current frame, a random partner, each zoomed, turned and mirrored by chance, merged through a noise mask.</li>
     <li><b>Lace:</b> Gray-Scott reaction-diffusion on a 4096&times;256 polar field (holes regime at the rim, mitosis further out), six steps a frame, drawn as contour threads with glints. The pointer clears it; it regrows.</li>
+    <li><b>The path:</b> every place found is marked and joined to the last. Eight finds make a sign no one else will draw; it is encoded in a link (<code>?p=</code>, 32 hex characters) that can be sent, and a sent path is drawn in gold in the receiver's basin.</li>
     <li><b>Ring of cuts:</b> 240 cuts, long for 1 and short for 0, spelling <code>sink=[sync]*n;n-&gt;inf;sink=sync</code>.</li>
     <li><b>Finish:</b> a soft-focus pass (quarter-resolution blur, lighter inside the basin), desaturation to 58%, one warm tint, grain. Four colours: ink, bone, ember, ice.</li>
     <li><b>Render cost:</b> 3 to 9 ms a frame on an M-series laptop at 1.5&times;2K. Press <code>r</code> to record a 15-second clip.</li>
