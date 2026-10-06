@@ -25,11 +25,11 @@
   #prog .dot { display:none; width:5px; height:5px; border-radius:50%; background:var(--bone); box-shadow:0 0 8px var(--bone); }
   body.nova #prog .dot { display:inline-block; }
   /* the credit: two letters to find. */
-  #we { width:2.4ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px dotted var(--gold); color:var(--gold);
-    font:inherit; letter-spacing:.3em; pointer-events:auto; outline:none; caret-color:var(--gold); border-radius:0; }
-  #we::placeholder { color:var(--gold); opacity:.8; animation:blink 1.6s steps(1) infinite; }
+  #we { width:2.6ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px solid var(--gold); color:var(--gold);
+    font:inherit; font-weight:700; letter-spacing:.3em; pointer-events:auto; outline:none; caret-color:var(--gold); border-radius:0; }
+  #we::placeholder { color:var(--gold); opacity:1; font-weight:700; animation:blink 1.6s steps(1) infinite; }
   #we:focus::placeholder { animation:none; opacity:.35; }
-  body.we #we { border-bottom-color:transparent; color:var(--bone); pointer-events:none; }
+  body.we #we { border-bottom-color:transparent; color:var(--gold); pointer-events:none; }
   #we.no { animation:no .5s; }
   @keyframes no { 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
   /* a way back to the beginning */
@@ -46,22 +46,22 @@
   .slot { display:inline-block; width:.62em; height:1.05em; vertical-align:-.18em; background:var(--gold); animation:blink 1.6s steps(1) infinite; }
   @keyframes blink { 50% { opacity:0; } }
   /* read all eight and the poem gives way to the outline */
-  #outline { display:none; margin:18px 0 0; font-size:11.5px; line-height:1.6; color:var(--bone); }
+  #outline { margin:14px 0 0; font-size:11.5px; line-height:1.6; color:var(--bone); }
+  #outline:empty { display:none; }
   #outline h2 { margin:8px 0 0; font:400 10px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
-  body.whole pre { display:none; }
-  body.whole #outline { display:block; }
   #sign { display:none; margin:14px 0 0; align-items:center; gap:14px; color:var(--bone); font-size:11.5px; line-height:1.6; }
   body.whole #sign { display:flex; }
   body.whole #say { display:none; }
-  #sign svg { width:64px; height:64px; flex:none; fill:var(--bone); stroke:var(--bone); stroke-width:.9; stroke-linejoin:round; }
-  #sign svg path { fill:none; }
   #sign a { color:var(--gold); pointer-events:auto; }
   pre { transition:opacity .8s; }
   body.held pre { opacity:.22; }
   /* one line at a time. It arrives as script and resolves into words while you hold. */
   #say { margin:16px 0 0; height:6.2em; color:var(--bone); white-space:pre-wrap; }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
-  #say code, #outline code { display:block; font:inherit; color:var(--gold); white-space:pre-wrap; }
+  #say code, #outline code { font:inherit; color:var(--gold); white-space:pre-wrap; }
+  #say .c, #outline .c { color:var(--bone); white-space:pre-wrap; }
+  #outline p { padding-left:1.4em; text-indent:-1.4em; }
+  #say { padding-left:1.4em; text-indent:-1.4em; }
   #outline p { margin:0 0 6px; }
   #outline .head { color:var(--dim); margin-bottom:10px; }
   #say.quiet { color:var(--dim); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; }
@@ -88,7 +88,7 @@
   .clue { position:fixed; left:0; top:0; margin:0; font:400 10px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase;
     color:var(--gold); opacity:0; transition:opacity 2.5s; pointer-events:none; text-align:center; }
   .clue.narrow { font-size:8.5px; line-height:1.45; letter-spacing:.14em; }
-  .clue.on { opacity:.85; }
+  .clue.on.show { opacity:.85; }
   @media (prefers-reduced-motion: reduce) { .slot { animation:none; } pre { transition:none; } }
 </style>
 </head>
@@ -99,7 +99,7 @@
 <div id="sky" aria-label="The sky: one star for every line read"></div>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
-<pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
+<pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS"></b></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
 <pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
   <p id="prog" aria-label="How much of the sky is lit"><span class="bar"><i></i></span><i class="dot" aria-label="the viewer"></i></p>
   <div id="outline"></div>
@@ -330,6 +330,7 @@ uniform vec4 uSky;                                    // the sky's box, in pixel
 uniform vec4 uStar[25];                               // x, y, light (-1: not yet; 0: unlit; 1: lit, more while it flares), tint. 25th: the viewer
 uniform float uStarMag[25]; uniform float uNova;      // seconds since the viewer became a star; below zero, they have not
 uniform vec4 uLink[27]; uniform float uLinkOn[27];    // lines between stars, drawn in once both ends are lit
+uniform vec4 uBorn;                                   // a star just lit: x, y (pixels), age in seconds, on
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
 uniform vec2 uPath[8]; uniform float uPathN, uGrow;   // the places you have found, in order: your path; the last still arriving
@@ -522,9 +523,13 @@ void main(){
       float sig = (1.2+1.3*b*lit+1.4*flare)*size;
       float core = exp(-dpx*dpx/(2.*sig*sig));
       float halo = exp(-dpx/((4.+12.*b*lit)*size))*(0.22+0.35*flare);
-      vec3 tint = tk < 0.5 ? BONE : tk < 1.5 ? GOLD*1.5 : tk < 2.5 ? vec3(0.74,0.86,1.0) : mix(GOLD*1.6, BONE*1.3, exp(-dpx*0.12));
+      vec3 tint = tk < 0.5 ? BONE : tk < 1.5 ? GOLD*1.5 : tk < 2.5 ? vec3(0.74,0.86,1.0) : mix(BONE*1.3, GOLD*1.7, smoothstep(1.5, 7., dpx/size));
       float tw = 0.86+0.14*sin(uTime*(1.1+0.9*hash1(float(i)*3.1))+float(i)*2.1);
       sky += tint*(core*(0.10+1.4*lit) + halo*lit)*tw;
+      if(tk > 2.5){
+        if(lit <= 0.) sky += GOLD*1.5*smoothstep(2.,0.,abs(dpx-(9.+2.*sin(uTime*2.)))-0.5)*0.45;   // a place kept, breathing
+        else sky += GOLD*1.7*exp(-dpx/(30.*size))*(0.30+0.22*sin(uTime*1.3))*lit;              // and taken: it radiates gold
+      }
       if(i == 24 && uNova >= 0.){                                        // the supernova: one ring, spreading, thinning
         float rr0 = 10.+75.*uNova;
         sky += BONE*smoothstep(3.,0.,abs(dpx-rr0)-1.)*exp(-uNova/2.4)*0.55;
@@ -537,6 +542,23 @@ void main(){
       sky += BONE*smoothstep(1.4,0.,dm-0.15)*0.17;
     }
     col += sky;
+  }
+  // a star just lit: a thread of the culture reaches out from the rim to it, and lets go
+  if(uBorn.w > 0.5 && uBorn.z < 4.){
+    vec2 st = uBorn.xy, dirs = normalize(st-uCenter);
+    vec2 a = uCenter + dirs*(R+0.08)*uS;                                   // from the rim's edge
+    vec2 ctrl = mix(a, st, 0.5) + vec2(-dirs.y, dirs.x)*length(st-a)*0.22; // bowed, never straight
+    float prog = smoothstep(0., 1.6, uBorn.z), gone = smoothstep(2.2, 4., uBorn.z);
+    float dm = 1e9; vec2 prev = a;
+    for(int k=1;k<=14;k++){
+      float t = float(k)/14.;
+      if(t > prog) break;
+      vec2 pt = mix(mix(a, ctrl, t), mix(ctrl, st, t), t);
+      dm = min(dm, seg(gl_FragCoord.xy, prev, pt)); prev = pt;
+    }
+    float th = smoothstep(1.6, 0., dm/uDpr-0.2);
+    float head = exp(-length(gl_FragCoord.xy-prev)/(5.*uDpr));
+    col += GOLD*1.6*(th*0.35 + head*0.8)*(1.-gone);
   }
 
   o = vec4(max(col,0.),1.);
@@ -770,9 +792,11 @@ function codeOf(k, i, alt = 0){
   return T[(hashI(k*131 + i*17 + pos*7 + (prevI+2)*3) + alt) % T.length].replace(/\{prev\}/g, prev);
 }
 // the program: the gists in the order they were read, each with its words
-const programHTML = (k) => `<p class="head"><code>sink = drain(sink)</code></p>` + orderOf(k).map((i) => `<p><code>${codeOf(k, i)}</code>${lineOf(i, k)}</p>`).join('');
+const poemLine = (code, words) => `<code>${code}</code> <span class="c">// ${words}</span>`;
+const programHTML = (k) => orderOf(k).map((i) => `<p>${poemLine(codeOf(k, i), lineOf(i, k))}</p>`).join('');
 const WIPE_LINE = 2;                  // wipe the culture away, it grows back: resistance is futile
-const outlineHTML = (k) => programHTML(k) + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<span class="door"><a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></span></p>';
+const outlineHTML = (k) => programHTML(k) + (mem[k].every(Boolean)
+  ? '<p style="margin-top:10px;color:var(--gold)"><code>return we  <span class="c">// macrofluidic &times; <b style="font-weight:700;color:var(--gold)">we</b></span></code><br>// davos &middot; 01.2027 &nbsp;<span class="door"><a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></span></p>' : '');
 // the stills of each play. The first set is in this file; the others arrive from beside it when they are near.
 const seriesTex = {}, seriesLoading = {};
 function toTex(ims){
@@ -796,7 +820,7 @@ function loadSeries(k){
 // a new play: the words are new, the stills are new, the sky has a new constellation to light
 function startPlay(k){
   play = k; OUTLINE = PLAYS[k].outline;
-  read.fill(false); path.length = 0; growT = 1;
+  read.fill(false); path.length = 0; growT = 1; document.getElementById('outline').innerHTML = '';
   imgTex = seriesTex[PLAYS[k].series] || seriesTex[1]; N = imgTex.length; loadSeries(PLAYS[k].series);
   document.body.classList.remove('whole'); document.getElementById('sign').innerHTML = '';
   asked = false; faceTex = null; faceHolds = 0; gaze = 0; eye.classList.remove('on', 'said');
@@ -818,13 +842,20 @@ function snapNow(fromPause){
 document.getElementById('outline').innerHTML = outlineHTML(0);
 let recall = null;                        // a star under the hand: its still comes back to the glass, its line to the words
 let novaOn = false, nova = -1;            // the secret final star: the viewer, once the eye has seen them. It keeps no picture.
+let novaPlay = 0;                          // which constellation the viewer joined
+const born = { x:0, y:0, age:9, on:false, k:-1, i:-1 };   // the star most recently lit; the lace reaches for it
 let weOk = false;                          // macrofluidic x __ : two letters
 const weEl = document.getElementById('we');
 for (const t of ['keydown', 'keyup', 'pointerdown']) weEl.addEventListener(t, (ev) => ev.stopPropagation());   // typing here is not holding
 weEl.addEventListener('input', () => {
   const v = weEl.value.toLowerCase();
   if (v.length < 2) return;
-  if (v === 'we') { weOk = true; weEl.value = 'we'; document.body.classList.add('we'); weEl.blur(); save(); }
+  if (v === 'we') {
+    weOk = true; document.body.classList.add('we'); weEl.blur(); save();
+    const t0 = performance.now();                                          // it arrives as script and resolves, like every line
+    const tick = () => { const k = Math.min(1, (performance.now()-t0)/900); weEl.value = cipher('we', k, Math.floor(performance.now()/90)); if (k < 1) requestAnimationFrame(tick); };
+    tick();
+  }
   else { weEl.classList.add('no'); setTimeout(() => { weEl.classList.remove('no'); weEl.value = ''; }, 500); }
 });
 document.getElementById('reset').addEventListener('click', (ev) => {       // twice, to be sure
@@ -860,12 +891,14 @@ function reveal(i, fromPause){
   if (read[i]) return;
   read[i] = true;
   mem[play][i] = snapNow(fromPause); mem[play][i].ord = read.filter(Boolean).length-1;
+  document.getElementById('outline').innerHTML = outlineHTML(play);        // the program grows a line
   starLight[play][i] = 1.8;                                 // it flares, then settles
+  born.on = true; born.age = 0; born.k = play; born.i = i;
   save();
   if (read.every(Boolean)) finish();
   else if (read.filter(Boolean).length >= 5 && play+1 < PLAYS.length) loadSeries(PLAYS[play+1].series);   // the next stills, in time
 }
-let afterEnd = 0, endDir = 1;
+let afterEnd = 0, endDir = 1, lastWords = false;
 function finish(){
   {
     document.body.classList.add('whole');
@@ -873,7 +906,7 @@ function finish(){
     const clue = document.querySelector(`.clue[data-play="${play}"]`); if (clue) clue.classList.add('on');
     const url = location.origin + location.pathname + '?p=' + encodePath(path);
     const sign = document.getElementById('sign');
-    sign.innerHTML = signOf(path) + `<span>your sign<br><a href="${url}" id="send">send it -&gt;</a></span>`;
+    sign.innerHTML = `<span>your constellation &nbsp;<a href="${url}" id="send">send it -&gt;</a></span>`;
     document.getElementById('send').addEventListener('click', (ev) => {
       ev.preventDefault();
       navigator.clipboard?.writeText(url).then(() => { ev.target.textContent = 'copied'; }, () => { location.href = url; });
@@ -882,12 +915,12 @@ function finish(){
 }
 // what the page keeps, on this machine only: which lines you have, where you found them, the culture you made
 function save(){
-  try { localStorage.setItem('veritas.ii', JSON.stringify({ v:2, play, read, path, mem, bio, nova: novaOn, we: weOk })); } catch (e) {}
+  try { localStorage.setItem('veritas.ii', JSON.stringify({ v:2, play, read, path, mem, bio, nova: novaOn, novaPlay, we: weOk })); } catch (e) {}
 }
 function restore(){
   try {
     const k = JSON.parse(localStorage.getItem('veritas.ii') || 'null'); if (!k) return;
-    if (k.nova) { novaOn = true; nova = 60; }
+    if (k.nova) { novaOn = true; nova = 60; novaPlay = Number.isInteger(k.novaPlay) ? k.novaPlay : 0; }
     if (k.we) { weOk = true; weEl.value = 'we'; document.body.classList.add('we'); }
     if (Array.isArray(k.mem)) k.mem.forEach((m, j) => { if (Array.isArray(m) && mem[j]) m.forEach((s, i) => { if (s && s.A) mem[j][i] = s; }); });
     if (Number.isInteger(k.play) && k.play > 0 && k.play < PLAYS.length) { play = k.play; OUTLINE = PLAYS[play].outline; document.getElementById('outline').innerHTML = outlineHTML(play); loadSeries(PLAYS[play].series); }
@@ -932,22 +965,26 @@ for (const el of document.querySelectorAll('.knob')) {
   });
 }
 function announce(i, now){
-  shown = `<code>${codeOf(play, i)}</code>${lineOf(i)}`;
+  shown = poemLine(codeOf(play, i), lineOf(i));
   say.innerHTML = shown; say.classList.remove('quiet'); linger = now+4200;
 }
 function poem(){
   const n = Math.floor(headF/RET_N), t = Math.floor(simTime);
-  document.getElementById('pN').textContent = n > 0 ? `   // ${n}` : '';
+  document.getElementById('pN').textContent = '';
   document.getElementById('pT').textContent = `   // ${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
-  const sv = sync > 0.985 ? 'True' : sync.toFixed(2);
+  const sv = sync > 0.985 ? 'True' : '';
   if (sv !== shownSync) { shownSync = sv; document.getElementById('pS').textContent = `   // ${sv}`; }
 }
-let whisper = null, lastSign = -1;
+let whisper = null, lastSign = -1, begun = false, silence = false;
 function tell(now){
   if ((now|0) % 4 === 0) poem();
+  if (silence) { if (shown !== '') { shown = ''; say.innerHTML = ''; } return; }
   if (sign !== lastSign) {                                            // a new still: sometimes, a line, unprompted
     lastSign = sign;
-    if (!held && sign % 2 === 0 && intro <= 0) {
+    if (!begun && !held && intro <= 0 && !read.some(Boolean)) {        // the first time the picture turns: how it is played, once
+      begun = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher('for place in clear: hold(place)', k, salt), cipher('seven places. hold, and seek.', k, salt)) };
+    }
+    else if (!held && sign % 2 === 0 && intro <= 0) {
       const given = read.map((r, i) => r ? i : -1).filter(i => i >= 0);
       const i = given.length ? given[Math.floor(Math.random()*given.length)] : (sign >= 2 ? 0 : -1);
       if (i >= 0) whisper = { i, t0: now };
@@ -959,21 +996,22 @@ function tell(now){
     if (age > 7000) { whisper = null; }
     else {
       const k = Math.min(1, age/2600)*(age < 5200 ? 1 : Math.max(0, 1-(age-5200)/1800));
-      const html = `<code>${cipher(codeOf(play, whisper.i, 1+(whisper.t0|0) % 2), k, Math.floor(now/90))}</code>${cipher(lineOf(whisper.i), k, Math.floor(now/90))}`;   // the same gist, implemented another way
+      const html = whisper.html ? whisper.html(k, Math.floor(now/90))
+        : poemLine(cipher(codeOf(play, whisper.i, 1+(whisper.t0|0) % 2), k, Math.floor(now/90)), cipher(lineOf(whisper.i), k, Math.floor(now/90)));   // the same gist, implemented another way
       if (html !== shown) { shown = html; say.innerHTML = html; say.classList.remove('quiet'); }
       return;
     }
   }
   let html, quiet = false;
-  if (recall && recall.nova) { html = "<code>return I  # the last star</code>you can't hide."; linger = now+1500; }
-  else if (recall) { html = `<code>${codeOf(recall.play, recall.line)}</code>${lineOf(recall.line, recall.play)}`; linger = now+1500; }
+  if (recall && recall.nova) { html = poemLine('return I', "you can't hide."); linger = now+1500; }
+  else if (recall) { html = poemLine(codeOf(recall.play, recall.line), lineOf(recall.line, recall.play)); linger = now+1500; }
   else if (held) {
     const i = pause.line, salt = Math.floor(now/90);
     if (i < 0) html = '';                                       // everything has been read; the pictures go on
     else {
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
-      const head = pause.done || focus > 0.45 ? `<code>${cipher(codeOf(play, i), pause.done ? 1 : focus, salt)}</code>` : '<b>seek</b>';
-      html = `${head}${cipher(lineOf(i), k, salt)}`;
+      html = pause.done || focus > 0.45 ? poemLine(cipher(codeOf(play, i), pause.done ? 1 : focus, salt), cipher(lineOf(i), k, salt))
+           : `<b>seek</b><span class="c">// ${cipher(lineOf(i), k, salt)}</span>`;
     }
     linger = pause.done ? now+3200 : 0;
   } else if (now < linger) return;                     // what was read stays a moment after you let go
@@ -1063,7 +1101,7 @@ async function see(ev){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     // seeing each other: for three breaths the glass goes clear on the two of you, one picture. Then it is poured.
     faceHolds = 2; compose(); meet = 4.5; focus = 1;
-    if (!novaOn) { novaOn = true; nova = 0; save(); }                    // the viewer becomes the last star
+    if (!novaOn) { novaOn = true; nova = 0; novaPlay = play; save(); }   // the viewer becomes the last star
     told('<b>it has you</b> &middot; it forgets in ten seconds', 7000);
   } catch (e) {
     if (stream) stream.getTracks().forEach(t => t.stop());
@@ -1167,6 +1205,7 @@ function render(){
   gl.uniform4f(u.uSky, sky.box[0]*view.dpr, (view.h-sky.box[3])*view.dpr, sky.box[2]*view.dpr, (view.h-sky.box[1])*view.dpr);
   gl.uniform4fv(u['uStar[0]'], sky.star); gl.uniform1fv(u['uStarMag[0]'], sky.mag); gl.uniform1f(u.uNova, novaOn ? nova : -1);
   gl.uniform4fv(u['uLink[0]'], sky.link); gl.uniform1fv(u['uLinkOn[0]'], sky.linkOn);
+  gl.uniform4f(u.uBorn, born.x*view.dpr, (view.h-born.y)*view.dpr, born.age, born.on ? 1 : 0);
   gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
   gl.uniform2fv(u['uOther[0]'], pathFlat(other)); gl.uniform1f(u.uOtherN, other.length);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
@@ -1293,7 +1332,15 @@ function tick(now){
     if (slot < order.length) { const i = order[slot]; if (!recall || recall.auto !== i) recall = { play, line:i, snap:mem[play][i], auto:i }; }
     else if (recall && recall.auto !== undefined) recall = null;
   }
-  if (end >= 1 && endDir > 0) { afterEnd += dt; if (afterEnd > 7 && play+1 < PLAYS.length) { endDir = -1; startPlay(play+1); } }   // the loop fills again, with other pictures
+  if (end >= 1 && endDir > 0) {
+    afterEnd += dt;
+    if (afterEnd > 7 && play+1 < PLAYS.length) { endDir = -1; startPlay(play+1); }   // the loop fills again, with other pictures
+    else if (play+1 >= PLAYS.length && !silence && !lastWords) {                       // the last play: the whole program, once, then nothing
+      lastWords = true; const order = orderOf(play); let q = 0;
+      const next = () => { if (q >= order.length) { silence = true; return; } const i = order[q++]; whisper = { t0: performance.now(), i }; setTimeout(next, 7200); };
+      next();
+    }
+  }
   laceScale = 1 + 0.06*(0.5+0.5*Math.sin(2*Math.PI*beats/6)) + 0.045*hb;
   lightSky(dt);
   flash *= Math.exp(-dt/1.8);
@@ -1438,8 +1485,6 @@ const starEls = [...skyEl.querySelectorAll('.star')].slice(0, PLAYS.length*LINES
 function layoutSky(box, wide){
   const key = box.join(',') + (wide ? 'w' : 't') + play;
   if (key === sky.key) return; sky.key = key; sky.box = box;
-  sky.novaAt = [(box[0]+box[2])/2, box[1]-12];                           // above the constellations, between the words and the sky
-  novaEl.style.transform = `translate(${Math.round(sky.novaAt[0])}px,${Math.round(sky.novaAt[1])}px)`;
   const n = play+1, W = box[2]-box[0], Hh = box[3]-box[1], PAD = 14;
   // the sky is shared by the plays so far, cut whichever way leaves the squarest cells
   const stack = Math.min(W, Hh/n) >= Math.min(W/n, Hh);
@@ -1466,9 +1511,10 @@ function lightSky(dt){
     document.querySelector('#prog .bar i').style.width = (150*litHere/LINES).toFixed(1)+'px';
   }
   litFrac = lit/all; litAll = starLight.some((L) => Array.from(L).every((v) => v > 0));   // one whole constellation is enough for the last star
-  document.body.classList.toggle('sky', litAll && weOk && (novaOn || !navigator.mediaDevices));   // the door: the sky, the word, and the viewer where there is a camera
+  document.body.classList.toggle('sky', weOk);                           // the door: the two letters open the proposal
   document.body.classList.toggle('nova', novaOn);
   const ease = 1-Math.exp(-dt/0.6);
+  for (let k = 0; k < PLAYS.length; k++) clueEls[k].classList.toggle('show', !!recall && recall.play === k);
   for (let k = 0; k < PLAYS.length; k++) for (let i = 0; i < LINES; i++) {
     const L = starLight[k], j = k*LINES+i, m = mem[k][i], c = sky.cell && sky.cell[k];
     if (L[i] > 1) L[i] = 1 + (L[i]-1)*fl;
@@ -1485,10 +1531,17 @@ function lightSky(dt){
     sky.star[j*4+3] = (i === WIPE_LINE ? 1 : (m.ord ?? i) === LINES-1 ? 2 : 0)*8 + c.size;   // the wipe's star is gold, the last found is ice
     sky.mag[j] = 2.3 - 0.3*(m.ord ?? i);                                  // the later it was found, the brighter
   }
+  if (born.on) { born.age += dt; const bp = sky.px[born.k] && sky.px[born.k][born.i]; if (bp) { born.x = bp[0]; born.y = bp[1]; } if (born.age > 4) born.on = false; }
   if (novaOn && nova >= 0) nova += dt;
   novaEl.classList.toggle('on', novaOn);
-  sky.star[96] = sky.novaAt[0]*view.dpr; sky.star[97] = (view.h-sky.novaAt[1])*view.dpr;
-  sky.star[98] = novaOn ? 1.3 + 2.4*Math.exp(-Math.max(nova, 0)/2.5) : -1; sky.star[99] = 3*8 + 1.6; sky.mag[24] = -3;
+  {                                                                      // the viewer's star sits where the drain is: the centre of the constellation they looked into
+    const nc = sky.cell && sky.cell[novaOn ? novaPlay : play];
+    if (nc) { sky.novaAt[0] += (nc.cx-sky.novaAt[0])*ease; sky.novaAt[1] += (nc.cy-sky.novaAt[1])*ease; }
+    if (Math.abs(sky.novaAt[0]-(novaEl.px||0)) > 0.3 || Math.abs(sky.novaAt[1]-(novaEl.py||0)) > 0.3) { novaEl.px = sky.novaAt[0]; novaEl.py = sky.novaAt[1]; novaEl.style.transform = `translate(${Math.round(sky.novaAt[0])}px,${Math.round(sky.novaAt[1])}px)`; }
+    sky.star[96] = sky.novaAt[0]*view.dpr; sky.star[97] = (view.h-sky.novaAt[1])*view.dpr;
+    sky.star[98] = novaOn ? 1.4 + 2.6*Math.exp(-Math.max(nova, 0)/2.5) : asked ? 0 : -1;   // asked and not yet taken: a place waits
+    sky.star[99] = 3*8 + (nc ? nc.size : 1)*2.2; sky.mag[24] = -3;
+  }
   let j = 0;
   for (let k = 0; k < PLAYS.length && j < 27; k++) {
     const order = orderOf(k);
@@ -1499,6 +1552,10 @@ function lightSky(dt){
       const want = starLight[k][order[q]] > 0 && starLight[k][order[q+1]] > 0;
       sky.linkOn[j] = want ? Math.min(1, sky.linkOn[j] + dt/2.2) : 0;
     }
+  }
+  if (novaOn && j < 27 && sky.px[novaPlay]) {                           // and it is joined to the last star found
+    const order = orderOf(novaPlay), pa = sky.px[novaPlay][order[order.length-1]];
+    if (pa) { sky.link[j*4] = pa[0]*view.dpr; sky.link[j*4+1] = (view.h-pa[1])*view.dpr; sky.link[j*4+2] = sky.novaAt[0]*view.dpr; sky.link[j*4+3] = (view.h-sky.novaAt[1])*view.dpr; sky.linkOn[j] = Math.min(1, sky.linkOn[j] + dt/2.2); j++; }
   }
   for (; j < 27; j++) sky.linkOn[j] = 0;
 }
