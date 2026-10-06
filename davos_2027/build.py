@@ -74,8 +74,10 @@ if OUT.startswith('veritas2'):
         open(out, 'w', encoding='utf-8').write(f'window.VERITAS_SERIES=window.VERITAS_SERIES||{{}};window.VERITAS_SERIES[{k}]={json.dumps(uris)};\n')
         print(f'series {k}: {pool} stills from {name}, {n_total / 1e6:.2f} MB -> {os.path.basename(out)}')
 
-src = open(os.path.join(HERE, SRC), encoding='utf-8').read()
+SRC = SRC if os.path.exists(SRC) else os.path.join(HERE, SRC)          # paths may be given from anywhere
+OUT = OUT if os.path.isabs(OUT) or os.path.dirname(OUT) else os.path.join(HERE, OUT)
+src = open(SRC, encoding='utf-8').read()
 assert src.count('[/*FRAMES*/]') == 1
 out = src.replace('[/*FRAMES*/]', json.dumps(frames))
-open(os.path.join(HERE, OUT), 'w', encoding='utf-8').write(out)
+open(OUT, 'w', encoding='utf-8').write(out)
 print(f'{OUT}  {len(out) / 1e6:.2f} MB')
