@@ -837,7 +837,7 @@ function snapNow(fromPause){
   const rnd = (a, b) => a + Math.random()*(b-a);
   const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
   const q = fromPause ? pause : { p:(sign + 3 + Math.floor(Math.random()*(N-6))) % N, A:frame(1.25, 0.12), B:frame(1.9, 0.6), flip:[1, Math.random() < 0.5 ? -1 : 1], seed:rnd(0, 60), spot:[0, 0] };
-  return { series: PLAYS[play].series, sign, mix: mixAB, p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, spot: q.spot.slice() };
+  return { series: PLAYS[play].series, sign, mix: mixAB, p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, spot: (fromPause && q.found ? q.found : q.spot).slice() };
 }
 document.getElementById('outline').innerHTML = outlineHTML(0);
 let recall = null;                        // a star under the hand: its still comes back to the glass, its line to the words
@@ -1306,10 +1306,13 @@ function tick(now){
   if (held) {
     heldSecs = (now-holdStart)/1000;
     const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S;
-    want = pause.byKey ? 1 : ss(0.40, 0.07, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));
+    want = pause.byKey ? 1 : ss(0.32, 0.055, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));   // tight: the glass clears only close by
     if (!pause.done) {
-      pause.kept = focus > 0.8 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
-      if (pause.kept >= READ_SECONDS) { pause.done = true; flash = 1; if (pause.line >= 0) { mark(pause.spot); reveal(pause.line, true); } }
+      pause.kept = focus > 0.85 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
+      if (pause.kept >= READ_SECONDS) {
+        pause.done = true; flash = 1;
+        if (pause.line >= 0) { pause.found = pause.byKey ? pause.spot.slice() : [qx, qy]; mark(pause.found); reveal(pause.line, true); }   // the star is where the hand was
+      }
     }
   }
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
