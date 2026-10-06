@@ -13,9 +13,17 @@
   body { margin:0; overflow:hidden; background:var(--ink); color:var(--dim); font:12.5px/1.75 var(--mono); }
   canvas { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:none; }
   /* the words are plumbed into the basin: a line runs from the tap to the title */
-  #lead { position:fixed; left:0; top:0; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; cursor:pointer; }
+  #lead { position:fixed; left:0; top:0; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; cursor:pointer; display:none; }
+  body.sky #lead { display:block; }
+  #outline .door { display:none; }
+  body.sky #outline .door { display:inline; }
+  /* the sky, counted: a thin line that fills, and the number */
+  #prog { margin:10px 0 0; font-size:11px; color:#5a5e64; display:flex; align-items:center; gap:10px; }
+  #prog .bar { display:inline-block; width:120px; height:1px; background:#2a2c31; position:relative; }
+  #prog .bar i { position:absolute; left:0; top:-1px; height:3px; width:0; background:var(--gold); transition:width 1.2s; }
+  #prog b { font-weight:400; color:var(--dim); }
   #lead:focus-visible { outline:1px solid var(--gold); }
-  #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9;
+  #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9; visibility:hidden;
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
   h1 i { font-style:normal; color:var(--gold); }
@@ -55,6 +63,16 @@
   #eye:hover #ask, #eye:focus-visible #ask, #eye.said #ask { opacity:1; }
   #ask b { font-weight:400; color:var(--gold); }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
+  /* the sky: one star per line read. Each play lights its own constellation; a lit star remembers its still and its line. */
+  #sky { position:fixed; left:0; top:0; pointer-events:none; }
+  .star { position:fixed; left:0; top:0; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; border:0; padding:0;
+    background:none; display:none; cursor:none; pointer-events:auto; }
+  .star.on { display:block; }
+  .star:focus-visible { outline:1px dotted var(--gold); }
+  .clue { position:fixed; left:0; top:0; margin:0; font:400 10px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase;
+    color:var(--gold); opacity:0; transition:opacity 2.5s; pointer-events:none; text-align:center; }
+  .clue.narrow { font-size:8.5px; line-height:1.45; letter-spacing:.14em; }
+  .clue.on { opacity:.85; }
   @media (prefers-reduced-motion: reduce) { .slot { animation:none; } pre { transition:none; } }
 </style>
 </head>
@@ -62,10 +80,12 @@
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with lace. Faces, skulls and flowers melt toward the drain and return from the tap."></canvas>
 <a id="lead" href="proposal.html" title="the proposal" aria-label="The full proposal"></a>
 <button id="eye" type="button" aria-label="Let it see you: one frame from your camera, never sent"><span id="ask"><b>look back</b> &middot; one frame, never sent</span></button>
+<div id="sky" aria-label="The sky: one star for every line read"></div>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
 <pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
 <pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
+  <p id="prog" aria-live="polite"><span class="bar"><i></i></span><span>stars <b id="pK">0</b>/<b id="pAll">24</b></span></p>
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
@@ -253,21 +273,23 @@ void main(){
   vec2 e = vec2(uTx.x,0.), n = vec2(0.,uTx.y);
   vec2 lap = -c + 0.13*(texture(uRD,vUv+e).rg + texture(uRD,vUv-e).rg) + 0.27*(texture(uRD,vUv+n).rg + texture(uRD,vUv-n).rg)
            + 0.05*(texture(uRD,vUv+e+n).rg + texture(uRD,vUv+e-n).rg + texture(uRD,vUv-e+n).rg + texture(uRD,vUv-e-n).rg);
+  lap *= mix(0.68, 1.0, smoothstep(0., 0.85, vUv.y));                    // small cells at the rim, larger ones further out
   float a = vUv.x*6.28318;
-  float f = mix(0.0390, 0.0367, vUv.y) + uDf + 0.0018*sin(a*3.+uTime*0.05) + 0.0012*sin(a*7.-uTime*0.031) + 0.0010*sin(vUv.y*9.-uTime*0.08);
-  float k = mix(0.0580, 0.0649, vUv.y) + uDk + 0.0006*sin(a*2.-uTime*0.017+1.);
+  // holes, all the way out: a net of cells. Further out the holes drift (chaos and holes); the weather over it is mild
+  float f = mix(0.0390, 0.0372, vUv.y) + uDf + 0.0008*sin(a*3.+uTime*0.021) + 0.0005*sin(a*7.-uTime*0.013) + 0.0004*sin(vUv.y*9.-uTime*0.05);
+  float k = mix(0.0580, 0.0584, vUv.y) + uDk + 0.0004*sin(a*2.-uTime*0.017+1.);
   float r = c.r*c.g*c.g;
   vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
   // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
   float sd = step(0.994, hash(vec2(floor(vUv.x*440.), uSeed)))*step(vUv.y,0.06);
   v.g = max(v.g, sd*0.45);
-  float ev = floor(uTime*0.5);                                          // a patch dies every two seconds, somewhere
+  float ev = floor(uTime*0.33);                                         // a patch dies every three seconds, somewhere
   vec2 pc = vec2(hash(vec2(ev,1.7)), 0.15+0.7*hash(vec2(ev,9.2)));
   vec2 dp = vec2(min(abs(vUv.x-pc.x), 1.-abs(vUv.x-pc.x))*6., vUv.y-pc.y);
-  float age = fract(uTime*0.5);
-  v = mix(v, vec2(1.,0.), 0.6*exp(-dot(dp,dp)/0.0025)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
+  float age = fract(uTime*0.33);
+  v = mix(v, vec2(1.,0.), 0.5*exp(-dot(dp,dp)/0.0016)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
   // and the whole culture creeps outward, a little, all the time
-  v = mix(v, texture(uRD, vUv-vec2(0., uTx.y*0.35)).rg, 0.06);
+  v = mix(v, texture(uRD, vUv-vec2(0., uTx.y*0.35)).rg, 0.025);
   vec2 dt = vec2(min(abs(vUv.x-uTouch.x), 1.-abs(vUv.x-uTouch.x))*6., vUv.y-uTouch.y);
   float wipe = uTouch.z*exp(-dot(dt,dt)/0.002);
   v = mix(v, vec2(1.,0.), wipe);
@@ -278,7 +300,11 @@ void main(){
 display: `
 uniform sampler2D uDye, uRD;
 uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd, uJelly, uWaltz;
-uniform float uRead, uWhole, uFlash, uDepth, uFocus, uGaze;
+uniform float uRead, uWhole, uFlash, uDepth, uFocus, uGaze, uHb, uLaceScale;
+uniform vec4 uSky;                                    // the sky's box, in pixels
+uniform vec4 uStar[24];                               // x, y, light (-1: not yet; 0: unlit; 1: lit, more while it flares), tint
+uniform float uStarMag[24];
+uniform vec4 uLink[27]; uniform float uLinkOn[27];    // lines between stars, drawn in once both ends are lit
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
 uniform vec2 uPath[8]; uniform float uPathN, uGrow;   // the places you have found, in order: your path; the last still arriving
@@ -306,7 +332,7 @@ float beat(float ph){
 const vec3 BONE = vec3(0.95,0.91,0.82);
 const vec3 GOLD = vec3(0.62,0.40,0.20);
 const float LACE0 = 0.006, LACE1 = 0.24;   // the lace begins just off the rim and runs this far out
-const float NR = 58.;      // flutes per basin unit
+const float NR = 80.;      // flutes per basin unit
 
 void main(){
   vec2 q = (gl_FragCoord.xy-uCenter)/uS;     // screen-aligned, in basin units, origin at the drain
@@ -322,12 +348,18 @@ void main(){
   sd += (fbm(q*2.6+vec2(uTime*0.03,-uTime*0.02))-0.5)*0.06*uRes.y;
   float clear = mix(0.18, 1., smoothstep(-0.02*uRes.y, 0.13*uRes.y, sd));
   clear = mix(1., clear, smoothstep(R+0.01, R+0.10, r));
+  {                                                   // and it thins where the sky is
+    vec2 kc = 0.5*(uSky.xy+uSky.zw), kh = 0.5*(uSky.zw-uSky.xy);
+    vec2 kd = abs(gl_FragCoord.xy-kc)-kh;
+    float ks = length(max(kd,0.))+min(max(kd.x,kd.y),0.);
+    clear *= mix(0.22, 1., smoothstep(-0.02*uRes.y, 0.10*uRes.y, ks));
+  }
 
   // corona: lace grown on the rim. Threads follow the edges of the culture; signals run out along them on the beat.
   if(r > R-0.09-0.40*uEnd){                                              // the culture reaches in over the picture; at the end, all the way
     float rr = r-R;
     vec2 dir = q/r;
-    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5+uTime*0.0022, (abs(rr)-LACE0)/(LACE1*(1.+0.06*uWaltz)));   // it turns, it breathes; inside the rim it is its own mirror
+    vec2 lp = vec2(atan(q.y,q.x)/6.28318+0.5+uTime*0.0022, (abs(rr)-LACE0)/(LACE1*uLaceScale));   // it turns, it breathes, it beats; inside the rim it is its own mirror
     float v = texture(uRD, lp).g;
     vec2 gv = vec2(texture(uRD, lp+vec2(0.0006,0.)).g-texture(uRD, lp-vec2(0.0006,0.)).g, texture(uRD, lp+vec2(0.,0.01)).g-texture(uRD, lp-vec2(0.,0.01)).g);
     vec2 tn = normalize(gv+1e-5);                                           // across the thread, in lace space
@@ -342,6 +374,7 @@ void main(){
     float lobe = 0.10*cos(13.*atan(q.y,q.x)+uTime*0.012) + 0.05*cos(5.*atan(q.y,q.x)-uTime*0.008) + 0.04*uWaltz;
     float fall = smoothstep(-0.09,0.04,rr)*smoothstep(1.,0.45-0.3*uLoss,lp.y-lobe)*exp(-max(rr,0.)*(3.2-1.6*uLoss));
     float lace = (thread*(0.24+0.34*relief+0.09*pulse+0.22*signal*thread) + body*0.045 + thread*glint*0.5)*fall;
+    lace *= 1.+0.35*uHb*smoothstep(0.11,0.,abs(rr));                       // the heart of it: the fine cells at the rim light on the beat
     // under it, what is left of the rays: fine hair
     float live = (1.-0.35*uHold)*(1.+0.45*uSurge)*(1.+0.5*uFlash)*(1.+0.9*uLoss)*(1.-0.85*uEnd);
     // near the rim the threads take the colour of the picture beneath them, so neither ends where the other begins
@@ -376,7 +409,7 @@ void main(){
 
     vec3 dye = texture(uDye, p).rgb;
     vec3 c = mix(dye, still(p), 0.96*(1.-L));
-    c = mix(c, c*c*(3.-2.*c), 0.30)*1.12;                          // a little more bite in the picture
+    c = mix(c, c*c*(3.-2.*c), 0.58)*1.22;                          // more bite in the picture
     float pulse = beat(uBeats - length(p-uTap)*1.5);            // leaves the tap, arrives late at the drain
 
     // wet light, and breath on the glass
@@ -451,6 +484,31 @@ void main(){
 
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
   col *= 1.-(0.75+0.5*uLoss)*dot(sc,sc);
+
+  // the sky: a star for every line read, in the order they were read. Both ends lit, a line draws itself between them.
+  if(all(greaterThan(gl_FragCoord.xy, uSky.xy-40.)) && all(lessThan(gl_FragCoord.xy, uSky.zw+40.))){
+    vec3 sky = vec3(0.);
+    for(int i=0;i<24;i++){
+      vec4 s = uStar[i]; if(s.z < 0.) continue;
+      float lit = min(s.z, 1.), flare = max(s.z-1., 0.);
+      float b = 0.25+0.75*clamp((2.6-uStarMag[i])/4.2, 0., 1.);
+      float dpx = length(gl_FragCoord.xy-s.xy)/uDpr;
+      float tk = floor(s.w/8.), size = s.w-8.*tk;
+      float sig = (1.2+1.3*b*lit+1.4*flare)*size;
+      float core = exp(-dpx*dpx/(2.*sig*sig));
+      float halo = exp(-dpx/((4.+12.*b*lit)*size))*(0.22+0.35*flare);
+      vec3 tint = tk < 0.5 ? BONE : tk < 1.5 ? GOLD*1.5 : vec3(0.74,0.86,1.0);
+      float tw = 0.86+0.14*sin(uTime*(1.1+0.9*hash1(float(i)*3.1))+float(i)*2.1);
+      sky += tint*(core*(0.10+1.4*lit) + halo*lit)*tw;
+    }
+    for(int i=0;i<27;i++){
+      float on = uLinkOn[i]; if(on <= 0.) continue;
+      vec4 l = uLink[i];
+      float dm = seg(gl_FragCoord.xy, l.xy, mix(l.xy, l.zw, on))/uDpr;
+      sky += BONE*smoothstep(1.4,0.,dm-0.15)*0.17;
+    }
+    col += sky;
+  }
 
   o = vec4(max(col,0.),1.);
 }`,
@@ -603,19 +661,91 @@ const ret = (() => {
 
 // ---- the outline: two images to a thought, folded shut until each has been held and read ----
 // Kat's words. Each line is earned by the gesture it is about.
-const OUTLINE = [
-  ['a new biology', 'we need a new biology.',   'merge.'],
-  ['resistance',    'resistance is futile.',    "it's all ok."],
-  ['ok',            'it shall be ok.',          'beautiful even. great even.'],
-  ['the spotlight', "you can't hide.",          'the spotlight.'],
+// ---- plays: each run through eight lines has its own words, its own stills, and its own constellation in the sky.
+// Stars are given as RA (hours), Dec (degrees), magnitude, tint (0 bone, 1 gold, 2 ice), drawn as a chart seen from the north.
+const PLAYS = [
+  { series: 1, clue: 'orion \u00b7 46.80 n \u00b7 9.84 e \u00b7 18.01.2027 \u00b7 22:00',
+    outline: [
+      ['a new biology', 'we need a new biology.',   'merge.'],
+      ['resistance',    'resistance is futile.',    "it's all ok."],
+      ['ok',            'it shall be ok.',          'beautiful even. great even.'],
+      ['the spotlight', "you can't hide.",          'the spotlight.'],
+    ],
+    stars: [[5.9195, 7.407, 0.50, 1], [5.4189, 6.350, 1.64, 2], [5.5334, -0.299, 2.23, 0], [5.6036, -1.202, 1.69, 0],
+            [5.6793, -1.943, 1.77, 0], [5.2423, -8.202, 0.13, 2], [5.7959, -9.670, 2.09, 0], [6.7525, -16.716, -1.46, 2]],
+    links: [[0,1],[0,4],[1,2],[2,3],[3,4],[2,5],[4,6],[5,6],[4,7]] },   // betelgeuse, bellatrix, the belt, rigel, saiph; the belt points to sirius
+  // DRAFT words (claude), for Kat to replace. Lines 2 and 6 are earned by the wipe and the face.
+  { series: 2, clue: 'gemini \u00b7 the twins \u00b7 two basins \u00b7 two cities',
+    outline: [
+      ['two',      'two basins. one loop.',          'two cities. one breath.'],
+      ['the copy', 'what drains, returns.',          'a copy of a copy. still a face.'],
+      ['the card', 'eight stills. one card.',        'turn it, and it turns.'],
+      ['sync',     'hold still with me.',            'sink == sync'],
+    ],
+    stars: [[7.5767, 31.888, 1.58, 2], [7.7553, 28.026, 1.14, 1], [6.7322, 25.131, 3.06, 0], [7.3353, 21.982, 3.53, 0],
+            [6.3827, 22.513, 2.87, 1], [6.6285, 16.399, 1.93, 2], [6.2480, 22.507, 3.30, 1], [6.7548, 12.896, 3.35, 0]],
+    links: [[0,2],[2,4],[4,6],[1,3],[3,5],[3,7],[0,1]] },               // castor, pollux, and the two of them
+  { series: 3, clue: 'capricornus \u00b7 the sea-goat \u00b7 the sun is here that week',
+    outline: [
+      ['the sea-goat', 'half in the water. half out.',   'so are we.'],
+      ['january',      'the snow is also a loop.',       'melt. return.'],
+      ['downstream',   'nothing is lost. only downstream.', 'drink.'],
+      ['look up',      'you were always here.',          'look up.'],
+    ],
+    stars: [[21.7840, -16.127, 2.85, 0], [20.3502, -14.781, 3.05, 1], [20.3010, -12.545, 3.58, 1], [21.6682, -16.662, 3.67, 0],
+            [21.4443, -22.411, 3.77, 1], [21.0991, -17.233, 4.07, 0], [21.3707, -16.834, 4.28, 1], [20.8637, -26.919, 4.12, 1]],
+    links: [[2,1],[1,7],[7,4],[4,3],[3,0],[0,6],[6,5],[5,1]] },
 ];
+let play = 0;
+let OUTLINE = PLAYS[0].outline;
 const WIPE_LINE = 2;                  // wipe the culture away, it grows back: resistance is futile
 const FACE_LINE = 6;                  // let it see you: you can't hide
-document.getElementById('outline').innerHTML = OUTLINE.map(([name, a, b]) =>
-  `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></p>';
-const N = FRAMES.length;
+const outlineHTML = (k) => PLAYS[k].outline.map(([name, a, b]) =>
+  `<h2>${name}</h2><p>${a}</p><p>${b}</p>`).join('') + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<span class="door"><a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></span></p>';
+document.getElementById('outline').innerHTML = outlineHTML(0);
+// the stills of each play. The first set is in this file; the others arrive from beside it when they are near.
+const seriesTex = {}, seriesLoading = {};
+function toTex(ims){
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  const t = ims.map((im) => { const t = texture(gl.LINEAR); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, im); return t; });
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  return t;
+}
+const loadImages = (list) => Promise.all(list.map((src) => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; })));
+function loadSeries(k){
+  if (seriesTex[k]) return Promise.resolve(seriesTex[k]);
+  if (seriesLoading[k]) return seriesLoading[k];
+  return seriesLoading[k] = new Promise((ok) => {
+    const sc = document.createElement('script'); sc.src = `veritas2.s${k}.js`;
+    sc.onload = () => { const list = (window.VERITAS_SERIES || {})[k]; if (!list || !list.length) return ok(null);
+      loadImages(list).then((ims) => { seriesTex[k] = toTex(ims); if (PLAYS[play].series === k) { imgTex = seriesTex[k]; N = imgTex.length; } ok(seriesTex[k]); }, () => ok(null)); };
+    sc.onerror = () => ok(null);
+    document.head.appendChild(sc);
+  });
+}
+// a new play: the words are new, the stills are new, the sky has a new constellation to light
+function startPlay(k){
+  play = k; OUTLINE = PLAYS[k].outline;
+  read.fill(false); path.length = 0; growT = 1;
+  imgTex = seriesTex[PLAYS[k].series] || seriesTex[1]; N = imgTex.length; loadSeries(PLAYS[k].series);
+  document.body.classList.remove('whole'); document.getElementById('sign').innerHTML = '';
+  asked = false; faceTex = null; faceHolds = 0; gaze = 0; eye.classList.remove('on', 'said');
+  afterEnd = 0; whisper = null; linger = 0; say.textContent = 'hold'; say.classList.add('quiet'); shown = 'hold';
+  compose(); save();
+}
+let N = FRAMES.length;
 const read = new Array(8).fill(false);
-const lineOf = (i) => OUTLINE[i >> 1][1 + (i & 1)];
+const lineOf = (i, k = play) => PLAYS[k].outline[i >> 1][1 + (i & 1)];
+const nameOf = (i, k = play) => PLAYS[k].outline[i >> 1][0];
+// what each star remembers: the still that was held when its line was read
+const mem = PLAYS.map(() => new Array(8).fill(null));
+function snapNow(fromPause){
+  const rnd = (a, b) => a + Math.random()*(b-a);
+  const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
+  const q = fromPause ? pause : { p:(sign + 3 + Math.floor(Math.random()*(N-6))) % N, A:frame(1.25, 0.12), B:frame(1.9, 0.6), flip:[1, Math.random() < 0.5 ? -1 : 1], seed:rnd(0, 60), spot:[0, 0] };
+  return { series: PLAYS[play].series, sign, mix: mixAB, p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, spot: q.spot.slice() };
+}
+let recall = null;                        // a star under the hand: its still comes back to the glass, its line to the words
 // your path: the eight places, in the order you found them. Encoded in a link, it can be sent; opened, it is drawn in gold.
 const path = [], other = [];
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
@@ -628,15 +758,21 @@ function signOf(pts){
   const dots = pts.map(([x, y]) => `<circle cx="${(50+x*110).toFixed(1)}" cy="${(50-y*110).toFixed(1)}" r="1.6"/>`).join('');
   return `<svg viewBox="0 0 100 100" aria-label="your sign"><path d="${d}"/>${dots}</svg>`;
 }
-function reveal(i){
+function reveal(i, fromPause){
   if (read[i]) return;
   read[i] = true;
+  mem[play][i] = snapNow(fromPause);
+  starLight[play][i] = 1.8;                                 // it flares, then settles
   save();
   if (read.every(Boolean)) finish();
+  else if (read.filter(Boolean).length >= 5 && play+1 < PLAYS.length) loadSeries(PLAYS[play+1].series);   // the next stills, in time
 }
+let afterEnd = 0, endDir = 1;
 function finish(){
   {
     document.body.classList.add('whole');
+    document.getElementById('outline').innerHTML = outlineHTML(play);
+    const clue = document.querySelector(`.clue[data-play="${play}"]`); if (clue) clue.classList.add('on');
     const url = location.origin + location.pathname + '?p=' + encodePath(path);
     const sign = document.getElementById('sign');
     sign.innerHTML = signOf(path) + `<span>your sign<br><a href="${url}" id="send">send it -&gt;</a></span>`;
@@ -648,15 +784,18 @@ function finish(){
 }
 // what the page keeps, on this machine only: which lines you have, where you found them, the culture you made
 function save(){
-  try { localStorage.setItem('veritas.ii', JSON.stringify({ read, path, bio })); } catch (e) {}
+  try { localStorage.setItem('veritas.ii', JSON.stringify({ v:2, play, read, path, mem, bio })); } catch (e) {}
 }
 function restore(){
   try {
     const k = JSON.parse(localStorage.getItem('veritas.ii') || 'null'); if (!k) return;
-    if (Array.isArray(k.read)) k.read.forEach((v, i) => { read[i] = !!v; });
+    if (Array.isArray(k.mem)) k.mem.forEach((m, j) => { if (Array.isArray(m) && mem[j]) m.forEach((s, i) => { if (s && s.A) mem[j][i] = s; }); });
+    if (Number.isInteger(k.play) && k.play > 0 && k.play < PLAYS.length) { play = k.play; OUTLINE = PLAYS[play].outline; document.getElementById('outline').innerHTML = outlineHTML(play); loadSeries(PLAYS[play].series); }
+    for (let j = 0; j < play; j++) { mem[j].forEach((s, i) => { if (s) starLight[j][i] = 1; }); const c = document.querySelector(`.clue[data-play="${j}"]`); if (c) c.classList.add('on'); }
+    if (Array.isArray(k.read)) k.read.forEach((v, i) => { read[i] = !!v; if (v) { starLight[play][i] = 1; if (!mem[play][i]) mem[play][i] = snapNow(false); } });
     if (Array.isArray(k.path)) path.push(...k.path.slice(0, 8).filter(p => Array.isArray(p) && p.length === 2));
     if (k.bio) { bio.f = +k.bio.f || bio.f; bio.k = +k.bio.k || bio.k; document.querySelectorAll('.knob').forEach(el => { el.textContent = bio[el.dataset.k].toFixed(4); }); }
-    if (read.every(Boolean)) finish();
+    if (read.every(Boolean)) { if (play+1 < PLAYS.length) startPlay(play+1); else finish(); }
   } catch (e) {}
 }
 // ---- the reveal: the line arrives in the script and resolves, letter by letter, over one breath.
@@ -693,7 +832,7 @@ for (const el of document.querySelectorAll('.knob')) {
   });
 }
 function announce(i, now){
-  shown = `<b>${OUTLINE[i >> 1][0]}</b>${lineOf(i)}`;
+  shown = `<b>${nameOf(i)}</b>${lineOf(i)}`;
   say.innerHTML = shown; say.classList.remove('quiet'); linger = now+4200;
 }
 function poem(){
@@ -720,18 +859,19 @@ function tell(now){
     if (age > 7000) { whisper = null; }
     else {
       const k = Math.min(1, age/2600)*(age < 5200 ? 1 : Math.max(0, 1-(age-5200)/1800));
-      const html = `<b>${OUTLINE[whisper.i >> 1][0]}</b>${cipher(lineOf(whisper.i), k, Math.floor(now/90))}`;
+      const html = `<b>${nameOf(whisper.i)}</b>${cipher(lineOf(whisper.i), k, Math.floor(now/90))}`;
       if (html !== shown) { shown = html; say.innerHTML = html; say.classList.remove('quiet'); }
       return;
     }
   }
   let html, quiet = false;
-  if (held) {
+  if (recall) { html = `<b>${nameOf(recall.line, recall.play)}</b>${lineOf(recall.line, recall.play)}`; linger = now+1500; }
+  else if (held) {
     const i = pause.line, salt = Math.floor(now/90);
     if (i < 0) html = '';                                       // everything has been read; the pictures go on
     else {
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
-      const head = pause.done || focus > 0.45 ? cipher(OUTLINE[i >> 1][0], pause.done ? 1 : focus, salt) : 'seek';
+      const head = pause.done || focus > 0.45 ? cipher(nameOf(i), pause.done ? 1 : focus, salt) : 'seek';
       html = `<b>${head}</b>${cipher(lineOf(i), k, salt)}`;
     }
     linger = pause.done ? now+3200 : 0;
@@ -770,6 +910,7 @@ let headF = 0, beats = 0, sign = 0, mixAB = 0, gph = 0, end = 0;
 const dayParam = parseFloat(new URLSearchParams(location.search).get('day'));
 const loss = Math.min(1, Math.max(0, (Number.isFinite(dayParam) ? dayParam*864e5 : Date.now()-LAUNCH)/(DAVOS-LAUNCH)));
 let holdAmt = 0, surge = 0, holdStart = 0, heldSecs = 0, flash = 0, depth = 0, whole = 0;
+let hb = 0, laceScale = 1;                   // the beat, and how far the lace has breathed out on it: the drawing and the wipe must agree
 let sync = 0, shownSync = '';
 const jelly = { x:0, v:0 };                  // a spring: pressed in, it overshoots on the way back
 let intro = 4.5;                             // the first breaths: the picture is shown clear, then let go
@@ -821,7 +962,7 @@ async function see(ev){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     // seeing each other: for three breaths the glass goes clear on the two of you, one picture. Then it is poured.
     faceHolds = 2; compose(); meet = 4.5; focus = 1;
-    if (!read[FACE_LINE]) { mark([0, 0]); reveal(FACE_LINE); flash = 1; announce(FACE_LINE, performance.now()); }
+    if (!read[FACE_LINE]) { mark([0, 0]); reveal(FACE_LINE, false); flash = 1; announce(FACE_LINE, performance.now()); }
     told('<b>it has you</b> &middot; it forgets in ten seconds', 7000);
   } catch (e) {
     if (stream) stream.getTracks().forEach(t => t.stop());
@@ -834,7 +975,7 @@ eye.addEventListener('click', see);
 function told(html, ms){ ask.innerHTML = html; eye.classList.add('said'); clearTimeout(told.t); if (ms) told.t = setTimeout(() => { eye.classList.remove('said'); if (ms > 5000) eye.classList.remove('on'); }, ms); }
 
 function step(dt){
-  const hb = heart(beats);
+  hb = heart(beats);
   const Q = 0.038*(0.55 + 1.6*hb)*(1 + 2.6*surge)*(1 + 2*end);  // let go, and it floods back; at the end, the drain takes it
   const gT = beats/SIGN_BEATS; gph = gT-Math.floor(gT);
   sign = Math.floor(gT) % N;
@@ -906,16 +1047,23 @@ function render(){
   gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, end); gl.uniform1f(u.uJelly, jelly.x);
   gl.uniform1f(u.uWaltz, 0.5+0.5*Math.sin(2*Math.PI*beats/6));
   gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
-  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, pause.face && faceTex ? faceTex : imgTex[pause.p]); bind(u.uRD, rdA.tex);
-  gl.uniform4f(u.uPA, ...pause.A); gl.uniform4f(u.uPB, ...pause.B);
-  gl.uniform2f(u.uPFlip, ...pause.flip); gl.uniform1f(u.uPSeed, pause.seed);
-  gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
+  const rs = recall && recall.snap, rt = rs && (seriesTex[rs.series] || imgTex);
+  if (rs) { bind(u.uImgA, rt[rs.sign % rt.length]); bind(u.uImgB, rt[(rs.sign+1) % rt.length]); bind(u.uImgP, rt[rs.p % rt.length]); }
+  else { bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[(sign+1) % N]); bind(u.uImgP, pause.face && faceTex ? faceTex : imgTex[pause.p]); }
+  bind(u.uRD, rdA.tex);
+  const sp = rs || pause;
+  gl.uniform4f(u.uPA, ...sp.A); gl.uniform4f(u.uPB, ...sp.B);
+  gl.uniform2f(u.uPFlip, ...sp.flip); gl.uniform1f(u.uPSeed, sp.seed);
+  gl.uniform1f(u.uMix, rs ? rs.mix : mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
   gl.uniform1f(u.uTime, simTime); gl.uniform1f(u.uBeats, beats);
   gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uSurge, surge); gl.uniform1f(u.uHeldSecs, heldSecs);
   gl.uniform1f(u.uRead, read.reduce((m, r, i) => m + (r ? 1 << i : 0), 0));
   gl.uniform1f(u.uWhole, whole); gl.uniform1f(u.uFlash, flash); gl.uniform1f(u.uDepth, depth);
-  gl.uniform1f(u.uFocus, focus); gl.uniform2f(u.uSpot, pause.spot[0], pause.spot[1]);
-  gl.uniform1f(u.uGaze, gaze);
+  gl.uniform1f(u.uFocus, focus); gl.uniform2f(u.uSpot, sp.spot[0], sp.spot[1]);
+  gl.uniform1f(u.uGaze, gaze); gl.uniform1f(u.uHb, hb); gl.uniform1f(u.uLaceScale, laceScale); gl.uniform1f(u.uDpr, view.dpr);
+  gl.uniform4f(u.uSky, sky.box[0]*view.dpr, (view.h-sky.box[3])*view.dpr, sky.box[2]*view.dpr, (view.h-sky.box[1])*view.dpr);
+  gl.uniform4fv(u['uStar[0]'], sky.star); gl.uniform1fv(u['uStarMag[0]'], sky.mag);
+  gl.uniform4fv(u['uLink[0]'], sky.link); gl.uniform1fv(u['uLinkOn[0]'], sky.linkOn);
   gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
   gl.uniform2fv(u['uOther[0]'], pathFlat(other)); gl.uniform1f(u.uOtherN, other.length);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
@@ -953,6 +1101,16 @@ function render(){
 // Tall: the disc is cropped by the top and the words stand under it. Either way the tap is turned to face them.
 const RING = 0.470/0.395;             // the ring of cuts, in basin radii
 function resize(){
+  const { w, h, dpr } = layoutWords();
+  const pw = Math.max(2, Math.round(w*dpr)), ph = Math.max(2, Math.round(h*dpr));
+  if (canvas.width !== pw || canvas.height !== ph || !scene) {
+    canvas.width = pw; canvas.height = ph;
+    for (const t of [scene, softA, softB]) if (t) { gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fbo); }
+    scene = sheet(pw, ph);
+    softA = sheet(Math.ceil(pw/4), Math.ceil(ph/4)); softB = sheet(softA.w, softA.h);
+  }
+}
+function layoutWords(){
   const w = window.innerWidth, h = window.innerHeight;
   const ww = Math.min(300, w-48), wh = words.offsetHeight;
   let Rb, cx, cy, wx, wy;
@@ -975,20 +1133,20 @@ function resize(){
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
   if (w*h*dpr*dpr > 3.6e6) dpr = Math.sqrt(3.6e6/(w*h));
   Object.assign(view, { w, h, cx, cy, S:Rb/0.395, dpr, box:[wx-10, wy-6, wx+ww, wy+wh+6], lead });
-  const pw = Math.max(2, Math.round(w*dpr)), ph = Math.max(2, Math.round(h*dpr));
-  if (canvas.width !== pw || canvas.height !== ph || !scene) {
-    canvas.width = pw; canvas.height = ph;
-    for (const t of [scene, softA, softB]) if (t) { gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fbo); }
-    scene = sheet(pw, ph);
-    softA = sheet(Math.ceil(pw/4), Math.ceil(ph/4)); softB = sheet(softA.w, softA.h);
-  }
+  words.style.visibility = 'visible';
+  // the sky: wide, it is the free corner below the words, past the lace; tall, the strip under them
+  const wide = w > 1.3*h;
+  const box = wide ? [Math.max(wx-24, cx+1.32*Rb), wy+wh+30, w-28, h-26] : [24, wy+wh+22, w-24, h-20];
+  if (box[2]-box[0] < 60 || box[3]-box[1] < 40) box[3] = box[1]+0;      // no room: the sky waits
+  layoutSky(box.map(Math.round), wide);
+  return { w, h, dpr };
 }
 
 function frame(now){ tick(now); requestAnimationFrame(frame); }
 function tick(now){
   const dt = Math.max(0, Math.min((now-last)/1000, 1/30)); last = now;
   resize();
-  if (!held && touch.z > 0) { wiped += dt; if (wiped > 2.4 && !read[WIPE_LINE]) { mark([(hand.x-view.cx)/view.S, (view.cy-hand.y)/view.S]); reveal(WIPE_LINE); flash = 1; announce(WIPE_LINE, now); } }
+  if (!held && touch.z > 0) { wiped += dt; if (wiped > 2.4 && !read[WIPE_LINE]) { mark([(hand.x-view.cx)/view.S, (view.cy-hand.y)/view.S]); reveal(WIPE_LINE, false); flash = 1; announce(WIPE_LINE, now); } }
   if (!held && dt > 0) step(dt);
   // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
   // Keep it there for a heartbeat and the next line is yours. Every hold hides it somewhere else.
@@ -999,7 +1157,7 @@ function tick(now){
     want = pause.byKey ? 1 : ss(0.40, 0.07, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));
     if (!pause.done) {
       pause.kept = focus > 0.8 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
-      if (pause.kept >= READ_SECONDS) { pause.done = true; flash = 1; if (pause.line >= 0) { mark(pause.spot); reveal(pause.line); } }
+      if (pause.kept >= READ_SECONDS) { pause.done = true; flash = 1; if (pause.line >= 0) { mark(pause.spot); reveal(pause.line, true); } }
     }
   }
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
@@ -1008,9 +1166,9 @@ function tick(now){
   gaze += (((asked && !faceTex) ? 1 : 0)-gaze)*(1-Math.exp(-dt/1.5));   // it starts looking once it is ready to be looked at
   if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; eye.classList.add('on'); }
   if (meet > 0) { meet -= dt; if (meet <= 0) facePour = 1.8; }      // after the meeting, the pour
-  const showStill = held || intro > 0 || ghost.on || meet > 0;
+  const showStill = held || intro > 0 || ghost.on || meet > 0 || !!recall;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
-  if (intro > 0 || meet > 0) focus = 1;
+  if (intro > 0 || meet > 0 || recall) focus = 1;
   // the glass as a spring
   jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;
   // attract: after eight untouched seconds a ghost ring drifts to the clear place and closes there
@@ -1019,7 +1177,11 @@ function tick(now){
   if (ghost.on) { ghost.t += dt; if (ghost.t > 7 || hand.on || held) ghost.on = false; }
   depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
-  if (whole > 0.5) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
+  if (whole > 0.5 && endDir > 0) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
+  if (endDir < 0) { end = Math.max(0, end - dt/9); if (end === 0) endDir = 1; }
+  if (end >= 1 && endDir > 0) { afterEnd += dt; if (afterEnd > 7 && play+1 < PLAYS.length) { endDir = -1; startPlay(play+1); } }   // the loop fills again, with other pictures
+  laceScale = 1 + 0.06*(0.5+0.5*Math.sin(2*Math.PI*beats/6)) + 0.045*hb;
+  lightSky(dt);
   flash *= Math.exp(-dt/1.8);
   tell(now);
   const t0 = performance.now();
@@ -1027,7 +1189,7 @@ function tick(now){
   if (probe) {   // ?probe: force the GPU to finish, keep the timings, and let a test drive the clock
     gl.readPixels(0,0,1,1, gl.RGBA, gl.UNSIGNED_BYTE, drainRGBA);
     probe.push(performance.now()-t0); if (probe.length > 120) probe.shift();
-    window.__veritas = { ms:probe, tick, pause, view, read, loss, get end(){ return end; }, get held(){ return held; }, get holdAmt(){ return holdAmt; }, get whole(){ return whole; }, get simTime(){ return simTime; },
+    window.__veritas = { ms:probe, tick, pause, view, read, loss, reveal, startPlay, mem, starLight, sky, get play(){ return play; }, get recall(){ return recall; }, get end(){ return end; }, get held(){ return held; }, get holdAmt(){ return holdAmt; }, get whole(){ return whole; }, get simTime(){ return simTime; },
       dyeAt(x, y){ const px = new Float32Array(4); gl.bindFramebuffer(gl.FRAMEBUFFER, dye.read.fbo); gl.readPixels(Math.floor(x*DYE), Math.floor(y*DYE), 1, 1, gl.RGBA, gl.FLOAT, px); return Array.from(px); },
       get fadeNow(){ return 0.03 + 0.20*loss + 2.5*end; } };
   }
@@ -1049,9 +1211,10 @@ canvas.addEventListener('pointermove', (ev) => {
   }
   stir.x = x; stir.y = y; stir.px = x; stir.py = y;
   const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S, rr = Math.hypot(qx, qy)-0.395;
-  if (rr > 0 && rr < 0.26) { touch.x = Math.atan2(qy, qx)/(2*Math.PI)+0.5; touch.y = (rr-0.006)/0.24; touch.z = 0.5; }
+  if (rr > 0 && rr < 0.26*laceScale) { const tx = Math.atan2(qy, qx)/(2*Math.PI)+0.5+simTime*0.0022; touch.x = tx-Math.floor(tx); touch.y = (rr-0.006)/(0.24*laceScale); touch.z = 0.5; }
 });
-canvas.addEventListener('pointerleave', () => { stir.px = stir.py = null; if (!hand.pressing) hand.on = false; });
+canvas.addEventListener('pointerleave', () => { stir.px = stir.py = null; if (!hand.pressing && !recall) hand.on = false; });
+window.addEventListener('pointermove', (ev) => { if (ev.target !== canvas) { const b = canvas.getBoundingClientRect(); hand.x = ev.clientX-b.left; hand.y = ev.clientY-b.top; } });
 
 canvas.addEventListener('pointerdown', (ev) => {
   toBasin(ev); hand.on = true; hand.pressing = true;
@@ -1128,11 +1291,88 @@ function record(seconds){
 }
 
 // ---- begin, once the stills are in ----
+// ---- the sky ----
+// Each play's constellation is drawn as a chart (east to the left, as it hangs in the sky), fitted into its own cell of the sky's box.
+const starLight = PLAYS.map(() => new Float32Array(8));                  // 0 unlit, 1 lit; above 1 while a new one flares
+const sky = { box:[0,0,0,0], key:'', star:new Float32Array(24*4), mag:new Float32Array(24), link:new Float32Array(27*4), linkOn:new Float32Array(27), px:[], linkAt:[] };
+const skyEl = document.getElementById('sky');
+PLAYS.forEach((P, k) => {
+  P.stars.forEach((st, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'star'; b.dataset.play = k; b.dataset.i = i;
+    b.setAttribute('aria-label', `a star: ${lineOf(i, k)}`);
+    const on = () => { if (starLight[k][i] > 0) { recall = { play:k, line:i, snap:mem[k][i] || (mem[k][i] = snapNow(false)) }; hand.on = true; } };
+    const off = () => { recall = null; };
+    b.addEventListener('pointerenter', on); b.addEventListener('focus', on);
+    b.addEventListener('pointerleave', off); b.addEventListener('blur', off);
+    b.addEventListener('pointerdown', (ev) => { ev.preventDefault(); on(); clearTimeout(b.t); b.t = setTimeout(off, 4000); });   // a touch: it stays a moment
+    skyEl.appendChild(b);
+  });
+  const c = document.createElement('p'); c.className = 'clue'; c.dataset.play = k; c.textContent = P.clue; skyEl.appendChild(c);
+});
+const starEls = [...skyEl.querySelectorAll('.star')], clueEls = [...skyEl.querySelectorAll('.clue')];
+function layoutSky(box, wide){
+  const key = box.join(',') + (wide ? 'w' : 't');
+  if (key === sky.key) return; sky.key = key; sky.box = box;
+  const n = PLAYS.length, W = box[2]-box[0], Hh = box[3]-box[1], PAD = 16;
+  sky.px = []; sky.linkAt = [];
+  const charts = PLAYS.map((P) => {
+    const ra0 = P.stars.reduce((a, s) => a+s[0], 0)/8, de0 = P.stars.reduce((a, s) => a+s[1], 0)/8;
+    const pts = P.stars.map((s) => [-(s[0]-ra0)*15*Math.cos(de0*Math.PI/180), s[1]-de0]);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    return { pts, sx: Math.max(...xs)-Math.min(...xs)+1e-6, sy: Math.max(...ys)-Math.min(...ys)+1e-6, mx: (Math.max(...xs)+Math.min(...xs))/2, my: (Math.max(...ys)+Math.min(...ys))/2 };
+  });
+  // the box is cut into one cell per play, whichever way lets the constellations be largest
+  const fit = (cw, ch) => Math.min(...charts.map((c) => Math.min((cw-PAD)/c.sx, (ch-18-PAD)/c.sy)));
+  const stack = fit(W, Hh/n) >= fit(W/n, Hh);
+  const narrow = (stack ? W : W/n) < 200 || (stack ? Hh/n : Hh) < 120, LABEL = narrow ? 40 : 18;      // on a phone the clue wraps
+  PLAYS.forEach((P, k) => {
+    const cell = stack ? [box[0], box[1]+Hh/n*k, box[2], box[1]+Hh/n*(k+1)] : [box[0]+W/n*k, box[1], box[0]+W/n*(k+1), box[3]];
+    const cw = cell[2]-cell[0], ch = cell[3]-cell[1]-LABEL;
+    const { pts, sx, sy, mx, my } = charts[k];
+    const sc = Math.min((cw-PAD)/sx, (ch-PAD)/sy);
+    sky.size = sky.size || []; sky.size[k] = Math.max(0.45, Math.min(1.25, sc/6));      // small charts, small stars
+    const ccx = cell[0]+cw/2, ccy = cell[1]+ch/2;
+    const px = pts.map(([x, y]) => [ccx+(x-mx)*sc, ccy-(y-my)*sc]);
+    sky.px.push(px);
+    P.links.forEach(([a, b]) => sky.linkAt.push([k, a, b]));
+    px.forEach(([x, y], i) => { starEls[k*8+i].style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`; });
+    clueEls[k].style.width = cw+'px'; clueEls[k].style.transform = `translate(${Math.round(cell[0])}px,${Math.round(cell[3]-LABEL)}px)`;
+    clueEls[k].classList.toggle('narrow', narrow);
+  });
+}
+let shownK = -1;
+function lightSky(dt){
+  const fl = Math.exp(-dt/1.4);
+  const lit = starLight.reduce((a, L) => a + L.reduce((b, v) => b + (v > 0 ? 1 : 0), 0), 0), all = PLAYS.length*8;
+  if (lit !== shownK) {                                                   // the count, and the door: the proposal opens when the sky is full
+    shownK = lit; document.getElementById('pK').textContent = lit; document.getElementById('pAll').textContent = all;
+    document.querySelector('#prog .bar i').style.width = (120*lit/all).toFixed(1)+'px';
+    document.body.classList.toggle('sky', lit >= all);
+  }
+  for (let k = 0; k < PLAYS.length; k++) for (let i = 0; i < 8; i++) {
+    const L = starLight[k];
+    if (L[i] > 1) L[i] = 1 + (L[i]-1)*fl;
+    starEls[k*8+i].classList.toggle('on', L[i] > 0);
+    const j = k*8+i, p = sky.px[k] ? sky.px[k][i] : [0, 0];
+    sky.star[j*4] = p[0]*view.dpr; sky.star[j*4+1] = (view.h-p[1])*view.dpr;
+    sky.star[j*4+2] = k > play ? -1 : L[i];                                  // what is to come is not shown
+    sky.star[j*4+3] = PLAYS[k].stars[i][3]*8 + (sky.size ? sky.size[k] : 1); sky.mag[j] = PLAYS[k].stars[i][2];
+  }
+  sky.linkAt.forEach(([k, a, b], j) => {
+    const pa = sky.px[k][a], pb = sky.px[k][b];
+    sky.link[j*4] = pa[0]*view.dpr; sky.link[j*4+1] = (view.h-pa[1])*view.dpr; sky.link[j*4+2] = pb[0]*view.dpr; sky.link[j*4+3] = (view.h-pb[1])*view.dpr;
+    const want = starLight[k][a] > 0 && starLight[k][b] > 0 ? 1 : 0;
+    sky.linkOn[j] = want ? Math.min(1, sky.linkOn[j] + dt/2.2) : 0;
+  });
+}
+
+layoutWords();                                   // the words take their place before the stills are decoded
 Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; })))
 .then((ims) => {
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   imgTex = ims.map((im) => { const t = texture(gl.LINEAR); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, im); return t; });
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  seriesTex[1] = imgTex;
   const params = new URLSearchParams(location.search);
   other.push(...decodePath(params.get('p') || ''));      // a path someone sent: it is already in the basin when you arrive
   restore();                                              // and what you left here last time is still here

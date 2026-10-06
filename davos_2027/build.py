@@ -50,6 +50,30 @@ else:
         frames.append(uri); total += n
     print(f'loop not found: {len(frames)} harmonized stills, {total / 1e6:.2f} MB')
 
+# the other plays' stills: smaller sets, in files beside the piece, loaded only when a play is near
+SERIES = { 2: ('veritas_final_v44.mp4', 16, 640), 3: ('Vanitas_Veritas_basin_loop.mp4', 16, 640) }
+if OUT.startswith('veritas2'):
+    import imageio_ffmpeg, re
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    for k, (name, pool, size) in SERIES.items():
+        path = os.path.join(ROOT, 'video', name)
+        if not os.path.exists(path): print(f'series {k}: {name} missing, skipped'); continue
+        info = subprocess.run([ff, '-i', path], capture_output=True, text=True).stderr
+        m = re.search(r'Duration: (\d+):(\d+):([\d.]+)', info)
+        dur = int(m[1])*3600 + int(m[2])*60 + float(m[3])
+        uris, n_total = [], 0
+        with tempfile.TemporaryDirectory() as tmp:
+            for i in range(pool):
+                png = os.path.join(tmp, f'{i:02d}.png')
+                subprocess.run([ff, '-y', '-loglevel', 'error', '-ss', f'{(i + 0.5) * dur / pool:.3f}', '-i', path, '-frames:v', '1', png], check=True)
+                im = Image.open(png); w, h = im.size; sq = min(w, h)
+                im = im.convert('RGB').crop(((w - sq) // 2, (h - sq) // 2, (w - sq) // 2 + sq, (h - sq) // 2 + sq))
+                buf = io.BytesIO(); im.resize((size, size), Image.LANCZOS).save(buf, 'WEBP', quality=76, method=6)
+                uris.append('data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()); n_total += len(buf.getvalue())
+        out = os.path.join(HERE, f'veritas2.s{k}.js')
+        open(out, 'w', encoding='utf-8').write(f'window.VERITAS_SERIES=window.VERITAS_SERIES||{{}};window.VERITAS_SERIES[{k}]={json.dumps(uris)};\n')
+        print(f'series {k}: {pool} stills from {name}, {n_total / 1e6:.2f} MB -> {os.path.basename(out)}')
+
 src = open(os.path.join(HERE, SRC), encoding='utf-8').read()
 assert src.count('[/*FRAMES*/]') == 1
 out = src.replace('[/*FRAMES*/]', json.dumps(frames))
