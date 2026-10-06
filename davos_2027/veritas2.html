@@ -17,11 +17,10 @@
   body.sky #lead { display:block; }
   #outline .door { display:none; }
   body.sky #outline .door { display:inline; }
-  /* the sky, counted: a thin line that fills, and the number */
-  #prog { margin:10px 0 0; font-size:11px; color:#5a5e64; display:flex; align-items:center; gap:10px; }
-  #prog .bar { display:inline-block; width:120px; height:1px; background:#2a2c31; position:relative; }
-  #prog .bar i { position:absolute; left:0; top:-1px; height:3px; width:0; background:var(--gold); transition:width 1.2s; }
-  #prog b { font-weight:400; color:var(--dim); }
+  /* the sky, counted: one glyph per lit star, a space between plays, nothing about what is left */
+  #prog { margin:10px 0 0; min-height:1.75em; font-size:11px; letter-spacing:.12em; color:var(--gold); word-spacing:.5em; }
+  #prog i { font-style:normal; display:inline-block; animation:born 2.4s ease-out; }
+  @keyframes born { 0% { opacity:0; transform:scale(2.2); } 40% { opacity:1; } 100% { transform:none; } }
   #lead:focus-visible { outline:1px solid var(--gold); }
   #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9; visibility:hidden;
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
@@ -85,7 +84,7 @@
   <h1>veri<i>+</i>as</h1>
 <pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
 <pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
-  <p id="prog" aria-live="polite"><span class="bar"><i></i></span><span>stars <b id="pK">0</b>/<b id="pAll">24</b></span></p>
+  <p id="prog" aria-label="Stars lit so far"></p>
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
@@ -178,6 +177,7 @@ force: `
 uniform sampler2D uVel, uCurl;
 uniform float uH, uDt, uConf, uGamma, uRelax;
 uniform vec2 uStirPos, uStirVel;
+uniform vec3 uWell[24]; uniform float uWellN;         // the stars' gravity: where each line was found, the water turns (x, y, strength with sign)
 void main(){
   vec2 v = texture(uVel, vUv).xy;
   float cL = texture(uCurl, vUv-vec2(uH,0.)).x, cR = texture(uCurl, vUv+vec2(uH,0.)).x;
@@ -189,6 +189,12 @@ void main(){
   vec2 d = vUv-C; float r2 = dot(d,d); float r = sqrt(r2)+1e-5;
   vec2 th = vec2(-d.y, d.x)/r;
   v += th*(uGamma*r/(r2+0.0036)-dot(v,th))*(1.-exp(-uRelax*uDt));
+  for(int i=0;i<24;i++){
+    if(float(i) >= uWellN) break;
+    vec2 e = vUv-uWell[i].xy; float e2 = dot(e,e); float er = sqrt(e2)+1e-5;
+    vec2 te = vec2(-e.y, e.x)/er;
+    v += te*(uWell[i].z*er/(e2+0.0016)-dot(v,te))*(1.-exp(-0.5*uDt))*smoothstep(0.09,0.03,er);
+  }
   vec2 s = vUv-uStirPos;
   v += uStirVel*exp(-dot(s,s)/0.0022);
   o = vec4(v*wall(vUv),0.,1.);
@@ -266,7 +272,7 @@ void main(){ o = vec4(texture(uDye, C+(vUv-0.5)*0.15).rgb, 1.); }`,
 // the lace: two chemicals, one feeding on the other (Gray-Scott). x is the way round the rim, y is outward.
 // Near the rim it grows as a net with holes; further out it breaks into cells that divide.
 lace: `
-uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed, uDf, uDk; uniform vec3 uTouch;
+uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed, uDf, uDk, uLit; uniform vec3 uTouch;
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 void main(){
   vec2 c = texture(uRD, vUv).rg;
@@ -276,8 +282,9 @@ void main(){
   lap *= mix(0.68, 1.0, smoothstep(0., 0.85, vUv.y));                    // small cells at the rim, larger ones further out
   float a = vUv.x*6.28318;
   // holes, all the way out: a net of cells. Further out the holes drift (chaos and holes); the weather over it is mild
-  float f = mix(0.0390, 0.0372, vUv.y) + uDf + 0.0008*sin(a*3.+uTime*0.021) + 0.0005*sin(a*7.-uTime*0.013) + 0.0004*sin(vUv.y*9.-uTime*0.05);
-  float k = mix(0.0580, 0.0584, vUv.y) + uDk + 0.0004*sin(a*2.-uTime*0.017+1.);
+  // as the sky fills, the culture leaves holes for mazes: the cells join up, and fewer die
+  float f = mix(0.0390, 0.0372, vUv.y) - 0.0050*uLit + uDf + 0.0008*sin(a*3.+uTime*0.021) + 0.0005*sin(a*7.-uTime*0.013) + 0.0004*sin(vUv.y*9.-uTime*0.05);
+  float k = mix(0.0580, 0.0584, vUv.y) - 0.0008*uLit + uDk + 0.0004*sin(a*2.-uTime*0.017+1.);
   float r = c.r*c.g*c.g;
   vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
   // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
@@ -287,9 +294,9 @@ void main(){
   vec2 pc = vec2(hash(vec2(ev,1.7)), 0.15+0.7*hash(vec2(ev,9.2)));
   vec2 dp = vec2(min(abs(vUv.x-pc.x), 1.-abs(vUv.x-pc.x))*6., vUv.y-pc.y);
   float age = fract(uTime*0.33);
-  v = mix(v, vec2(1.,0.), 0.5*exp(-dot(dp,dp)/0.0016)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
+  v = mix(v, vec2(1.,0.), 0.5*(1.-0.8*uLit)*exp(-dot(dp,dp)/0.0016)*smoothstep(0.,0.15,age)*smoothstep(0.6,0.3,age));
   // and the whole culture creeps outward, a little, all the time
-  v = mix(v, texture(uRD, vUv-vec2(0., uTx.y*0.35)).rg, 0.025);
+  v = mix(v, texture(uRD, vUv-vec2(0., uTx.y*0.35)).rg, 0.025+0.03*uLit);
   vec2 dt = vec2(min(abs(vUv.x-uTouch.x), 1.-abs(vUv.x-uTouch.x))*6., vUv.y-uTouch.y);
   float wipe = uTouch.z*exp(-dot(dt,dt)/0.002);
   v = mix(v, vec2(1.,0.), wipe);
@@ -332,7 +339,7 @@ float beat(float ph){
 const vec3 BONE = vec3(0.95,0.91,0.82);
 const vec3 GOLD = vec3(0.62,0.40,0.20);
 const float LACE0 = 0.006, LACE1 = 0.24;   // the lace begins just off the rim and runs this far out
-const float NR = 80.;      // flutes per basin unit
+const float NR = 72.;      // flutes per basin unit
 
 void main(){
   vec2 q = (gl_FragCoord.xy-uCenter)/uS;     // screen-aligned, in basin units, origin at the drain
@@ -403,7 +410,7 @@ void main(){
     vec2 qj = q + cq*exp(-dot(cq,cq)/0.014)*uJelly*0.30;
     float fx = qj.x*NR, fi = floor(fx), s = fx-fi;              // s: position across one flute
     float tooth = hash1(fi);
-    vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.42)/NR, L), q.y+(tooth-0.5)*0.010*L);
+    vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, L), q.y+(tooth-0.5)*0.005*L);
     vec2 p = C+rot(ql);
     vec2 up1 = rot(vec2(0.,1.));
 
@@ -421,11 +428,11 @@ void main(){
     c += BONE*pow(max(dot(n,Hh),0.),40.)*0.20*L;
     vec3 glow = vec3(0.);
     for(int k=0;k<8;k++){ float a = float(k)*0.7854+0.3; glow += texture(uDye, p+0.034*vec2(cos(a),sin(a))).rgb; }
-    float scr = smoothstep(0.80,1.,vnoise(vec2(q.x*700., q.y*5.+3.)))*0.026 + smoothstep(0.93,1.,vnoise(q*260.))*0.030;
+    float scr = smoothstep(0.84,1.,vnoise(vec2(q.x*700., q.y*5.+3.)))*0.014 + smoothstep(0.93,1.,vnoise(q*260.))*0.024;
 
-    float lit = mix(1., 0.80+0.20*cos(6.28318*(s-0.30)), L);
-    float seam = 1.-0.30*L*smoothstep(0.34,0.5,abs(s-0.5));
-    float glass = pow(max(cos(6.28318*(s-0.30)),0.),10.)*L;
+    float lit = mix(1., 0.88+0.12*cos(6.28318*(s-0.30)), L);
+    float seam = 1.-0.16*L*smoothstep(0.30,0.5,abs(s-0.5));
+    float glass = pow(max(cos(6.28318*(s-0.30)),0.),14.)*L;
     float bowl = mix(0.5,1.,smoothstep(R,R-0.12,r))*(1.+0.10*dot(q/R, normalize(vec2(-0.6,0.8))));
     float breathe = mix(1.+0.03*uWaltz, 0.93+0.07*sin(uHeldSecs*1.3), uHold);
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl*breathe + BONE*glass*(0.006+0.05*lum(c))
@@ -638,7 +645,7 @@ function grow(n){
   const u = use(P.lace);
   gl.uniform2f(u.uTx, 1/RDW, 1/RDH); gl.uniform1f(u.uTime, simTime);
   gl.uniform1f(u.uSeed, Math.floor(beats)); gl.uniform3f(u.uTouch, touch.x, touch.y, touch.z);
-  gl.uniform1f(u.uDf, bio.f-0.0390); gl.uniform1f(u.uDk, bio.k-0.0580);
+  gl.uniform1f(u.uDf, bio.f-0.0390); gl.uniform1f(u.uDk, bio.k-0.0580); gl.uniform1f(u.uLit, litFrac);
   gl.viewport(0,0,RDW,RDH);
   for (let i = 0; i < n; i++) {
     unit = 0; bind(u.uRD, rdA.tex);
@@ -746,6 +753,18 @@ function snapNow(fromPause){
   return { series: PLAYS[play].series, sign, mix: mixAB, p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, spot: q.spot.slice() };
 }
 let recall = null;                        // a star under the hand: its still comes back to the glass, its line to the words
+const wells = { data:new Float32Array(24*3), n:0 };
+function gather(){                        // every lit star pulls at the place its line was found; they turn against each other
+  let n = 0;
+  for (let k = 0; k <= play && k < PLAYS.length; k++) for (let i = 0; i < 8; i++) {
+    const m = mem[k][i]; if (!m || n >= 24) continue;
+    const [qx, qy] = m.spot, r = Math.hypot(qx, qy), sp = r > 0.06 ? m.spot : [0.16*Math.cos(i*0.785+k), 0.16*Math.sin(i*0.785+k)];
+    wells.data[n*3] = 0.5+ROT[0]*sp[0]-ROT[1]*sp[1]; wells.data[n*3+1] = 0.5+ROT[1]*sp[0]+ROT[0]*sp[1];
+    wells.data[n*3+2] = (n % 2 ? -1 : 1)*0.0045*(0.7+0.3*Math.sin(simTime*0.11+n));
+    n++;
+  }
+  wells.n = n;
+}
 // your path: the eight places, in the order you found them. Encoded in a link, it can be sent; opened, it is drawn in gold.
 const path = [], other = [];
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
@@ -976,6 +995,7 @@ function told(html, ms){ ask.innerHTML = html; eye.classList.add('said'); clearT
 
 function step(dt){
   hb = heart(beats);
+  gather();
   const Q = 0.038*(0.55 + 1.6*hb)*(1 + 2.6*surge)*(1 + 2*end);  // let go, and it floods back; at the end, the drain takes it
   const gT = beats/SIGN_BEATS; gph = gT-Math.floor(gT);
   sign = Math.floor(gT) % N;
@@ -990,6 +1010,7 @@ function step(dt){
   gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uConf, 0.02);
   gl.uniform1f(u.uGamma, gamma); gl.uniform1f(u.uRelax, 0.9);
   gl.uniform2f(u.uStirPos, stir.x, stir.y); gl.uniform2f(u.uStirVel, stir.vx, stir.vy);
+  gl.uniform3fv(u['uWell[0]'], wells.data); gl.uniform1f(u.uWellN, wells.n);
   draw(vel.write); vel.swap(); stir.vx = stir.vy = 0;
 
   u = use(P.advect); bind(u.uVel, vel.read.tex); bind(u.uSrc, vel.read.tex);
@@ -1036,7 +1057,7 @@ function step(dt){
   }
   if (headF > RET_N*1000) headF -= RET_N*1000;
 
-  grow(10);
+  grow(Math.round(8 + 8*litFrac));                           // and it grows faster for every star
   surge *= Math.exp(-dt/2.0);
   beats += dt/BEAT_SECONDS;
   simTime += dt;
@@ -1340,15 +1361,16 @@ function layoutSky(box, wide){
     clueEls[k].classList.toggle('narrow', narrow);
   });
 }
-let shownK = -1;
+let shownK = -1, litFrac = 0;         // how much of the sky is lit: the culture grows faster and closer for it
 function lightSky(dt){
   const fl = Math.exp(-dt/1.4);
   const lit = starLight.reduce((a, L) => a + L.reduce((b, v) => b + (v > 0 ? 1 : 0), 0), 0), all = PLAYS.length*8;
   if (lit !== shownK) {                                                   // the count, and the door: the proposal opens when the sky is full
-    shownK = lit; document.getElementById('pK').textContent = lit; document.getElementById('pAll').textContent = all;
-    document.querySelector('#prog .bar i').style.width = (120*lit/all).toFixed(1)+'px';
+    shownK = lit;
+    document.getElementById('prog').innerHTML = starLight.map((L) => Array.from(L).map((v) => v > 0 ? '<i>\u2726</i>' : '').join('')).filter(Boolean).join(' ');
     document.body.classList.toggle('sky', lit >= all);
   }
+  litFrac = lit/all;
   for (let k = 0; k < PLAYS.length; k++) for (let i = 0; i < 8; i++) {
     const L = starLight[k];
     if (L[i] > 1) L[i] = 1 + (L[i]-1)*fl;
