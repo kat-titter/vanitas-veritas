@@ -18,7 +18,7 @@ LOOP = os.path.join(ROOT, 'video', 'veritas_loop_v45_4k.mp4')
 LOOP_SECONDS = 6080 / 12                   # frames / fps
 POOL = 24                                  # stills taken round the loop
 ORDER = [0, 1, 4, 3, 2, 7, 6, 5]           # fallback: same order as code/morph_v45_sr.py
-SIZE = 768                                 # the basin is square; stills are centre-cropped to it
+SIZE = 1024                                # the basin is square; stills are centre-cropped to it
 
 
 def encode(im):
@@ -51,8 +51,8 @@ else:
     print(f'loop not found: {len(frames)} harmonized stills, {total / 1e6:.2f} MB')
 
 # the other plays' stills: smaller sets, in files beside the piece, loaded only when a play is near
-SERIES = { 2: ('veritas_final_v44.mp4', 16, 640), 3: ('Vanitas_Veritas_basin_loop.mp4', 16, 640) }
-if OUT.startswith('veritas2'):
+SERIES = { 2: ('veritas_final_v44.mp4', 16, 800), 3: ('Vanitas_Veritas_basin_loop.mp4', 16, 640) }
+if os.path.basename(OUT).startswith('veritas2'):
     import imageio_ffmpeg, re
     ff = imageio_ffmpeg.get_ffmpeg_exe()
     for k, (name, pool, size) in SERIES.items():

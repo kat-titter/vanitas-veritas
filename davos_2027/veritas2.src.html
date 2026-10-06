@@ -18,9 +18,24 @@
   #outline .door { display:none; }
   body.sky #outline .door { display:inline; }
   /* the sky, counted: one glyph per lit star, a space between plays, nothing about what is left */
-  #prog { margin:10px 0 0; min-height:1.75em; font-size:11px; letter-spacing:.12em; color:var(--gold); word-spacing:.5em; }
-  #prog i { font-style:normal; display:inline-block; animation:born 2.4s ease-out; }
-  @keyframes born { 0% { opacity:0; transform:scale(2.2); } 40% { opacity:1; } 100% { transform:none; } }
+  /* the sky, counted: a thin line that fills. No number: how much is left is not told. */
+  #prog { margin:12px 0 0; min-height:1.75em; display:flex; align-items:center; gap:8px; }
+  #prog .bar { display:inline-block; width:150px; height:1px; background:#26282d; position:relative; }
+  #prog .bar i { position:absolute; left:0; top:-1px; height:3px; width:0; background:var(--gold); transition:width 1.4s; }
+  #prog .dot { display:none; width:5px; height:5px; border-radius:50%; background:var(--bone); box-shadow:0 0 8px var(--bone); }
+  body.nova #prog .dot { display:inline-block; }
+  /* the credit: two letters to find. */
+  #we { width:2.4ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px dotted var(--gold); color:var(--gold);
+    font:inherit; letter-spacing:.3em; pointer-events:auto; outline:none; caret-color:var(--gold); border-radius:0; }
+  #we::placeholder { color:var(--gold); opacity:.8; animation:blink 1.6s steps(1) infinite; }
+  #we:focus::placeholder { animation:none; opacity:.35; }
+  body.we #we { border-bottom-color:transparent; color:var(--bone); pointer-events:none; }
+  #we.no { animation:no .5s; }
+  @keyframes no { 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
+  /* a way back to the beginning */
+  #tools { margin:12px 0 0; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
+  #tools a { color:#5a5e64; pointer-events:auto; text-decoration:none; border-bottom:1px dotted #3a3d44; }
+  #tools a:hover, #tools a:focus-visible { color:var(--dim); }
   #lead:focus-visible { outline:1px solid var(--gold); }
   #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9; visibility:hidden;
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
@@ -84,13 +99,14 @@
 <div id="sky" aria-label="The sky: one star for every line read"></div>
 <main id="words">
   <h1>veri<i>+</i>as</h1>
-<pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <i class="slot" aria-label="an open place"></i></span></pre>
+<pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;<b id="pN"></b><b id="pT" hidden></b></span><span>sink == sync<b id="pS">   // 0.00</b></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
 <pre id="bio" aria-label="The biology, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
-  <p id="prog" aria-label="Stars lit so far"></p>
+  <p id="prog" aria-label="How much of the sky is lit"><span class="bar"><i></i></span><i class="dot" aria-label="the viewer"></i></p>
   <div id="outline"></div>
   <p id="sign"></p>
   <p id="say" class="quiet" aria-live="polite">hold</p>
   <div id="err"></div>
+  <p id="tools"><a href="?reset" id="reset">reset</a></p>
 </main>
 
 <script>
@@ -110,7 +126,7 @@ if (!gl.getExtension('EXT_color_buffer_float')) { fail('This needs float render 
 if (!FRAMES.length) { fail('No images were built into this file. Run build.py.'); return; }
 
 // ---- geometry of the sink, in sim UV (0..1), shared by every shader ----
-const SIM = 256, DYE = 1024, PIPE_N = 256;
+const SIM = 256, DYE = 1280, PIPE_N = 256;
 const COMMON = `#version 300 es
 precision highp float;
 precision highp sampler2D;
@@ -547,7 +563,7 @@ void main(){
   vec2 uv = gl_FragCoord.xy/uRes;
   vec3 sc = texture(uScene, uv).rgb, bl = texture(uBlur, uv).rgb;
   float rb = length(gl_FragCoord.xy-uCenter)/uS;
-  float soft = mix(0.12, 0.34, smoothstep(0.37, 0.47, rb));             // the picture keeps its detail; the lace is softer
+  float soft = mix(0.06, 0.34, smoothstep(0.37, 0.47, rb));             // the picture keeps its detail; the lace is softer
   vec3 col = mix(sc, bl, soft) + bl*mix(0.08, 0.20, smoothstep(0.37, 0.47, rb));
 
   // the hand: a ring that tightens as the picture comes clear; the arc is how long you have kept it there
@@ -678,26 +694,35 @@ const ret = (() => {
 // the eight places where the lines were found, joined in the order they were read. No two visitors make the same one.
 const PLAYS = [
   { series: 1, clue: '46.80 n \u00b7 9.84 e \u00b7 18.01.2027 \u00b7 22:00',
-    outline: [
-      ['a new biology', 'we need a new biology.',   'merge.'],
-      ['resistance',    'resistance is futile.',    "it's all ok."],
-      ['ok',            'it shall be ok.',          'beautiful even. great even.'],
-      ['the spotlight', "you can't hide.",          'the spotlight.'],
+    outline: [                                   // seven lines, seven stars. The eighth line is the viewer's, below.
+      ['a new biology', 'we need a new biology.'],
+      ['a new biology', 'merge.'],
+      ['resistance',    'resistance is futile.'],
+      ['resistance',    "it's all ok."],
+      ['ok',            'it shall be ok.'],
+      ['ok',            'beautiful even. great even.'],
+      ['the spotlight', 'the spotlight.'],
     ] },
   // DRAFT words (claude), for Kat to replace. Lines 2 and 6 are earned by the wipe and the face.
   { series: 2, clue: 'two basins \u00b7 two cities \u00b7 one loop',
     outline: [
-      ['two',      'two basins. one loop.',          'two cities. one breath.'],
-      ['the copy', 'what drains, returns.',          'a copy of a copy. still a face.'],
-      ['the card', 'eight stills. one card.',        'turn it, and it turns.'],
-      ['sync',     'hold still with me.',            'sink == sync'],
+      ['two',      'two basins. one loop.'],
+      ['two',      'two cities. one breath.'],
+      ['the copy', 'what drains, returns.'],
+      ['the copy', 'a copy of a copy. still a face.'],
+      ['the card', 'seven stills. one card.'],
+      ['the card', 'turn it, and it turns.'],
+      ['sync',     'sink == sync'],
     ] },
   { series: 3, clue: '18.01 \u2192 22.01.2027 \u00b7 the snow is also a loop',
     outline: [
-      ['the sea-goat', 'half in the water. half out.',   'so are we.'],
-      ['january',      'the snow is also a loop.',       'melt. return.'],
-      ['downstream',   'nothing is lost. only downstream.', 'drink.'],
-      ['look up',      'you were always here.',          'look up.'],
+      ['january',    'half in the water. half out.'],
+      ['january',    'so are we.'],
+      ['january',    'the snow is also a loop.'],
+      ['downstream', 'melt. return.'],
+      ['downstream', 'nothing is lost. only downstream.'],
+      ['downstream', 'drink.'],
+      ['look up',    'look up.'],
     ] },
 ];
 // Each line is a gist: a function with a fixed meaning (Kat's words, kept as the comment) and several implementations.
@@ -722,17 +747,15 @@ PLAYS[0].gists = [
   { g:'beautiful', first:['def beautiful(we): return we', 'beautiful = great = True', 'beautiful(we) == great(we)'],
                    mid:['beautiful({prev}) == great({prev})', '{prev} = beautiful({prev}) or great({prev})', 'assert beautiful({prev}), great'],
                    last:['return beautiful(we), great(we)', 'return great(beautiful(we))'] },
-  { g:'hide',      first:['def hide(i): return eye', 'hide = lambda i: eye', 'try: hide(i)\nexcept: eye = I'],
-                   mid:['hide({prev})  # returns eye', 'eye = hide({prev}) or I', 'if hide({prev}): raise eye'],
-                   last:['return hide(we) is eye', 'return eye'] },
   { g:'spotlight', first:['def spotlight(we): return we', 'spotlight = eye * n', 'spotlight = lambda we: we[I]'],
                    mid:['spotlight({prev})', 'we = spotlight({prev}(we))', '{prev} in spotlight'],
                    last:['return spotlight(we)', 'return veritas(spotlight(we))', 'return spotlight(we)  # n -> inf'] },
 ];
 // the later plays: one implementation each until they have their own table
 const plainGists = (names) => names.map((g) => ({ g, first:[`def ${g}(we): return we`], mid:[`we = ${g}({prev}(we))`], last:[`return ${g}(we)`] }));
-PLAYS[1].gists = plainGists(['two', 'loop', 'returns', 'copy', 'card', 'turn', 'still', 'sync']);
-PLAYS[2].gists = plainGists(['goat', 'we', 'snow', 'melt', 'lost', 'drink', 'here', 'up']);
+PLAYS[1].gists = plainGists(['two', 'loop', 'returns', 'copy', 'card', 'turn', 'sync']);
+PLAYS[2].gists = plainGists(['half', 'we', 'snow', 'melt', 'lost', 'drink', 'up']);
+const LINES = 7;                                     // lines a play, stars a constellation
 let play = 0;
 let OUTLINE = PLAYS[0].outline;
 const hashI = (n) => { let x = (n|0)*2654435761 % 4294967296; x ^= x >>> 13; x = (x*1274126177) % 4294967296; return (x ^ (x >>> 16)) >>> 0; };
@@ -743,13 +766,12 @@ function codeOf(k, i, alt = 0){
   const pos = m ? (m.ord ?? order.indexOf(i)) : order.length;
   const prevI = pos > 0 ? (order[pos-1] ?? -1) : -1;
   const prev = prevI < 0 ? 'sink' : P.gists[prevI].g;
-  const T = P.gists[i][pos === 0 ? 'first' : pos >= 7 ? 'last' : 'mid'];
+  const T = P.gists[i][pos === 0 ? 'first' : pos >= LINES-1 ? 'last' : 'mid'];
   return T[(hashI(k*131 + i*17 + pos*7 + (prevI+2)*3) + alt) % T.length].replace(/\{prev\}/g, prev);
 }
 // the program: the gists in the order they were read, each with its words
 const programHTML = (k) => `<p class="head"><code>sink = drain(sink)</code></p>` + orderOf(k).map((i) => `<p><code>${codeOf(k, i)}</code>${lineOf(i, k)}</p>`).join('');
 const WIPE_LINE = 2;                  // wipe the culture away, it grows back: resistance is futile
-const FACE_LINE = 6;                  // let it see you: you can't hide
 const outlineHTML = (k) => programHTML(k) + '<p style="margin-top:10px;color:var(--gold)">// davos &middot; 01.2027 &nbsp;<span class="door"><a href="proposal.html" style="color:var(--bone);pointer-events:auto">the proposal -&gt;</a></span></p>';
 // the stills of each play. The first set is in this file; the others arrive from beside it when they are near.
 const seriesTex = {}, seriesLoading = {};
@@ -782,11 +804,11 @@ function startPlay(k){
   compose(); save();
 }
 let N = FRAMES.length;
-const read = new Array(8).fill(false);
-const lineOf = (i, k = play) => PLAYS[k].outline[i >> 1][1 + (i & 1)];
-const nameOf = (i, k = play) => PLAYS[k].outline[i >> 1][0];
+const read = new Array(LINES).fill(false);
+const lineOf = (i, k = play) => PLAYS[k].outline[i][1];
+const nameOf = (i, k = play) => PLAYS[k].outline[i][0];
 // what each star remembers: the still that was held when its line was read
-const mem = PLAYS.map(() => new Array(8).fill(null));
+const mem = PLAYS.map(() => new Array(LINES).fill(null));
 function snapNow(fromPause){
   const rnd = (a, b) => a + Math.random()*(b-a);
   const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
@@ -796,10 +818,24 @@ function snapNow(fromPause){
 document.getElementById('outline').innerHTML = outlineHTML(0);
 let recall = null;                        // a star under the hand: its still comes back to the glass, its line to the words
 let novaOn = false, nova = -1;            // the secret final star: the viewer, once the eye has seen them. It keeps no picture.
+let weOk = false;                          // macrofluidic x __ : two letters
+const weEl = document.getElementById('we');
+for (const t of ['keydown', 'keyup', 'pointerdown']) weEl.addEventListener(t, (ev) => ev.stopPropagation());   // typing here is not holding
+weEl.addEventListener('input', () => {
+  const v = weEl.value.toLowerCase();
+  if (v.length < 2) return;
+  if (v === 'we') { weOk = true; weEl.value = 'we'; document.body.classList.add('we'); weEl.blur(); save(); }
+  else { weEl.classList.add('no'); setTimeout(() => { weEl.classList.remove('no'); weEl.value = ''; }, 500); }
+});
+document.getElementById('reset').addEventListener('click', (ev) => {       // twice, to be sure
+  if (ev.target.dataset.sure) return;
+  ev.preventDefault(); ev.target.dataset.sure = '1'; ev.target.textContent = 'reset \u00b7 sure?';
+  setTimeout(() => { delete ev.target.dataset.sure; ev.target.textContent = 'reset'; }, 4000);
+});
 const wells = { data:new Float32Array(24*3), n:0 };
 function gather(){                        // every lit star pulls at the place its line was found; they turn against each other
   let n = 0;
-  for (let k = 0; k <= play && k < PLAYS.length; k++) for (let i = 0; i < 8; i++) {
+  for (let k = 0; k <= play && k < PLAYS.length; k++) for (let i = 0; i < LINES; i++) {
     const m = mem[k][i]; if (!m || n >= 24) continue;
     const [qx, qy] = m.spot, r = Math.hypot(qx, qy), sp = r > 0.06 ? m.spot : [0.16*Math.cos(i*0.785+k), 0.16*Math.sin(i*0.785+k)];
     wells.data[n*3] = 0.5+ROT[0]*sp[0]-ROT[1]*sp[1]; wells.data[n*3+1] = 0.5+ROT[1]*sp[0]+ROT[0]*sp[1];
@@ -812,9 +848,9 @@ function gather(){                        // every lit star pulls at the place i
 const path = [], other = [];
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
 const encodePath = (pts) => pts.map(([x, y]) => [x, y].map(v => Math.round((v+0.4)/0.8*255).toString(16).padStart(2,'0')).join('')).join('');
-const decodePath = (str) => { const pts = []; for (let i = 0; i+4 <= str.length && pts.length < 8; i += 4) pts.push([parseInt(str.slice(i,i+2),16)/255*0.8-0.4, parseInt(str.slice(i+2,i+4),16)/255*0.8-0.4]); return pts.filter(p => p.every(Number.isFinite)); };
+const decodePath = (str) => { const pts = []; for (let i = 0; i+4 <= str.length && pts.length < LINES; i += 4) pts.push([parseInt(str.slice(i,i+2),16)/255*0.8-0.4, parseInt(str.slice(i+2,i+4),16)/255*0.8-0.4]); return pts.filter(p => p.every(Number.isFinite)); };
 let growT = 1, gaze = 0;
-function mark(pt){ if (path.length < 8) { path.push([pt[0], pt[1]]); growT = 0; } save(); }
+function mark(pt){ if (path.length < LINES) { path.push([pt[0], pt[1]]); growT = 0; } save(); }
 function signOf(pts){
   const d = pts.map(([x, y], i) => (i ? 'L' : 'M') + (50+x*110).toFixed(1) + ' ' + (50-y*110).toFixed(1)).join('');
   const dots = pts.map(([x, y]) => `<circle cx="${(50+x*110).toFixed(1)}" cy="${(50-y*110).toFixed(1)}" r="1.6"/>`).join('');
@@ -846,12 +882,13 @@ function finish(){
 }
 // what the page keeps, on this machine only: which lines you have, where you found them, the culture you made
 function save(){
-  try { localStorage.setItem('veritas.ii', JSON.stringify({ v:2, play, read, path, mem, bio, nova: novaOn })); } catch (e) {}
+  try { localStorage.setItem('veritas.ii', JSON.stringify({ v:2, play, read, path, mem, bio, nova: novaOn, we: weOk })); } catch (e) {}
 }
 function restore(){
   try {
     const k = JSON.parse(localStorage.getItem('veritas.ii') || 'null'); if (!k) return;
     if (k.nova) { novaOn = true; nova = 60; }
+    if (k.we) { weOk = true; weEl.value = 'we'; document.body.classList.add('we'); }
     if (Array.isArray(k.mem)) k.mem.forEach((m, j) => { if (Array.isArray(m) && mem[j]) m.forEach((s, i) => { if (s && s.A) mem[j][i] = s; }); });
     if (Number.isInteger(k.play) && k.play > 0 && k.play < PLAYS.length) { play = k.play; OUTLINE = PLAYS[play].outline; document.getElementById('outline').innerHTML = outlineHTML(play); loadSeries(PLAYS[play].series); }
     for (let j = 0; j < play; j++) { mem[j].forEach((s, i) => { if (s) starLight[j][i] = 1; }); const c = document.querySelector(`.clue[data-play="${j}"]`); if (c) c.classList.add('on'); }
@@ -928,7 +965,7 @@ function tell(now){
     }
   }
   let html, quiet = false;
-  if (recall && recall.nova) { html = '<code>return I  # the last star</code>you.'; linger = now+1500; }   // DRAFT words
+  if (recall && recall.nova) { html = "<code>return I  # the last star</code>you can't hide."; linger = now+1500; }
   else if (recall) { html = `<code>${codeOf(recall.play, recall.line)}</code>${lineOf(recall.line, recall.play)}`; linger = now+1500; }
   else if (held) {
     const i = pause.line, salt = Math.floor(now/90);
@@ -1027,7 +1064,6 @@ async function see(ev){
     // seeing each other: for three breaths the glass goes clear on the two of you, one picture. Then it is poured.
     faceHolds = 2; compose(); meet = 4.5; focus = 1;
     if (!novaOn) { novaOn = true; nova = 0; save(); }                    // the viewer becomes the last star
-    if (!read[FACE_LINE]) { mark([0, 0]); reveal(FACE_LINE, false); flash = 1; announce(FACE_LINE, performance.now()); }
     told('<b>it has you</b> &middot; it forgets in ten seconds', 7000);
   } catch (e) {
     if (stream) stream.getTracks().forEach(t => t.stop());
@@ -1237,7 +1273,7 @@ function tick(now){
   intro = Math.max(0, intro-dt);
   growT = Math.min(1, growT + dt/2.2);
   gaze += (((asked && !faceTex) ? 1 : 0)-gaze)*(1-Math.exp(-dt/1.5));   // it starts looking once it is ready to be looked at
-  if (!asked && end === 0 && (read.some(Boolean) || simTime > 40) && navigator.mediaDevices) { asked = true; eye.classList.add('on'); }
+  if (!asked && !novaOn && litAll && weOk && navigator.mediaDevices) { asked = true; eye.classList.add('on'); }   // the last star: only once all the others are lit
   if (meet > 0) { meet -= dt; if (meet <= 0) facePour = 1.8; }      // after the meeting, the pour
   const showStill = held || intro > 0 || ghost.on || meet > 0 || !!recall;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
@@ -1252,6 +1288,11 @@ function tick(now){
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
   if (whole > 0.5 && endDir > 0) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
   if (endDir < 0) { end = Math.max(0, end - dt/9); if (end === 0) endDir = 1; }
+  if (endDir > 0 && end > 0 && whole > 0.5 && !held) {                  // the constellation is whole: the basin turns through its eight stills
+    const order = orderOf(play), slot = Math.floor(end*25/2.8);
+    if (slot < order.length) { const i = order[slot]; if (!recall || recall.auto !== i) recall = { play, line:i, snap:mem[play][i], auto:i }; }
+    else if (recall && recall.auto !== undefined) recall = null;
+  }
   if (end >= 1 && endDir > 0) { afterEnd += dt; if (afterEnd > 7 && play+1 < PLAYS.length) { endDir = -1; startPlay(play+1); } }   // the loop fills again, with other pictures
   laceScale = 1 + 0.06*(0.5+0.5*Math.sin(2*Math.PI*beats/6)) + 0.045*hb;
   lightSky(dt);
@@ -1308,7 +1349,13 @@ canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
 function compose(){
   const rnd = (a, b) => a + Math.random()*(b-a);
   const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
-  pause.p = (sign + 3 + Math.floor(Math.random()*(N-6))) % N;
+  {                                                   // the partner still: never within a tenth of the loop of one already held in this play
+    const used = mem[play].filter(Boolean).map((m) => m.p), gap = Math.max(2, Math.floor(N/10));
+    for (let n = 0; n < 40; n++) {
+      pause.p = (sign + 3 + Math.floor(Math.random()*(N-6))) % N;
+      if (used.every((u) => Math.min(Math.abs(u-pause.p), N-Math.abs(u-pause.p)) >= gap)) break;
+    }
+  }
   pause.A = frame(1.25, 0.12); pause.B = frame(1.9, 0.6);
   pause.face = faceHolds > 0; if (pause.face) { faceHolds--; pause.B = frame(1.15, 0.08); pause.flip = [1, 1]; }
   pause.flip = [1, Math.random() < 0.5 ? -1 : 1];
@@ -1366,11 +1413,11 @@ function record(seconds){
 // ---- begin, once the stills are in ----
 // ---- the sky ----
 // Each play's constellation is drawn as a chart (east to the left, as it hangs in the sky), fitted into its own cell of the sky's box.
-const starLight = PLAYS.map(() => new Float32Array(8));                  // 0 unlit, 1 lit; above 1 while a new one flares
-const sky = { box:[0,0,0,0], key:'', star:new Float32Array(25*4), mag:new Float32Array(25), link:new Float32Array(27*4), linkOn:new Float32Array(27), px:[], cell:null, novaAt:[0,0] };
+const starLight = PLAYS.map(() => new Float32Array(LINES));                  // 0 unlit, 1 lit; above 1 while a new one flares
+const sky = { box:[0,0,0,0], key:'', star:new Float32Array(25*4).fill(-1), mag:new Float32Array(25), link:new Float32Array(27*4), linkOn:new Float32Array(27), px:[], cell:null, novaAt:[0,0] };
 const skyEl = document.getElementById('sky');
 PLAYS.forEach((P, k) => {
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < LINES; i++) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'star'; b.dataset.play = k; b.dataset.i = i;
     b.setAttribute('aria-label', `a star: ${lineOf(i, k)}`);
     const on = () => { if (starLight[k][i] > 0) { recall = { play:k, line:i, snap:mem[k][i] || (mem[k][i] = snapNow(false)) }; hand.on = true; } };
@@ -1382,12 +1429,12 @@ PLAYS.forEach((P, k) => {
   }
   const c = document.createElement('p'); c.className = 'clue'; c.dataset.play = k; c.textContent = P.clue; skyEl.appendChild(c);
 });
-const novaEl = document.createElement('button'); novaEl.type = 'button'; novaEl.className = 'star'; novaEl.setAttribute('aria-label', 'the last star: you');
+const novaEl = document.createElement('button'); novaEl.type = 'button'; novaEl.className = 'star'; novaEl.setAttribute('aria-label', "the last star: you can't hide.");
 novaEl.addEventListener('pointerenter', () => { recall = { nova:true }; hand.on = true; }); novaEl.addEventListener('focus', () => { recall = { nova:true }; });
 novaEl.addEventListener('pointerleave', () => { recall = null; }); novaEl.addEventListener('blur', () => { recall = null; });
 novaEl.addEventListener('pointerdown', (ev) => { ev.preventDefault(); recall = { nova:true }; clearTimeout(novaEl.t); novaEl.t = setTimeout(() => { recall = null; }, 4000); });
 skyEl.appendChild(novaEl);
-const starEls = [...skyEl.querySelectorAll('.star')].slice(0, 24), clueEls = [...skyEl.querySelectorAll('.clue')];
+const starEls = [...skyEl.querySelectorAll('.star')].slice(0, PLAYS.length*LINES), clueEls = [...skyEl.querySelectorAll('.clue')];
 function layoutSky(box, wide){
   const key = box.join(',') + (wide ? 'w' : 't') + play;
   if (key === sky.key) return; sky.key = key; sky.box = box;
@@ -1409,20 +1456,21 @@ function layoutSky(box, wide){
     clueEls[k].classList.toggle('narrow', narrow);
   }
 }
-let shownK = -1, litFrac = 0;         // how much of the sky is lit: the culture grows faster and closer for it
+let shownK = -1, litFrac = 0, litAll = false;         // how much of the sky is lit: the culture grows faster and closer for it
 function lightSky(dt){
   const fl = Math.exp(-dt/1.4);
-  const lit = starLight.reduce((a, L) => a + L.reduce((b, v) => b + (v > 0 ? 1 : 0), 0), 0), all = PLAYS.length*8;
+  const lit = starLight.reduce((a, L) => a + L.reduce((b, v) => b + (v > 0 ? 1 : 0), 0), 0), all = PLAYS.length*LINES;
+  const litHere = starLight[play].reduce((b, v) => b + (v > 0 ? 1 : 0), 0);
   if (lit !== shownK) {                                                   // the count, and the door: the proposal opens when the sky is full
     shownK = lit;
-    document.getElementById('prog').innerHTML = starLight.map((L) => Array.from(L).map((v) => v > 0 ? '<i>\u2726</i>' : '').join('')).filter(Boolean).join(' ');
-    document.body.classList.toggle('sky', lit >= all && (novaOn || !navigator.mediaDevices));   // and the viewer, where there is a camera to see them
-    if (novaOn) document.getElementById('prog').innerHTML += ' <i style="color:var(--bone)">\u273a</i>';
+    document.querySelector('#prog .bar i').style.width = (150*litHere/LINES).toFixed(1)+'px';
   }
-  litFrac = lit/all;
+  litFrac = lit/all; litAll = starLight.some((L) => Array.from(L).every((v) => v > 0));   // one whole constellation is enough for the last star
+  document.body.classList.toggle('sky', litAll && weOk && (novaOn || !navigator.mediaDevices));   // the door: the sky, the word, and the viewer where there is a camera
+  document.body.classList.toggle('nova', novaOn);
   const ease = 1-Math.exp(-dt/0.6);
-  for (let k = 0; k < PLAYS.length; k++) for (let i = 0; i < 8; i++) {
-    const L = starLight[k], j = k*8+i, m = mem[k][i], c = sky.cell && sky.cell[k];
+  for (let k = 0; k < PLAYS.length; k++) for (let i = 0; i < LINES; i++) {
+    const L = starLight[k], j = k*LINES+i, m = mem[k][i], c = sky.cell && sky.cell[k];
     if (L[i] > 1) L[i] = 1 + (L[i]-1)*fl;
     starEls[j].classList.toggle('on', L[i] > 0 && !!m);
     if (!m || !c) { sky.star[j*4+2] = -1; continue; }                     // no line, no star: the constellation is made, not given
@@ -1434,7 +1482,7 @@ function lightSky(dt){
     if (Math.abs(x-(starEls[j].px||0)) > 0.3 || Math.abs(y-(starEls[j].py||0)) > 0.3) { starEls[j].px = x; starEls[j].py = y; starEls[j].style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px)`; }
     sky.star[j*4] = x*view.dpr; sky.star[j*4+1] = (view.h-y)*view.dpr;
     sky.star[j*4+2] = L[i];
-    sky.star[j*4+3] = (i === WIPE_LINE ? 1 : i === FACE_LINE ? 2 : 0)*8 + c.size;   // the wipe's star is gold, the face's is ice
+    sky.star[j*4+3] = (i === WIPE_LINE ? 1 : (m.ord ?? i) === LINES-1 ? 2 : 0)*8 + c.size;   // the wipe's star is gold, the last found is ice
     sky.mag[j] = 2.3 - 0.3*(m.ord ?? i);                                  // the later it was found, the brighter
   }
   if (novaOn && nova >= 0) nova += dt;
