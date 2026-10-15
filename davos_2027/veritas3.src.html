@@ -24,13 +24,23 @@
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); white-space:nowrap; }
   h1 i { font-style:normal; color:var(--gold); }
-  h1 .br { color:var(--dim); }
   #mid { display:inline-block; transition:opacity .45s; }
+  body.veritas #mid { color:var(--gold); }
   body.veritas h1 { text-shadow:0 0 22px rgba(194,162,122,.55), 0 0 3px rgba(3,3,4,.9); }
   pre { margin:20px 0 0; font:inherit; transition:opacity .8s; }
   pre span { display:block; min-height:1.75em; }
   pre b { font-weight:400; color:var(--dim); }
   body.held pre { opacity:.22; }
+  /* the program: one line for every new form of life, its caption. Point at a line and that one comes back. */
+  #lines { font-size:11.5px; line-height:1.75; min-height:calc(7*1.75em); margin-top:.6em; }
+  body.tall #lines { min-height:calc(2*1.75em); }
+  body.tall #lines .ln:nth-last-child(n+3) { display:none; }
+  #prog .ln { display:block; min-height:0; padding-left:2ch; text-indent:-2ch; white-space:pre-wrap; pointer-events:auto; cursor:pointer; outline:none; }
+  #prog .ln:hover, #prog .ln:focus-visible, #prog .ln.on { color:var(--bone); }
+  #prog .v, #prog .g, #prog .cm { display:inline; min-height:0; }
+  #prog .v, #prog .g { color:var(--gold); }
+  .look { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px dotted var(--gold); cursor:pointer; }
+  body.invite .look { animation:breath 3.2s ease-in-out infinite; }
   @keyframes blink { 50% { opacity:0; } }
   /* the credit: two letters to find */
   #we { width:2.6ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px solid var(--gold); color:var(--gold);
@@ -43,6 +53,7 @@
   /* the culture's two numbers: they surface while a hand is on the culture */
   #bio { margin-top:14px; visibility:hidden; opacity:0; transition:opacity .6s, visibility .6s; }
   body.bio #bio { visibility:visible; opacity:1; }
+  body.tall #bio { display:none; }                     /* phones: the dials are for a mouse; the basin gets the room */
   .knob { color:var(--gold) !important; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
   .knob:focus-visible { outline:none; border-bottom-style:solid; }
   /* one line at a time: the words as a comment, the code under it */
@@ -85,10 +96,10 @@
 <body>
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with a living culture. Faces, skulls and flowers melt toward the drain and come back from the tap. Hold, and the glass goes clear."></canvas>
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
-<button id="eye" type="button" aria-label="Let it see you: one frame from your camera, never sent"><span id="ask"><b>look back</b> &middot; one frame, never sent</span></button>
+<button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"><b>look</b> &middot; one frame, stays on this device</span></button>
 <main id="words">
-  <h1 id="title" aria-label="vanitas, veritas">v<span class="br">[</span><span id="mid">an</span><span class="br">]</span>i<i>+</i>as</h1>
-<pre aria-label="Poem, running"><span>sink = drain(sink)</span><span>n -&gt; &infin;</span><span>sink == sync<b id="pS"></b></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
+  <h1 id="title" aria-label="vanitas, veritas">v<span id="mid">an</span>i<i>+</i>as</h1>
+<pre id="prog" aria-label="The program: one line for every new form of life you grow"><span>sink = drain(sink)</span><span id="you"></span><span>sink == sync<b id="pS"></b></span><span id="lines"></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
 <pre id="bio" aria-label="The culture, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
   <p id="say" class="quiet" aria-live="polite">hold</p>
   <div id="err"></div>
@@ -154,6 +165,7 @@ uniform sampler2D uImgP;
 uniform vec4 uPA, uPB;                                 // zoom, offset x, offset y, turn
 uniform vec2 uPFlip; uniform float uPSeed;
 uniform vec3 uBlend;   // how this new form of life is joined, as amounts: grafted (across species), grown from the culture's cells, seamed (two as one)
+uniform float uSelf;   // the partner is the viewer's own face: it takes the middle, and the bone of the other shows through it
 float h2(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
   return mix(mix(h2(i),h2(i+vec2(1,0)),f.x), mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x), f.y); }
@@ -177,6 +189,13 @@ vec3 still(vec2 p){
   float ms = smoothstep(0.40, 0.60, g.x + 0.14*(n2(g*3.2+uPSeed)-0.5));
   float w0 = max(0., 1.-uBlend.x-uBlend.y-uBlend.z);
   m = (m*w0 + mg*uBlend.x + mc*uBlend.y + ms*uBlend.z)/max(1e-3, w0+uBlend.x+uBlend.y+uBlend.z);
+  if (uSelf > 0.) {                                    // you, in the middle of it; where the other is bone and you are shadow, the bone wins
+    vec2 gb = xf(g, uPB, uPFlip.y);
+    float oval = smoothstep(0.42, 0.20, length((gb-0.5)*vec2(1.0, 0.82)));
+    float la = dot(a, vec3(0.2126,0.7152,0.0722)), lb = dot(b, vec3(0.2126,0.7152,0.0722));
+    float peek = smoothstep(0.22, 0.75, la-0.9*lb)*(0.35 + 0.35*n2(g*5.3+uPSeed));   // a ghost of bone through you, never all of it
+    m = mix(m, max(m*0.6, oval*(1.-0.75*peek)), uSelf);
+  }
   float mx = 0.30 + 0.12*uBlend.x - 0.20*uBlend.y - 0.14*uBlend.z;
   vec3 c = mix(mix(a,b,m), max(a,b), mx)*(1.-0.08*uBlend.y);
   float memb = (1.-smoothstep(0., 0.045, abs(cell-0.24)))*uBlend.y;
@@ -338,6 +357,8 @@ uniform vec2 uSpot;                                   // where the glass is clea
 uniform vec2 uPath[8]; uniform float uPathN, uGrow;   // the places you have found, in order: your path; the last still arriving
 uniform vec2 uLead;                                   // where the line from the tap arrives
 uniform vec2 uTap, uCenter, uRes, uCursor;
+uniform float uSelfOn, uVacant, uSeen, uGlint, uHiStar;   // you: the centre of your sky once it has seen you, or the empty place kept for you;
+                                                          // seen, the clear places are easier to find; the star of a line you point at
 ${IMG_FN}
 ${STILL_FN}
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
@@ -417,7 +438,7 @@ void main(){
   // basin, seen through fluted glass. Held, the glass goes flat and the picture is simply there.
   if(r < R+0.004){
     // the glass only goes fully clear when you have found the place: see seek, below
-    float win = smoothstep(0.19, 0.05, length(q-uSpot));                 // a window of clear glass, to be found
+    float win = smoothstep(mix(0.19, 0.27, uSeen), 0.05, length(q-uSpot));   // a window of clear glass, to be found: wider once it has seen you
     float L = 1.-smoothstep(0.,1.,uHold)*max(mix(0.24,1.,uFocus), win);
     // the beam: in step, bands of light run down the flutes like a feed scrolling. Where someone holds, the tiles stop keeping time
     // and the glass there lies flat. When enough of us hold at once the whole field falls out of step, and all of it goes clear.
@@ -459,17 +480,26 @@ void main(){
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl*breathe + BONE*glass*(0.006+0.05*lum(c))
            + glow/8.*0.10*lit*L + BONE*scr*lit;
 
+    // seen, the glass shows you where it is clear: a glint there, on the beat, while you seek
+    { float gs = length(q-uSpot); b += vec3(0.78,0.58,0.36)*uGlint*(1.-uFocus)*exp(-gs*gs/0.0012)*(0.30+0.22*sin(uBeats*3.14159)); }
+
     // the path: every place found is marked, and joined to the last. No two visitors draw the same one.
+    // Once it has seen you, you are the centre: every star is joined to you as well.
     {
-      float dm = 9., dd = 9.;
+      float dm = 9., dd = 9., ds = 9., dh = 9.;
       for(int i=0;i<8;i++){
         if(float(i) >= uPathN) break;
         float g = float(i) == uPathN-1. ? uGrow : 1.;                                  // the newest mark is still arriving
         dd = min(dd, abs(length(q-uPath[i])-0.008*g));
         if(i>0) dm = min(dm, seg(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)));
+        ds = min(ds, seg(q, vec2(0.), uPath[i]*g));
+        if(float(i) == uHiStar) dh = abs(length(q-uPath[i])-0.017);
       }
-      float th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd);
-      b = mix(b, BONE, th*mix(0.30, 1.0, max(uHold, uWhole)));          // faint while it flows, bright while you are still
+      float bright = mix(0.30, 1.0, max(uHold, uWhole));                              // faint while it flows, bright while you are still
+      float th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd) + 0.8*smoothstep(0.0008+aa*2.,0.0008,dh);
+      b = mix(b, BONE, min(1., th)*bright);
+      float spoke = smoothstep(0.0005+aa*2.,0.0005,ds)*smoothstep(0.05,0.08,length(q))*uSelfOn;
+      b = mix(b, mix(BONE, vec3(0.78,0.58,0.36), 0.55), 0.38*spoke*bright);
     }
 
     // drain
@@ -481,6 +511,13 @@ void main(){
     float beacon = pow(uWaltz, 6.);                               // on the crest of the phase the pupil breathes light
     b += BONE*(beacon*0.22+0.08*uGaze)*exp(-rp*rp/0.004)*(1.-uEnd);
     b = mix(b, BONE*(0.20+0.5*beacon+0.25*uGaze), 0.6*smoothstep(aa*3.,0.,abs(rp-RDp)-0.0004));
+    {   // the centre of your sky: a gold ring round the pupil once it has seen you; before that, a broken ring, a place kept empty for you
+      float rc = length(q), da = fract(atan(q.y,q.x)/6.28318*28.);
+      float ringS = smoothstep(aa*3.,0.,abs(rc-0.052)-0.0008);
+      float ringV = smoothstep(aa*3.,0.,abs(rc-0.052)-0.0004)*step(0.5, da);
+      b = mix(b, vec3(0.78,0.58,0.36), 0.85*ringS*uSelfOn + 0.32*ringV*uVacant*(1.-uSelfOn)*(0.6+0.4*beacon));
+      b += vec3(0.78,0.58,0.36)*uSelfOn*0.09*exp(-rc*rc/0.003)*(0.6+0.4*beacon);
+    }
     col = mix(col, b, smoothstep(R+0.03,R-0.10,r));             // the picture thins out into the lace, over a wide band
   }
 
@@ -670,8 +707,8 @@ const ret = (() => {
 })();
 
 
-// ---- the words: seven lines, one for each place found. Kat's. Each line is a gist: the words stay; the code is written
-// by the order the lines were read in (read first: a definition; later: a call on the one before; seventh: the return).
+// ---- the words: seven lines, one for each place found. Kat's. They are the poem: the comment over each line of the program.
+// The code under each is written by the picture it was found with: what the new form of life is made of, and how it was joined.
 const OUTLINE = [
   ['a new biology', 'we need a new biology.'],
   ['a new biology', 'merge.'],
@@ -684,48 +721,33 @@ const OUTLINE = [
 const EYE_LINE = "you can't hide.";                     // the eighth line belongs to the eye
 const POINT = "you can't wash your hands of it.";       // the point, from the TIAT statement
 const SINK = { place:'davos', when:'18–22.01.2027' };   // where the real sink stands. Set the venue here once it is known.
-// DRAFT gist table (claude), for Kat to overwrite. first: read first. mid: read after others; {prev} is the gist read just before. last: read seventh.
-const GISTS = [
-  { g:'biology',   first:['def biology(we): return we | it', 'biology = lambda we: we ^ it', 'class biology(we, it): pass'],
-                   mid:['we = biology({prev}(we))', 'biology = {prev}.mutate()', 'for cell in {prev}: cell.biology = new'],
-                   last:['return biology(we)', 'return new biology(we)'] },
-  { g:'merge',     first:['def merge(we, it): return we', 'merge = we & it', 'def merge(a, b): return merge(b, a)'],
-                   mid:['we = merge({prev}, it)', '{prev} |= it  # merge', 'merge({prev}(we), it)'],
-                   last:['return merge(we, it)', 'return we if we == it else merge(we, it)'] },
-  { g:'resist',    first:['def resist(we): return not we', 'resist = lambda: False', 'while resist(): pass'],
-                   mid:['assert not resist({prev})', 'if resist({prev}): resist = None', 'try: resist({prev})\nexcept: pass'],
-                   last:['return not resist(we)', 'return resist(we) == futile'] },
-  { g:'ok',        first:['ok = True', 'def ok(it): return it', 'ok = it is it'],
-                   mid:['ok = ok or {prev}', 'if not {prev}: ok = True', '{prev}.ok = all(it)'],
-                   last:['return ok', 'return ok(it)'] },
-  { g:'shall',     first:['def shall(ok): return ok', 'shall = lambda t: ok(t+1)', 'while not ok: shall(ok)'],
-                   mid:['while not ok: ok = shall({prev})', 'shall = {prev} or shall', 'await shall({prev})'],
-                   last:['return shall(ok)', 'return shall(shall(ok))'] },
-  { g:'beautiful', first:['def beautiful(we): return we', 'beautiful = great = True', 'beautiful(we) == great(we)'],
-                   mid:['beautiful({prev}) == great({prev})', '{prev} = beautiful({prev}) or great({prev})', 'assert beautiful({prev}), great'],
-                   last:['return beautiful(we), great(we)', 'return great(beautiful(we))'] },
-  { g:'spotlight', first:['def spotlight(we): return we', 'spotlight = eye * n', 'spotlight = lambda we: we[I]'],
-                   mid:['spotlight({prev})', 'we = spotlight({prev}(we))', '{prev} in spotlight'],
-                   last:['return spotlight(we)', 'return veritas(spotlight(we))', 'return spotlight(we)  # n -> inf'] },
-];
 const LINES = OUTLINE.length;
 const WIPE_LINE = 2;                      // wipe the culture away, it grows back: resistance is futile
 const hashI = (n) => { let x = (n|0)*2654435761 % 4294967296; x ^= x >>> 13; x = (x*1274126177) % 4294967296; return (x ^ (x >>> 16)) >>> 0; };
 let N = FRAMES.length;
-// ---- a new biology: every held picture is a new form of life, made of two stills. What each of the 24 stills is
-// (the ones build.py takes round the loop), what kind of life each hold makes, and what to call it.
-const CLASS = N === 24 ? ['face','skull','face','skull','skull','foam','flower','skull','skull','face','skull','skull',
-                          'skull','skull','flower','flower','flower','foam','foam','skull','foam','foam','skull','skull'] : null;
-const classOf = (i) => CLASS ? CLASS[((i % 24)+24) % 24] : 'skull';
-const GENUS = { skull:'Calvaria', face:'Homo', flower:'Bellis', foam:'Bulla' };
-const EPITHETS = { skull:['mortalis','tacens','manens'], face:['vivens','lucens','ridens'], flower:['florens','perennis','vernalis'],
-  foam:['nascens','spumans','fluens'], emerge:['emergens','resurgens','oriens'], together:['communis','consors','concors'] };
+// ---- a new biology: every held picture is a new form of life, made of two stills, or of a still and you. What each still is:
+// build.py takes the 32 anchors the loop was dreamed through, in loop order (Kat's 8 pictures, lightly dreamed, and 3 dreamed
+// between each pair), so neighbours are near each other in the dream. 24 is the older pool, taken evenly round the loop.
+const CLASSES = {
+  32: ['face','skull','skull','face','skull','skull','skull','foam','foam','face','skull','skull','face','skull','skull','skull',
+       'skull','skull','foam','flower','flower','flower','skull','skull','foam','skull','skull','foam','foam','skull','skull','skull'],
+  24: ['face','skull','face','skull','skull','foam','flower','skull','skull','face','skull','skull',
+       'skull','skull','flower','flower','flower','foam','foam','skull','foam','foam','skull','skull'],
+};
+const CLASS = CLASSES[N] || null;
+const classOf = (i) => CLASS ? CLASS[((i % CLASS.length)+CLASS.length) % CLASS.length] : 'skull';
+const GENUS = { skull:'Calvaria', face:'Homo', flower:'Bellis', foam:'Bulla', you:'Ipse' };   // ipse: the self
+// epithets that agree with any genus (third declension, present participles), five to a pool
+const EPITHETS = { skull:['mortalis','tacens','manens','memor','quiescens'], face:['vivens','lucens','ridens','videns','spirans'],
+  flower:['florens','perennis','vernalis','aperiens','redolens'], foam:['nascens','spumans','fluens','tremens','evanescens'],
+  emerge:['emergens','resurgens','oriens','crescens','germinans'], together:['communis','consors','concors','conflans','coniungens'] };
 const blendOf = (m) => m.blend || ({ species:[1,0,0], emerge:[0,1,0], together:[0,0,1] }[m.kind] || [0,0,0]);
-function speciesOf(m, taken){                // genus from the picture, epithet from what grew into it; no name twice in one run
-  const a = classOf(m.a ?? m.sign), b = classOf(m.p), [, ce, se] = blendOf(m);
+function speciesOf(m, taken){                // genus from the picture (or from you), epithet from what grew into it; no name twice in one run
+  const a = m.face ? 'you' : classOf(m.a ?? m.sign), b = m.face ? classOf(m.a ?? m.sign) : classOf(m.p), [, ce, se] = blendOf(m);
   const pool = ce >= 0.45 && ce >= se ? EPITHETS.emerge : se >= 0.45 ? EPITHETS.together : EPITHETS[b !== a ? b : (a === 'skull' ? 'face' : 'skull')];
   const used = new Set(taken || mem.filter(Boolean).map((x) => x.sp));
-  for (const ep of pool) { const nm = `${GENUS[a]} ${ep}`; if (!used.has(nm)) return nm; }
+  for (const pl of [pool, EPITHETS.emerge, EPITHETS.together, EPITHETS.foam, EPITHETS.flower, EPITHETS.face, EPITHETS.skull])   // then the nearest other pools
+    for (const ep of pl) { const nm = `${GENUS[a]} ${ep}`; if (!used.has(nm)) return nm; }
   return `${GENUS[a]} ${pool[0]}`;
 }
 const spLine = (i) => mem[i] && mem[i].sp ? `<span class="sp">${mem[i].sp}</span>` : '';
@@ -739,14 +761,23 @@ let mem = new Array(LINES).fill(null);    // what each found place remembers: th
 let lastRead = -1;
 const lineOf = (i) => OUTLINE[i][1];
 const orderOf = () => mem.map((m, i) => m ? [m.ord ?? i, i] : null).filter(Boolean).sort((a, b) => a[0]-b[0]).map((p) => p[1]);
-function codeOf(i, alt = 0){
-  const order = orderOf(), m = mem[i];
-  const pos = m ? (m.ord ?? order.indexOf(i)) : order.length;
-  const prevI = pos > 0 ? (order[pos-1] ?? -1) : -1;
-  const prev = prevI < 0 ? 'sink' : GISTS[prevI].g;
-  const T = GISTS[i][pos === 0 ? 'first' : pos >= LINES-1 ? 'last' : 'mid'];
-  return T[(hashI(i*17 + pos*7 + (prevI+2)*3) + alt) % T.length].replace(/\{prev\}/g, prev);
+// ---- the program. Every new form of life writes one line of it, and the line is the caption of its picture: its name, what it is
+// made of, how it was joined, and by how much. The joins are the thesis as verbs: haunt (one life drifting through another, the
+// living and the dead), graft (across species), culture (grown out of the culture's cells: emergence), merge (two as one: softness).
+const NOUN = { skull:'skull', face:'face', flower:'daisy', foam:'foam' };
+const varOf = (sp) => String(sp || 'homo novus').toLowerCase().replace(/[^a-z]+/g, '_');
+const amt = (x) => x.toFixed(2).replace(/^0/, '');
+function joinOf(m){                          // the largest amount names the join
+  const [gr, ce, se] = blendOf(m);
+  return [['haunt', Math.max(0, 1-gr-ce-se)], ['graft', gr], ['culture', ce], ['merge', se]].reduce((x, y) => y[1] > x[1] ? y : x);
 }
+function captionOf(m){
+  if (!m) return '';
+  const [verb, x] = joinOf(m), still = NOUN[classOf(m.a ?? m.sign)];
+  return `${varOf(m.sp)} = ${m.face ? 'you' : still}.${verb}(${m.face ? still : NOUN[classOf(m.p)]}, ${amt(x)})`;
+}
+const codeOf = (i) => captionOf(mem[i]);
+const capHTML = (m) => { const c = captionOf(m), k = c.indexOf(' = '); return k < 0 ? c : `<span class="v">${c.slice(0, k)}</span>${c.slice(k)}`; };
 const poemLine = (code, words) => `<span class="c">// ${words}</span><code>${code}</code>`;   // the comment above the line it is about
 
 // ---- where it is running: a visitor's browser, a gallery wall, or the screen in a real sink (?sink=davos)
@@ -802,6 +833,7 @@ function snapNow(fromPause){
   const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
   const q = fromPause ? pause : { p:(sign + 3 + Math.floor(Math.random()*(N-6))) % N, A:frame(1.25, 0.12), B:frame(1.9, 0.6), flip:[1, Math.random() < 0.5 ? -1 : 1], seed:rnd(0, 60), spot:[0, 0] };
   const snap = { sign, mix: mixAB, a: fromPause ? pause.a : sign, blend: fromPause ? pause.blend.slice() : [0,0,0], p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, spot: (fromPause && q.found ? q.found : q.spot).slice() };
+  if (fromPause && pause.face) snap.face = true;          // you are in this one
   snap.sp = speciesOf(snap);
   return snap;
 }
@@ -809,9 +841,32 @@ function reveal(i, fromPause){
   if (read[i]) return;
   read[i] = true; lastRead = i;
   mem[i] = snapNow(fromPause); mem[i].ord = read.filter(Boolean).length-1;
-  save();
+  save(); writeProgram(i);
   if (read.every(Boolean)) { document.body.classList.add('whole'); me.done = Date.now(); }
 }
+// the program's lines, in the order the forms of life were grown. The newest arrives as script and resolves, like every line.
+const linesEl = document.getElementById('lines');
+function writeProgram(fresh = -1){
+  const order = orderOf();
+  linesEl.innerHTML = order.map((i) => `<span class="ln" data-i="${i}" tabindex="0" role="button" aria-label="${mem[i].sp}: show it again">${i === fresh ? '' : capHTML(mem[i])}</span>`).join('');
+  const el = fresh >= 0 ? linesEl.querySelector(`[data-i="${fresh}"]`) : null;
+  if (!el) return;
+  const text = captionOf(mem[fresh]), t0 = performance.now();
+  const tk = () => { const k = Math.min(1, (performance.now()-t0)/1400); if (!el.isConnected) return;
+    if (k < 1) { el.textContent = cipher(text, k, Math.floor(performance.now()/90)); requestAnimationFrame(tk); } else el.innerHTML = capHTML(mem[fresh]); };
+  tk();
+}
+// point at a line (or tap it) and that form of life comes back into the glass, with its name and its words
+let peekUntil = 0, hiLine = -1;
+function peekAt(i, ms){ if (held || !mem[i] || recall && !recall.peek) return; recall = { line:i, snap:mem[i], peek:true }; peekUntil = ms ? performance.now()+ms : Infinity; }
+function peekOff(after = 0){ if (!recall || !recall.peek) return; if (after) peekUntil = Math.min(peekUntil, performance.now()+after); else recall = null; }
+linesEl.addEventListener('pointerover', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.pointerType === 'mouse') peekAt(+ln.dataset.i, 0); });
+linesEl.addEventListener('pointerout', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.pointerType === 'mouse') peekOff(2200); });
+linesEl.addEventListener('click', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln) peekAt(+ln.dataset.i, 4000); });
+linesEl.addEventListener('focusin', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln) peekAt(+ln.dataset.i, 0); });
+linesEl.addEventListener('focusout', () => peekOff(1500));
+linesEl.addEventListener('keydown', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.key === 'Enter') { ev.preventDefault(); keepCard(+ln.dataset.i); } });
+for (const t of ['pointerdown', 'keydown']) linesEl.addEventListener(t, (ev) => ev.stopPropagation());   // pointing at the program is not holding the glass
 let afterEnd = 0, endDir = 1, lastWords = false;
 // what the page keeps, on this machine only. An installation keeps nothing.
 function save(){
@@ -831,6 +886,7 @@ function restore(){
     if (Array.isArray(k.path)) path.push(...k.path.slice(0, LINES).filter(p => Array.isArray(p) && p.length === 2));
     if (k.bio) { bio.f = +k.bio.f || bio.f; bio.k = +k.bio.k || bio.k; document.querySelectorAll('.knob').forEach(el => { el.textContent = bio[el.dataset.k].toFixed(4); }); }
     const order = orderOf(); lastRead = order.length ? order[order.length-1] : -1;
+    writeProgram();
     if (read.every(Boolean)) { document.body.classList.add('whole'); whole = 1; end = 1; afterEnd = 99; lastWords = true; silence = true; reading = readYou(); }   // it already ended here
   } catch (e) {}
 }
@@ -879,7 +935,7 @@ function announce(i, now){
 let shownSync = '';
 function poem(){                              // sink == sync: True while the beam holds everyone in step, False once enough of us have stopped
   const sv = kura.r > 0.8 ? 'True' : kura.r < 0.45 ? 'False' : '';
-  if (sv !== shownSync) { shownSync = sv; document.getElementById('pS').textContent = sv ? `   // ${sv}` : ''; }
+  if (sv !== shownSync) { shownSync = sv; document.getElementById('pS').textContent = sv ? `  # ${sv}` : ''; }
 }
 // ---- noon in Davos: once a day, everyone holds together
 const zoneFmt = (() => { try { return new Intl.DateTimeFormat('en-GB', { timeZone:'Europe/Zurich', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }); } catch (e) { return null; } })();
@@ -891,31 +947,43 @@ function noonTick(now){
   const [h, m] = zoneFmt.format(new Date()).split(':').map(Number), t = h*60+m;
   noon = t >= 718 && t < 726 ? 'now' : t >= 690 && t < 718 ? 'soon' : '';
 }
-let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, introOff = 0, reading = null;
+let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, toldYou = 0, introOff = 0, reading = null;
+const sayIt = (html, quiet = false) => { if (html !== shown) { shown = html; say.innerHTML = html; say.classList.toggle('quiet', quiet); } };
 function tell(now){
   poem();
   if (MODE === 'sink') return;                                     // the sink speaks with water only
+  if (recall && recall.peek) {                                     // a line of the program, pointed at: its picture is back, with its name and its words
+    sayIt(spLine(recall.line) + poemLine(codeOf(recall.line), lineOf(recall.line)) + keepLink()); return;
+  }
   if (silence && !held) {                                          // the end: the mirror
     const r = reading || (reading = readYou());
-    const html = `<span class="sp">${r.name}</span><span class="c">// ${r.vanitas}</span><code>mirror(you)  # ${r.veritas}</code>` + keepLink('keep your reading');
-    if (html !== shown) { shown = html; say.innerHTML = html; say.classList.remove('quiet'); }
+    sayIt(`<span class="sp">${r.name}</span><span class="c">// ${r.vanitas}</span><code>mirror(you)  # ${r.veritas}</code>` + keepLink('keep your reading'));
     return;
   }
   if (!begun && !held && introOff && intro <= 0 && !read.some(Boolean) && now-introOff > 1200) {   // just after the first clear picture: how it is played, once
-    begun = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher('for place in clear: hold(place)', k, salt), cipher('seven places. hold, and seek.', k, salt)) };
+    begun = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher('while held: seek(clear)', k, salt), cipher('hold, then find where the glass clears.', k, salt)) };
+  }
+  if (toldTurn === 1 && !held && now >= linger) {                  // the title turned: why, once
+    toldTurn = 2; whisper = { t0: now, html: (k, salt) => poemLine(cipher('sink == sync  # False', k, salt), cipher('enough of us held still. the clocks let go.', k, salt)) };
   }
   if (period !== lastSign) {                                        // a new still: sometimes, a line, unprompted
     lastSign = period;
-    if (!toldSink && !held && intro <= 0 && read.some(Boolean)) {   // after the first line: where the real one is
+    const found = read.filter(Boolean).length;
+    if (toldYou < 1 && CAN_SEE && !seen && !held && intro <= 0 && found >= 1) {   // after the first find: be in it
+      toldYou = 1; whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = see(you)', k, salt), cipher('let it see you, and it grows you too.', k, salt)) };
+    }
+    else if (!toldSink && !held && intro <= 0 && found >= 1) {     // where the real one is
       toldSink = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sink.where()  # ${SINK.place}, ${SINK.when}`, k, salt), cipher(`the real one is in ${SINK.place}.`, k, salt)) };
     }
-    else if (!toldMirror && !held && intro <= 0 && read.filter(Boolean).length >= 3) {   // halfway: it has been watching how you play
+    else if (toldYou < 2 && CAN_SEE && !seen && !held && intro <= 0 && found >= 3) {   // still hidden: the middle of your sky is empty
+      toldYou = 2; whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = None', k, salt), cipher('the middle of your sky is empty.', k, salt)) };
+    }
+    else if (!toldMirror && !held && intro <= 0 && found >= 3) {   // halfway: it has been watching how you play
       toldMirror = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher('mirror.learn(you)', k, salt), cipher('the glass is learning your hand.', k, salt)) };
     }
-    else if (!held && period % 2 === 0 && intro <= 0) {
+    else if (!held && period % 2 === 0 && intro <= 0) {            // or one of yours, again
       const given = read.map((r, i) => r ? i : -1).filter(i => i >= 0);
-      const i = given.length ? given[Math.floor(Math.random()*given.length)] : (sign >= 2 ? 0 : -1);
-      if (i >= 0) whisper = { i, t0: now };
+      if (given.length) whisper = { i: given[Math.floor(Math.random()*given.length)], t0: now };
     }
   }
   if (whisper && !held && now < linger) whisper = null;
@@ -924,9 +992,7 @@ function tell(now){
     if (age > 7000) whisper = null;
     else {
       const k = Math.min(1, age/2600)*(age < 5200 ? 1 : Math.max(0, 1-(age-5200)/1800)), salt = Math.floor(now/90);
-      const html = whisper.html ? whisper.html(k, salt)
-        : poemLine(cipher(codeOf(whisper.i, 1+(whisper.t0|0) % 2), k, salt), cipher(lineOf(whisper.i), k, salt));   // the same gist, implemented another way
-      if (html !== shown) { shown = html; say.innerHTML = html; say.classList.remove('quiet'); }
+      sayIt(whisper.html ? whisper.html(k, salt) : poemLine(cipher(codeOf(whisper.i), k, salt), cipher(lineOf(whisper.i), k, salt)));
       return;
     }
   }
@@ -936,9 +1002,9 @@ function tell(now){
   else if (held) {
     const i = pause.line, salt = Math.floor(now/90);
     if (i < 0) html = poemLine('return we', POINT);                 // everything has been read; the hold is still worth something to everyone
-    else {
+    else {                                                          // the line writes itself as the glass clears: the words, then the code of what you are finding
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
-      html = pause.done || focus > 0.45 ? poemLine(cipher(codeOf(i), pause.done ? 1 : focus, salt), cipher(lineOf(i), k, salt))
+      html = pause.done || focus > 0.45 ? poemLine(cipher(pause.done ? codeOf(i) : captionOf(pause), pause.done ? 1 : focus, salt), cipher(lineOf(i), k, salt))
            : `<span class="c">// ${cipher(lineOf(i), k, salt)}</span><b>seek</b>`;
       if (pause.done) html = spLine(i) + html + keepLink();
     }
@@ -949,9 +1015,11 @@ function tell(now){
   else if (atSink) html = `<span class="c">// someone is holding the sink in ${atSink}.</span><code>hold(we)</code>`;
   else if (noon === 'soon') { html = 'together at noon, davos time'; quiet = true; }
   else { html = 'hold'; quiet = true; }
-  if (html !== shown) { shown = html; say.innerHTML = html; say.classList.toggle('quiet', quiet); }
+  sayIt(html, quiet);
 }
-say.addEventListener('click', (ev) => { const a = ev.target.closest && ev.target.closest('.keep'); if (!a) return; ev.preventDefault(); keepCard(); });
+say.addEventListener('pointerenter', () => { if (recall && recall.peek) peekUntil = Infinity; });       // on the way to "keep", it waits
+say.addEventListener('pointerleave', () => { if (recall && recall.peek) peekUntil = performance.now()+1500; });
+say.addEventListener('click', (ev) => { const a = ev.target.closest && ev.target.closest('.keep'); if (!a) return; ev.preventDefault(); keepCard(recall && recall.peek ? recall.line : undefined); });
 
 let unit = 0;
 function use(prog){ gl.useProgram(prog.p); unit = 0; return prog.u; }
@@ -1036,16 +1104,22 @@ function kuraUpload(){
   gl.bindTexture(gl.TEXTURE_2D, kura.tex);
   gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, KX, KY, gl.RGBA, gl.UNSIGNED_BYTE, px);
 }
-let titleER = false, flipping = 0, midOp = '';
+let titleER = false, flipping = 0, glitchAt = 0, toldTurn = 0;
 const midEl = document.getElementById('mid');
-function flipTo(t, now){ flipping = now+950; midEl.style.opacity = '0'; midOp = '0'; setTimeout(() => { midEl.textContent = t; midEl.style.opacity = '1'; midOp = '1'; }, 480); }
+function flipTo(t, now){ flipping = now+950; midEl.style.opacity = '0'; setTimeout(() => { midEl.textContent = t; midEl.style.opacity = '1'; }, 480); }
 function titleTick(now){
   if (now < flipping) return;
-  if (!titleER && kura.r < 0.45) { titleER = true; flipTo('er', now); flash = 1; document.body.classList.add('veritas'); if (held) me.flipped = true; }
+  if (!titleER && kura.r < 0.45) {
+    titleER = true; flipTo('er', now); flash = 1; document.body.classList.add('veritas'); if (held) me.flipped = true;
+    if (!toldTurn && MODE !== 'sink') toldTurn = 1;                       // said once, when the hand is free to read it
+  }
   else if (titleER && kura.r > 0.80) { titleER = false; flipTo('an', now); document.body.classList.remove('veritas'); }
-  else if (!titleER) {                                                        // as the beam loosens, "an" thins
-    const op = (1-0.7*Math.min(1, kura.S/(0.8*kura.Sstar))).toFixed(2);
-    if (op !== midOp) { midOp = op; midEl.style.opacity = op; }
+  else if (now-glitchAt > 110) {          // as the beam loosens, the title tries to turn: it flickers toward the other word, more the looser it gets
+    glitchAt = now;
+    const loose = titleER ? Math.max(0, Math.min(1, (kura.r-0.45)/0.35)) : Math.min(1, kura.S/(0.8*kura.Sstar));
+    const keep = titleER ? 'er' : 'an', other = titleER ? 'an' : 'er';
+    const t = Math.random() < 0.5*loose*loose ? (Math.random() < 0.6 ? other : cipher(other, 0.5, Math.floor(now/90))) : keep;
+    if (midEl.textContent !== t) midEl.textContent = t;
   }
 }
 
@@ -1116,9 +1190,23 @@ function rings(others){
   }
 }
 
-// ---- the face: the viewer's own, if they allow it. One frame, poured into the loop, forgotten with the rest.
-let faceTex = null, facePour = 0, faceHolds = 0, asked = false, seeing = false, meet = 0;
+// ---- you: the viewer's own face, if they allow it. One frame from the camera, which is off again at once. It stays in this page, on
+// this device: never sent, never stored, gone when the page is closed. Once it has seen you, you are the centre of your sky, the
+// clear places are easier to find, and every new form of life you grow has you in it, with the bone of the dream showing through.
+let faceTex = null, faceCv = null, facePour = 0, asked = false, seeing = false, meet = 0, selfOn = 0, vacant = 0;
 const ask = document.getElementById('ask');
+const youEl = document.getElementById('you');
+const CAN_SEE = MODE === 'web' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+let youShown = '';
+function youLine(){
+  if (!CAN_SEE && !seen) { youEl.style.display = 'none'; return; }
+  const html = faceTex ? '<span class="g">you</span> = see(<span class="g">you</span>)  <span class="cm"># stays on this device</span>'
+    : seen ? 'you = see(you)  <a class="look" href="#look">look again -&gt;</a>'
+    : 'you = None  <a class="look" href="#look">look -&gt;</a>';
+  if (html !== youShown) { youShown = html; youEl.innerHTML = html; }
+}
+youEl.addEventListener('click', (ev) => { const a = ev.target.closest && ev.target.closest('.look'); if (a) see(ev); });
+youEl.addEventListener('pointerdown', (ev) => ev.stopPropagation());
 function grade(cx){                 // the same grade as the stills: cool mono, a little gold in the light, dark at the edges
   const im = cx.getImageData(0, 0, 512, 512), d = im.data;
   for (let i = 0, n = 0; i < d.length; i += 4, n++) {
@@ -1132,8 +1220,9 @@ function grade(cx){                 // the same grade as the stills: cool mono, 
   cx.putImageData(im, 0, 0);
 }
 async function see(ev){
-  ev.preventDefault();
-  if (seeing || !navigator.mediaDevices?.getUserMedia) { told('<b>it cannot see you here</b> &middot; needs https', 4000); return; }
+  if (ev) ev.preventDefault();
+  if (seeing) return;
+  if (!CAN_SEE) { told('<b>it cannot see you here</b> &middot; needs https', 4000); return; }
   seeing = true; told('<b>looking</b>');
   let stream = null;
   try {
@@ -1146,22 +1235,28 @@ async function see(ev){
     cx.translate(512, 0); cx.scale(-1, 1);                            // as in a mirror
     cx.drawImage(v, (v.videoWidth-sz)/2, (v.videoHeight-sz)/2, sz, sz, 0, 0, 512, 512);
     stream.getTracks().forEach(t => t.stop()); v.srcObject = null; stream = null;   // the camera is off again here
-    grade(cx);
-    if (!faceTex) faceTex = texture(gl.LINEAR);
-    gl.bindTexture(gl.TEXTURE_2D, faceTex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    // seeing each other: for three breaths the glass goes clear on the two of you, one picture. Then it is poured.
-    faceHolds = 2; compose(); meet = 4.5; focus = 1;
-    seen = true; me.looked = true; save();
-    shown = poemLine('return I', EYE_LINE); say.innerHTML = shown; say.classList.remove('quiet'); linger = performance.now()+6000;
-    told('<b>it has you</b> &middot; it forgets in ten seconds', 7000);
+    took(cv);
   } catch (e) {
     if (stream) stream.getTracks().forEach(t => t.stop());
     told('<b>it did not see you</b>', 4000);
   }
   seeing = false;
+}
+function took(cv){
+  const cx = cv.getContext('2d', { willReadFrequently:true });
+  cx.setTransform(1, 0, 0, 1, 0, 0); grade(cx);
+  faceCv = cv;                                                        // for the card: the centre of your sky is your face
+  if (!faceTex) faceTex = texture(gl.LINEAR);
+  gl.bindTexture(gl.TEXTURE_2D, faceTex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  // meeting: for three breaths the glass goes clear on the two of you, one picture. Then you are poured in with the rest.
+  compose(); meet = 4.5; focus = 1;
+  seen = true; me.looked = true; save();
+  document.body.classList.remove('invite'); youLine();
+  shown = poemLine('you = see(you)  # stays on this device', EYE_LINE); say.innerHTML = shown; say.classList.remove('quiet'); linger = performance.now()+6000;
+  told('<b>it has you</b> &middot; you are the centre now', 7000);
 }
 const eye = document.getElementById('eye');
 eye.addEventListener('click', see);
@@ -1242,8 +1337,13 @@ function render(){
   gl.uniform1f(u.uWaltz, 0.5+0.5*Math.sin(2*Math.PI*beats/6));
   gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   const rs = (recall && recall.snap) || cardSnap;
-  if (rs) { const a = (rs.a ?? rs.sign) % N; bind(u.uImgA, imgTex[a]); bind(u.uImgB, imgTex[a]); bind(u.uImgP, imgTex[rs.p % N]); }
-  else { bind(u.uImgA, imgTex[pause.a % N]); bind(u.uImgB, imgTex[pause.a % N]); bind(u.uImgP, pause.face && faceTex ? faceTex : imgTex[pause.p]); }
+  const self = rs ? !!(rs.face && faceTex) : !!(pause.face && faceTex);
+  if (rs) { const a = (rs.a ?? rs.sign) % N; bind(u.uImgA, imgTex[a]); bind(u.uImgB, imgTex[a]); bind(u.uImgP, self ? faceTex : imgTex[rs.p % N]); }
+  else { bind(u.uImgA, imgTex[pause.a % N]); bind(u.uImgB, imgTex[pause.a % N]); bind(u.uImgP, self ? faceTex : imgTex[pause.p]); }
+  gl.uniform1f(u.uSelf, self ? 1 : 0);
+  gl.uniform1f(u.uSelfOn, CM ? 0 : selfOn); gl.uniform1f(u.uVacant, CM ? 0 : vacant); gl.uniform1f(u.uSeen, faceTex ? 1 : 0);
+  gl.uniform1f(u.uGlint, !CM && held && faceTex && !pause.done && !pause.byKey ? 1 : 0);
+  gl.uniform1f(u.uHiStar, !CM && recall && mem[recall.line] ? (mem[recall.line].ord ?? -1) : -1);
   bind(u.uRD, rdA.tex); bind(u.uKura, kura.tex);
   const sp = rs || pause;
   gl.uniform4f(u.uPA, ...sp.A); gl.uniform4f(u.uPB, ...sp.B);
@@ -1304,7 +1404,9 @@ function resize(){
 }
 function layoutWords(){
   const w = window.innerWidth, h = window.innerHeight;
-  const ww = Math.min(300, w-48), wh = words.offsetHeight;
+  const tall = MODE === 'web' && !cardFrame && !(w > 1.3*h);
+  if (!cardFrame && document.body.classList.contains('tall') !== tall) document.body.classList.toggle('tall', tall);
+  const ww = Math.min(tall ? 320 : 340, w-48), wh = words.offsetHeight;
   let Rb, cx, cy, wx, wy, lead;
   if (MODE !== 'web' || cardFrame) {                      // a wall, a sink, or the one frame a card is taken from: the disc, centred
     Rb = 0.45*Math.min(w, h); cx = w/2; cy = h/2;
@@ -1366,7 +1468,7 @@ function tick(now){
     heldSecs = (now-holdStart)/1000;
     const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S;
     { const hp = holdPoint(); holdPath += Math.hypot(hp.x-lastHP.x, hp.y-lastHP.y); lastHP = hp; }
-    want = pause.byKey ? 1 : ss(0.32, 0.055, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));
+    want = pause.byKey ? 1 : ss(faceTex ? 0.42 : 0.32, 0.055, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));   // seen, it clears from further off
     if (!pause.done) {
       pause.kept = focus > 0.85 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
       if (pause.kept >= READ_SECONDS) {
@@ -1398,8 +1500,12 @@ function tick(now){
   const hadIntro = intro > 0; intro = Math.max(0, intro-dt); if (hadIntro && intro === 0) introOff = now;
   growT = Math.min(1, growT + dt/2.2);
   gaze += (((asked && !faceTex) ? 1 : 0)-gaze)*(1-Math.exp(-dt/1.5));   // it starts looking once it is ready to be looked at
-  if (!asked && !seen && MODE === 'web' && read.some(Boolean) && navigator.mediaDevices) { asked = true; eye.classList.add('on'); }
+  if (!asked && !faceTex && CAN_SEE && read.some(Boolean)) { asked = true; eye.classList.add('on'); document.body.classList.add('invite'); youLine(); }
   if (meet > 0) { meet -= dt; if (meet <= 0) facePour = 1.8; }        // after the meeting, the pour
+  selfOn += ((seen ? 1 : 0)-selfOn)*(1-Math.exp(-dt/1.2));            // you, arriving at the centre of your sky
+  vacant += ((CAN_SEE && !seen && read.some(Boolean) ? 1 : 0)-vacant)*(1-Math.exp(-dt/1.5));   // until then, a place kept for you
+  if (recall && recall.peek && now > peekUntil) recall = null;
+  { const hi = recall ? recall.line : -1; if (hi !== hiLine) { hiLine = hi; for (const el of linesEl.children) el.classList.toggle('on', +el.dataset.i === hi); } }
   const showStill = held || intro > 0 || ghost.on || meet > 0 || !!recall;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
   if (intro > 0 || meet > 0 || recall) focus = 1;
@@ -1433,6 +1539,9 @@ function tick(now){
     gl.readPixels(0,0,1,1, gl.RGBA, gl.UNSIGNED_BYTE, drainRGBA);
     probe.push(performance.now()-t0); if (probe.length > 120) probe.shift();
     window.__veritas = { ms:probe, tick, pause, view, read, loss, reveal, kura, share, setHeld, keepCard, scrub, me, readYou, compose, path, features, studyPublish, get playId(){ return playId; }, get STUDY_ON(){ return STUDY_ON; },
+      captionOf, peekAt, get recall(){ return recall; }, get seen(){ return seen; }, get selfOn(){ return selfOn; }, get N(){ return N; },
+      fakeSee(k){ const im = new Image(); im.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = 512; const cx = cv.getContext('2d', { willReadFrequently:true });
+        const sz = Math.min(im.width, im.height); cx.translate(512, 0); cx.scale(-1, 1); cx.drawImage(im, (im.width-sz)/2, (im.height-sz)/2, sz, sz, 0, 0, 512, 512); took(cv); }; im.src = FRAMES[k % FRAMES.length]; },
       get reading(){ return reading; }, get handSpeed(){ return handSpeed; }, set handSpeed(v){ handSpeed = v; },
       get mem(){ return mem; }, get titleER(){ return titleER; }, get noon(){ return noon; }, get shown(){ return shown; },
       get end(){ return end; }, get held(){ return held; }, get holdAmt(){ return holdAmt; }, get whole(){ return whole; }, get simTime(){ return simTime; },
@@ -1507,7 +1616,7 @@ function compose(){
     const far = (i) => used.length ? Math.min(...used.map((u) => cd(u, i))) : N;
     const pick = (ok) => { let best = -1, bs = -1; for (let i = 0; i < N; i++) { if (!ok(i)) continue; const v = far(i) + Math.random()*0.9; if (v > bs) { bs = v; best = i; } } return best; };
     pause.a = far(sign) >= 2 ? sign : pick(() => true);                  // start from what is in the basin now, unless it has been kept already
-    const ca = classOf(pause.a), grown = {};
+    let ca = classOf(pause.a), ca2 = ca; const grown = {};
     for (const m of mem) if (m) { const c = classOf(m.p); grown[c] = (grown[c] || 0) + 1; }
     const W = {
       skull:  (ca !== 'skull' ? 1 : 0.12)*(0.35 + st),                   // stillness lets the bone show
@@ -1522,7 +1631,9 @@ function compose(){
     else pause.p = -1;
     if (pause.p < 0) pause.p = pick((i) => cd(i, pause.a) >= 2);
     if (pause.p < 0) pause.p = (pause.a + 3 + Math.floor(Math.random()*(N-6))) % N;
+    if (faceTex) { pause.a = pause.p; ca2 = classOf(pause.a); }        // with you in it, the still that joins you is the one your hands chose
     const cb = classOf(pause.p);
+    ca = ca2;
     let gr = Math.min(1, 0.85*mv + (cb === 'flower' ? 0.25 : 0)), ce = Math.min(1, 0.9*sc + (cb === 'foam' ? 0.25 : 0)), se = Math.min(1, wi + (ca === 'face' && cb === 'face' ? 0.35 : 0));
     { // what has joined this run already joins less, and no two joins are quite the same: a consistent hand still grows a varied seven
       const usedJ = [0, 0, 0]; for (const m of mem) if (m) { const bj = blendOf(m); for (let q = 0; q < 3; q++) usedJ[q] += bj[q]; }
@@ -1530,11 +1641,12 @@ function compose(){
       gr = cl(gr/(1+0.4*usedJ[0]) + jit()); ce = cl(ce/(1+0.4*usedJ[1]) + jit()); se = cl(se/(1+0.4*usedJ[2]));
     }
     const sum = gr + ce + se; if (sum > 1) { gr /= sum; ce /= sum; se /= sum; }
+    { const cap = 0.70 + 0.22*Math.random(); gr *= cap; ce *= cap; se *= cap; }   // never wholly joined: some of the fog stays, and the skull shows through it
     pause.blend = [+gr.toFixed(3), +ce.toFixed(3), +se.toFixed(3)];
   }
   pause.A = frame(1.25, 0.12); pause.B = frame(1.9, 0.6);
   pause.flip = [1, Math.random() < 0.5 ? -1 : 1];
-  pause.face = faceHolds > 0; if (pause.face) { faceHolds--; pause.B = frame(1.15, 0.08); pause.flip = [1, 1]; }
+  pause.face = !!faceTex; if (pause.face) { pause.B = frame(1.08 + 0.3*Math.random(), 0.12); pause.flip = [pause.flip[0], 1]; }   // you, in every one from now on
   pause.seed = rnd(0, 60);
   {   // the clear place: never on a star already found, never under the hand. How far it lies from the last star follows how you
       // play: still hands draw close, careful shapes; moving hands draw wide ones; scrubbing hands throw it far. The shape is a portrait.
@@ -1553,12 +1665,13 @@ function compose(){
       const fromStars = path.length ? Math.min(...path.map((p) => Math.hypot(c[0]-p[0], c[1]-p[1]))) : 0.3;
       let sc = 0.05*Math.random();
       if (fromStars < 0.12) sc -= 2;                      // no clumps
-      if (fromHand < 0.18) sc -= 1;                       // not under the hand
-      sc += last ? -2*Math.abs(Math.hypot(c[0]-last[0], c[1]-last[1]) - step) - tangle*crosses(c) : Math.min(fromHand, 0.3);
+      if (fromHand < (last ? 0.18 : 0.09)) sc -= 1;       // not under the hand
+      sc += last ? -2*Math.abs(Math.hypot(c[0]-last[0], c[1]-last[1]) - step) - tangle*crosses(c) : -2*Math.abs(fromHand - 0.15);   // the first: a short reach away
       if (sc > bs) { bs = sc; pause.spot = c; }
     }
   }
   pause.line = read.indexOf(false); pause.kept = 0; pause.done = false;
+  pause.sp = speciesOf({ a: pause.a, p: pause.p, blend: pause.blend, face: pause.face });
 }
 // the pictures are not played in order. Each still is one step of a random walk through the space the original loop was dreamed in:
 // neighbours on the loop are near each other in that space, so most steps are small; the walk keeps a heading for a while, turns,
@@ -1600,7 +1713,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { pause.byKey = true; setHeld(true); } }   // no hand to seek with (or a faucet): the place finds you
   else if (e.code === 'ArrowRight') turnPage();
   else if (e.key === 'r' && !e.metaKey && !e.ctrlKey) record(15);
-  else if (e.key === 'k' && !e.metaKey && !e.ctrlKey && MODE === 'web') keepCard();
+  else if (e.key === 'k' && !e.metaKey && !e.ctrlKey && MODE === 'web') keepCard(recall && recall.peek ? recall.line : undefined);
 });
 window.addEventListener('keyup', (e) => { if (e.code === 'Space') setHeld(false); });
 window.addEventListener('blur', () => { hand.pressing = false; clearTimeout(hand.timer); setHeld(false); });
@@ -1659,6 +1772,7 @@ function features(){
     hull: r2(hull), sectors, turn: r2(turns ? turn/turns : 0), cross,
     closure: n > 2 ? r2(Math.hypot(pts[0][0]-pts[n-1][0], pts[0][1]-pts[n-1][1])/BASIN_R) : 2,
     graft: r2(mean(blends.map((b) => b[0]))), cells: r2(mean(blends.map((b) => b[1]))), seam: r2(mean(blends.map((b) => b[2]))),
+    you: mem.filter((m) => m && m.face).length,
   };
 }
 // what each measure says, at either end. base and scale are guesses until there is a population to compare with.
@@ -1679,7 +1793,7 @@ const SAL = [
   { k:'sectors', base:5, scale:1.4,    hi:['you turn toward every direction', 'you leave no side unseen'], lo:['you know which way you face', 'you keep to one horizon'], fact:(f) => `your stars face ${f.sectors} of 8 directions` },
   { k:'turn', base:1.4, scale:0.5,     hi:['you never go the same way twice', 'you change your mind beautifully'], lo:['you keep a steady line', 'you follow one current'], fact:(f) => `your path turns ${Math.round(f.turn*57.3)} degrees at each star` },
   { k:'minutes', base:6, scale:4,      hi:['you give a thing your whole attention'], lo:['you see the shape of a thing quickly'], fact:(f) => `${f1(f.minutes)} minutes from first touch to last star` },
-  { k:'looked', base:0, scale:1,       hi:['you let yourself be seen'], lo:null, fact:() => 'you looked back' },
+  { k:'you', base:0, scale:4,          hi:['being seen suits you', 'you put yourself into everything you make'], lo:null, fact:(f) => `you are in ${f.you} of your ${f.finds} forms of life` },
   { k:'we', base:0, scale:1.2,         hi:['you answer riddles meant for two'], lo:null, fact:(f) => f.tries ? `you answered the riddle after ${f.tries} ${f.tries === 1 ? 'guess' : 'guesses'}` : 'you answered the riddle first time' },
   { k:'knobs', base:0, scale:1.4,      hi:['you change the rules when they bore you'], lo:null, fact:() => 'you turned the culture\'s dials' },
   { k:'noon', base:0, scale:0.7,       hi:['you keep appointments with strangers'], lo:null, fact:() => 'you held at noon, with everyone' },
@@ -1708,7 +1822,7 @@ const STUDY_ON = !params.has('nostudy') && (/(^|\.)github\.io$/.test(location.ho
 function studyPublish(stage){
   if (!STUDY_ON || studyOff || !share.on || !share.finalize) return;
   if (!playId) { playId = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join(''); save(); }
-  const rec = { v:1, stage, test: !!probe, mode: MODE, day: Math.round(loss*111), hour: new Date().getHours(), coarse: SMALL ? 1 : 0,
+  const rec = { v:2, stage, test: !!probe, mode: MODE, day: Math.round(loss*111), hour: new Date().getHours(), coarse: SMALL ? 1 : 0, stills: N,
     f: features(), path: path.slice(0, LINES).map((p) => [Math.round(p[0]*1000)/1000, Math.round(p[1]*1000)/1000]), sp: mem.filter(Boolean).map((m) => m.sp) };
   try {
     const ev = share.finalize({ kind:STUDY_KIND, created_at:Math.floor(Date.now()/1000), tags:[['d', 'veritas-play:' + playId], ['t', STUDY_TAG]], content:JSON.stringify(rec) }, share.sk);
@@ -1726,8 +1840,9 @@ function studyPublish(stage){
   }
 }
 
-// k, or "keep": a card to share. After a find: the new form of life you just made, its name, its line, your stars so far.
-// At the end: the one you stayed with longest, your constellation over it, and the mirror's reading. The riddle stays unanswered.
+// k, or "keep": a card to share. After a find (or for any line of the program you point at): that new form of life, its name, its
+// words and its line of code, your stars so far. At the end: the one you stayed with longest, your constellation over it with you at
+// its centre if it has seen you, and the mirror's reading. The riddle stays unanswered.
 let cardMode = false, cardSnap = null;
 function chosenSnap(){
   let best = null, bs = -1;
@@ -1741,14 +1856,19 @@ function wrapText(c, text, maxW){
   if (cur) lines.push(cur);
   return lines;
 }
-async function keepCard(){
+async function keepCard(only){
   const W = 1080, Hc = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = Hc;
   const c = cv.getContext('2d');
   c.fillStyle = '#030304'; c.fillRect(0, 0, W, Hc);
-  const done = read.every(Boolean);
+  const one = Number.isInteger(only) && mem[only] ? only : -1;
+  const done = one < 0 && read.every(Boolean);
   const r = done ? (reading || (reading = readYou())) : null;
-  const snap = done ? chosenSnap() : (lastRead >= 0 ? mem[lastRead] : null);
-  const Dm = 800, ox = (W-Dm)/2, oy = 64;
+  const li = one >= 0 ? one : lastRead;
+  const snap = done ? chosenSnap() : (li >= 0 ? mem[li] : null);
+  const mono = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace', L = 120, MW = W-2*L;
+  let nv = 0, nt = 0;                                      // the reading's lines, counted first, so the disc leaves them room above the footer
+  if (r) { c.font = `400 28px ${mono}`; nv = Math.min(2, wrapText(c, r.vanitas, MW).length); c.font = `400 26px ${mono}`; nt = Math.min(2, wrapText(c, r.veritas, MW).length); }
+  const Dm = r ? Math.min(800, 884 - 38*nv - 36*nt) : 800, ox = (W-Dm)/2, oy = 64;
   try {
     cardFrame = true; cardMode = !!snap; cardSnap = snap;
     resize(); render();                                    // one frame: the whole disc in view, the glass clear; copied before it is ever shown
@@ -1757,8 +1877,9 @@ async function keepCard(){
     c.drawImage(canvas, sx, sy, 2*rpx, 2*rpx, ox, oy, Dm, Dm);
     c.restore();
   } finally { cardFrame = false; cardMode = false; cardSnap = null; resize(); render(); }
-  // your stars: a light at every place you found, brighter the longer you stayed; joined in the order you found them
+  // your stars: a light at every place you found, brighter the longer you stayed; joined in the order you found them, and each to you
   const kk = (Dm/2)/(BASIN_R*1.08), X = (p) => W/2 + p[0]*kk, Y = (p) => oy + Dm/2 - p[1]*kk;
+  if (seen && path.length) { c.strokeStyle = 'rgba(194,162,122,0.38)'; c.lineWidth = 1.5; c.beginPath(); for (const p of path) { c.moveTo(X([0, 0]), Y([0, 0])); c.lineTo(X(p), Y(p)); } c.stroke(); }
   if (path.length > 1) { c.strokeStyle = 'rgba(194,162,122,0.7)'; c.lineWidth = 2; c.beginPath(); path.forEach((p, i) => i ? c.lineTo(X(p), Y(p)) : c.moveTo(X(p), Y(p))); c.stroke(); }
   path.forEach((p, i) => {
     const f = me.finds[i], stay = f ? (f.stay || 0) : 0, rr = 6 + Math.min(9, stay*1.4);
@@ -1766,23 +1887,32 @@ async function keepCard(){
     g.addColorStop(0, 'rgba(255,250,238,1)'); g.addColorStop(0.16, 'rgba(244,226,190,0.95)'); g.addColorStop(0.45, 'rgba(194,162,122,0.28)'); g.addColorStop(1, 'rgba(194,162,122,0)');
     c.fillStyle = g; c.beginPath(); c.arc(X(p), Y(p), rr*3.4, 0, 2*Math.PI); c.fill();
   });
-  const mono = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace', L = 120, MW = W-2*L;
+  if (seen) {                                              // you: the centre of your sky, in a gold ring
+    const cx0 = X([0, 0]), cy0 = Y([0, 0]), R0 = 46;
+    const g = c.createRadialGradient(cx0, cy0, R0*0.8, cx0, cy0, R0*2.2);
+    g.addColorStop(0, 'rgba(194,162,122,0.35)'); g.addColorStop(1, 'rgba(194,162,122,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(cx0, cy0, R0*2.2, 0, 2*Math.PI); c.fill();
+    c.save(); c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.clip();
+    if (faceCv) c.drawImage(faceCv, 96, 96, 320, 320, cx0-R0, cy0-R0, 2*R0, 2*R0); else { c.fillStyle = '#030304'; c.fill(); }
+    c.restore();
+    c.strokeStyle = '#c2a27a'; c.lineWidth = 3; c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.stroke();
+  }
   const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '.');
   const title = (y) => { c.font = `400 30px ${mono}`; let x = L; for (const ch of 'VERI+AS') { c.fillStyle = ch === '+' ? '#c2a27a' : '#e4dfd2'; c.fillText(ch, x, y); x += c.measureText(ch).width + 14; } };
   c.textBaseline = 'alphabetic';
   let y = oy + Dm + 74;
   if (r) {
-    c.font = `italic 400 44px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.name, L, y); y += 50;
-    c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(`seven new forms of life; your sky is named for the one you stayed with  ·  ${date}`.slice(0, 92), L, y); y += 58;
+    c.font = `italic 400 44px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.name, L, y); y += 46;
+    c.font = `400 21px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(captionOf(snap).slice(0, 62), L, y); y += 62;
     c.font = `400 16px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V A N I T A S', L, y); y += 36;
     c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, r.vanitas, MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
     y += 14; c.font = `400 16px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V E R I T A S', L, y); y += 36;
     c.font = `400 26px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of wrapText(c, r.veritas, MW).slice(0, 2)) { c.fillText(ln, L, y); y += 36; }
   } else if (snap) {
     c.font = `italic 400 42px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(snap.sp || '', L, y); y += 46;
-    c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(`a new form of life  ·  ${read.filter(Boolean).length} of 7  ·  ${date}`, L, y); y += 62;
-    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, '// ' + lineOf(lastRead), MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
-    c.font = `400 26px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(codeOf(lastRead).split('\n')[0].slice(0, 52), L, y);
+    c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(`a new form of life  ·  ${(snap.ord ?? 0)+1} of 7  ·  ${date}`, L, y); y += 62;
+    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, '// ' + lineOf(li), MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
+    c.font = `400 25px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of wrapText(c, codeOf(li), MW).slice(0, 2)) { c.fillText(ln, L, y); y += 34; }
   } else {
     c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText('// ' + POINT, L, y);
   }
@@ -1811,6 +1941,7 @@ Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image()
     params.delete('reset'); location.replace(location.pathname + (params.toString() ? '?' + params : '')); return;
   }
   restore();                                       // and what you left here last time is still here
+  youLine();
   const preroll = Math.min(600, Math.max(0, parseFloat(params.get('t') ?? '6') || 0));
   grow(2600);                                      // let the culture establish itself before anyone sees it
   for (let i = 0; i < preroll*30; i++) step(1/30);

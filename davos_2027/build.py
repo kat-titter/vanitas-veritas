@@ -2,7 +2,8 @@
 
     python3 davos_2027/build.py
 
-Reads  video/veritas_loop_v45_4k.mp4   (gitignored): 24 stills taken evenly round the loop.
+Reads  video/veritas_loop_v45_4k.mp4   (gitignored): 24 stills taken evenly round the loop; for veritas3, the 32 anchors
+       the loop was dreamed through (code/morph_v45_sr.py: 32 anchors, 190 frames apart, Catmull-Rom between them).
        If the loop is missing, falls back to the eight harmonized stills in source/harmonized/.
 Writes davos_2027/veritas.html          (gitignored: it carries the images).
 """
@@ -17,6 +18,7 @@ ROOT = os.path.dirname(HERE)
 LOOP = os.path.join(ROOT, 'video', 'veritas_loop_v45_4k.mp4')
 LOOP_SECONDS = 6080 / 12                   # frames / fps
 POOL = 24                                  # stills taken round the loop
+ANCHORS, GAP, FPS = 32, 190, 12            # iii: the dream's own waypoints, each a whole diffusion image (between them, latent blends)
 ORDER = [0, 1, 4, 3, 2, 7, 6, 5]           # fallback: same order as code/morph_v45_sr.py
 SIZE = 1024                                # the basin is square; stills are centre-cropped to it
 
@@ -35,13 +37,15 @@ if os.path.exists(LOOP):
     import imageio_ffmpeg
     ff = imageio_ffmpeg.get_ffmpeg_exe()
     with tempfile.TemporaryDirectory() as tmp:
-        for k in range(POOL):
+        anchors = os.path.basename(OUT).startswith('veritas3')
+        times = [max(0, (i * GAP - 0.25) / FPS) for i in range(ANCHORS)] if anchors else [k * LOOP_SECONDS / POOL for k in range(POOL)]
+        for k, t in enumerate(times):           # a quarter frame early, so the seek lands on the anchor frame itself
             png = os.path.join(tmp, f'{k:02d}.png')
-            subprocess.run([ff, '-y', '-loglevel', 'error', '-ss', f'{k * LOOP_SECONDS / POOL:.3f}',
+            subprocess.run([ff, '-y', '-loglevel', 'error', '-ss', f'{t:.4f}',
                             '-i', LOOP, '-frames:v', '1', png], check=True)
             uri, n = encode(Image.open(png))
             frames.append(uri); total += n
-    print(f'{POOL} stills from the loop, {total / 1e6:.2f} MB')
+    print(f'{len(frames)} {"anchors" if anchors else "stills"} from the loop, {total / 1e6:.2f} MB')
 else:
     names = sorted(glob.glob(os.path.join(ROOT, 'source', 'veritas', '*.png')))
     for i in ORDER:

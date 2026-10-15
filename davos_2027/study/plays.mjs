@@ -22,7 +22,9 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net'];
 const KIND = 30078, TAG = 'veritas-play';
 const MEASURES = ['finds', 'holds', 'letgo', 'longest', 'stay', 'seek', 'direct', 'stir', 'scrubs', 'wiped', 'knobs', 'we', 'looked',
-  'together', 'noon', 'minutes', 'hull', 'sectors', 'turn', 'cross', 'closure', 'graft', 'cells', 'seam'];
+  'together', 'noon', 'minutes', 'hull', 'sectors', 'turn', 'cross', 'closure', 'graft', 'cells', 'seam', 'you'];
+// record v1: 24 stills, the eye forgot you after two holds; v2 (from 15.10.2026, evening): 32 stills, and once seen you are in every
+// form of life after, so "you" (how many have the viewer in them) is counted. Compare groups across versions with care.
 const args = process.argv.slice(2);
 const K = args.includes('--k') ? parseInt(args[args.indexOf('--k')+1], 10) : 0;
 const TESTS = args.includes('--tests');
@@ -53,8 +55,8 @@ for (const ev of events) {
 const plays = [...byPlay.values()].sort((a, b) => a.at - b.at);
 writeFileSync(join(HERE, 'plays.json'), JSON.stringify(plays, null, 1));
 
-const csv = [['id', 'at', 'stage', 'mode', 'day', 'hour', 'coarse', ...MEASURES].join(',')];
-for (const p of plays) csv.push([p.id, new Date(p.at*1000).toISOString(), p.stage, p.mode, p.day, p.hour, p.coarse, ...MEASURES.map((k) => p.f?.[k] ?? '')].join(','));
+const csv = [['id', 'at', 'v', 'stage', 'mode', 'day', 'hour', 'coarse', ...MEASURES].join(',')];
+for (const p of plays) csv.push([p.id, new Date(p.at*1000).toISOString(), p.v ?? 1, p.stage, p.mode, p.day, p.hour, p.coarse, ...MEASURES.map((k) => p.f?.[k] ?? '')].join(','));
 writeFileSync(join(HERE, 'plays.csv'), csv.join('\n') + '\n');
 
 // ---- how many, and how far they got
