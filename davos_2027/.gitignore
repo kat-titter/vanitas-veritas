@@ -4,3 +4,6 @@ sink_cycle.html
 *.webm
 *.mp4
 strategy.html
+study/plays.json
+study/plays.csv
+study/sky.html
