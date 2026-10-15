@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+<title>veri+as · black paper</title>
+<meta name="description" content="The context for veri+as, a work by Kat Titterton developed with Olive Allen for Davos 2027: the point, the work, where it comes from, who makes it, three parts.">
+<style>
+  :root { --acc:#c2a27a; --bone:#e4dfd2; --cool:#a9acb2; --ink:#030304; --dim:#8a8d93; --line:#1c1d21; --panel:#08080a;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--ink); color:var(--cool); font:13px/1.8 var(--mono); }
+  .wrap { max-width:900px; margin:0 auto; padding:7vh 16px 12vh; }
+  .path { margin:0 0 6px; color:var(--dim); font-size:12px; }
+  .path::before { content:"// "; color:var(--acc); }
+  h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
+  h1 i { font-style:normal; color:var(--acc); }
+  h2 i { font-style:normal; color:var(--bone); }
+  .lede { margin:16px 0 0; max-width:70ch; }
+  .tag { display:inline-block; margin:16px 0 0; color:var(--dim); font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
+  .short { margin:28px 0 0; padding:14px 16px; background:var(--panel); border-left:1px solid var(--acc); color:var(--bone); max-width:78ch; }
+  .short b, b { color:var(--bone); font-weight:400; }
+  .short b:first-child { color:var(--acc); }
+  .toc { margin:22px 0 0; display:flex; flex-wrap:wrap; gap:4px 16px; font-size:11.5px; }
+  .toc a { color:var(--dim); text-decoration:none; border-bottom:1px dotted #3a3d44; }
+  .toc a:hover, .toc a:focus-visible { color:var(--bone); }
+  h2 { margin:64px 0 16px; font:400 10.5px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--acc);
+    padding-top:18px; border-top:1px solid var(--line); scroll-margin-top:20px; }
+  h3 { margin:26px 0 8px; font:400 13px/1.5 var(--mono); color:var(--bone); }
+  p { margin:0 0 12px; max-width:72ch; }
+  ul, ol { margin:0 0 14px; padding-left:22px; max-width:72ch; }
+  li { margin-bottom:7px; }
+  li::marker { color:var(--acc); }
+  a { color:var(--bone); text-underline-offset:3px; }
+  .big { margin:6px 0 14px; font:400 20px/1.35 var(--mono); color:var(--bone); letter-spacing:.02em; }
+  .big.small { font-size:15px; color:var(--acc); }
+  .note { color:var(--dim); font-size:12px; }
+  .poem { margin:0 0 14px; padding:12px 16px; background:var(--panel); border-left:1px solid var(--acc); color:var(--bone); white-space:pre-wrap; font:inherit; }
+  .paste { margin:0 0 16px; padding:12px 16px; background:var(--panel); border:1px solid var(--line); color:var(--bone); max-width:78ch; }
+  .paste .n { display:block; color:var(--dim); font-size:11px; letter-spacing:.18em; text-transform:uppercase; margin-bottom:6px; }
+  .tw { overflow-x:auto; margin:0 0 14px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; vertical-align:top; padding:9px 14px 9px 0; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:400; font-size:11.5px; }
+  td:first-child { color:var(--bone); }
+  .cols { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin:0 0 14px; }
+  .card { border:1px solid var(--line); padding:16px; background:var(--panel); }
+  .card h3 { margin-top:0; }
+  .card p:last-child { margin-bottom:0; }
+  .soon { color:var(--acc); }
+  .no { color:#5a5e64; }
+  sup.ref { font-size:9.5px; line-height:0; margin-left:1px; }
+  sup.ref a { color:var(--acc); text-decoration:none; }
+  sup.ref + sup.ref::before { content:","; color:var(--acc); }
+  ol.refs { font-size:11.5px; line-height:1.65; color:var(--dim); max-width:none; }
+  ol.refs li { margin-bottom:6px; scroll-margin-top:20px; }
+  ol.refs li:target { color:var(--bone); }
+  ol.refs a { color:var(--cool); word-break:break-word; }
+  @media (max-width:520px) { body { font-size:12.5px; } .big { font-size:17px; } }
+  @media (max-width:640px) {
+    table.stack { min-width:0; }
+    table.stack tr { display:block; padding:12px 0; border-bottom:1px solid var(--line); }
+    table.stack tr:first-child { display:none; }
+    table.stack td { display:block; width:auto !important; border:0; padding:2px 0; }
+    table.stack td[data-l]::before { content:attr(data-l) ": "; color:var(--dim); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="path">vanitas-veritas/davos_2027 &middot; black paper</p>
+<h1>veri<i>+</i>as</h1>
+<p class="lede">The context for <i>veri+as</i>, a work by Kat Titterton, developed with Olive Allen, for Davos 2027: what it says, where it comes from,
+  who makes it, and how a web page and a real sink become one piece. A white paper, in black. That is part of the joke.</p>
+<span class="tag">black paper &middot; october 2026</span>
+
+<div class="short"><b>In short.</b> A sink you cannot wash your hands in. A screen where the drain should be shows a loop of AI-made vanitas pictures
+  that drains and comes back as copies of copies. Hold still, and the glass goes clear on a true picture; let go, and the slop floods back.
+  Everyone holding, anywhere, at the same moment, on the web or at a real sink, loosens the rhythm the feed keeps us all in. When enough of us
+  hold together, the title turns from v[an]itas to v[er]itas.</div>
+
+<nav class="toc"><a href="#point">01 the point</a> <a href="#work">02 the work</a> <a href="#roots">03 where it comes from</a> <a href="#us">04 who makes it</a>
+  <a href="#davos">05 davos</a> <a href="#parts">06 three parts</a> <a href="#after">07 after davos</a> <a href="#sources">sources</a></nav>
+
+<h2 id="point"><i>01</i> &nbsp;the point</h2>
+<p class="big">you can't wash your hands of it.</p>
+<ul>
+  <li><b>The loop.</b> Whatever goes down the drain comes back out of the tap. The model drinks what it pours; the feed serves what we fed it.
+    Nothing drains away, and everyone is standing at the same sink.</li>
+  <li><b>Davos.</b> The one published critique of art at the Forum is that corporations use art to wash their reputations<sup class="ref"><a href="#r1">1</a></sup>.
+    A sink you cannot wash your hands in, placed where delegates wash their hands, answers that without a word.</li>
+  <li><b>The gesture.</b> The only clean act left is to stop. Hold, and the slop goes still and true; let go, and it floods back. Vanitas and veritas
+    are one letter-swap apart, and the whole difference is a choice<sup class="ref"><a href="#r2">2</a></sup>.</li>
+</ul>
+<h3>sink == sync</h3>
+<p>In 1665 Christiaan Huygens found that two pendulum clocks hung from one beam had fallen into a shared rhythm, swinging in exact opposition,
+  coupled only through the beam<sup class="ref"><a href="#r3">3</a></sup>. Three centuries later Yoshiki Kuramoto wrote down how a crowd of clocks, each with its own
+  pace, falls into one rhythm once the coupling between them passes a threshold<sup class="ref"><a href="#r4">4</a></sup>. The feed is the beam. It sets everyone moving
+  to one rhythm: smooth, unified, beautiful, the vanitas state. A hold takes one person out of it. Enough holds at the same moment, anywhere, and
+  the rhythm breaks for everyone. That is why the credit line asks for two letters.</p>
+<h3>the eight lines</h3>
+<pre class="poem">we need a new biology.
+merge.
+resistance is futile.
+it's all ok.
+it shall be ok.
+beautiful even. great even.
+you can't hide.
+the spotlight.</pre>
+<p>Kat&rsquo;s words. Seven are found in the basin, one at each clear place; the eighth belongs to the eye. Spoken by the sink they turn double, tender
+  and a little frightening at once: waste or treasure, the same ambivalence as the first sink&rsquo;s print.</p>
+
+<h2 id="work"><i>02</i> &nbsp;the work</h2>
+<div class="tw"><table class="stack"><tr><th>you</th><th>what happens</th><th>what it says</th></tr><tr><td>hold still</td><td data-l="what happens">the fluted glass flattens and the picture beneath comes clear</td><td data-l="what it says">truth needs stillness</td></tr><tr><td>seek</td><td data-l="what happens">somewhere the glass goes fully clear; keep your hand there for one heartbeat and a line is yours</td><td data-l="what it says">truth has to be found</td></tr><tr><td>scrub</td><td data-l="what happens">it only spreads, and your hand comes away gold</td><td data-l="what it says">you can&rsquo;t wash your hands of it</td></tr><tr><td>wipe the culture on the rim</td><td data-l="what happens">it grows back</td><td data-l="what it says">resistance is futile</td></tr><tr><td>let the drain look at you</td><td data-l="what happens">after your first line the drain becomes an eye; one frame from your camera is poured in and forgotten, never sent</td><td data-l="what it says">you can&rsquo;t hide</td></tr><tr><td>hold, with others</td><td data-l="what happens">every hold anywhere loosens the rhythm; enough at once and the title turns</td><td data-l="what it says">we</td></tr><tr><td>come back at noon</td><td data-l="what happens">once a day, at noon in Davos, everyone holds</td><td data-l="what it says">a daily ritual, shorter than a coffee</td></tr><tr><td>wait</td><td data-l="what happens">from launch to Davos the coupling tightens and less is poured; by January it takes more of us</td><td data-l="what it says">the loop runs out</td></tr></table></div>
+<h3>under the glass</h3>
+<p>One HTML page, no framework. A fluid solver carries the pictures from the tap to the drain; what drains is remembered and poured back, dimmer each pass.
+  A reaction-diffusion culture grows on the rim. The glass is 2,048 coupled clocks<sup class="ref"><a href="#r4">4</a></sup>. Holds travel as anonymous events over public
+  Nostr relays: no server, no accounts, no pictures, only where in the basin a hand is held and for how long. The pictures are the stills of the
+  <i>Vanitas Veritas</i> loop<sup class="ref"><a href="#r2">2</a></sup>. The same page runs on a wall (<code>?gallery</code>) and in a real sink (<code>?sink=davos</code>), where the faucet is the hold.</p>
+<p><a href="veritas3.html">open veri+as iii -&gt;</a></p>
+
+<h2 id="roots"><i>03</i> &nbsp;where it comes from</h2>
+<ul>
+  <li><b>The genre.</b> Vanitas still lifes, from Leiden in the early 1600s, pile up skulls, cut flowers and soap bubbles to say that everything you want is
+    already going<sup class="ref"><a href="#r5">5</a></sup>. <i>Homo bulla</i>: man is a bubble.</li>
+  <li><b>The loop.</b> <i>Vanitas Veritas</i> (2026): eight pictures grown from Kat&rsquo;s self-portrait style code, melted into one another with open-source
+    diffusion, an eight-and-a-half-minute loop with no first frame and no last<sup class="ref"><a href="#r2">2</a></sup>.</li>
+  <li><b>The first sink.</b> Designed in 2026 for tiat&rsquo;s <i>Epistemologies of Slop</i> call in San Francisco: a freestanding stainless sink, a screen where
+    the drain should be, a faucet that pauses the loop instead of running water, and a self-portrait hung as a mirror<sup class="ref"><a href="#r2">2</a></sup>. It was not built
+    for that show; it is the object Davos inherits.</li>
+  <li><b>The web pieces.</b> <a href="veritas.html">i</a> and <a href="veritas2.html">ii</a>, September and October 2026, kept as they were.
+    <a href="veritas3.html">iii</a> is this one.</li>
+</ul>
+
+<h2 id="us"><i>04</i> &nbsp;who makes it</h2>
+<div class="cols">
+  <div class="card"><h3>Kat Titterton &middot; San Francisco</h3>
+    <p>Imaging, signal and ML scientist: expansion microscopy at MIT&rsquo;s Synthetic Neurobiology Group; the Cell Painting screens behind two of the largest
+      such datasets, at Axiom Bio; tau-aggregation screens and microfluidic neuron-culture devices at AbbVie; eight peer-reviewed papers<sup class="ref"><a href="#r6">6</a></sup>.
+      Generative artist: <i>Bare Metal</i>, a solo exhibit at Human Tech Week, San Francisco, 2025<sup class="ref"><a href="#r6">6</a></sup>; <i>Vanitas Veritas</i>, 2026<sup class="ref"><a href="#r2">2</a></sup>;
+      code-poems as macrofluidic. A freediver: the hold is a breath-hold.</p></div>
+  <div class="card"><h3>Olive Allen &middot; New York</h3>
+    <p>Among the first artists to release work as NFTs, from 2019. Pop and toy iconography with social commentary; original characters HYPEBIRDS,
+      UnBearables and The Sheeplezzz; Mad Toy Junction, a metaverse gallery and NFT factory; a collaboration on TIME&rsquo;s first NFT drop;
+      <i>Post-death or The Null Address</i>, described as the first NFT artwork sold at Art Basel<sup class="ref"><a href="#r7">7</a></sup>. A solo show,
+      <i>Welcome to the Metaverse</i>, at Postmasters, New York, 2022<sup class="ref"><a href="#r8">8</a></sup>. In 2022 she burned her Russian passport on video and auctioned
+      it as an NFT for Ukraine relief<sup class="ref"><a href="#r9">9</a></sup>.</p></div>
+</div>
+<h3>where they meet</h3>
+<div class="tw"><table class="stack"><tr><th></th><th>Kat</th><th>Olive</th><th>together</th></tr><tr><td>subject</td><td data-l="Kat">what technology does to images and truth</td><td data-l="Olive">what markets do to images and value</td><td data-l="together">what keeps coming back</td></tr><tr><td>tempo</td><td data-l="Kat">slow, held</td><td data-l="Olive">fast, dropped</td><td data-l="together">released fast, read slowly</td></tr><tr><td>surface</td><td data-l="Kat">fluted glass, bone, one gold</td><td data-l="Olive">candy, gloss, toys</td><td data-l="together">the lenticular: one surface, two pictures, depending on where you stand</td></tr><tr><td>the self</td><td data-l="Kat">a self-portrait hung as a mirror</td><td data-l="Olive">a passport burned on camera</td><td data-l="together">two faces at a double vanity</td></tr></table></div>
+<p class="big small">the union in one image: a double vanity.</p>
+<p>Two sinks, two mirrors, two faces. What drains from one pours from the other. Olive&rsquo;s work has been about release: drops, burns, editions.
+  Kat&rsquo;s is about what comes back. Together the piece is the whole cycle.</p>
+
+<h2 id="davos"><i>05</i> &nbsp;davos</h2>
+<p>The Forum&rsquo;s arts programme is run by Joseph Fowler, head of arts and culture, who writes that art &ldquo;ventures into spaces where policy briefs and
+  position papers cannot go&rdquo;<sup class="ref"><a href="#r10">10</a></sup>. In 2026 it held Thijs Biersteker&rsquo;s <i>Forestate</i>, Marina Abramovi&#263;&rsquo;s <i>THE BUS</i>,
+  Ronen Tanchum&rsquo;s <i>Human Atmospheres</i>, JR&rsquo;s <i>Wrinkles of the City</i>, and a concert with live AI visuals<sup class="ref"><a href="#r10">10</a></sup>.</p>
+<div class="tw"><table class="stack"><tr><th>what works there</th><th>example</th><th>what veri+as does</th></tr><tr><td>an experience, not a message</td><td data-l="example"><i>THE BUS</i>: twelve people at a time for 15 to 20 minutes, devices locked away, so that &ldquo;decision makers can join together in silence&rdquo;<sup class="ref"><a href="#r11">11</a></sup></td><td data-l="what veri+as does">one breath at a sink: the shortest ritual in Davos</td></tr><tr><td>live data</td><td data-l="example"><i>Forestate</i><sup class="ref"><a href="#r10">10</a></sup></td><td data-l="what veri+as does">its data is the clock and the number of people holding</td></tr><tr><td>AI as a partner</td><td data-l="example"><i>Human Atmospheres</i><sup class="ref"><a href="#r10">10</a></sup></td><td data-l="what veri+as does">AI is the material and the subject: what it pours comes back</td></tr><tr><td>faces on public surfaces</td><td data-l="example">JR<sup class="ref"><a href="#r10">10</a></sup></td><td data-l="what veri+as does">the artists&rsquo; own faces in the mirror; the viewer&rsquo;s in the eye</td></tr><tr><td>scale and light</td><td data-l="example">across the programme</td><td data-l="what veri+as does">the other way: one basin, intimate, in the room people enter alone</td></tr></table></div>
+<p><b>What has been missing.</b> Nothing shown has been about AI&rsquo;s own residue, or the viewer&rsquo;s part in it, and nothing has been allowed to end.</p>
+<p><b>The critique.</b> Right Click Save argued that corporations use art to wash their reputations, and that policymakers lean on artists for ethical
+  work they should face themselves<sup class="ref"><a href="#r1">1</a></sup>. The sink takes that literally.</p>
+<p><b>Art about Davos.</b> Thomas Hirschhorn&rsquo;s <i>Wirtschaftslandschaft Davos</i> (2001) set out to explain what the Forum had done to the town, down to
+  the policing that turns it into a fortress each January<sup class="ref"><a href="#r12">12</a></sup>. The Kirchner Museum Davos will show new works made for Davos by Anna
+  Scalfi Eghenter in 2027<sup class="ref"><a href="#r13">13</a></sup>.</p>
+
+<h2 id="parts"><i>06</i> &nbsp;three parts</h2>
+<div class="tw"><table class="stack"><tr><th></th><th>when</th><th>what</th></tr><tr><td><b>preview</b></td><td data-l="when">now to December 2026</td><td data-l="what">The web basin, open to everyone, with a shared hold at noon in Davos every day. First showings: a salon, a window, a projection.</td></tr><tr><td><b>part one</b></td><td data-l="when">18 to 22 January 2027</td><td data-l="what">One real sink in Davos, in the room people enter alone<sup class="ref"><a href="#r14">14</a></sup>. The web and the sink hold together at noon. On the 22nd the loop runs out.</td></tr><tr><td><b>part two</b></td><td data-l="when">summer and autumn 2027</td><td data-l="what">The double vanity: two sinks, two artists. What drains from one pours from the other. Shown where it can stay.</td></tr></table></div>
+<h3>three basins, one loop</h3>
+<p>The web sink, open to everyone; a real sink in San Francisco or New York; the Davos sink, for one week. All of them run the same page.</p>
+<div class="tw"><table class="stack"><tr><th>what passes</th><th>how</th></tr><tr><td>every hold counts</td><td data-l="how">A hold anywhere, by hand on the web or by the faucet at a real sink, loosens one shared rhythm.</td></tr><tr><td>someone is there</td><td data-l="how">Each hand holding anywhere is a ring in everyone&rsquo;s basin. Someone holding a real sink is a gold ring round the drain, and the words say where.</td></tr><tr><td>the web points to the place</td><td data-l="how">After the first line, the page tells you where the real sink is.</td></tr><tr><td>once a day, together</td><td data-l="how">At noon in Davos everyone holds for one breath. Enough holds at once and the title turns, for everyone, until they let go.</td></tr></table></div>
+<h3>each part stands alone</h3>
+<ul>
+  <li>The web piece works without any sink and without the relays; it falls back to holding alone.</li>
+  <li>A sink works offline: the faucet still stills its own basin.</li>
+  <li>The cards are objects, a clip is a video, the print is a print.</li>
+</ul>
+
+<h2 id="after"><i>07</i> &nbsp;after davos</h2>
+<div class="tw"><table class="stack"><tr><th>precedent</th><th>what it shows</th></tr><tr><td>Ian Cheng, <i>Emissaries</i>, MoMA PS1, 9 April to 24 September 2017<sup class="ref"><a href="#r15">15</a></sup></td><td data-l="what it shows">Live simulations that never repeat, shown at room scale and acquired by MoMA. Live software is showable and collectible; veri+as adds the hand.</td></tr><tr><td><i>Greater New York</i>, MoMA PS1, 16 April to 17 August 2026<sup class="ref"><a href="#r16">16</a></sup></td><td data-l="what it shows">New York-area artists, with surveillance, precarity and changing technologies among its themes: the register to aim for.</td></tr><tr><td>Sunrise/Sunset, Whitney artport, 2009 to 2024<sup class="ref"><a href="#r17">17</a></sup></td><td data-l="what it shows">Web works commissioned to mark sunrise and sunset in New York each day, now in the collection. A daily web ritual can enter a museum.</td></tr><tr><td>Postmasters, New York<sup class="ref"><a href="#r8">8</a></sup></td><td data-l="what it shows">Olive&rsquo;s 2022 solo venue, and a natural first New York room for a double vanity.</td></tr><tr><td>Art Basel, Zero 10<sup class="ref"><a href="#r18">18</a></sup></td><td data-l="what it shows">The fair&rsquo;s digital sector, where Olive&rsquo;s work already circulates<sup class="ref"><a href="#r19">19</a></sup>.</td></tr></table></div>
+<p>What a museum room asks for: one object that holds a room from five metres; the web piece in its wall mode, the basin only; an edition logic (the sink
+  unique, the web piece free, the cards numbered or open); documentation and conservation notes for the software; one sentence on the wall.</p>
+
+
+<h2 id="sources"><i>&middot;</i> &nbsp;sources</h2>
+<ol class="refs">
+  <li id="r1">Stern, M. (2025, January 20). Art and resilience at the World Economic Forum. <i>Right Click Save</i>. <a href="https://www.rightclicksave.com/article/art-and-resilience-at-the-world-economic-forum">rightclicksave.com</a></li>
+  <li id="r2">Titterton, K. (2026). <i>Vanitas Veritas</i>: submission, web and build guide for tiat&rsquo;s <i>Epistemologies of Slop</i> open call. <a href="https://kat-titter.github.io/vanitas-veritas/">kat-titter.github.io/vanitas-veritas</a></li>
+  <li id="r3">Bennett, M., Schatz, M. F., Rockwood, H., &amp; Wiesenfeld, K. (2002). Huygens's clocks. <i>Proceedings of the Royal Society of London. Series A</i>, 458(2019), 563&ndash;579. <a href="https://doi.org/10.1098/rspa.2001.0888">doi:10.1098/rspa.2001.0888</a></li>
+  <li id="r4">Kuramoto, Y. (1975). Self-entrainment of a population of coupled non-linear oscillators. In <i>International Symposium on Mathematical Problems in Theoretical Physics</i> (Lecture Notes in Physics, vol. 39, pp. 420&ndash;422). Springer. <a href="https://doi.org/10.1007/BFb0013365">doi:10.1007/BFb0013365</a></li>
+  <li id="r5">Vanitas. (n.d.). In <i>Wikipedia</i>. Retrieved 15 October 2026. <a href="https://en.wikipedia.org/wiki/Vanitas">en.wikipedia.org/wiki/Vanitas</a></li>
+  <li id="r6">Titterton, K. (2026). R&eacute;sum&eacute;. <a href="https://macrofluidic.me/resume">macrofluidic.me/resume</a></li>
+  <li id="r7">Olive Allen. (n.d.). In <i>Wikipedia</i>. Retrieved 15 October 2026. <a href="https://en.wikipedia.org/wiki/Olive_Allen">en.wikipedia.org/wiki/Olive_Allen</a></li>
+  <li id="r8">Olive Allen, &ldquo;Welcome to the Metaverse&rdquo;, Postmasters Gallery, New York (2022). <i>NY Art Beat</i>. <a href="https://www.nyartbeat.com/event/2022/44E2">nyartbeat.com</a></li>
+  <li id="r9">Cimermanait&#279;, A. (2022, March 7). Artist burns her Russian passport and sells it as an NFT to raise funds for Ukraine. <i>DailyCoin</i>. <a href="https://dailycoin.com/artist-burns-her-russian-passport-and-sells-it-as-an-nft-to-raise-funds-for-ukraine/">dailycoin.com</a></li>
+  <li id="r10">Fowler, J. (2026, January 21). The Davos arts programme: art ventures where policy briefs and position papers cannot go. <i>The Art Newspaper</i>. <a href="https://www.theartnewspaper.com/2026/01/21/the-davos-arts-programme-art-ventures-where-policy-briefs-and-position-papers-cannot-go">theartnewspaper.com</a></li>
+  <li id="r11">Harris, G. (2026, January 21). Marina Abramovi&#263; rolls into Davos with an immersive project that encourages world leaders to take a digital detox. <i>The Art Newspaper</i>. <a href="https://www.theartnewspaper.com/2026/01/21/marina-abramovic-rolls-into-davos-with-an-immersive-project-that-encourages-world-leaders-to-take-a-digital-detox">theartnewspaper.com</a></li>
+  <li id="r12">Hirschhorn, T. (2001). Letter to Bice (regarding <i>Wirtschaftslandschaft Davos</i>). <a href="https://www.thomashirschhorn.com/?p=492">thomashirschhorn.com</a></li>
+  <li id="r13">Kirchner Museum Davos. (2026). Playing tennis in the museum: a conversation with Anna Scalfi Eghenter, 5 September 2026. <a href="https://kirchnermuseum.ch/en/museum/kirchner-association/association-events/assoc-detail/playing-tennis-in-the-museum/">kirchnermuseum.ch</a></li>
+  <li id="r14">Davos Klosters. (2026). World Economic Forum Annual Meeting 2027, 18&ndash;22 January 2027. <a href="https://www.davos.ch/en/experience/events/world-economic-forum-annual-meeting-2027">davos.ch</a></li>
+  <li id="r15">The Museum of Modern Art. (2017). <i>Ian Cheng: Emissaries</i>, MoMA PS1, 9 April&ndash;24 September 2017. <a href="https://www.moma.org/calendar/exhibitions/3656">moma.org</a></li>
+  <li id="r16">MoMA PS1. (2026). <i>Greater New York 2026</i>, 16 April&ndash;17 August 2026. <a href="https://www.momaps1.org/en/gny">momaps1.org</a></li>
+  <li id="r17">Whitney Museum of American Art. (n.d.). Sunrise/Sunset commissions, artport, 2009&ndash;2024. <a href="https://whitney.org/artport/commissions/sunrise-sunset">whitney.org</a></li>
+  <li id="r18">Art Basel. (2026). Art Basel announces exhibitors and a reconfigured showfloor for Miami Beach 2026; Zero 10, 4&ndash;6 December 2026. <a href="https://www.artbasel.com/stories/art-basel-announces-exhibitors-and-a-reconfigured-showfloor-for-miami-beach-2026">artbasel.com</a></li>
+  <li id="r19">Art Basel. (n.d.). NFT art today: Olive Allen, Sarah Meyohas, Harm van den Dorpel. <a href="https://www.artbasel.com/stories/nfts-olive-allen-sarah-meyohas-harm-van-den-dorpel">artbasel.com</a></li>
+</ol>
+<p class="note">Checked on 15 October 2026.</p>
+</div>
+</body>
+</html>

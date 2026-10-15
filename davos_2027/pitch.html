@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>veri+as · pitch</title>
+<meta name="description" content="Pitch kit for veri+as: texts at standard lengths, three parts, formats, technical rider, rough costs, bios.">
+<style>
+  :root { --acc:#c2a27a; --bone:#e4dfd2; --cool:#a9acb2; --ink:#030304; --dim:#8a8d93; --line:#1c1d21; --panel:#08080a;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--ink); color:var(--cool); font:13px/1.8 var(--mono); }
+  .wrap { max-width:900px; margin:0 auto; padding:7vh 16px 12vh; }
+  .path { margin:0 0 6px; color:var(--dim); font-size:12px; }
+  .path::before { content:"// "; color:var(--acc); }
+  h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
+  h1 i { font-style:normal; color:var(--acc); }
+  h2 i { font-style:normal; color:var(--bone); }
+  .lede { margin:16px 0 0; max-width:70ch; }
+  .tag { display:inline-block; margin:16px 0 0; color:var(--dim); font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
+  .short { margin:28px 0 0; padding:14px 16px; background:var(--panel); border-left:1px solid var(--acc); color:var(--bone); max-width:78ch; }
+  .short b, b { color:var(--bone); font-weight:400; }
+  .short b:first-child { color:var(--acc); }
+  .toc { margin:22px 0 0; display:flex; flex-wrap:wrap; gap:4px 16px; font-size:11.5px; }
+  .toc a { color:var(--dim); text-decoration:none; border-bottom:1px dotted #3a3d44; }
+  .toc a:hover, .toc a:focus-visible { color:var(--bone); }
+  h2 { margin:64px 0 16px; font:400 10.5px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--acc);
+    padding-top:18px; border-top:1px solid var(--line); scroll-margin-top:20px; }
+  h3 { margin:26px 0 8px; font:400 13px/1.5 var(--mono); color:var(--bone); }
+  p { margin:0 0 12px; max-width:72ch; }
+  ul, ol { margin:0 0 14px; padding-left:22px; max-width:72ch; }
+  li { margin-bottom:7px; }
+  li::marker { color:var(--acc); }
+  a { color:var(--bone); text-underline-offset:3px; }
+  .big { margin:6px 0 14px; font:400 20px/1.35 var(--mono); color:var(--bone); letter-spacing:.02em; }
+  .big.small { font-size:15px; color:var(--acc); }
+  .note { color:var(--dim); font-size:12px; }
+  .poem { margin:0 0 14px; padding:12px 16px; background:var(--panel); border-left:1px solid var(--acc); color:var(--bone); white-space:pre-wrap; font:inherit; }
+  .paste { margin:0 0 16px; padding:12px 16px; background:var(--panel); border:1px solid var(--line); color:var(--bone); max-width:78ch; }
+  .paste .n { display:block; color:var(--dim); font-size:11px; letter-spacing:.18em; text-transform:uppercase; margin-bottom:6px; }
+  .tw { overflow-x:auto; margin:0 0 14px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; vertical-align:top; padding:9px 14px 9px 0; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:400; font-size:11.5px; }
+  td:first-child { color:var(--bone); }
+  .cols { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin:0 0 14px; }
+  .card { border:1px solid var(--line); padding:16px; background:var(--panel); }
+  .card h3 { margin-top:0; }
+  .card p:last-child { margin-bottom:0; }
+  .soon { color:var(--acc); }
+  .no { color:#5a5e64; }
+  sup.ref { font-size:9.5px; line-height:0; margin-left:1px; }
+  sup.ref a { color:var(--acc); text-decoration:none; }
+  sup.ref + sup.ref::before { content:","; color:var(--acc); }
+  ol.refs { font-size:11.5px; line-height:1.65; color:var(--dim); max-width:none; }
+  ol.refs li { margin-bottom:6px; scroll-margin-top:20px; }
+  ol.refs li:target { color:var(--bone); }
+  ol.refs a { color:var(--cool); word-break:break-word; }
+  @media (max-width:520px) { body { font-size:12.5px; } .big { font-size:17px; } }
+  @media (max-width:640px) {
+    table.stack { min-width:0; }
+    table.stack tr { display:block; padding:12px 0; border-bottom:1px solid var(--line); }
+    table.stack tr:first-child { display:none; }
+    table.stack td { display:block; width:auto !important; border:0; padding:2px 0; }
+    table.stack td[data-l]::before { content:attr(data-l) ": "; color:var(--dim); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="path">vanitas-veritas/davos_2027 &middot; pitch</p>
+<h1>veri<i>+</i>as</h1>
+<p class="lede">For open calls, juries and hosts. Texts at the lengths calls ask for, the work in three parts, the formats, a technical rider and rough costs.
+  The context is in the <a href="blackpaper.html">black paper</a>; the work is <a href="veritas3.html">live</a>.</p>
+<span class="tag">pitch kit &middot; october 2026</span>
+
+<nav class="toc"><a href="#texts">01 texts</a> <a href="#parts">02 three parts</a> <a href="#formats">03 formats</a> <a href="#rider">04 rider</a>
+  <a href="#costs">05 costs</a> <a href="#bios">06 bios</a> <a href="#links">07 links</a></nav>
+
+<h2 id="texts"><i>01</i> &nbsp;texts to paste</h2>
+<div class="paste"><span class="n">title</span>veri+as</div>
+<div class="paste"><span class="n">one line</span>A sink you can't wash your hands in.</div>
+<div class="paste"><span class="n">25 words</span>A sink you can't wash your hands in. Hold still and the slop goes clear; hold together, anywhere, and the whole basin turns true.</div>
+<div class="paste"><span class="n">50 words</span>veri+as is a sink you can't wash your hands in. Where the drain should be, a screen loops AI-made vanitas pictures that drain and return as copies of copies. Hold still and the glass clears on a true picture. When enough people hold at once, on the web or at the sink, the title turns from vanitas to veritas.</div>
+<div class="paste"><span class="n">150 words</span>veri+as restages the vanitas still life for the age of the feed. A real sink stands where people wash their hands; a screen sits where the drain should be. In it, faces, skulls and flowers made with AI melt toward the drain and come back from the tap as copies of copies, the way a model trained on its own output does. The faucet gives no water. Holding it stills the loop and clears the fluted glass over a picture that is, for a moment, true. The glass is a field of coupled clocks that falls into one seductive rhythm on its own; each hold takes someone out of it. When enough people hold at once, at the sink or on the open web version, the rhythm breaks for everyone and the title turns from v[an]itas to v[er]itas. Every day at noon in Davos time, everyone holds together.</div>
+<div class="paste"><span class="n">statement, about 200 words</span>Vanitas paintings piled up beautiful things to say they were already going. My pictures are AI bubbles, and I mean it twice: the soap bubble the Dutch painted for fragility, and the speculative one many of us fear we are standing in. The slop here is the pretty kind, over-rendered until it squeaks, and it does what generative models now do: whatever drains comes back, a copy of a copy. You cannot wash your hands of it. The faucet is the off switch. I freedive, and holding it is the same as holding a breath underwater: stillness on purpose, against everything in you that wants to let go. Hold, and the picture is true for as long as you can stand to stay. Let go, and it floods back. The piece adds one more thing the Dutch did not have: other people. Everyone holding, anywhere, at the same moment, loosens the rhythm the feed keeps us all in. Huygens saw two clocks on one beam fall into step in 1665; the feed is our beam. veri+as asks how many of us it takes to stop together.</div>
+<p class="note">The statement is drafted from Kat&rsquo;s own TIAT statement; edit it in your voice before sending.</p>
+
+<h2 id="parts"><i>02</i> &nbsp;three parts</h2>
+<div class="tw"><table class="stack"><tr><th></th><th>when</th><th>what</th></tr><tr><td><b>preview</b></td><td data-l="when">now to December 2026</td><td data-l="what">The web basin, open to everyone, with a shared hold at noon in Davos every day. First showings: a salon, a window, a projection.</td></tr><tr><td><b>part one</b></td><td data-l="when">18 to 22 January 2027</td><td data-l="what">One real sink in Davos, in the room people enter alone<sup class="ref"><a href="#r1">1</a></sup>. The web and the sink hold together at noon. On the 22nd the loop runs out.</td></tr><tr><td><b>part two</b></td><td data-l="when">summer and autumn 2027</td><td data-l="what">The double vanity: two sinks, two artists. What drains from one pours from the other. Shown where it can stay.</td></tr></table></div>
+<p>Each part stands alone, and each one can be pitched alone: the web piece to an online or festival call, a single sink to an exhibition, the double vanity to a museum.</p>
+
+<h2 id="formats"><i>03</i> &nbsp;formats</h2>
+<div class="tw"><table class="stack"><tr><th>format</th><th>what it is</th><th>needs</th></tr><tr><td>the web piece</td><td data-l="what it is">veri+as iii in any browser; holds are shared live with everyone</td><td data-l="needs">nothing; free</td></tr><tr><td>a wall</td><td data-l="what it is">the same page in its wall mode (<code>?gallery</code>): the basin centred, the title only; a visitor holds a pad, a button or the space bar</td><td data-l="needs">one screen or projector, a small computer, a pad or button</td></tr><tr><td>a sink</td><td data-l="what it is">a freestanding vanity with a screen under fluted acrylic where the drain should be (<code>?sink=davos</code>); the faucet lever is the hold; a self-portrait print above as a mirror</td><td data-l="needs">one outlet; network optional</td></tr><tr><td>the double vanity</td><td data-l="what it is">two sinks side by side, or in two cities; what drains from one pours from the other</td><td data-l="needs">two outlets; network</td></tr><tr><td>the cards</td><td data-l="what it is">lenticular cards, vanitas at one tilt and veritas at the other, each carrying the way to the sink</td><td data-l="needs">print run</td></tr></table></div>
+
+<h2 id="rider"><i>04</i> &nbsp;technical rider</h2>
+<div class="tw"><table class="stack"><tr><th></th><th>a wall</th><th>a sink</th></tr><tr><td>footprint</td><td data-l="a wall">one wall, 2 to 4 m wide</td><td data-l="a sink">about 76 &times; 64 cm, freestanding, no wall</td></tr><tr><td>power</td><td data-l="a wall">one outlet</td><td data-l="a sink">one outlet</td></tr><tr><td>network</td><td data-l="a wall">wifi or ethernet for the shared hold; runs offline without it</td><td data-l="a sink">the same</td></tr><tr><td>hardware</td><td data-l="a wall">a small computer with a recent GPU (a mini PC or a Mac mini) running a kiosk browser; screen or projector</td><td data-l="a sink">the same computer; a 10 to 15 inch panel under a round fluted acrylic disc; a Hall sensor on the faucet lever wired to a small USB board that types the space bar</td></tr><tr><td>setup</td><td data-l="a wall">two hours</td><td data-l="a sink">half a day</td></tr><tr><td>staff</td><td data-l="a wall">none; it starts itself and recovers from a power cut</td><td data-l="a sink">none</td></tr><tr><td>safety</td><td data-l="a wall">no water, low voltage</td><td data-l="a sink">no water anywhere; the faucet only moves a magnet</td></tr><tr><td>access</td><td data-l="a wall">a hold with any part of the body; works by touch, pointer or one key</td><td data-l="a sink">the lever needs one hand, or a forearm</td></tr></table></div>
+<p class="note">The first sink&rsquo;s build guide (2026) covers the plumbing-free vanity and the faucet sensor: <a href="https://kat-titter.github.io/vanitas-veritas/">kat-titter.github.io/vanitas-veritas</a>.</p>
+
+<h2 id="costs"><i>05</i> &nbsp;rough costs</h2>
+<div class="tw"><table class="stack"><tr><th>format</th><th>estimate</th><th>what is in it</th></tr><tr><td>the web piece</td><td data-l="estimate">0</td><td data-l="what is in it">hosting is free; holds travel over public relays</td></tr><tr><td>a wall</td><td data-l="estimate">about USD 700 to 1,500</td><td data-l="what is in it">a mini PC, a pad or button; the screen or projector from the host</td></tr><tr><td>a sink</td><td data-l="estimate">about USD 2,000 to 3,500</td><td data-l="what is in it">vanity and steel basin, panel, fluted acrylic, mini PC, sensor and board, mirror print, fixings</td></tr><tr><td>the double vanity</td><td data-l="estimate">about USD 5,000 to 8,000 plus freight</td><td data-l="what is in it">two sinks, two prints, crates</td></tr></table></div>
+<p class="note">Estimates as of October 2026, before quotes. Freight to Davos is not included.</p>
+
+<h2 id="bios"><i>06</i> &nbsp;bios</h2>
+<div class="paste"><span class="n">Kat Titterton, about 80 words</span>Kat Titterton is a San Francisco artist and imaging scientist. She has built expansion-microscopy pipelines at MIT, microfluidic neuron-culture devices at AbbVie, and the Cell Painting screens behind two of the largest such datasets at Axiom Bio. As macrofluidic she makes generative work about what images do once machines make them: <i>Bare Metal</i> (Human Tech Week, San Francisco, 2025) and <i>Vanitas Veritas</i> (2026). She is a freediver, which is where the hold comes from.</div>
+<div class="paste"><span class="n">Olive Allen, to be written with her</span>Olive Allen is a New York artist and one of the first to release work as NFTs, from 2019, with a solo show at Postmasters in 2022. <i>Olive to confirm and rewrite.</i></div>
+
+<h2 id="links"><i>07</i> &nbsp;links</h2>
+<ul>
+  <li><a href="veritas3.html">the work, live</a> &middot; <a href="veritas3.html?gallery">wall mode</a> &middot; <a href="veritas3.html?sink=davos">sink mode</a></li>
+  <li><a href="blackpaper.html">the black paper</a>: the point, the lineage, who makes it, Davos</li>
+  <li><a href="https://kat-titter.github.io/vanitas-veritas/">Vanitas Veritas (2026)</a>: the loop and the first sink, archived</li>
+  <li>contact: <a href="https://macrofluidic.me">macrofluidic.me</a></li>
+</ul>
+
+
+<h2 id="sources"><i>&middot;</i> &nbsp;sources</h2>
+<ol class="refs">
+  <li id="r1">Davos Klosters. (2026). World Economic Forum Annual Meeting 2027, 18&ndash;22 January 2027. <a href="https://www.davos.ch/en/experience/events/world-economic-forum-annual-meeting-2027">davos.ch</a></li>
+</ol>
+<p class="note">Checked on 15 October 2026.</p>
+</div>
+</body>
+</html>
