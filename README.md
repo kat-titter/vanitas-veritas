@@ -303,3 +303,7 @@ Tunable knobs at the top of `morph_v44.py`: `D` (anchor density / uniqueness),
 (discernible↔gooey), `SUBSET` (render a 2-frame test instead of all 8), the
 prompt, and the grade constants — `GLOSS_W`, `BLACK_GAMMA`, and the palette lock
 (`COOL`, `GOLD_TONE`, `WARM_SCALE`), `GRAIN`, `VIG_STR`.
+
+## License
+
+Code in this repository (`code/`, build scripts and page source) is MIT licensed; see [`LICENSE`](LICENSE). The artwork, source images, video and writing are © 2026 Katherine Titterton, all rights reserved. Model weights belong to their authors under their own licenses.
