@@ -24,6 +24,11 @@
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); white-space:nowrap; }
   h1 i { font-style:normal; color:var(--gold); }
+  #title { transition:opacity 1.4s ease, letter-spacing 2.4s cubic-bezier(.2,.8,.2,1); }
+  body.unborn #title { opacity:0; letter-spacing:1.1em; }
+  body.tall.unborn #title { letter-spacing:.7em; }             /* a phone: wide enough to arrive from, never past the edge */
+  body.mute #words > :not(#title) { opacity:0 !important; }
+  #words > :not(#title) { transition:opacity 1.6s ease; }
   #mid { display:inline-block; transition:opacity .45s; color:var(--gold); }       /* the letters that turn: an, vanity; er, truth */
   h1 .br { color:var(--dim); }
   body.veritas #mid { color:#f2e2c4; text-shadow:0 0 14px rgba(194,162,122,.9); }
@@ -33,26 +38,26 @@
   pre b { font-weight:400; color:var(--dim); }
   body.held pre { opacity:.22; }
   /* the program: one line for every new form of life, its caption. Point at a line and that one comes back. */
-  #lines { font-size:11.5px; line-height:1.75; min-height:calc(7*1.75em); margin-top:.6em; }
-  body.tall #lines { min-height:calc(2*1.75em); }
-  body.tall #lines .ln:nth-last-child(n+3) { display:none; }
+  #lines { font-size:11.5px; line-height:1.75; }
+  #prog .lv, #prog .def { font-size:11.5px; line-height:1.75; }
+  body.tall #lines .ln.life:not(.a0) { display:none; }          /* a phone: the newest form of life only */
+  #prog .pc { color:var(--bone); white-space:pre; }                 /* the primer: what each opening line means, in words */
+  body.tall.primed #prog .pc, body.end #prog .pc { display:none; } /* once you have found one, the words have done their work */
   #prog .ln { display:block; min-height:0; padding-left:2ch; text-indent:-2ch; white-space:pre-wrap; pointer-events:auto; cursor:pointer; outline:none; }
   #prog .ln:hover, #prog .ln:focus-visible, #prog .ln.on { color:var(--bone); }
+  #prog .ln.cmt2 { color:var(--bone); cursor:default; }            /* a person's words over the machine's line */
   #prog .v, #prog .g, #prog .cm { display:inline; min-height:0; }
   #prog .v, #prog .g { color:var(--gold); }
-  .look { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px dotted var(--gold); cursor:pointer; }
   #prog .cmt { display:block; min-height:0; color:var(--dim); }
   #prog .ln.act { cursor:default; }
   #prog .cm { display:inline; min-height:0; color:var(--dim); }
-  #lines .ln:nth-last-child(n+11) { display:none; }        /* the newest ten lines; the whole program goes on growing underneath */
-  body.end.tall #lines { display:none; }                   /* a phone, at the end: room for the reading */
+
   /* progress: seven stars to find, and the eye */
   #bar { display:flex; align-items:center; gap:3px; margin:14px 0 0; }
   #bar i { flex:0 0 auto; width:24px; height:3px; background:#5f6268; transition:background .6s, box-shadow .6s; }
   #bar i.on { background:var(--gold); box-shadow:0 0 6px rgba(194,162,122,.6); }
   #bar .eye { width:9px; height:9px; margin-left:8px; border-radius:50%; border:1px solid #5f6268; background:#030304; transition:all .8s; }
   #bar .eye.on { border-color:var(--gold); background:radial-gradient(circle, #030304 38%, #f2e2c4 44%, var(--gold) 58%, #a8483a 82%); box-shadow:0 0 9px rgba(194,162,122,.7); }
-  #bar span { margin-left:10px; font-size:10px; letter-spacing:.2em; color:var(--bone); }
   body.gallery #bar, body.sink #bar { display:none; }
   #say .f { display:block; color:var(--gold); }
   /* sharing: the card, and what to do with it, in one place */
@@ -93,20 +98,32 @@
   #shelf figcaption a:hover, #shelf figcaption a:focus-visible { color:var(--bone); }
   #shelf .x { position:fixed; top:16px; right:22px; background:none; border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
   #shelf .x:hover, #shelf .x:focus-visible { color:var(--bone); }
-  body.invite .look { animation:breath 3.2s ease-in-out infinite; }
   @keyframes blink { 50% { opacity:0; } }
   /* the credit: two letters to find */
   #we { width:2.6ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px solid var(--gold); color:var(--gold);
     font:inherit; font-weight:700; letter-spacing:.3em; pointer-events:auto; outline:none; caret-color:var(--gold); border-radius:0; }
   #we::placeholder { color:var(--gold); opacity:1; font-weight:700; animation:blink 1.6s steps(1) infinite; }
+  #we.hint::placeholder { opacity:1; animation:none; }
+  #we.hint { border-bottom-style:dotted; }
   #we:focus::placeholder { animation:none; opacity:.35; }
   body.we #we { border-bottom-color:transparent; color:var(--gold); pointer-events:none; }
   #we.no { animation:no .5s; }
   @keyframes no { 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
   /* the culture's two numbers: they surface while a hand is on the culture */
-  #bio { margin-top:14px; visibility:hidden; opacity:0; transition:opacity .6s, visibility .6s; }
-  body.bio #bio, body.end #bio { visibility:visible; opacity:1; }   /* at the end, your culture's numbers stay */
-  body.tall #bio { display:none; }                     /* phones: the dials are for a mouse; the basin gets the room */
+  #bio { transition:color .6s; }
+  #prog .lv { display:block; min-height:0; white-space:pre; }
+  #prog .lv b { color:var(--bone); }
+  #prog .lv.on, #prog .lv.on b { color:var(--gold); }              /* a line that is running right now */
+  body.bio #bio { color:var(--bone); }                             /* a hand on the culture: its line lights */
+  #prog .ar { display:inline-block; width:1ch; font-style:normal; color:var(--gold); }
+  #prog .ar:empty { width:0; }                                     /* no arrow, no gap before the comma */
+  #cmap { display:inline-block; width:46px; height:18px; vertical-align:-4px; margin-left:4px; }
+  #prog .def { display:block; min-height:0; }
+  body.tall #prog .hd { display:none; }                            /* phones: the running lines, not the header */
+  body.tight1 #prog .pc { display:none; }
+  body.tight2 #prog .hd, body.tight2 #lines .ln.life:not(.a0):not(.a1):not(.a2) { display:none; }
+  body.tight3 #prog .lv, body.tight3 #prog .def, body.tight3 #lines .ln.life:not(.a0) { display:none; }
+
   .knob { color:var(--gold) !important; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
   .knob:focus-visible { outline:none; border-bottom-style:solid; }
   /* one line at a time: the words as a comment, the code under it */
@@ -116,12 +133,14 @@
   #say .la { pointer-events:auto; cursor:help; border-bottom:1px dotted rgba(194,162,122,.55); }
   #say .sp.id, #shText .sp.id { font-style:normal; letter-spacing:.02em; }
   #say .c .g { font-weight:400; color:var(--gold); }
-  #say .rd { display:block; color:var(--gold); font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
-  #say code { font:inherit; color:var(--gold); white-space:pre-wrap; }
+  #say code { display:block; font:inherit; color:var(--gold); white-space:pre-wrap; }
+  #say .keep { display:inline-block; margin:.5em 1.2em 0 0; }
+  body.end #say { margin-top:26px; }                           /* the reading gets room of its own */
+  body.end #lines .ln.life, body.end #prog .hd { display:none; } /* at the end the program folds to its bones: the reading is the thing */
   #say .c { display:block; color:var(--bone); white-space:pre-wrap; }
   #say .c.gold { color:var(--gold); }
-  #say .keep { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px dotted var(--gold); margin-left:.6em; white-space:nowrap; }
+  #say .keep { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px dotted var(--gold); white-space:nowrap; }
   #say.quiet { color:var(--bone); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; animation:breath 3.2s ease-in-out infinite; }
   @keyframes breath { 0%, 100% { opacity:.42; } 50% { opacity:.95; } }   /* hold: it breathes at the pace of one held breath */
   /* the eye: the drain is a button once it has started looking at you */
@@ -136,7 +155,6 @@
   #tools { margin:12px 0 0; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
   #tools a { color:var(--dim); pointer-events:auto; text-decoration:none; border-bottom:1px dotted #3a3d44; }   /* quiet, and still 6:1 */
   #tools a:hover, #tools a:focus-visible { color:var(--bone); }
-  #nostudy { margin-left:14px; }
   #door { display:none; margin-right:14px; color:var(--gold) !important; border-bottom-color:var(--gold) !important; }
   body.door #door { display:inline; }
   /* a gallery wall: the basin, centred, and the title */
@@ -154,17 +172,17 @@
 <body>
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with a living culture. Faces, skulls and flowers melt toward the drain and come back from the tap. Hold, and the glass goes clear."></canvas>
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
-<button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"><b>look</b> &middot; one frame, stays on this device</span></button>
-<section id="shelf" aria-label="Your skies" role="dialog"><button class="x" type="button" aria-label="Close">&times;</button><h2 id="shelfHead">your skies</h2><div class="grid" id="shelfGrid"></div></section>
-<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><h2 id="shHead">your reading</h2><img id="shImg" alt="Your sky, as a card"><div id="shText"></div><p class="links"><a href="#" id="shShare">share -&gt;</a><a href="#" id="shCopy">copy the link</a><a href="#" id="shSave">save the picture</a></p><p id="shLink"></p></div></section>
+<button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"></span></button>
+<section id="shelf" aria-label="Your universes" role="dialog"><button class="x" type="button" aria-label="Close">&times;</button><h2 id="shelfHead">your universes</h2><div class="grid" id="shelfGrid"></div></section>
+<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><h2 id="shHead">your reading</h2><img id="shImg" alt="Your universe, as a card"><div id="shText"></div><p class="links"><a href="#" id="shShare">share -&gt;</a><a href="#" id="shCopy">copy the link</a><a href="#" id="shSave">save the picture</a></p><p id="shLink"></p></div></section>
 <main id="words">
   <h1 id="title" aria-label="vanitas, veritas">v<span class="br">[</span><span id="mid">an</span><span class="br">]</span>i<i>+</i>as</h1>
-  <div id="bar" role="progressbar" aria-label="stars found" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b class="eye" title="the eye"></b><span id="barN">0 / 7</span></div>
-<pre id="prog" aria-label="The program: one line for every new form of life you grow"><span>sink = drain(sink)</span><span id="you"></span><span>sink == sync<b id="pS"></b></span><span id="lines"></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
-<pre id="bio" aria-label="The culture, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0310</b>, k=<b class="knob" data-k="k" tabindex="0">0.0600</b>)</span></pre>
-  <p id="say" class="quiet" aria-live="polite">hold</p>
+  <div id="bar" role="progressbar" aria-label="stars found" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b class="eye"></b></div>
+<pre id="prog" aria-label="The program, running as you play"><span class="pc hd"># what drains away comes back</span><span class="hd">sink = drain(sink)</span><span class="pc" id="youPc"></span><span id="you"></span><span class="pc hd"># every clock keeps one time</span><span class="hd">sink == sync<b id="pS"></b></span><span class="pc"># a universe, grown from you</span><span class="def">def universe(you):</span><span class="pc">  # what grows here, and how fast</span><span class="lv" id="bio">  culture = grow(f=<b class="knob" data-k="f" tabindex="0" aria-label="feed: drag to change">.0310</b><i class="ar" id="arf"></i>, k=<b class="knob" data-k="k" tabindex="0" aria-label="kill: drag to change">.0600</b><i class="ar" id="ark"></i>) <canvas id="cmap" width="46" height="18" aria-hidden="true"></canvas></span><span class="pc">  # the intention: be still, and look</span><span class="lv" id="lvHold">  while held(<b id="lvSec">0.0</b>): seek(warm=<b id="lvWarm">.00</b>)</span><span id="lines"></span><span># macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
+
+  <p id="say" class="quiet" aria-live="polite"></p>
   <div id="err"></div>
-  <p id="tools"><a href="blackpaper.html" id="door">black paper</a><a href="#skies" id="book">skies</a><a href="?reset" id="reset">reset</a><a href="#" id="nostudy" title="How you play is counted, anonymously, for a study of everyone's play: no picture, no face, no name. Click to keep your play out.">count me out</a></p>
+  <p id="tools"><a href="blackpaper.html" id="door">black paper</a><a href="#skies" id="book">universes</a><a href="?reset" id="reset">reset</a></p>
 </main>
 
 <script>
@@ -177,6 +195,7 @@ const words = document.getElementById('words');
 const say = document.getElementById('say');
 const errBox = document.getElementById('err');
 const fail = (m) => {
+  document.body.classList.remove('unborn', 'mute');
   errBox.textContent = m; errBox.style.display = 'block';
   if (FRAMES.length && !document.querySelector('img.fallback')) {           // no basin here: one still from the loop, and the words
     const im = new Image(); im.src = FRAMES[0]; im.alt = 'A still from the loop: a face dissolving into bubbles and gold.'; im.className = 'fallback';
@@ -422,6 +441,10 @@ uniform vec3 uTriC[8], uStarC[8];                     // each facet's colour (go
 uniform vec3 uCultT;                                  // the culture's colour: where its two numbers stand (red, gold, white)
 uniform float uBH, uLensE; uniform vec3 uDiskN;       // the black hole at the centre: how lit, how hard it bends the picture, the tilt of its disk
 uniform float uIntro, uIntroT;                        // the opening: how much of it is left, and how long it has run
+uniform float uBirth;                                 // the beginning: 0, nothing; 1, the sphere is open
+uniform vec2 uLure, uLureAt;                          // a star not yet found: (there is one, a hand is near it), and where it is
+uniform vec3 uRipple;                                 // a tap: the glass clears for a heartbeat where you touched (x, y, how much)
+uniform float uStarM[8];                              // each star's own magnitude: some are bright and large, some faint and small
 uniform vec2 uLead;                                   // where the line from the tap arrives
 uniform vec2 uTap, uCenter, uRes, uCursor;
 uniform vec2 uSent[8]; uniform float uSentN, uHiSent;    // a sky someone sent you: under yours, in gold; the star of one you point at
@@ -516,6 +539,7 @@ void main(){
     float wave = 0.5+0.5*cos(kth-9.*q.y);
     float desync = 1.-smoothstep(0.35, 0.85, uSyncR);
     L *= (1.-0.85*kz.b)*mix(1., 0.30, desync);
+    L *= 1. - uRipple.z*smoothstep(0.13, 0.025, length(q - uRipple.xy));   // a tap clears it for a heartbeat: there is a picture under the glass
     // the glass gives under the hand: the flutes bow away from a press and spring back
     vec2 cq = q-(uCursor-uCenter)/uS;
     vec2 qj = q + cq*exp(-dot(cq,cq)/0.014)*uJelly*0.30;
@@ -567,6 +591,12 @@ void main(){
       b += vec3(0.80,0.56,0.26)*(0.6*ringW + 0.9*dust)*uIntro + vec3(1.0,0.80,0.48)*2.2*glint*gIn;
     }
 
+    // a star not yet found. It glints when a hand comes near it, and now and then on its own, like a star caught out of the corner of an eye.
+    { vec2 lq = q - uLureAt; float lr = length(lq);
+      float tw = pow(max(0., sin(uTime*1.7 + 2.3*sin(uTime*0.37))), 18.);
+      float st2 = exp(-lr*lr/0.000030) + 0.35*(exp(-abs(lq.x)/0.0006)*exp(-abs(lq.y)/0.014) + exp(-abs(lq.y)/0.0006)*exp(-abs(lq.x)/0.014));
+      b += vec3(1.0,0.86,0.60)*st2*uLure.x*(1.-uHold)*(1.-uIntro)*(0.20*tw + 0.95*uLure.y); }
+
     // seen, the glass shows you where it is clear: a glint there, on the beat, while you seek
     { float gs = length(q-uSpot); b += vec3(0.78,0.58,0.36)*uGlint*(1.-uFocus)*exp(-gs*gs/0.0012)*(0.30+0.22*sin(uBeats*3.14159)); }
 
@@ -597,7 +627,8 @@ void main(){
         float sc = uPathS[i], bf = clamp(sc*sc, 0.4, 1.6), fi = float(i);
         vec2 dv = q-uPath[i]; float rv = length(dv);
         float tw = 0.76 + 0.24*sin(uTime*(2.1+fi*0.73)+fi*1.7)*sin(uTime*(0.9+fi*0.41)+fi);   // each twinkles in its own time
-        float star = 1.05*exp(-rv*rv/(0.0000050*sc*sc)) + 0.75*exp(-rv/(0.0060*sc))
+        float mg = uStarM[i];
+        float star = mg*(1.05*exp(-rv*rv/(0.0000050*sc*sc*mg*mg)) + 0.75*exp(-rv/(0.0060*sc*mg)))
                    + 0.32*(exp(-abs(dv.x)/0.0005)*exp(-abs(dv.y)/(0.012*sc)) + exp(-abs(dv.y)/0.0005)*exp(-abs(dv.x)/(0.012*sc)));
         glowS += uStarC[i]*star*tw*g*bf;
         if(i>0){ vec2 st = segT(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)); dm = max(dm, clamp(pow(mix(uPathS[i-1], sc, st.y), 2.), 0.35, 1.5)*smoothstep(0.0008+aa*2., 0.0008, st.x)); }
@@ -643,7 +674,7 @@ void main(){
       vec2 nd = normalize(N3.xy + vec2(1e-5));
       float arc = exp(-pow((rq2 - rs*1.30)/(rs*0.12), 2.))*(1.-abs(nzs))*pow(abs(dot(pq/max(rq2,1e-5), nd)), 1.2);   // the far side, bent up over the top and under
       vec3 halo = mix(vec3(0.80,0.52,0.24), vec3(1.0,0.94,0.82), 0.65)*arc*uBH*2.2*quiet;
-      float pr = exp(-pow((rq2 - rs*1.05)/(rs*0.04), 2.))*(1. + 0.6*uHb);      // the photon ring: light that has gone round the hole, brighter on the beat
+      float pr = exp(-pow((rq2 - rs*1.05)/(rs*0.04), 2.))*(1. + 0.6*uHb + 0.8*uGaze);   // the photon ring: brighter on the beat, and when it meets your eye
       halo += vec3(1.0,0.90,0.72)*pr*(0.25 + 0.75*uBH)*(0.85 + 0.15*cos(atan(pq.y,pq.x) - 0.6 - uTime*0.12));
       float shadow = smoothstep(rs*1.0, rs*0.86, rq2);
       float front = step(P3.z, 0.);                                             // the near half of the disk passes in front of the shadow
@@ -666,6 +697,13 @@ void main(){
 
   col *= mix(1., smoothstep(0.95,0.40,r), 0.8*uDepth);             // the longer you hold, the further down
 
+  // the beginning: nothing, then a point, a flash, and the sphere opens out of it in a ring of gold; the culture grows out after it
+  if (uBirth < 1.) {
+    float rb = uBirth*1.35;
+    col *= smoothstep(rb + 0.01, rb - 0.06, r);
+    col += vec3(1.0,0.80,0.48)*exp(-pow((r - rb)/0.012, 2.))*(1.-uBirth)*2.6*smoothstep(0., 0.04, uBirth);
+    col += vec3(1.0,0.92,0.78)*exp(-r*r/(0.0006 + 0.05*uBirth))*pow(1.-uBirth, 2.5)*3.2;
+  }
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
   col *= 1.-(0.75+0.5*uLoss)*dot(sc,sc);
 
@@ -721,7 +759,7 @@ void main(){
   }
 
   col = mix(vec3(lum(col)), col, 0.58)*0.86*vec3(1.,0.985,0.955);      // quieter colour, lower light, one warmth
-  col = pow(max(col,0.),vec3(1./2.2));
+  col = clamp(pow(max(col,0.),vec3(1./2.2)), 0., 1.);
   col = mix(col, col*col*(3.-2.*col), 0.20);
   col += (hash(gl_FragCoord.xy+fract(uTime)*91.7)-0.5)*0.030;
   o = vec4(col,1.);
@@ -795,7 +833,7 @@ function field(w, h, data){
 const rdSeed = new Float32Array(RDW*RDH*4);
 for (let i = 0; i < RDW*RDH; i++) { rdSeed[i*4] = 1; rdSeed[i*4+3] = 1; }
 for (let n = 0; n < 4200; n++) {                       // small colonies, scattered; single cells die
-  const x0 = Math.floor(Math.random()*RDW), y0 = Math.floor(Math.random()*(RDH-6));
+  const x0 = Math.floor(Math.random()*RDW), y0 = Math.floor(Math.random()*(RDH*0.14));   // at the rim only: the culture grows outward from there
   for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) {
     const i = ((y0+y)*RDW + (x0+x) % RDW)*4;
     rdSeed[i] = 0.5; rdSeed[i+1] = 0.25+0.25*Math.random();
@@ -939,11 +977,11 @@ const meaningOf = (name) => { const t = String(name).toLowerCase().split(/[ _]/)
 // comments wrap the way code does: every line starts with its own marker, never a bare continuation
 let charW = 0;
 function perLine(){
-  if (!charW) { const cx = document.createElement('canvas').getContext('2d'); cx.font = getComputedStyle(say).font; charW = cx.measureText('0000000000').width/10 || 7.5; }
+  if (!charW) { const cx = document.createElement('canvas').getContext('2d'); cx.font = getComputedStyle(document.body).font; charW = cx.measureText('0000000000').width/10 || 7.5; }
   return Math.max(20, Math.floor((say.clientWidth || 300)/charW));
 }
 function wrapWords(text, n){ const out = []; let cur = ''; for (const w of String(text).split(' ')) { if (cur && (cur + ' ' + w).length > n) { out.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; } if (cur) out.push(cur); return out; }
-const commentHTML = (text, mark = '//', cls = 'c') => text ? wrapWords(text, perLine() - mark.length - 1).map((l) => `<span class="${cls}">${mark} ${l}</span>`).join('') : '';
+const commentHTML = (text, mark = '#', cls = 'c') => text ? wrapWords(text, perLine() - mark.length - 1).map((l) => `<span class="${cls}">${mark} ${l}</span>`).join('') : '';
 const glossHTML = (name) => String(name).split(/([ _])/).map((w) => { const lw = w.toLowerCase(), g = NOUN_EN[lw] || PART_EN[lw] || HOUR_EN[lw];
   return g ? `<span class="la" title="${lw}: ${g}">${w}</span>` : w; }).join('');
 function skyNameOf(m, part, nv = 0, ti = -1){
@@ -964,16 +1002,15 @@ function captionOf(m){                       // what grew: the join, and the two
 // ---- the program is what you do, as you do it: each hold that finds a place writes how long you held and what grew; washing,
 // letting go, letting it see you, holding with others, the title turning: each writes its own line. It ends by returning the mirror.
 let log = [];
-const findOf = (i) => me.finds.find((f) => f.i === i);
+const findOf = (i) => [...me.finds].reverse().find((f) => f.i === i);
 function actText(e){
   if (e.t === 'find') {
     const m = mem[e.i]; if (!m) return '';
     const f = findOf(e.i);
-    if (f && f.wipe) return `wipe(culture).grow(${nounOf(m.a ?? m.sign)})`;
+    if (f && f.wipe) return `wipe(culture).regrow(${nounOf(m.a ?? m.sign)})`;
     return `hold(${f ? (+f.t || 0).toFixed(1) : '0.0'}).${captionOf(m)}`;
   }
-  return { wash:'wash(hands)  # it only spreads', see:'you = see(you)', letgo:'let_go()', turn:'assert sink != sync', end:'return mirror(you)' }[e.t]
-      || (e.t === 'with' ? `hold(with=${e.n})` : '');
+  return '';
 }
 const codeOf = (i) => actText({ t:'find', i });
 const codeHTML = (t) => String(t).replace(/(#.*)$/, '<span class="cm">$1</span>');
@@ -981,9 +1018,9 @@ const capHTML = (m) => codeHTML(captionOf(m));
 function act(e){
   if (MODE === 'sink') return;
   log.push(e); if (log.length > 80) log.splice(0, log.length-80);
-  save(); writeProgram(true);
+  save(); writeProgram(e.t === 'find');
 }
-const poemLine = (code, words) => `<span class="c">// ${words}</span><code>${code}</code>`;   // the comment above the line it is about
+const poemLine = (code, words) => commentHTML(words) + `<code>${code}</code>`;   // the comment above the line it is about: a person's words, then the machine's
 
 // ---- where it is running: a visitor's browser, a gallery wall, or the screen in a real sink (?sink=davos)
 const params = new URLSearchParams(location.search);
@@ -1047,6 +1084,9 @@ function project(p, z, yaw, pitch){
   return [x*k, y*k, k];
 }
 let lift = 0, turnT = 0, foldVis = 1;
+let nextSpot = null, lureAt = [0, 0], lureOn = 0, lureNear = 0;      // the next hidden place stays put until it is found
+const ripple = { x:0, y:0, t:-1e9 };
+const starM = new Float32Array(8).fill(1);
 const proj2 = [], projS = new Float32Array(8), ONES8 = new Float32Array(8).fill(1);
 const triXY = new Float32Array(48), triZ = new Float32Array(24), triL = new Float32Array(8), triC = new Float32Array(24); let triN = 0;
 // star colours, as stars have them: mostly bone and gold, some white, some ice, some orange. The further a star stands, the redder.
@@ -1095,18 +1135,40 @@ function reveal(i, fromPause){
 }
 // the program's lines, in the order the forms of life were grown. The newest arrives as script and resolves, like every line.
 const linesEl = document.getElementById('lines');
+// the program's body, under the lines that are always running (the culture, the hold): one line for each form of life as it grows
+// (point at it and it comes back); after three, the clue (we = me + ?), which becomes we = me + you once it has seen you; at the end, the return.
+function weLine(){ const n = read.filter(Boolean).length; return n < 3 ? null : seen ? ['me, and you', 'we = me + you'] : ['me, and someone', 'we = me + ?']; }
+const blockOf = (t) => t.replace(/^((?:if|for|while|with)\b[^:]*):\s+/, '$1:\n    ');   // a block opens, and its body sits under it
+function lifeCode(i, k, used){                            // the machine's line for the k-th form of life: its shape follows what happened
+  const m = mem[i], f = findOf(i) || {}, c = captionOf(m), [verb] = joinOf(m), secs = Math.max(1, Math.floor(+f.t || 1));
+  const shapes = [
+    k === 0 && !f.wipe && ['new', `life = [${c}]`],
+    f.wipe && ['wipe', `if not culture: life += [regrow(${nounOf(m.a ?? m.sign)})]`],
+    m.face && ['you', `if you: life += [${c}]`],
+    verb === 'merge' && ['with', `with us: life += [${c}]`],
+    verb === 'culture' && ['for', `for cell in culture: life += [${c}]`],
+    verb === 'graft' && ['if', `if held > ${secs}: life += [${c}]`],
+    verb === 'haunt' && ['while', `while not clear: life += [${c}]`],
+    ['if', `if held > ${secs}: life += [${c}]`], ['for', `for cell in culture: life += [${c}]`], ['while', `while not clear: life += [${c}]`],
+    ['insert', `life.insert(0, ${c})`], ['append', `life.append(${c})`], ['plus', `life += [${c}]`],
+  ].filter(Boolean);
+  const pick = shapes.find(([kind]) => !used.has(kind)) || shapes[shapes.length-1];
+  used.add(pick[0]); return pick[1];
+}
 function writeProgram(animate = false){
-  if (!log.length && sent) {                               // someone's sky, before yours: its forms of life, to point at and grow again
-    linesEl.innerHTML = `<span class="cmt">// ${sent.name}, ${sent.own ? 'one of yours' : 'sent to you'}</span>` + sent.stars.map((m, k) => `<span class="ln sent" data-k="s${k}" data-s="${k}" tabindex="0" role="button" aria-label="${m.sp}: grow it here">  ${capHTML(m)}</span>`).join('');
+  const order = orderOf();
+  if (!order.length && sent) {                             // someone's sky, before yours: its forms of life, to point at and grow again
+    linesEl.innerHTML = `<span class="cmt">  # ${sent.own ? 'one of your universes:' : 'a universe sent to you:'}</span><span class="cmt">  # ${sent.name}</span>` + sent.stars.map((m, k) => `<span class="ln sent life" data-k="s${k}" data-s="${k}" tabindex="0" role="button" aria-label="${m.sp}: grow it here">  life += [${capHTML(m)}]</span>`).join('');
     return;
   }
-  const rows = log.map((e) => [e, actText(e)]).filter(([, t]) => t);
-  linesEl.innerHTML = `<span class="cmt">def sky(you):</span>` + rows.map(([e, t], k) => {
-    const find = e.t === 'find' && mem[e.i], last = animate && k === rows.length-1;
-    return `<span class="ln${find ? '' : ' act'}"${find ? ` data-k="i${e.i}" data-i="${e.i}" tabindex="0" role="button" aria-label="${mem[e.i].sp}: show it again"` : ''}>  ${last ? '' : codeHTML(t)}</span>`;
-  }).join('');
+  document.body.classList.toggle('primed', order.length > 0);
+  const used = new Set(), rows = order.map((i, k) => [i, blockOf(lifeCode(i, k, used))]);
+  const tail = [weLine(), silence ? ['and again, with us', 'return universe(we)'] : null].filter(Boolean);
+  linesEl.innerHTML = rows.map(([i, t], k) => { const a = `a${Math.min(3, rows.length-1-k)}`;
+      return `<span class="ln life cmt2 ${a}" data-k="i${i}" aria-hidden="true">  # ${lineOf(i)}</span><span class="ln life ${a}" data-k="i${i}" data-i="${i}" tabindex="0" role="button" aria-label="${mem[i].sp}: show it again">  ${animate && k === rows.length-1 ? '' : codeHTML(t)}</span>`; }).join('')
+    + tail.map(([c, t]) => `<span class="ln act cmt2">  # ${c}</span><span class="ln act">  ${codeHTML(t)}</span>`).join('');
   if (!animate || !rows.length) return;
-  const el = linesEl.lastElementChild, text = rows[rows.length-1][1], t0 = performance.now();   // the newest line arrives as script and resolves
+  const el = linesEl.children[2*rows.length-1], text = rows[rows.length-1][1], t0 = performance.now();   // the newest line arrives as script and resolves
   const tk = () => { const k = Math.min(1, (performance.now()-t0)/1400); if (!el.isConnected) return;
     if (k < 1) { el.textContent = '  ' + cipher(text, k, Math.floor(performance.now()/90)); requestAnimationFrame(tk); } else el.innerHTML = '  ' + codeHTML(text); };
   tk();
@@ -1189,20 +1251,46 @@ for (const el of document.querySelectorAll('.knob')) {
     const k = el.dataset.k; man[k] = Math.max(-0.03, Math.min(0.03, man[k]+d)); me.knobs = true;
   });
 }
-let knobShown = '', knobCss = '', barShown = '';
+let knobShown = '', knobCss = '', barShown = '', liveShown = '', drift = { f:0, k:0, t:0, pf:0, pk:0 }, cmapAt = 0;
+const lvHold = document.getElementById('lvHold'), lvSec = document.getElementById('lvSec'), lvWarm = document.getElementById('lvWarm'), cmap = document.getElementById('cmap');
+const cmapTrail = [];
+function liveTick(now){                                    // the program runs: what is happening now is written into it
+  const live = held ? `${heldSecs.toFixed(1)}|${(pause.done ? 1 : focus).toFixed(2)}` : '0.0|.00';
+  if (live !== liveShown) { liveShown = live; const [a, b] = live.split('|'); lvSec.textContent = a; lvWarm.textContent = b.replace(/^0/, ''); lvHold.classList.toggle('on', held); }
+  if (now - drift.t > 600) {                               // which way the culture's numbers are going: an arrow, so nobody has to read them
+    const df = cult.f - drift.pf, dk = cult.k - drift.pk; drift.pf = cult.f; drift.pk = cult.k; drift.t = now;
+    const ar = (d) => d > 0.00004 ? '\u25b4' : d < -0.00004 ? '\u25be' : '';
+    document.getElementById('arf').textContent = ar(df); document.getElementById('ark').textContent = ar(dk);
+  }
+  if (now - cmapAt > 200 && cmap.offsetParent) { cmapAt = now; drawCmap(); }
+}
+function drawCmap(){                                       // the culture's map: feed across, kill down; red underfed, gold middle, white fed; the dot is yours
+  const dpr = Math.min(2, window.devicePixelRatio || 1), W = 46, H = 18;
+  if (cmap.width !== W*dpr) { cmap.width = W*dpr; cmap.height = H*dpr; }
+  const cx = cmap.getContext('2d'); cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+  const g = cx.createLinearGradient(0, 0, W, 0); g.addColorStop(0, 'rgba(168,72,58,.55)'); g.addColorStop(0.45, 'rgba(194,162,122,.55)'); g.addColorStop(1, 'rgba(228,223,210,.55)');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+  const X = (f) => (f - 0.012)/(0.070 - 0.012)*W, Y = (k) => (k - 0.048)/(0.070 - 0.048)*H;
+  if (!cmapTrail.length || Math.hypot(X(cult.f) - X(cmapTrail[cmapTrail.length-1][0]), Y(cult.k) - Y(cmapTrail[cmapTrail.length-1][1])) > 1) cmapTrail.push([cult.f, cult.k]);
+  if (cmapTrail.length > 40) cmapTrail.shift();
+  cx.strokeStyle = 'rgba(3,3,4,.75)'; cx.lineWidth = 1; cx.beginPath(); cmapTrail.forEach(([f, k], j) => j ? cx.lineTo(X(f), Y(k)) : cx.moveTo(X(f), Y(k))); cx.stroke();
+  cx.fillStyle = '#030304'; cx.beginPath(); cx.arc(X(cult.f), Y(cult.k), 2.6, 0, 2*Math.PI); cx.fill();
+  cx.strokeStyle = '#f2e2c4'; cx.lineWidth = 1; cx.stroke();
+}
 const barEl = document.getElementById('bar');
 function barTick(){                                        // seven stars to find, one by one; the eye, lit once it has seen you
   const n = read.filter(Boolean).length, key = n + (seen ? 'e' : '');
   if (key === barShown) return; barShown = key;
   barEl.querySelectorAll('i').forEach((el, j) => el.classList.toggle('on', j < n));
   barEl.querySelector('.eye').classList.toggle('on', !!seen);
-  document.getElementById('barN').textContent = `${n} / ${LINES}`; barEl.setAttribute('aria-valuenow', n);
+  barEl.setAttribute('aria-valuenow', n);
+  if (!weOk) { const ph = n >= LINES ? 'we' : n >= 5 ? 'w_' : '__'; if (weEl.placeholder !== ph) { weEl.placeholder = ph; weEl.classList.toggle('hint', ph !== '__'); } }   // the riddle's blank fills in as the sky does
 }
 function cultTick(dt){                                     // the culture drifts toward where this play has pushed it, slowly
   const t = cultTarget(), e = 1-Math.exp(-dt/6);
   cult.f += (t.f-cult.f)*e; cult.k += (t.k-cult.k)*e;
   const shownNow = cult.f.toFixed(4) + cult.k.toFixed(4);
-  if (shownNow !== knobShown) { knobShown = shownNow; for (const el of document.querySelectorAll('.knob')) el.textContent = cult[el.dataset.k].toFixed(4); }
+  if (shownNow !== knobShown) { knobShown = shownNow; for (const el of document.querySelectorAll('.knob')) el.textContent = cult[el.dataset.k].toFixed(4).replace(/^0/, ''); }
 }
 let bioUntil = 0, bioHover = false;
 const bioEl = document.getElementById('bio');
@@ -1245,20 +1333,17 @@ function tell(now){
   if (silence && !held) {                                          // the end: your sky's name, and the mirror. Then: send it, or grow another.
     const r = reading || (reading = readYou());
     if (!document.body.classList.contains('end')) document.body.classList.add('end');
-    const on = MODE === 'web' ? `<a class="keep" data-act="share" href="#share">your reading -&gt;</a> <a class="keep" data-act="again" href="#again">another sky -&gt;</a>` : '';
-    const facts = String(r.veritas).replace(/\.$/, '').split('; ');
-    const many = document.body.classList.contains('tall') ? 4 : 99;
-    sayIt(`<span class="sp id">${glossHTML(r.sky)}</span>` + commentHTML(meaningOf(r.sky)) + (r.horo || [r.vanitas]).slice(0, many).map((t) => commentHTML(t)).join('')
-      + `<code>sky = mirror(you)</code>` + facts.map((f2, j) => commentHTML(f2 + (j < facts.length-1 ? ';' : '.'), '#', 'f')).join('') + on);
+    const on = MODE === 'web' ? `<a class="keep" data-act="share" href="#share">your reading -&gt;</a> <a class="keep" data-act="again" href="#again">another universe -&gt;</a>` : '';
+    const many = document.body.classList.contains('tall') ? 1 : 3;
+    sayIt(`<span class="sp id">${glossHTML(r.sky)}</span>` + commentHTML(meaningOf(r.sky)) + `<code>universe = mirror(you)</code>`
+      + (r.pairs || (r.horo || [r.vanitas]).map((t) => [t, ''])).slice(0, many).map(([c, k]) => commentHTML(c) + (k ? `<code>${k}</code>` : '')).join('')
+      + on);
     return;
   }
   // Nothing here is a tutorial. The piece shows what to do first (the breathing word, the ghost of a hand, the empty ring, a line that
   // pulses); a line of help is said only if that did not do it, and only once on this device. The rest are news, also said once.
   if (sent && !toldSent && !held && intro <= 0) {                  // arriving with someone's sky: just whose it is
-    toldSent = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sent = sky("${sent.name}")`, k, salt), cipher(sent.own ? 'one of your skies.' : 'someone sent you their sky.', k, salt)) };
-  }
-  if (!held && !whisper && ghostAt && !me.holds && now-ghostAt > 9000 && once('hold')) {   // the ghost hand did not do it: one line, once
-    whisper = { t0: now, html: (k, salt) => poemLine(cipher('while held: seek(clear)', k, salt), cipher('hold, then find where the glass clears.', k, salt)) };
+    toldSent = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sent = universe("${sent.name}")`, k, salt), cipher(sent.own ? 'one of your universes.' : 'someone sent you their universe.', k, salt)) };
   }
   if (toldTurn === 1 && !held && now >= linger) {                  // the title turned: why, once
     toldTurn = 2; if (once('turn')) whisper = { t0: now, html: (k, salt) => poemLine(cipher('sink == sync  # False', k, salt), cipher('enough of us held still. the clocks let go.', k, salt)) };
@@ -1270,7 +1355,7 @@ function tell(now){
       whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = see(you)', k, salt), cipher('it can grow you too.', k, salt)) };
     }
     else if (!held && intro <= 0 && found >= 1 && !saidOnce.sink && once('sink')) {     // news: where the real one is
-      whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sink.where()  # ${SINK.place}, ${SINK.when}`, k, salt), cipher(`the real one is in ${SINK.place}.`, k, salt)) };
+      whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sink.where()  # ${SINK.place}, ${SINK.when}`, k, salt), cipher(`the real one is meant for ${SINK.place}.`, k, salt)) };
     }
     else if (!held && intro <= 0 && found >= 3 && !saidOnce.mirror && once('mirror')) {  // news: it has been watching how you play
       whisper = { t0: now, html: (k, salt) => poemLine(cipher('mirror.learn(you)', k, salt), cipher('the glass is learning your hand.', k, salt)) };
@@ -1299,16 +1384,16 @@ function tell(now){
     else {                                                          // the line writes itself as the glass clears: the words, then the code of what you are finding
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
       html = pause.done || focus > 0.45 ? poemLine(cipher(pause.done ? codeOf(i) : `hold(${heldSecs.toFixed(1)}).` + captionOf(pause), pause.done ? 1 : focus, salt), cipher(lineOf(i), k, salt))
-           : `<span class="c">// ${cipher(lineOf(i), k, salt)}</span><b>seek</b>`;
+           : `<span class="c"># ${cipher(lineOf(i), k, salt)}</span><code>${cipher(`seek(warm=${amt(focus)})`, Math.max(0.25, focus), salt)}</code>`;
       if (pause.done) html = spLine(i) + html + keepLink();
     }
     linger = pause.done ? now+5200 : 0;
   }
   else if (now < linger) return;                                     // what was read stays a moment after you let go
-  else if (noon === 'now') html = '<span class="c gold">// now. everyone, hold.</span><code>while noon: hold(we)</code>';
-  else if (atSink) html = `<span class="c">// someone is holding the sink in ${atSink}.</span><code>hold(we)</code>`;
-  else if (noon === 'soon') { html = 'together at noon, davos time'; quiet = true; }
-  else { html = 'hold'; quiet = true; }
+  else if (noon === 'now') html = '<span class="c gold"># now. everyone, hold.</span><code>while noon: hold(we)</code>';
+  else if (atSink) html = poemLine('hold(we)', `someone is holding the sink in ${atSink}.`);
+  else if (noon === 'soon') html = poemLine('while not noon: wait()', 'at noon, davos time, we hold.');
+  else { html = ''; quiet = true; }
   sayIt(html, quiet);
 }
 say.addEventListener('pointerenter', () => { if (recall && recall.peek) peekUntil = Infinity; });       // on the way to "keep", it waits
@@ -1354,7 +1439,10 @@ let holdAmt = 0, surge = 0, holdStart = 0, heldSecs = 0, flash = 0, depth = 0, w
 let hb = 0, laceScale = 1;            // the beat, and how far the lace has breathed out on it: the drawing and the wipe must agree
 const jelly = { x:0, v:0 };           // a spring: pressed in, it overshoots on the way back
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const INTRO = 6.5; let intro = INTRO, ghostIntro = false;   // the opening: the black hole beats and breathes gold; a hand shows the first hidden place
+// the beginning, then the opening: from nothing, a flash, and the sphere opens in a ring of gold (1.6 s); the culture grows out of its rim;
+// the name writes itself, vani+as, and turns to veri+as and back; then the black hole beats and breathes gold, and a hidden star glints
+const INTRO = 8; let prerolling = false, intro = INTRO, birthT = REDUCED ? 99 : 0, introFlip = REDUCED ? 2 : 0;
+if (!REDUCED) document.body.classList.add('unborn', 'mute');
 let idle = 0, ghost = { on:false, t:0 };
 let recall = null;                    // at the end, the basin turns back through the stills that were held
 const stir = { x:0.5, y:0.5, vx:0, vy:0, px:null, py:null };
@@ -1407,7 +1495,7 @@ let titleER = false, flipping = 0, glitchAt = 0, toldTurn = 0;
 const midEl = document.getElementById('mid');
 function flipTo(t, now){ flipping = now+950; midEl.style.opacity = '0'; setTimeout(() => { midEl.textContent = t; midEl.style.opacity = '1'; }, 480); }
 function titleTick(now){
-  if (now < flipping) return;
+  if (now < flipping || introFlip < 2 || birthT < 4.8) return;
   if (!titleER && kura.r < 0.45) {
     titleER = true; flipTo('er', now); flash = 1; document.body.classList.add('veritas'); if (held) me.flipped = true;
     if (MODE === 'web' && !log.some((e) => e.t === 'turn')) act({ t:'turn' });
@@ -1503,14 +1591,14 @@ const ask = document.getElementById('ask');
 const youEl = document.getElementById('you');
 const CAN_SEE = MODE === 'web' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 let youShown = '';
+const youPc = document.getElementById('youPc');
 function youLine(){
-  if (!CAN_SEE && !seen) { youEl.style.display = 'none'; return; }
-  const html = faceTex ? '<span class="g">you</span> = see(<span class="g">you</span>)  <span class="cm"># stays on this device</span>'
-    : seen ? 'you = see(you)  <a class="look" href="#look">look again -&gt;</a>'
-    : 'you = None  <a class="look" href="#look">look -&gt;</a>';
-  if (html !== youShown) { youShown = html; youEl.innerHTML = html; }
+  if (!CAN_SEE && !seen) { youEl.style.display = youPc.style.display = 'none'; return; }
+  const [pc, html] = faceTex ? ['# you, seen. your face stays here', '<span class="g">you</span> = see(<span class="g">you</span>)']
+    : seen ? ['# it has seen you', 'you = see(you)']
+    : ['# we have not seen you yet', 'you = None'];
+  if (html !== youShown) { youShown = html; youEl.innerHTML = html; youPc.textContent = pc; }
 }
-youEl.addEventListener('click', (ev) => { const a = ev.target.closest && ev.target.closest('.look'); if (a) see(ev); });
 youEl.addEventListener('pointerdown', (ev) => ev.stopPropagation());
 function grade(cx){                 // the loop's own grade (code/morph_v45_sr.py), so a face looks dreamed like the stills: a little soft, a gloss on the
   // highlights, deep blacks, cool where the light is cool and gold where it is warm (skin is warm: it turns gold, as the stills do), the same S-curve,
@@ -1566,14 +1654,16 @@ function took(cv){
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   // meeting: for three breaths the glass goes clear on the two of you, one picture. Then you are poured in with the rest.
   compose(); meet = 4.5; focus = 1;
-  seen = true; me.looked = true; save(); act({ t:'see' });
+  seen = true; me.looked = true; save(); act({ t:'see' }); writeProgram();
   document.body.classList.remove('invite'); youLine();
   shown = poemLine('you = see(you)  # stays on this device', EYE_LINE); say.innerHTML = shown; say.classList.remove('quiet'); linger = performance.now()+6000;
   told('<b>it has you</b> &middot; you are the centre now', 7000);
 }
 const eye = document.getElementById('eye');
 eye.addEventListener('click', see);
-function told(html, ms){ ask.innerHTML = html; eye.classList.add('said'); clearTimeout(told.t); if (ms) told.t = setTimeout(() => { eye.classList.remove('said'); if (ms > 5000) eye.classList.remove('on'); }, ms); }
+let eyeNear = false;
+eye.addEventListener('pointerenter', () => { eyeNear = true; }); eye.addEventListener('pointerleave', () => { eyeNear = false; });
+function told(html, ms){ ask.innerHTML = ''; clearTimeout(told.t); if (ms > 5000) told.t = setTimeout(() => { eye.classList.remove('on'); }, ms); }   // the eye has no words
 
 function step(dt){
   hb = heart(beats);
@@ -1635,7 +1725,7 @@ function step(dt){
   }
   if (headF > RET_N*1000) headF -= RET_N*1000;
 
-  grow(SMALL ? 6 : Math.round(8 + 8*litFrac));             // the culture grows faster as more places are found
+  grow((SMALL ? 6 : Math.round(8 + 8*litFrac)) + (!prerolling && birthT < 4.5 ? (SMALL ? 6 : 22) : 0));   // faster as more places are found; fastest as it is born
   surge *= Math.exp(-dt/2.0);
   beats += dt/BEAT_SECONDS;
   simTime += dt;
@@ -1676,7 +1766,11 @@ function render(){
   gl.uniform2fv(u['uTri[0]'], triXY); gl.uniform1fv(u['uTriZ[0]'], triZ); gl.uniform1fv(u['uTriL[0]'], triL);
   gl.uniform1f(u.uTriN, up ? triN : 0); gl.uniform1f(u.uFold, CM || !up ? 0 : lift*foldVis);
   gl.uniform3fv(u['uTriC[0]'], triC); gl.uniform3fv(u['uStarC[0]'], starC); gl.uniform3fv(u.uCultT, cultTint);
-  { const e = CM || REDUCED ? 0 : Math.min(1, (INTRO-intro)/0.6)*Math.min(1, intro/1.6); gl.uniform1f(u.uIntro, e); gl.uniform1f(u.uIntroT, INTRO-intro); }
+  { const it = INTRO-intro, e = CM || REDUCED ? 0 : Math.max(0, Math.min(1, (it-1.4)/0.8))*Math.min(1, intro/1.6); gl.uniform1f(u.uIntro, e); gl.uniform1f(u.uIntroT, it-1.4); }
+  { const bt = Math.max(0, Math.min(1, (birthT-0.15)/1.5)); gl.uniform1f(u.uBirth, CM ? 1 : 1-Math.pow(1-bt, 3)); }   // fast, then slow: a boom
+  gl.uniform2f(u.uLure, CM ? 0 : lureOn, lureNear); gl.uniform2f(u.uLureAt, lureAt[0], lureAt[1]);
+  gl.uniform3f(u.uRipple, ripple.x, ripple.y, CM ? 0 : Math.pow(Math.max(0, 1-(performance.now()-ripple.t)/900), 1.5));
+  gl.uniform1fv(u['uStarM[0]'], starM);
   gl.uniform1f(u.uBH, CM ? Math.max(0.6, bhLit) : bhLit); gl.uniform1f(u.uLensE, 0.016 + 0.026*bhLit); gl.uniform3fv(u.uDiskN, CM ? [0, 0, 1] : diskN);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
   gl.uniform2f(u.uLead, view.lead[0]*view.dpr, (view.h-view.lead[1])*view.dpr);
@@ -1713,7 +1807,7 @@ function render(){
 // ---- one composition. Wide: the disc is cropped by the left edge and the words stand to its right.
 // Tall: the disc is cropped by the top and the words stand under it. A wall or a sink: the disc, centred.
 const RING = 0.470/0.395;
-let cardFrame = false;
+let cardFrame = false, tight = 0, tightAt = 0;
 function resize(){
   const { w, h, dpr } = layoutWords();
   const pw = Math.max(2, Math.round(w*dpr)), ph = Math.max(2, Math.round(h*dpr));
@@ -1728,7 +1822,17 @@ function layoutWords(){
   const w = window.innerWidth, h = window.innerHeight;
   const tall = MODE === 'web' && !cardFrame && !(w > 1.3*h);
   if (!cardFrame && document.body.classList.contains('tall') !== tall) document.body.classList.toggle('tall', tall);
-  const ww = Math.min(tall ? 320 : 340, w-48), wh = words.offsetHeight;
+  const ww = Math.min(tall ? 320 : 340, w-48);
+  if (!cardFrame && MODE === 'web' && performance.now() - tightAt > 500) {   // fit (wide screens; a tall one shrinks the basin instead): if the column
+    tightAt = performance.now();                                              // runs off the bottom, fold the oldest lines away, a step at a time
+    const r0 = words.getBoundingClientRect(), over = tall ? -999 : r0.bottom - (h - 10);
+    if (over > 0 && tight < 3) { tight++; document.body.classList.add('tight' + tight); }
+    else if (tight > 0 && over < 0) {                       // try the undo out of sight first: keep it only if it fits with room to spare
+      document.body.classList.remove('tight' + tight);
+      if (words.getBoundingClientRect().bottom - (h - 10) > -12) document.body.classList.add('tight' + tight); else tight--;
+    }
+  }
+  const wh = words.offsetHeight;
   let Rb, cx, cy, wx, wy, lead;
   if (MODE !== 'web' || cardFrame) {                      // a wall, a sink, or the one frame a card is taken from: the disc, centred
     Rb = 0.45*Math.min(w, h); cx = w/2; cy = h/2;
@@ -1783,7 +1887,7 @@ function tick(now){
       flash = 1; announce(WIPE_LINE, now);
     }
   }
-  cultTick(dt); barTick();
+  cultTick(dt); barTick(); liveTick(now);
   if (!held && dt > 0) step(dt);
   // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
   let want = 0;
@@ -1821,8 +1925,13 @@ function tick(now){
 
   focus += (want-focus)*(1-Math.exp(-dt/0.22));
   const hadIntro = intro > 0; intro = Math.max(0, intro-dt); if (hadIntro && intro === 0) introOff = now;
+  birthT += dt;
+  if (birthT > 0.7 && document.body.classList.contains('unborn')) document.body.classList.remove('unborn');
+  if (introFlip === 0 && birthT > 2.4) { introFlip = 1; flipTo('er', now); document.body.classList.add('veritas'); }          // the name, revealed
+  if (introFlip === 1 && birthT > 4.2) { introFlip = 2; flipTo('an', now); if (!titleER) document.body.classList.remove('veritas'); }
+  if (birthT > 4.4 && document.body.classList.contains('mute')) document.body.classList.remove('mute');
   growT = Math.min(1, growT + dt/2.2);
-  gaze += (((asked && !faceTex) ? 1 : 0)-gaze)*(1-Math.exp(-dt/1.5));   // it starts looking once it is ready to be looked at
+  gaze += ((!faceTex ? (asked ? 0.55 : 0) + (eyeNear ? 0.6 : 0) : 0)-gaze)*(1-Math.exp(-dt/(eyeNear ? 0.4 : 1.5)));   // it looks back when you come near its eye
   if (!asked && !faceTex && CAN_SEE && read.some(Boolean)) { asked = true; eye.classList.add('on'); document.body.classList.add('invite'); youLine(); }
   if (meet > 0) { meet -= dt; if (meet <= 0) facePour = 1.8; }        // after the meeting, the pour
   selfOn += ((seen ? 1 : 0)-selfOn)*(1-Math.exp(-dt/1.2));            // you, arriving at the centre of your sky
@@ -1834,8 +1943,13 @@ function tick(now){
   if (meet > 0 || recall) focus = 1;
   jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;   // the glass as a spring
   idle = hand.on || held ? 0 : idle+dt;
-  if (MODE !== 'sink' && !ghost.on && !ghostIntro && !me.holds && !read.some(Boolean) && intro < INTRO-2.4) { ghostIntro = true; ghost.on = true; ghost.t = 0; if (!ghostAt) ghostAt = now; }   // the opening's hand
-  if (MODE !== 'sink' && !ghost.on && idle > 8 && intro <= 0 && !read.some(Boolean)) { ghost.on = true; ghost.t = 0; if (!ghostAt) ghostAt = now; }   // first, show
+  { // the next hidden star: where it is, whether a hand (or a tap) is near it
+    lureAt = nextSpot || pause.spot;
+    lureOn += ((MODE !== 'sink' && !silence && read.some((r) => !r) && birthT > 3 ? 1 : 0) - lureOn)*(1-Math.exp(-dt/1.2));
+    const hq = [(hand.x-view.cx)/view.S, (view.cy-hand.y)/view.S], tq = performance.now()-ripple.t < 1500 ? [ripple.x, ripple.y] : null;
+    const near = Math.max(hand.on ? ss(0.22, 0.05, Math.hypot(hq[0]-lureAt[0], hq[1]-lureAt[1])) : 0, tq ? ss(0.22, 0.05, Math.hypot(tq[0]-lureAt[0], tq[1]-lureAt[1])) : 0);
+    lureNear += (near - lureNear)*(1-Math.exp(-dt/0.25));
+  }
   if (ghost.on) { ghost.t += dt; if (ghost.t > 7 || hand.pressing || held) ghost.on = false; }   // a press takes over from it
   depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
@@ -1848,7 +1962,7 @@ function tick(now){
   }
   if (end >= 1 && endDir > 0) {
     afterEnd += dt;
-    if (!lastWords) { lastWords = true; silence = true; reading = readYou(); act({ t:'end' }); save(); keepSky(); studyPublish('done'); }   // the mirror: what this play says
+    if (!lastWords) { lastWords = true; silence = true; reading = readYou(); act({ t:'end' }); writeProgram(); save(); keepSky(); studyPublish('done'); }   // the mirror: what this play says
     if (MODE !== 'web' && afterEnd > 75) resetRun();
   }
   lift += ((whole > 0.5 && endDir > 0 && end > 0.8 ? 1 : 0) - lift)*(1-Math.exp(-dt/2.2));   // the finished sky lifts into space, once the stills have gone back
@@ -1878,7 +1992,8 @@ function tick(now){
     const order = orderOf();
     path.forEach((pt, k) => { const m = mem[order[k]], base = STAR_COLS[((((m && m.s) | 0) + ((m && m.a) | 0)*7) % STAR_COLS.length + STAR_COLS.length) % STAR_COLS.length];
       const far = lift > 0.001 && projS[k] ? Math.max(0, Math.min(1, (1 - projS[k])/0.22))*lift : 0;
-      for (let j = 0; j < 3; j++) starC[k*3+j] = base[j] + (RED_S[j]-base[j])*0.75*far; });
+      for (let j = 0; j < 3; j++) starC[k*3+j] = base[j] + (RED_S[j]-base[j])*0.75*far;
+      starM[k] = 0.65 + 0.9*(hashI(((m && m.s) | 0)*31 + ((m && m.a) | 0)*7 + k*131) % 1000)/1000; });
   }
   laceScale = 1 + 0.06*(0.5+0.5*Math.sin(2*Math.PI*beats/6)) + 0.045*hb;
   flash *= Math.exp(-dt/1.8);
@@ -1956,7 +2071,8 @@ canvas.addEventListener('pointerdown', (ev) => {
 canvas.addEventListener('pointerup', (ev) => {
   if (!hand.pressing) return;
   hand.pressing = false; clearTimeout(hand.timer);
-  if (held) setHeld(false); else turnPage();
+  if (held) setHeld(false);
+  else { turnPage(); ripple.x = (hand.x-view.cx)/view.S; ripple.y = (view.cy-hand.y)/view.S; ripple.t = performance.now(); }   // a tap: a heartbeat of clear glass
   if (ev.pointerType !== 'mouse') hand.on = false;
 });
 canvas.addEventListener('pointercancel', () => { hand.pressing = false; hand.on = false; clearTimeout(hand.timer); if (held) setHeld(false); });
@@ -1972,7 +2088,31 @@ function framing(m){
   const A = frame(1.25, 0.12), B = m.face ? frame(1.08 + 0.3*r(), 0.12) : frame(1.9, 0.6);
   return { A, B, flip: [1, m.face ? 1 : (r() < 0.5 ? -1 : 1)], seed: rnd(0, 60), self: m.face ? rnd(0.8, 1.25) : 0 };
 }
-function compose(){
+// a new hidden place: never on a star already found, never under the hand; how far it lies from the last star follows how the hand came:
+// still hands draw close, careful shapes; moving hands draw wide ones; scrubbing hands throw it far. The shape is a portrait.
+let comeDrive = [1, 0, 0, 0];
+function pickSpot(drive){
+  const rnd = (a, b) => a + Math.random()*(b-a), hx = (hand.x-view.cx)/view.S, hy = (view.cy-hand.y)/view.S;
+  const last = path.length ? path[path.length-1] : null, [, mv0, sc0, wi0] = drive;
+  const step = 0.15 + 0.14*mv0 + 0.24*sc0 - 0.03*wi0;
+  const ccw = (A, B, C) => (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0]);
+  const crosses = (c) => { if (!last) return 0; let k = 0; for (let i = 0; i+2 < path.length; i++) { const A = path[i], B = path[i+1];
+    if (ccw(A, last, c) !== ccw(B, last, c) && ccw(A, B, last) !== ccw(A, B, c)) k++; } return k; };
+  const tangle = 0.05 + 0.7*(1-sc0);                                     // scrubbing hands tangle it; still ones do not
+  let bs = -1e9, best = [0.2, 0];
+  for (let n = 0; n < 64; n++) {
+    const ang = rnd(0, 2*Math.PI), rad = rnd(0.11, 0.31), c = [rad*Math.cos(ang), rad*Math.sin(ang)];
+    const fromHand = Math.hypot(c[0]-hx, c[1]-hy);
+    const fromStars = path.length ? Math.min(...path.map((p) => Math.hypot(c[0]-p[0], c[1]-p[1]))) : 0.3;
+    let sc = 0.05*Math.random();
+    if (fromStars < 0.12) sc -= 2;                          // no clumps
+    if (fromHand < (last ? 0.18 : 0.09)) sc -= 1;           // not under the hand
+    sc += last ? -2*Math.abs(Math.hypot(c[0]-last[0], c[1]-last[1]) - step) - tangle*crosses(c) : -2*Math.abs(fromHand - 0.15);
+    if (sc > bs) { bs = sc; best = c; }
+  }
+  return best;
+}
+function compose(forHold = false){
   const rnd = (a, b) => a + Math.random()*(b-a);
   const youGrown = mem.filter((m) => m && m.face).length;
   pause.face = !!faceTex && (youGrown === 0 || Math.random() < 0.7);   // once it has seen you, you are in most of what grows, never all, so the pictures stay many
@@ -2017,27 +2157,13 @@ function compose(){
   }
   pause.s = Math.floor(Math.random()*16);
   Object.assign(pause, framing(pause));
-  {   // the clear place: never on a star already found, never under the hand. How far it lies from the last star follows how you
-      // play: still hands draw close, careful shapes; moving hands draw wide ones; scrubbing hands throw it far. The shape is a portrait.
+  {   // the clear place. The very first comes to your hand. After that it stays where it is until it is found (its star glints when you come
+      // near). A new one is chosen by pickSpot, below, from how the hand came to the glass.
     const hx = (hand.x-view.cx)/view.S, hy = (view.cy-hand.y)/view.S;
-    const last = path.length ? path[path.length-1] : null;
-    const [st0, mv0, sc0, wi0] = pause.drive;
-    const step = 0.15 + 0.14*mv0 + 0.24*sc0 - 0.03*wi0;                 // the shape follows the hands: still ones step close, scrubbing ones throw it far
-    const ccw = (A, B, C) => (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0]);
-    const crosses = (c) => { if (!last) return 0; let k = 0; for (let i = 0; i+2 < path.length; i++) { const A = path[i], B = path[i+1];
-      if (ccw(A, last, c) !== ccw(B, last, c) && ccw(A, B, last) !== ccw(A, B, c)) k++; } return k; };
-    const tangle = 0.05 + 0.7*(1-sc0);                                 // scrubbing hands tangle it; still ones do not
-    let bs = -1e9;
-    for (let n = 0; n < 64; n++) {
-      const ang = rnd(0, 2*Math.PI), rad = rnd(0.11, 0.31), c = [rad*Math.cos(ang), rad*Math.sin(ang)];
-      const fromHand = Math.hypot(c[0]-hx, c[1]-hy);
-      const fromStars = path.length ? Math.min(...path.map((p) => Math.hypot(c[0]-p[0], c[1]-p[1]))) : 0.3;
-      let sc = 0.05*Math.random();
-      if (fromStars < 0.12) sc -= 2;                      // no clumps
-      if (fromHand < (last ? 0.18 : 0.09)) sc -= 1;       // not under the hand
-      sc += last ? -2*Math.abs(Math.hypot(c[0]-last[0], c[1]-last[1]) - step) - tangle*crosses(c) : -2*Math.abs(fromHand - 0.15);   // the first: a short reach away
-      if (sc > bs) { bs = sc; pause.spot = c; }
-    }
+    if (forHold && !me.holds && !read.some(Boolean) && !pause.byKey) { const rr = Math.hypot(hx, hy), kk = rr > 0.30 ? 0.30/rr : 1; pause.spot = [hx*kk, hy*kk]; nextSpot = null; }
+    else if (nextSpot) { pause.spot = nextSpot.slice(); if (forHold) nextSpot = null; }
+    else { pause.spot = pickSpot(forHold ? pause.drive : comeDrive); if (!forHold) nextSpot = pause.spot.slice(); }
+    if (forHold) comeDrive = pause.drive.slice();
   }
   pause.line = read.indexOf(false); pause.kept = 0; pause.done = false;
   pause.sp = speciesOf({ a: pause.a, p: pause.p, blend: pause.blend, face: pause.face });
@@ -2061,7 +2187,7 @@ function setHeld(v){
   if (v === held) return;
   held = v;
   if (v) {
-    holdStart = performance.now(); heldSecs = 0; compose(); share.lastBeat = holdStart; publishHold(1);
+    holdStart = performance.now(); heldSecs = 0; compose(true); share.lastBeat = holdStart; publishHold(1);
     me.holds++; if (pause.byKey) me.byKey++; if (!me.first) me.first = Date.now();
     if (me.holds === 1) studyPublish('start');                         // someone played
     hold0 = holdPoint(); lastHP = hold0; holdPath = 0; foundAt = -1;
@@ -2070,11 +2196,13 @@ function setHeld(v){
     surge = 1; publishHold(0);
     const sec = heldSecs; me.held += sec; me.longest = Math.max(me.longest, sec);
     if (pause.line >= 0 && !pause.done) { me.letgo++; if (sec > 1.5 && log.filter((e) => e.t === 'letgo').length < 3) act({ t:'letgo' }); }   // let go before it was yours
+    if (!pause.done && pause.line >= 0) nextSpot = pause.spot.slice();   // not found: the star is still there, waiting
     if (pause.done && foundAt >= 0) {                                   // stayed after it was yours
       const stay = Math.max(0, sec-foundAt); me.stayed += stay;
       const f = me.finds[me.finds.length-1]; if (f && !f.wipe) f.stay = +stay.toFixed(2);
     }
     pause.byKey = false; save();
+    if (pause.done && read.some((r) => !r) && !nextSpot) nextSpot = pickSpot(comeDrive);   // found: the next star is somewhere already, glinting when you come near
   }
   document.body.classList.toggle('held', v);
 }
@@ -2169,11 +2297,42 @@ const SAL = [
   { k:'flipped', w:['Convertens',null], base:0, scale:1,      hi:['you have turned vanity into truth at least once'], lo:null, fact:() => 'you held as the title turned' },
 ];
 // ---- the horoscope. A reading in the old manner, put together from this play alone: what you are like (only ever from what you did, and
-// kindly), when and where you came to it, and what to do next. Nothing in it is a type. The hour, the day, the season, the moon and the
-// place come from this device's own clock and time zone; none of it leaves the device.
+// kindly), the sky over you when you came, and what to do next. Nothing in it is a type. It never names the place or the day: it reads their
+// sky instead (the hour's old name; the signs of the sun, the moon and the rising), worked out from this device's own clock and time zone;
+// none of it leaves the device.
 // the horoscope's lines: drafted, then checked for length (36 characters at most), tone and truth to what each measure counts
-const HORO = {"traits": {"longest.hi": ["you hold on after others let go.", "what you choose, you keep warm.", "you are faithful to what you find."], "longest.lo": ["you know when a thing is finished.", "you take enough, and leave the rest.", "you never hold past the ending."], "stay.hi": ["you let a good thing take its time.", "you linger where the water is clear.", "you stay, and things open for you."], "stay.lo": ["you pass through, and leave it lit.", "you leave while it is still lovely.", "you carry little, and go far."], "letgo.hi": ["you let go of the almost right.", "you would rather begin than settle.", "you trust there is a clearer place."], "direct.hi": ["you see where it will clear.", "you waste no water getting there.", "you know the way before it shows."], "direct.lo": ["your long way round still arrives.", "you look at everything, then choose.", "your wandering draws the map."], "seek.hi": ["you let things show themselves.", "you wait, and the water clears.", "you look twice, and take once."], "seek.lo": ["you find it while others still look.", "you need one look, not two.", "clear places come to you fast."], "scrubs.hi": ["your hands leave gold behind them.", "you clean things, and they shine.", "you polish the dark until it glows."], "stir.hi": ["the water moves when you are near.", "you stir things just by arriving.", "nothing stays flat around you."], "stir.lo": ["you move only when it matters.", "your hands are quiet, and sure.", "you keep still, and the deep shows."], "wiped.hi": ["you feel for the edges, gently.", "you touch what others only watch.", "your hands find where glass ends."], "together.hi": ["others grow still when you are near.", "your calm is easy to share.", "you make the quiet bigger."], "hull.hi": ["you leave room around what you love.", "your reach is wide and gentle.", "you draw your circles generously."], "hull.lo": ["you hold the near things dear.", "you know your ground, and keep it.", "your world is close and well loved."], "cross.hi": ["you cross your own path, gladly.", "your path loops back to its finds.", "you go back, and see it new."], "closure.lo": ["you end near where you began.", "your circles close, softly.", "your path comes home to itself."], "sectors.hi": ["you turn to face every direction.", "no side goes unseen by you.", "every horizon has seen your face."], "sectors.lo": ["you know which way you face.", "you keep your eyes on one horizon.", "you look one way, and look deep."], "turn.hi": ["your path bends the way water does.", "you change course, and it suits you.", "each way you take is new to you."], "turn.lo": ["you hold your course in the deep.", "you follow one current home.", "your line is straight and calm."], "minutes.hi": ["you give a thing all of yourself.", "time slows down where you look.", "you stay until a thing is known."], "minutes.lo": ["you see the shape of it at once.", "you read the whole in a glance.", "you know a thing by its outline."], "you.hi": ["the light knows how to find you.", "you leave yourself in what you make.", "you wear being seen lightly."], "we.hi": ["you hear the other half of a riddle.", "you play best with a second heart.", "you finish what someone else began."], "knobs.hi": ["you rewrite rules that bore you.", "you turn the dials until it sings.", "you make the game your own."], "noon.hi": ["you keep dates with strangers.", "you came at noon, as if invited.", "you answer when the hour calls."], "flipped.hi": ["you turned vanity into truth once.", "you saw past the gilt to the bone.", "you chose the true over the pretty."]}, "forecasts": {"longest.hi": "this week, keep one thing close.", "longest.lo": "this week, finish one thing well.", "stay.hi": "this week, let something linger.", "stay.lo": "this week, pass through lightly.", "letgo.hi": "this week, begin again, gladly.", "direct.hi": "this week, take the short way.", "direct.lo": "this week, take the scenic way.", "seek.hi": "this week, let a thing come to you.", "seek.lo": "this week, trust the quick glance.", "scrubs.hi": "this week, polish something dull.", "stir.hi": "this week, make a few ripples.", "stir.lo": "this week, move once, and mean it.", "wiped.hi": "this week, touch an edge gently.", "together.hi": "this week, sit still with a friend.", "hull.hi": "this week, make room for more.", "hull.lo": "this week, tend what is in reach.", "cross.hi": "this week, walk an old path again.", "closure.lo": "this week, come home early.", "sectors.hi": "this week, face a new direction.", "sectors.lo": "this week, face one horizon.", "turn.hi": "this week, take a new road home.", "turn.lo": "this week, keep to your current.", "minutes.hi": "this week, give one thing an hour.", "minutes.lo": "this week, decide in a minute.", "you.hi": "this week, let yourself be seen.", "we.hi": "this week, ask someone a riddle.", "knobs.hi": "this week, bend one small rule.", "noon.hi": "this week, say yes to a stranger.", "flipped.hi": "this week, look kindly in a mirror."}, "hours": ["the hush keeps counsel, as you do.", "you were awake before the birds.", "you arrive with the first light.", "you are as clear as the morning.", "at noon, you cast no shadow.", "you keep the slow gold of afternoon.", "the evening finds you, and softens.", "you see best when the lamps are low."], "moons": {"new": "the moon is new, and so is your sky.", "waxing crescent": "a thin moon grows, as your sky does.", "first quarter": "the half moon chooses, as you do.", "waxing gibbous": "the moon gathers light, as you did.", "full": "the full moon sees you, all of you.", "waning gibbous": "the moon gives light back, like you.", "last quarter": "the moon lets half go, and shines.", "waning crescent": "a thin moon rests, and so may you."}, "seen": ["you let it see you, and it grew.", "your face now lives in the water."], "unseen": ["your face stays yours, as it should."], "company": "{n} more held still beside you.", "returning": "you came back, and this is sky {n}.", "sent": "you followed a friend's sky here.", "davos": "the davos sink opens in {d} days.", "fallback": "you held still, and something grew."};
+const HORO = {"traits": {"longest.hi": ["you hold on after others let go.", "what you choose, you keep warm.", "you are faithful to what you find."], "longest.lo": ["you know when a thing is finished.", "you take enough, and leave the rest.", "you never hold past the ending."], "stay.hi": ["you let a good thing take its time.", "you linger where the water is clear.", "you stay, and things open for you."], "stay.lo": ["you pass through, and leave it lit.", "you leave while it is still lovely.", "you carry little, and go far."], "letgo.hi": ["you let go of the almost right.", "you would rather begin than settle.", "you trust there is a clearer place."], "direct.hi": ["you see where it will clear.", "you waste no water getting there.", "you know the way before it shows."], "direct.lo": ["your long way round still arrives.", "you look at everything, then choose.", "your wandering draws the map."], "seek.hi": ["you let things show themselves.", "you wait, and the water clears.", "you look twice, and take once."], "seek.lo": ["you find it while others still look.", "you need one look, not two.", "clear places come to you fast."], "scrubs.hi": ["your hands leave gold behind them.", "you clean things, and they shine.", "you polish the dark until it glows."], "stir.hi": ["the water moves when you are near.", "you stir things just by arriving.", "nothing stays flat around you."], "stir.lo": ["you move only when it matters.", "your hands are quiet, and sure.", "you keep still, and the deep shows."], "wiped.hi": ["you feel for the edges, gently.", "you touch what others only watch.", "your hands find where glass ends."], "together.hi": ["others grow still when you are near.", "your calm is easy to share.", "you make the quiet bigger."], "hull.hi": ["you leave room around what you love.", "your reach is wide and gentle.", "you draw your circles generously."], "hull.lo": ["you hold the near things dear.", "you know your ground, and keep it.", "your world is close and well loved."], "cross.hi": ["you cross your own path, gladly.", "your path loops back to its finds.", "you go back, and see it new."], "closure.lo": ["you end near where you began.", "your circles close, softly.", "your path comes home to itself."], "sectors.hi": ["you turn to face every direction.", "no side goes unseen by you.", "every horizon has seen your face."], "sectors.lo": ["you know which way you face.", "you keep your eyes on one horizon.", "you look one way, and look deep."], "turn.hi": ["your path bends the way water does.", "you change course, and it suits you.", "each way you take is new to you."], "turn.lo": ["you hold your course in the deep.", "you follow one current home.", "your line is straight and calm."], "minutes.hi": ["you give a thing all of yourself.", "time slows down where you look.", "you stay until a thing is known."], "minutes.lo": ["you see the shape of it at once.", "you read the whole in a glance.", "you know a thing by its outline."], "you.hi": ["the light knows how to find you.", "you leave yourself in what you make.", "you wear being seen lightly."], "we.hi": ["you hear the other half of a riddle.", "you play best with a second heart.", "you finish what someone else began."], "knobs.hi": ["you rewrite rules that bore you.", "you turn the dials until it sings.", "you make the game your own."], "noon.hi": ["you keep dates with strangers.", "you came at noon, as if invited.", "you answer when the hour calls."], "flipped.hi": ["you turned vanity into truth once.", "you saw past the gilt to the bone.", "you chose the true over the pretty."]}, "forecasts": {"longest.hi": "this week, keep one thing close.", "longest.lo": "this week, finish one thing well.", "stay.hi": "this week, let something linger.", "stay.lo": "this week, pass through lightly.", "letgo.hi": "this week, begin again, gladly.", "direct.hi": "this week, take the short way.", "direct.lo": "this week, take the scenic way.", "seek.hi": "this week, let a thing come to you.", "seek.lo": "this week, trust the quick glance.", "scrubs.hi": "this week, polish something dull.", "stir.hi": "this week, make a few ripples.", "stir.lo": "this week, move once, and mean it.", "wiped.hi": "this week, touch an edge gently.", "together.hi": "this week, sit still with a friend.", "hull.hi": "this week, make room for more.", "hull.lo": "this week, tend what is in reach.", "cross.hi": "this week, walk an old path again.", "closure.lo": "this week, come home early.", "sectors.hi": "this week, face a new direction.", "sectors.lo": "this week, face one horizon.", "turn.hi": "this week, take a new road home.", "turn.lo": "this week, keep to your current.", "minutes.hi": "this week, give one thing an hour.", "minutes.lo": "this week, decide in a minute.", "you.hi": "this week, let yourself be seen.", "we.hi": "this week, ask someone a riddle.", "knobs.hi": "this week, bend one small rule.", "noon.hi": "this week, say yes to a stranger.", "flipped.hi": "this week, look kindly in a mirror."}, "hours": ["the hush keeps counsel, as you do.", "you were awake before the birds.", "you arrive with the first light.", "you are as clear as the morning.", "at noon, you cast no shadow.", "you keep the slow gold of afternoon.", "the evening finds you, and softens.", "you see best when the lamps are low."], "seen": ["you let it see you, and it grew.", "your face now lives in the water."], "unseen": ["your face stays yours, as it should."], "company": "{n} more held still beside you.", "returning": "you came back. this is universe {n}.", "sent": "a friend's universe led you here.", "davos": "{d} days until davos.", "fallback": "you held still, and something grew."};
 const MOONS = [[0.03,'new'], [0.22,'waxing crescent'], [0.28,'first quarter'], [0.47,'waxing gibbous'], [0.53,'full'], [0.72,'waning gibbous'], [0.78,'last quarter'], [0.97,'waning crescent'], [1.01,'new']];
+// the sky over the player when they came, worked out on the device from its clock and its time zone (the offset as a longitude, the
+// hemisphere as a latitude): the sun's sign, the moon's sign, and the sign rising in the east. Tropical zodiac, good to a few degrees,
+// which is enough to name a sign; the rising sign is the roughest. Nothing is sent.
+const SIGNS = ['aries','taurus','gemini','cancer','leo','virgo','libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
+const MOON_IN = { 'new':'a new moon hid', 'waxing crescent':'a thin moon grew', 'first quarter':'a half moon stood', 'waxing gibbous':'the moon swelled',
+  'full':'a full moon stood', 'waning gibbous':'the moon gave back', 'last quarter':'a half moon waned', 'waning crescent':'a thin moon rested' };
+const ZONES = { 'America/Los_Angeles':[34.05,-118.24], 'America/Vancouver':[49.28,-123.12], 'America/Phoenix':[33.45,-112.07], 'America/Denver':[39.74,-104.99],
+  'America/Chicago':[41.88,-87.63], 'America/New_York':[40.71,-74.01], 'America/Toronto':[43.65,-79.38], 'America/Halifax':[44.65,-63.57], 'America/Anchorage':[61.22,-149.9],
+  'Pacific/Honolulu':[21.31,-157.86], 'America/Mexico_City':[19.43,-99.13], 'America/Bogota':[4.71,-74.07], 'America/Lima':[-12.05,-77.04], 'America/Santiago':[-33.45,-70.67],
+  'America/Sao_Paulo':[-23.55,-46.63], 'America/Argentina/Buenos_Aires':[-34.6,-58.38], 'Europe/London':[51.51,-0.13], 'Europe/Dublin':[53.35,-6.26], 'Europe/Lisbon':[38.72,-9.14],
+  'Europe/Madrid':[40.42,-3.7], 'Europe/Paris':[48.86,2.35], 'Europe/Amsterdam':[52.37,4.9], 'Europe/Berlin':[52.52,13.4], 'Europe/Zurich':[46.8,9.84], 'Europe/Rome':[41.9,12.5],
+  'Europe/Stockholm':[59.33,18.07], 'Europe/Istanbul':[41.01,28.98], 'Europe/Moscow':[55.76,37.62], 'Asia/Jerusalem':[31.77,35.21], 'Africa/Cairo':[30.04,31.24],
+  'Africa/Lagos':[6.52,3.38], 'Africa/Nairobi':[-1.29,36.82], 'Africa/Johannesburg':[-26.2,28.05], 'Asia/Dubai':[25.2,55.27], 'Asia/Kolkata':[28.61,77.21],
+  'Asia/Bangkok':[13.76,100.5], 'Asia/Jakarta':[-6.21,106.85], 'Asia/Singapore':[1.35,103.82], 'Asia/Shanghai':[31.23,121.47], 'Asia/Hong_Kong':[22.32,114.17],
+  'Asia/Taipei':[25.03,121.57], 'Asia/Manila':[14.6,120.98], 'Asia/Seoul':[37.57,126.98], 'Asia/Tokyo':[35.68,139.69], 'Australia/Melbourne':[-37.81,144.96],
+  'Australia/Sydney':[-33.87,151.21], 'Pacific/Auckland':[-36.85,174.76] };   // each zone's own city; Zurich's is Davos
+function skyOver(t){
+  const d = t/86400000 + 2440587.5 - 2451545.0, rad = Math.PI/180, nm = (x) => ((x % 360) + 360) % 360, sign = (l) => SIGNS[Math.floor(nm(l)/30)];
+  const g = nm(357.529 + 0.98560028*d), q = nm(280.459 + 0.98564736*d);
+  const sunL = q + 1.915*Math.sin(g*rad) + 0.020*Math.sin(2*g*rad);
+  const L = nm(218.316 + 13.176396*d), M = nm(134.963 + 13.064993*d);
+  const moonL = L + 6.289*Math.sin(M*rad);
+  let zone = ''; try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  const y = new Date(t).getFullYear(), std = Math.max(new Date(y, 0, 1).getTimezoneOffset(), new Date(y, 6, 1).getTimezoneOffset());
+  const [la0, lon] = ZONES[zone] || [SOUTH.test(zone) ? -33 : 40, -std/4], lat = la0*rad, eps = 23.4393*rad;
+  const ramc = nm(280.46061837 + 360.98564736629*d + lon)*rad;
+  const asc = Math.atan2(Math.cos(ramc), -(Math.sin(ramc)*Math.cos(eps) + Math.tan(lat)*Math.sin(eps)))/rad;
+  return { sun: sign(sunL), moon: sign(moonL), rising: sign(asc) };
+}
+const moonPh = (t) => ((((t/86400000 + 2440587.5) - 2451550.1)/29.530588853) % 1 + 1) % 1;
 const moonOf = (t) => { const ph = ((((t/86400000 + 2440587.5) - 2451550.1)/29.530588853) % 1 + 1) % 1; return MOONS.find(([e]) => ph < e)[1]; };
 const SOUTH = /^(Australia|Antarctica|Pacific\/(Auckland|Chatham|Fiji)|America\/(Santiago|Argentina|Sao_Paulo|Montevideo|Asuncion|La_Paz|Lima)|Africa\/(Johannesburg|Maputo|Harare|Windhoek|Gaborone|Lusaka)|Indian\/(Mauritius|Reunion))/;
 function whenWhere(t){
@@ -2228,30 +2387,44 @@ function readYou(){
   const pick = (arr, k) => arr[hashI(seed + k*131) % arr.length];
   const ctx = whenWhere(me.first || Date.now());
   const horo = [];
-  // short lines, so none wraps even on a phone: what you are like, where and when, the moon, being seen, company, the week, davos
-  ranked.forEach((x, i) => { const ls = HORO.traits[`${x.d.k}.${x.dir}`]; if (ls) horo.push(ls[hashI(seed + i*977) % ls.length]); });
-  if (!horo.length) horo.push(HORO.fallback);
+  // pairs, so none wraps even on a phone: the human line (a comment, flattering) and under it the machine's line (code, the true count).
+  // What you are like, when and where, the moon, being seen, company or coming back, the week, davos.
+  const pairs = [], when = new Date(me.first || Date.now()), hhmm = `${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}`;
+  const dec = (v) => (+v).toFixed(2).replace(/^0/, ''), one = (v) => (+v).toFixed(1);
+  const NAME = { longest:'longest_hold_seconds', stay:'stay_seconds', seek:'seek_seconds', wiped:'wipe_seconds', turn:'turn_degrees', sectors:'directions_of_8',
+    you:'forms_with_you', together:'held_with', letgo:'let_go_times', scrubs:'wash_times', stir:'crossings', cross:'path_crossings', direct:'straight_to_it',
+    hull:'room_held', closure:'end_to_start', minutes:'minutes', knobs:'dials_turned', we:'riddle_answered', noon:'held_at_noon', flipped:'title_turned' };
+  const valOf = (k) => ({ longest:one(f.longest), stay:one(f.stay), seek:one(f.seek), wiped:one(f.wiped), minutes:one(f.minutes), direct:dec(f.direct),
+    hull:dec(f.hull), closure:dec(f.closure), turn:String(Math.round(f.turn*57.3)), sectors:String(f.sectors), we:f.we ? 'True' : 'False',
+    knobs:f.knobs ? 'True' : 'False', noon:f.noon ? 'True' : 'False', flipped:f.flipped ? 'True' : 'False' }[k] ?? String(Math.round(+f[k] || 0)));
+  ranked.forEach((x, i) => { const ls = HORO.traits[`${x.d.k}.${x.dir}`]; if (ls) pairs.push([ls[hashI(seed + i*977) % ls.length], `${NAME[x.d.k] || x.d.k} = ${valOf(x.d.k)}`]); });
+  if (!pairs.length) pairs.push([HORO.fallback, `finds = ${f.finds}`]);
   const tiNow = me.ti >= 0 ? me.ti : hourOf(me.first || Date.now());
-  if (HORO.hours[tiNow]) horo.push(HORO.hours[tiNow]);
-  { const at = `by ${ctx.city} time, on a ${ctx.day}.`; horo.push(ctx.city && at.length <= 36 ? at : `on a ${ctx.day}, in ${ctx.season}.`); }
-  horo.push(HORO.moons[ctx.moon] || HORO.moons.new);
-  if (f.you) horo.push(pick(HORO.seen, 3)); else if (CAN_SEE) horo.push(HORO.unseen[0]);
-  if (f.together) horo.push(HORO.company.replace('{n}', f.together));
-  else if (sent && !sent.own) horo.push(HORO.sent);
-  else if (skies.length) horo.push(HORO.returning.replace('{n}', skies.length + (skies.some((k) => k.n === sky) ? 0 : 1)));
-  horo.push((ranked[0] && HORO.forecasts[`${ranked[0].d.k}.${ranked[0].dir}`]) || 'this week, hold still at noon.');
-  if (ctx.davos > 0) horo.push(HORO.davos.replace('{d}', ctx.davos));
-  return { name, sky, part, vanitas, veritas, horo, f, said: ranked.map((x) => x.d.k) };
+  if (HORO.hours[tiNow]) pairs.push([HORO.hours[tiNow], `hour = "${HOURS[tiNow][2]}"`]);
+  { // the sky over you when you came: where the sun and the moon stood, and what was rising. Never the place or the day, only their sky.
+    const sk = skyOver(me.first || Date.now());
+    pairs.push([`the sun stood in ${sk.sun}.`, `sun = "${sk.sun}"`]);
+    pairs.push([`${MOON_IN[ctx.moon] || 'the moon stood'} in ${sk.moon}.`, `moon = ("${sk.moon}", ${dec(moonPh(me.first || Date.now()))})`]);
+    pairs.push([`${sk.rising} was rising as you came.`, `rising = "${sk.rising}"`]);
+  }
+  if (f.you) pairs.push([pick(HORO.seen, 3), 'you = see(you)']); else if (CAN_SEE) pairs.push([HORO.unseen[0], 'you = None']);
+  if (f.together) pairs.push([HORO.company.replace('{n}', f.together), `together = ${f.together}`]);
+  else if (sent && !sent.own) pairs.push([HORO.sent, 'sent = True']);
+  else if (skies.length) { const nth = skies.length + (skies.some((k) => k.n === sky) ? 0 : 1); pairs.push([HORO.returning.replace('{n}', nth), `universes = ${nth}`]); }
+  pairs.push([(ranked[0] && HORO.forecasts[`${ranked[0].d.k}.${ranked[0].dir}`]) || 'this week, hold still at noon.', ranked[0] ? `this_week.${NAME[ranked[0].d.k] || ranked[0].d.k} ${ranked[0].dir === 'hi' ? '+=' : '-='} 1` : 'this_week.noon_holds += 1']);
+  if (ctx.davos > 0) pairs.push([HORO.davos.replace('{d}', ctx.davos), `days_to_davos = ${ctx.davos}`]);
+  for (const [c] of pairs) horo.push(c);
+  return { name, sky, part, vanitas, veritas, horo, pairs, f, said: ranked.map((x) => x.d.k) };
 }
 
 // ---- the study: how many people played, and how. One anonymous record per play: the counts above, the shape of the
 // constellation, the names of what grew. No picture, no face, no name, no address. Kept on public Nostr relays as app data
 // (NIP-78), so the whole population can be read later and its patterns found after the fact. Only the published page counts;
-// tests (?probe) are marked as tests. "count me out" (or ?nostudy) keeps a play out.
+// tests (?probe) are marked as tests. A browser that sends Global Privacy Control is never counted; ?nostudy keeps a play out.
 const STUDY_KIND = 30078, STUDY_TAG = 'veritas-play';
 let playId = '', studyOff = false;
 try { studyOff = localStorage.getItem('veritas.nostudy') === '1'; } catch (e) {}
-const STUDY_ON = !params.has('nostudy') && (/(^|\.)github\.io$/.test(location.hostname) || params.has('study'));
+const STUDY_ON = !params.has('nostudy') && navigator.globalPrivacyControl !== true && (/(^|\.)github\.io$/.test(location.hostname) || params.has('study'));
 function studyPublish(stage){
   if (!STUDY_ON || studyOff || !share.on || !share.finalize) return;
   if (!playId) { playId = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join(''); save(); }
@@ -2263,15 +2436,6 @@ function studyPublish(stage){
     const msg = JSON.stringify(['EVENT', ev]);
     for (const so of share.sockets) if (so.open) { try { so.ws.send(msg); } catch (e) {} }
   } catch (e) {}
-}
-{
-  const out = document.getElementById('nostudy');
-  if (out) {
-    if (!STUDY_ON) out.style.display = 'none';
-    const label = () => { out.textContent = studyOff ? 'counted out' : 'count me out'; };
-    label();
-    out.addEventListener('click', (ev) => { ev.preventDefault(); studyOff = !studyOff; try { localStorage.setItem('veritas.nostudy', studyOff ? '1' : '0'); } catch (e) {} label(); });
-  }
 }
 
 // ---- a sky, sent as a link: the seven stars and the recipe of each form of life, in 51 characters. No picture, no face, nothing
@@ -2341,9 +2505,9 @@ function glyph(code){                                    // a sky, drawn small: 
   return `<svg viewBox="0 0 100 100" role="button" tabindex="0" aria-label="${d.name}: show it in the glass" data-c="${code}"><circle class="rim" cx="50" cy="50" r="44"/>${folds}<path d="${line}"/>${dots}</svg>`;
 }
 function openShelf(){
-  document.getElementById('shelfHead').textContent = `your skies · ${skies.length}`;
+  document.getElementById('shelfHead').textContent = 'your universes';
   document.getElementById('shelfGrid').innerHTML = skies.slice().reverse().map((k) =>
-    `<figure>${glyph(k.c)}<figcaption title="${k.n.split(' ').map((w) => GLOSS[w] ? w.toLowerCase() + ': ' + GLOSS[w] : w).join(' / ')}">${k.n}<small>${k.d.split('-').reverse().join('.')}</small><a href="${PUBLIC}?sky=${k.c}" class="send">copy link</a></figcaption></figure>`).join('');
+    `<figure>${glyph(k.c)}<figcaption title="${k.n.split(' ').map((w) => GLOSS[w] ? w.toLowerCase() + ': ' + GLOSS[w] : w).join(' / ')}">${k.n}<small>${k.d.split('-').reverse().join('.')}</small><a href="${PUBLIC}?sky=${k.c}" class="send">copy the link</a></figcaption></figure>`).join('');
   shelf.classList.add('on'); shelf.querySelector('.x').focus();
 }
 const closeShelf = () => shelf.classList.remove('on');
@@ -2405,10 +2569,10 @@ async function makeCard(only){
   let horoLines = [], factLines = [];                     // the reading's lines, counted first, so the disc leaves them room above the footer
   if (r) {
     c.font = `400 24px ${mono}`;
-    for (const t of r.horo) { const ls = wrapText(c, '// ' + t, MW); if (horoLines.length + ls.length > 8) break; horoLines.push(...ls); }
-    c.font = `400 21px ${mono}`; factLines = wrapText(c, r.veritas, MW).slice(0, 3);
+    for (const [c2, k2] of (r.pairs || [])) { if (horoLines.length + 2 > 10) break; horoLines.push(['# ' + c2, '#e4dfd2'], [k2, '#c2a27a']); }
+    factLines = [];
   }
-  const Dm = r ? Math.max(520, Math.min(760, 949 - 33*horoLines.length - 30*factLines.length)) : 800, ox = (W-Dm)/2, oy = r ? 56 : 64;
+  const Dm = r ? Math.max(520, Math.min(760, 1021 - 31*horoLines.length - 40)) : 800, ox = (W-Dm)/2, oy = r ? 56 : 64;
   try {
     cardFrame = true; cardMode = !!snap; cardSnap = snap;
     resize(); render();                                    // one frame: the whole disc in view, the glass clear; copied before it is ever shown
@@ -2455,22 +2619,23 @@ async function makeCard(only){
   let y = oy + Dm + (r ? 66 : 74);
   if (r) {
     c.font = `400 38px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.sky, L, y); y += 44;
-    c.font = `400 21px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText(('// ' + meaningOf(r.sky)).slice(0, 66), L, y); y += 40;
-    c.font = `400 15px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V A N I T A S', L, y); y += 32;
-    c.font = `400 24px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of horoLines) { c.fillText(ln, L, y); y += 33; }
-    y += 9; c.font = `400 15px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V E R I T A S', L, y); y += 30;
-    c.font = `400 21px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of factLines) { c.fillText(ln, L, y); y += 30; }
+    c.font = `400 21px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText(('# ' + meaningOf(r.sky)).slice(0, 66), L, y); y += 40;
+    c.font = `400 23px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText('universe = mirror(you)', L, y); y += 40;
+    c.font = `400 23px ${mono}`; for (const [ln, col] of horoLines) { c.fillStyle = col; c.fillText(ln, L, y); y += 31; }
+
   } else if (snap) {
     c.font = `italic 400 42px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(snap.sp || '', L, y); y += 46;
-    c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(`a new form of life  ·  ${(snap.ord ?? 0)+1} of 7  ·  ${date}`, L, y); y += 62;
-    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, '// ' + lineOf(li), MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
+    c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(`a new form of life  ·  ${date}`, L, y);
+    for (let j = 0; j < LINES; j++) { c.fillStyle = j <= (snap.ord ?? 0) ? '#c2a27a' : '#5f6268'; c.fillRect(L + 470 + j*30, y - 8, 24, 3); }   // marks, not a count
+    y += 62;
+    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, '# ' + lineOf(li), MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
     c.font = `400 25px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of wrapText(c, codeOf(li), MW).slice(0, 2)) { c.fillText(ln, L, y); y += 34; }
   } else {
-    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText('// ' + POINT, L, y);
+    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText('# ' + POINT, L, y);
   }
   title(Hc-112);
   c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93';
-  c.fillText('// macrofluidic × __', L + 236, Hc-112);
+  c.fillText('# macrofluidic × __', L + 236, Hc-112);
   c.fillText(PUBLIC_TEXT, L, Hc-70);
   const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.9));
   return blob ? { blob, text: r ? `${r.sky}: ${meaningOf(r.sky)} ${r.horo[0]}` : snap ? `${snap.sp}. ${lineOf(li)}` : POINT } : null;
@@ -2489,8 +2654,8 @@ async function openSharer(only){
   const r = !Number.isInteger(only) && read.every(Boolean) ? (reading || (reading = readYou())) : null, li = Number.isInteger(only) ? only : lastRead, m = li >= 0 ? mem[li] : null;
   document.getElementById('shHead').textContent = r ? 'your reading' : 'a new form of life';
   document.getElementById('shText').innerHTML = r
-    ? `<p class="sp id">${r.sky}</p><p>// ${meaningOf(r.sky)}</p>` + r.horo.map((t) => `<p>// ${t}</p>`).join('') + String(r.veritas).replace(/\.$/, '').split('; ').map((t) => `<p class="f"># ${t}</p>`).join('')
-    : m ? `<p class="sp">${m.sp}</p><p>// ${lineOf(li)}</p><p class="f">${codeOf(li)}</p>` : '';
+    ? `<p class="sp id">${r.sky}</p><p># ${meaningOf(r.sky)}</p><p class="f">universe = mirror(you)</p>` + (r.pairs || []).map(([c2, k2]) => `<p># ${c2}</p><p class="f">${k2}</p>`).join('')
+    : m ? `<p class="sp">${m.sp}</p><p># ${lineOf(li)}</p><p class="f">${codeOf(li)}</p>` : '';
   document.getElementById('shCopy').textContent = 'copy the link'; document.getElementById('shSave').textContent = 'save the picture';
   document.getElementById('shShare').style.display = navigator.canShare && navigator.canShare({ files:[shareCard.file] }) ? '' : 'none';
   sharer.classList.add('on'); sharer.querySelector('.x').focus();
@@ -2526,8 +2691,8 @@ Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image()
   if (params.has('sky')) showSky(params.get('sky'));   // a sky someone sent
   if (skies.length) document.body.classList.add('skies');
   const preroll = Math.min(600, Math.max(0, parseFloat(params.get('t') ?? '6') || 0));
-  grow(2600);                                      // let the culture establish itself before anyone sees it
-  for (let i = 0; i < preroll*30; i++) step(1/30);
+  grow(REDUCED ? 2600 : 140);                      // barely begun: it grows out of the rim in the first seconds
+  prerolling = true; for (let i = 0; i < preroll*30; i++) step(1/30); prerolling = false;
   for (let i = 0; i < 40*30; i++) kuraStep(1/30, []);   // the beam has been coupling everyone since long before you came
   compose();
   last = performance.now();
