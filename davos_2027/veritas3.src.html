@@ -1009,7 +1009,7 @@ const glossHTML = (name) => String(name).split(/([ _])/).map((w) => { const lw =
   return g ? `<span class="la" title="${lw}: ${g}">${w}</span>` : w; }).join('');
 function skyNameOf(m, part, nv = 0, ti = -1){
   const still = m ? nounOf(m.a ?? m.sign) : '', noun = (nv && LATIN2[still] ? LATIN2[still] : (LATIN[still] || 'Speculum')).toLowerCase();
-  return [noun, (PARTS[part] || PARTS[0]).toLowerCase()].concat(ti >= 0 && HOURS[ti] ? [HOURS[ti][2]] : []).join('_');
+  return [noun, (PARTS[part] || PARTS[0]).toLowerCase()].join('_');   // the thing and what it did; never the hour you came (Kat: the time stays hidden)
 }
 const varOf = (sp) => String(sp || 'homo novus').toLowerCase().replace(/[^a-z]+/g, '_');
 const amt = (x) => x.toFixed(2).replace(/^0/, '');
