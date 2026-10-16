@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>macroverse</title>
+<meta name="description" content="Every youniverse grown in veri+as, in one space, each near the ones played most like it.">
+<meta property="og:title" content="macroverse">
+<meta property="og:description" content="Every youniverse grown in veri+as, in one space, each near the ones played most like it.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#030304">
+<link rel="icon" href="data:,">
+<meta name="color-scheme" content="dark">
+<style>
+  :root { --bone:#e4dfd2; --gold:#c2a27a; --ink:#030304; --dim:#8a8d93; --rim:#2a2c31;
+    --veil:rgba(3,3,4,.9);                                   /* the ink behind words that sit on stars */
+    --sheet:rgba(3,3,4,.94);
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; overflow:hidden; background:var(--ink); color:var(--dim); font:12.5px/1.75 var(--mono); -webkit-text-size-adjust:100%; }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  #sky { z-index:0; touch-action:none; cursor:grab; }
+  #sky.drag { cursor:grabbing; }
+  #sky.hot { cursor:pointer; }
+  #fx { z-index:1; pointer-events:none; }
+  a, button { font:inherit; }
+  :focus-visible { outline:1px solid var(--gold); outline-offset:3px; }
+  /* the name of the piece, and what this is, in one line of its code */
+  header { position:fixed; left:24px; top:20px; z-index:3; padding:2px 4px; background:var(--veil); box-shadow:0 0 36px 18px var(--veil); pointer-events:none; }
+  #piece { pointer-events:auto; font-size:13px; letter-spacing:.32em; color:var(--bone); text-decoration:none; }
+  #piece i { font-style:normal; color:var(--gold); }
+  #piece:hover, #piece:focus-visible { color:var(--gold); }
+  header code { display:block; margin-top:2px; font:inherit; font-size:11px; line-height:1.6; color:var(--gold); white-space:nowrap; }
+  /* home: your own youniverses, lit where they sit in everyone's; weverse: you and the ones sent to you */
+  nav { position:fixed; right:18px; top:14px; z-index:3; display:flex; gap:2px; }
+  .ic { display:inline-grid; place-items:center; width:40px; height:40px; margin:0; padding:0; border:0; border-radius:50%; background:var(--veil);
+    color:var(--dim); cursor:pointer; text-decoration:none; }
+  .ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .ic:hover, .ic:focus-visible { color:var(--bone); }
+  .ic[aria-pressed="true"] { color:var(--gold); box-shadow:inset 0 0 0 1px rgba(194,162,122,.55); }
+  /* your youniverses, named where they are */
+  #labs { position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+  .lab { position:absolute; left:0; top:0; margin:0; padding:0 5px; border:0; border-radius:0; background:var(--veil); box-shadow:0 0 6px 2px var(--veil);
+    color:var(--gold); font-size:11px; line-height:18px; white-space:nowrap; cursor:pointer; pointer-events:auto; will-change:transform; transition:opacity .3s; }
+  .lab.off { opacity:0; pointer-events:none; }
+  .lab:focus-visible { opacity:1; }
+  .lab:hover, .lab.on { color:var(--bone); }
+  #tip { position:fixed; left:0; top:0; z-index:5; padding:0 5px; background:var(--veil); box-shadow:0 0 6px 2px var(--veil); color:var(--bone);
+    font-size:11px; line-height:18px; white-space:nowrap; pointer-events:none; }
+  /* one youniverse, open: what it means, its name, its neighbours, and the way back in. Read like code. */
+  #card { position:fixed; left:24px; bottom:24px; z-index:4; width:min(380px, calc(100vw - 48px)); max-height:calc(100vh - 128px); overflow:auto;
+    padding:16px 20px 10px; background:var(--sheet); box-shadow:0 0 48px 20px var(--sheet); overscroll-behavior:contain; text-align:left; }
+  #card .x { position:absolute; top:2px; right:4px; width:36px; height:36px; padding:0; background:none; border:0; color:var(--dim); font:400 20px/1 var(--mono); cursor:pointer; }
+  #card .x:hover, #card .x:focus-visible { color:var(--bone); }
+  #card p { margin:0; padding-right:26px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  #cMean { color:var(--bone); }
+  #cMean span { display:block; }
+  #card .s { color:var(--gold); }
+  #cNear { margin-top:2px; white-space:pre; }
+  #cNear button { margin:0; padding:0; border:0; background:none; color:var(--gold); cursor:pointer; text-align:left; }
+  #cNear button:hover, #cNear button:focus-visible { color:var(--bone); }
+  #cOpen { margin:6px 0 0 -10px; color:var(--gold); background:none; }
+  #cOpen:hover, #cOpen:focus-visible { color:var(--bone); }
+  @media (max-width:640px) {
+    header { left:16px; top:14px; padding:2px 0; }
+    header code { font-size:10.5px; }
+    nav { right:12px; top:8px; gap:0; }
+    #card { left:0; right:0; bottom:0; width:auto; max-height:46vh; padding:14px 16px calc(8px + env(safe-area-inset-bottom));
+      box-shadow:0 -12px 24px 4px var(--sheet); border-top:1px solid var(--rim); }
+    #card .x { top:4px; right:6px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .lab { transition:none; } }
+</style>
+</head>
+<body>
+<canvas id="sky" role="img" aria-label="the macroverse: every youniverse grown in veri+as, in one space, each near the ones played most like it"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+<header><a id="piece" href="veritas3.html">veri<i>+</i>as</a><code>macroverse = [youniverse(you) for you in us]</code></header>
+<nav>
+  <button id="weBtn" class="ic" type="button" aria-pressed="false" aria-label="weverse: you and your friends" title="weverse" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14" r="1.9" fill="currentColor" stroke="none"/><circle cx="13.4" cy="12.2" r="1.9" fill="currentColor" stroke="none"/></svg></button>
+  <button id="homeBtn" class="ic" type="button" aria-pressed="false" aria-label="home: your youniverses" title="home" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="13.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14.5" r="2" fill="currentColor" stroke="none"/></svg></button>
+</nav>
+<div id="labs"></div>
+<div id="tip" hidden></div>
+<aside id="card" aria-label="a youniverse" hidden>
+  <button class="x" type="button" aria-label="close">&times;</button>
+  <p id="cMean"></p>
+  <p id="cName"></p>
+  <p id="cNear"></p>
+  <a id="cOpen" class="ic" href="veritas3.html" aria-label="open it" title="open it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5h6v6M19.5 4.5 11 13M17.5 14v5.5h-13v-13H10"/></svg></a>
+</aside>
+<script>
+// ---- the macroverse. Every finished play of veri+as is one youniverse. Each one is tied to the few plays most like it, measured
+// the way the mirror measures you, and the ties pull them into clusters and filaments, the way galaxies gather. Nothing here
+// sorts anyone into a type: whatever shape there is appears after the fact, from the plays alone.
+// Far off, a youniverse is a point of light. Near, it is its fingerprint: its seven stars, flat, joined in the order found.
+// Opened, the fingerprint folds, like paper, into the sky it lifted into at the end of its play, ringed by its culture.
+// It only reads: the public study record on the relays, and the youniverses kept on this device. It sends nothing.
+(() => {
+'use strict';
+const params = new URLSearchParams(location.search);
+const DEMO = Math.max(0, Math.min(3000, parseInt(params.get('demo') || '0', 10) || 0));   // ?demo=N: a made-up macroverse to look at
+const TESTS = params.has('tests');                                                       // test plays stay out unless asked for
+const WANT = (params.get('u') || '').toLowerCase().replace(/[^a-z_]/g, '');              // ?u=name: the piece sends you to one
+const HOME = params.has('home');                                                         // ?home: the piece sends you to your own
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net'];
+const STUDY_KIND = 30078, STUDY_TAG = 'veritas-play';
+const CAP = 5000, K = 4, BASIN_R = 0.395, LINES = 7, TAU = Math.PI*2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
+const smooth = (a, b, x) => { const t = clamp((x - a)/(b - a), 0, 1); return t*t*(3 - 2*t); };
+const ease = (t) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(2 - 2*t, 3)/2;
+
+// ---- the names, as the piece gives them (the same tables, so a name means here what it means there)
+const NOUNS = ['mask','lattice','laugh','sleeper','dreamer','gilt','goldeye','froth','hive','profile','skull','vial','waking','bottle','jaw','burst',
+               'kiss','stipple','bubble','daisy','bloom','heart','obsidian','melt','foam','orb','pale','crust','pearl','pumice','bone','pores'];
+const LATIN = { mask:'Larva', lattice:'Clathrus', laugh:'Risus', sleeper:'Somnus', dreamer:'Somnium', gilt:'Aurum', goldeye:'Oculus', froth:'Halitus',
+  hive:'Alveus', profile:'Vultus', skull:'Calva', vial:'Ampulla', waking:'Vigilia', bottle:'Lagena', jaw:'Mandibula', burst:'Fulgor', kiss:'Osculum',
+  stipple:'Punctum', bubble:'Bulla', daisy:'Bellis', bloom:'Flos', heart:'Cor', obsidian:'Umbra', melt:'Liquor', foam:'Spuma', orb:'Orbis',
+  pale:'Pallor', crust:'Crusta', pearl:'Margarita', pumice:'Pumex', bone:'Os', pores:'Cribrum', face:'Facies', flower:'Flos' };
+const PARTS = ['Nascens','Manens','Fugiens','Morans','Transiens','Quaerens','Videns','Errans','Exspectans','Rapiens','Lavans','Agitans','Tacens','Tangens',
+  'Socians','Amplectens','Tenens','Rediens','Revertens','Vertens','Intendens','Mutans','Constans','Attendens','Cernens','Patens','Respondens','Fingens',
+  'Meridians','Convertens',
+  // more for each measure's end (drafted, then checked by a Latinist pass: real present participles, nominative singular)
+  'Perdurans','Retinens','Desinens','Fruens','Habitans','Volitans','Dimittens','Collineans','Vagans','Perveniens','Contemplans','Opperiens','Inveniens','Inaurans','Undans','Commovens','Quiescens','Temptans','Comitans','Circumdans','Stans','Revisens','Remeans','Lustrans','Spectans','Varians','Sequens','Intuens','Percipiens','Apparens','Solvens','Ludens','Occurrens','Revelans'];
+const PART_MORE = {"longest.hi": ["Perdurans", "Retinens"], "longest.lo": ["Desinens"], "stay.hi": ["Fruens", "Habitans"], "stay.lo": ["Volitans"], "letgo.hi": ["Dimittens"], "direct.hi": ["Collineans"], "direct.lo": ["Vagans", "Perveniens"], "seek.hi": ["Contemplans", "Opperiens"], "seek.lo": ["Inveniens"], "scrubs.hi": ["Inaurans"], "stir.hi": ["Undans", "Commovens"], "stir.lo": ["Quiescens"], "wiped.hi": ["Temptans"], "together.hi": ["Comitans"], "hull.hi": ["Circumdans"], "hull.lo": ["Stans"], "cross.hi": ["Revisens"], "closure.lo": ["Remeans"], "sectors.hi": ["Lustrans"], "sectors.lo": ["Spectans"], "turn.hi": ["Varians"], "turn.lo": ["Sequens"], "minutes.hi": ["Intuens"], "minutes.lo": ["Percipiens"], "you.hi": ["Apparens"], "we.hi": ["Solvens"], "knobs.hi": ["Ludens"], "noon.hi": ["Occurrens"], "flipped.hi": ["Revelans"]};
+const LATIN2 = {"mask": "persona", "lattice": "reticulum", "laugh": "cachinnus", "sleeper": "sopor", "dreamer": "phantasma", "gilt": "corona", "goldeye": "anulus", "froth": "nebula", "hive": "favus", "profile": "imago", "skull": "cranium", "vial": "guttus", "waking": "lumen", "bottle": "vitrum", "jaw": "rictus", "burst": "scintilla", "kiss": "basium", "stipple": "macula", "bubble": "globus", "daisy": "ocellus", "bloom": "corolla", "heart": "medulla", "obsidian": "caligo", "melt": "cera", "foam": "unda", "orb": "nimbus", "pale": "candor", "crust": "cortex", "pearl": "unio", "pumice": "favilla", "bone": "caput", "pores": "foramen"};
+const HOURS = [[23, 3, "noctis", "by night"], [3, 5, "gallicinii", "at cockcrow"], [5, 7, "diluculi", "at first light"], [7, 11, "mane", "in the morning"], [11, 14, "meridiei", "at midday"], [14, 17, "nonae", "at the ninth hour"], [17, 20, "vesperi", "at evening"], [20, 23, "concubii", "at first sleep"]];
+const EN_NOUN = { Larva:'the mask', Clathrus:'the lattice', Risus:'the laugh', Somnus:'sleep', Somnium:'the dream', Aurum:'gold', Oculus:'the eye', Halitus:'the breath',
+  Alveus:'the hive', Vultus:'the face', Calva:'the skull', Ampulla:'the vial', Vigilia:'the waking', Lagena:'the flask', Mandibula:'the jaw', Fulgor:'the gleam',
+  Osculum:'the kiss', Punctum:'the point', Bulla:'the bubble', Bellis:'the daisy', Flos:'the flower', Cor:'the heart', Umbra:'the shadow', Liquor:'the liquid',
+  Spuma:'the foam', Orbis:'the orb', Pallor:'the pallor', Crusta:'the crust', Margarita:'the pearl', Pumex:'the pumice', Os:'the bone', Cribrum:'the sieve',
+  Facies:'the face', Speculum:'the mirror' };
+const EN_PART = { Nascens:'is being born', Manens:'remains', Fugiens:'flees', Morans:'lingers', Transiens:'passes', Quaerens:'seeks', Videns:'sees',
+  Errans:'wanders', Exspectans:'waits', Rapiens:'seizes', Lavans:'washes', Agitans:'stirs', Tacens:'keeps silent', Tangens:'touches', Socians:'joins',
+  Amplectens:'embraces', Tenens:'holds', Rediens:'returns', Revertens:'turns back', Vertens:'turns', Intendens:'is intent', Mutans:'changes',
+  Constans:'stands fast', Attendens:'attends', Cernens:'discerns', Patens:'lies open', Respondens:'answers', Fingens:'shapes', Meridians:'rests at noon',
+  Convertens:'turns around' };
+const NOUN_EN = Object.assign(Object.fromEntries(Object.entries(EN_NOUN).map(([k, v]) => [k.toLowerCase(), v])), {"persona": "the mask", "reticulum": "the little net", "cachinnus": "the loud laugh", "sopor": "the deep sleep", "phantasma": "the phantom", "corona": "the crown", "anulus": "the ring", "nebula": "the mist", "favus": "the honeycomb", "imago": "the likeness", "cranium": "the skull", "guttus": "the narrow flask", "lumen": "the eye's light", "vitrum": "the glass", "rictus": "the gape", "scintilla": "the spark", "basium": "the kiss", "macula": "the spot", "globus": "the globe", "ocellus": "the little eye", "corolla": "the garland", "medulla": "the marrow", "caligo": "the gloom", "cera": "the wax", "unda": "the wave", "nimbus": "the halo", "candor": "the whiteness", "cortex": "the rind", "unio": "the pearl", "favilla": "the ember", "caput": "the head", "foramen": "the opening"});
+const PART_EN = Object.assign(Object.fromEntries(Object.entries(EN_PART).map(([k, v]) => [k.toLowerCase(), v])), {"perdurans": "endures", "retinens": "holds on", "desinens": "leaves off", "fruens": "savours", "habitans": "dwells", "volitans": "flits on", "dimittens": "lets go", "collineans": "aims true", "vagans": "wanders", "perveniens": "arrives at last", "contemplans": "looks long", "opperiens": "bides its time", "inveniens": "finds", "inaurans": "gilds", "undans": "surges", "commovens": "stirs", "quiescens": "keeps still", "temptans": "tests by touch", "comitans": "keeps company", "circumdans": "encircles", "stans": "stands its ground", "revisens": "revisits", "remeans": "comes home", "lustrans": "looks all around", "spectans": "faces one way", "varians": "varies", "sequens": "follows", "intuens": "gazes", "percipiens": "takes it in", "apparens": "shows itself", "solvens": "solves", "ludens": "plays", "occurrens": "goes to meet", "revelans": "unveils"});
+const HOUR_EN = Object.fromEntries(HOURS.map((h) => [h[2], h[3]]));
+const meaningOf = (name) => { const t = String(name).toLowerCase().split(/[ _]/), n = NOUN_EN[t[0]], v = PART_EN[t[1]], h = t[2] ? HOUR_EN[t[2]] : '';
+  return n && v ? `${n} that ${v}${h ? ', ' + h : ''}.` : ''; };
+
+// ---- what each measure is, and where it usually sits (the piece's own guesses: base and scale)
+const SAL = [
+  { k:'longest', w:['Manens','Fugiens'], base:5, scale:6 }, { k:'stay', w:['Morans','Transiens'], base:1.2, scale:2 },
+  { k:'letgo', w:['Quaerens',null], base:1, scale:1.5 }, { k:'direct', w:['Videns','Errans'], base:0.6, scale:0.18 },
+  { k:'seek', w:['Exspectans','Rapiens'], base:3.5, scale:2.5 }, { k:'scrubs', w:['Lavans',null], base:8, scale:18 },
+  { k:'stir', w:['Agitans','Tacens'], base:4, scale:6 }, { k:'wiped', w:['Tangens',null], base:0.5, scale:2.5 },
+  { k:'together', w:['Socians',null], base:0, scale:1 }, { k:'hull', w:['Amplectens','Tenens'], base:0.18, scale:0.08 },
+  { k:'cross', w:['Rediens',null], base:1, scale:1.5 }, { k:'closure', w:[null,'Revertens'], base:0.6, scale:0.25 },
+  { k:'sectors', w:['Vertens','Intendens'], base:5, scale:1.4 }, { k:'turn', w:['Mutans','Constans'], base:1.4, scale:0.5 },
+  { k:'minutes', w:['Attendens','Cernens'], base:6, scale:4 }, { k:'you', w:['Patens',null], base:0, scale:4 },
+  { k:'we', w:['Respondens',null], base:0, scale:1.2 }, { k:'knobs', w:['Fingens',null], base:0, scale:1.4 },
+  { k:'noon', w:['Meridians',null], base:0, scale:0.7 }, { k:'flipped', w:['Convertens',null], base:0, scale:1 },
+];
+const SHAPE = new Set(['hull', 'sectors', 'turn', 'cross', 'closure']);   // these are read from the constellation itself
+
+// the shape of a constellation, measured exactly as the mirror measures it
+function shapeOf(pts){
+  const n = pts.length;
+  const sectors = new Set(pts.map((p) => Math.floor(((Math.atan2(p[1], p[0]) + Math.PI)/(2*Math.PI))*8) % 8)).size;
+  let turn = 0, turns = 0;
+  for (let i = 1; i+1 < n; i++) {
+    const a1 = Math.atan2(pts[i][1]-pts[i-1][1], pts[i][0]-pts[i-1][0]), a2 = Math.atan2(pts[i+1][1]-pts[i][1], pts[i+1][0]-pts[i][0]);
+    let d = Math.abs(a2-a1); if (d > Math.PI) d = 2*Math.PI-d; turn += d; turns++;
+  }
+  const ccw = (A, B, C) => (C[1]-A[1])*(B[0]-A[0]) > (B[1]-A[1])*(C[0]-A[0]);
+  let cross = 0;
+  for (let i = 0; i+1 < n; i++) for (let j = i+2; j+1 < n; j++) if (ccw(pts[i], pts[j], pts[j+1]) !== ccw(pts[i+1], pts[j], pts[j+1]) && ccw(pts[i], pts[i+1], pts[j]) !== ccw(pts[i], pts[i+1], pts[j+1])) cross++;
+  let hull = 0;
+  if (n >= 3) {
+    const q = pts.slice().sort((a, b) => a[0]-b[0] || a[1]-b[1]), cr = (o, a, b) => (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+    const lo = [], up = [];
+    for (const p of q) { while (lo.length >= 2 && cr(lo[lo.length-2], lo[lo.length-1], p) <= 0) lo.pop(); lo.push(p); }
+    for (const p of q.slice().reverse()) { while (up.length >= 2 && cr(up[up.length-2], up[up.length-1], p) <= 0) up.pop(); up.push(p); }
+    const h = lo.slice(0, -1).concat(up.slice(0, -1));
+    for (let i = 0; i < h.length; i++) { const a = h[i], b = h[(i+1) % h.length]; hull += a[0]*b[1]-b[0]*a[1]; }
+    hull = Math.abs(hull)/2/(Math.PI*BASIN_R*BASIN_R);
+  }
+  return { hull, sectors, turn: turns ? turn/turns : 0, cross, closure: Math.hypot(pts[0][0]-pts[n-1][0], pts[0][1]-pts[n-1][1])/BASIN_R };
+}
+// a youniverse as a list of numbers: how far each measure sits from usual, in its own units. Missing ones sit at usual.
+function vectorOf(f, path){
+  const sh = path && path.length >= 3 ? shapeOf(path) : null, v = new Float32Array(SAL.length);
+  SAL.forEach((s, i) => {
+    const raw = SHAPE.has(s.k) && sh ? sh[s.k] : f ? f[s.k] : undefined, x = +raw;
+    v[i] = raw === undefined || raw === null || !Number.isFinite(x) ? 0 : clamp((x - s.base)/s.scale, -3, 3);
+  });
+  return v;
+}
+const distOf = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) { const e = a[i]-b[i]; s += e*e; } return Math.sqrt(s); };
+// how far into it the play went: every form of life found, the minutes, being seen, the riddles
+function depthOf(f){
+  if (!f) return 0.3;
+  const finds = clamp((+f.finds || 0)/LINES, 0, 1), mins = clamp((+f.minutes || 0)/12, 0, 1), you = (+f.you || 0) > 0 ? 1 : 0;
+  const more = (+f.we || 0) + (+f.flipped || 0) + (+f.noon || 0) + (+f.knobs || 0) > 0 ? 1 : 0;
+  return clamp(0.35*finds + 0.3*Math.sqrt(mins) + 0.2*you + 0.15*more, 0, 1);
+}
+
+// ---- chance, fixed by a name: the same play is always the same star
+const hashStr = (s) => { let h = 2166136261 >>> 0; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+const rngOf = (seed) => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0)/4294967296; }; };
+const gauss = (r) => { let u = 0; while (!u) u = r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r()); };
+
+// ---- a star's look: most warm gold, some redder, some whiter; many faint and a few bright, like a real sky
+const TINTS = [[236,214,178], [242,224,194], [228,196,152], [247,240,226], [252,248,240], [232,176,134], [222,152,116], [240,204,164]];
+const TINT_W = [0.2, 0.2, 0.14, 0.12, 0.07, 0.1, 0.06, 0.11];
+const GOLD = [194, 162, 122], BONE = [228, 223, 210];
+function lookOf(key, depth){
+  const r = rngOf(hashStr(key));
+  let t = r(), tint = 0; while (tint < TINTS.length-1 && t > TINT_W[tint]) { t -= TINT_W[tint]; tint++; }
+  return { tint, bright: 0.4 + 0.6*Math.pow(r(), 2.4), size: (4 + 4.5*Math.pow(r(), 2))*(1 + 0.5*depth), tw: 0.5 + 1.3*r(), ph: r()*Math.PI*2 };
+}
+function sprite(rgb, core){
+  const s = 64, c = document.createElement('canvas'); c.width = c.height = s;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  gr.addColorStop(0, `rgba(${core},1)`); gr.addColorStop(0.08, `rgba(${rgb},1)`); gr.addColorStop(0.22, `rgba(${rgb},.42)`);
+  gr.addColorStop(0.5, `rgba(${rgb},.09)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+  g.fillStyle = gr; g.fillRect(0, 0, s, s); return c;
+}
+// a star in a constellation, drawn as the piece's card draws it: white at the heart, bone, then gold, then nothing
+const GLOW = (() => { const s = 64, c = document.createElement('canvas'); c.width = c.height = s; const g = c.getContext('2d'), gr = g.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  gr.addColorStop(0, 'rgba(255,250,238,1)'); gr.addColorStop(0.16, 'rgba(244,226,190,0.95)'); gr.addColorStop(0.45, 'rgba(194,162,122,0.28)'); gr.addColorStop(1, 'rgba(194,162,122,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, s, s); return c; })();
+let SPR = null, SPR_OWN = null, SPR_FRIEND = null;                       // only drawn without WebGL
+const sprites = () => { if (SPR) return; SPR = TINTS.map((t) => sprite(t, [255, 252, 246])); SPR_OWN = sprite(GOLD, [255, 236, 204]); SPR_FRIEND = sprite(BONE, [255, 255, 255]); };
+
+// ---- the culture: two numbers, f (how fast food is poured back in) and k (how fast what lives is taken away). The piece colours it
+// by where f stands: gold in the middle, toward red the less it is fed, toward white the more. The same colour here.
+const CULT_G = [0.62, 0.40, 0.20], CULT_R = [0.62, 0.12, 0.07], CULT_W = [0.92, 0.88, 0.80], CULT0 = [0.031, 0.060];
+function cultureRgb(cul){
+  if (!cul) return GOLD.slice();
+  const sv = clamp((cul[0] - CULT0[0])/0.014, -1, 1);
+  return [0, 1, 2].map((j) => { const t = sv < 0 ? CULT_G[j] + (CULT_R[j]-CULT_G[j])*(-sv) : CULT_G[j] + (CULT_W[j]-CULT_G[j])*sv; return Math.round(255*Math.pow(Math.min(1, t*1.25), 1/2.2)); });
+}
+const HOLES = ['still', 'spinning', 'quasar', 'torn', 'merging', 'pulsar', 'supernova', 'white'];
+
+// ---- a sky's code (the 51 or 52 characters after ?sky=), read just far enough for its seven stars, their seeds, and its name
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+function decode(str){
+  if (!/^[A-Za-z0-9_-]{51,52}$/.test(str || '')) return null;
+  let bits = ''; for (const ch of str) bits += B64.indexOf(ch).toString(2).padStart(6, '0');
+  let o = 0; const take = (n) => { const v = parseInt(bits.slice(o, o+n), 2); o += n; return v; };
+  const ver = take(3); if (!(ver === 1 && str.length === 51) && !(ver === 2 && str.length === 52)) return null;
+  const ci = take(3), part = take(6), nv = ver === 2 ? take(1) : 0, ti = ver === 2 ? take(3) : -1, path = [], stills = [], seeds = [];
+  let faces = 0;
+  for (let k = 0; k < LINES; k++) {
+    const x = take(6)/63*0.8-0.4, y = take(6)/63*0.8-0.4; take(3); const a = take(5); take(5); faces += take(1); take(12); const s = take(4);
+    path.push([x, y]); stills.push(a); seeds.push(s);
+  }
+  const still = NOUNS[stills[Math.min(ci, LINES-1)] % NOUNS.length];
+  const noun = (nv && LATIN2[still] ? LATIN2[still] : (LATIN[still] || 'Speculum')).toLowerCase();
+  return { path, seeds, faces, name: [noun, (PARTS[part] || PARTS[0]).toLowerCase()].join('_') };   // names never carry the hour (as in the piece)
+}
+const cleanName = (s) => typeof s === 'string' && /^[a-z]+(_[a-z]+){1,3}$/.test(s.toLowerCase()) ? s.toLowerCase() : '';
+const cleanCode = (s) => typeof s === 'string' && /^[A-Za-z0-9_-]{51,52}$/.test(s) ? s : '';
+function cleanPath(p){
+  if (!Array.isArray(p) || p.length < 2) return null;
+  const out = [];
+  for (const q of p.slice(0, LINES)) { if (!Array.isArray(q)) return null; const x = +q[0], y = +q[1]; if (!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(x) > 0.5 || Math.abs(y) > 0.5) return null; out.push([x, y]); }
+  return out;
+}
+const cleanF = (f) => f && typeof f === 'object' && !Array.isArray(f) ? f : null;
+const cleanCul = (c) => { if (!Array.isArray(c) || c.length < 2) return null; const f = +c[0], k = +c[1];
+  return Number.isFinite(f) && Number.isFinite(k) && f > 0.004 && f < 0.12 && k > 0.02 && k < 0.09 ? [f, k] : null; };
+const cleanHole = (h) => { const s = typeof h === 'string' ? h.toLowerCase().trim() : ''; return HOLES.includes(s) ? s : ''; };
+const varOf = (sp) => String(sp || 'homo novus').toLowerCase().replace(/[^a-z]+/g, '_');
+const nameOf = (u) => u.name || (u.sp && u.sp[0] ? varOf(u.sp[0]) : 'universe_' + (hashStr(u.key) % 4096).toString(16));
+const seedsOf = (key) => { const r = rngOf(hashStr(key) ^ 0x51ed); return Array.from({ length: LINES }, () => Math.floor(r()*16)); };
+
+// ---- the youniverses, and the threads between them: each one tied to the K most like it
+const U = [];                      // every youniverse placed so far
+const byKey = new Map();           // its record (d tag) -> index
+const byName = new Map();          // its name -> index, the first one to carry it
+const localByCode = new Map(), localByName = new Map();   // the ones kept on this device, waiting for their record
+const ownIdx = [], friendIdx = [];  // yours, in the order you grew them; the ones sent to you
+const links = new Map();           // a thread, counted from both ends
+let linkList = [], linksDirty = true, dRef = 1;
+const deg = new Uint16Array(CAP);
+const lkey = (a, b) => a < b ? a*8192 + b : b*8192 + a;
+function addRef(a, b, d){ const k = lkey(a, b); let l = links.get(k); if (!l) { l = { a: Math.min(a, b), b: Math.max(a, b), ref: 0, d }; links.set(k, l); } l.ref++; linksDirty = true; }
+function dropRef(a, b){ const k = lkey(a, b), l = links.get(k); if (!l) return; if (--l.ref <= 0) links.delete(k); linksDirty = true; }
+function insertSorted(list, e){ let at = list.length; while (at > 0 && list[at-1].d > e.d) at--; list.splice(at, 0, e); }
+// a youniverse arrives: it finds its nearest, and becomes the nearest of any it is closer to than their own
+function place(i){
+  const u = U[i], best = [];
+  for (let j = 0; j < U.length; j++) {
+    if (j === i) continue;
+    const d = distOf(u.vec, U[j].vec);
+    if (best.length < K || d < best[best.length-1].d) { insertSorted(best, { j, d }); if (best.length > K) best.pop(); }
+    const kj = U[j].knn;
+    if (kj.length < K || d < kj[kj.length-1].d) { insertSorted(kj, { j: i, d }); addRef(j, i, d); if (kj.length > K) dropRef(j, kj.pop().j); }
+  }
+  u.knn = best; for (const b of best) addRef(i, b.j, b.d);
+}
+// a youniverse learns more about itself (its record arrives): it lets go of its threads and finds them again
+function revector(i, vec){
+  const u = U[i];
+  for (const b of u.knn) dropRef(i, b.j);
+  u.knn = []; u.vec = vec;
+  for (let j = 0; j < U.length; j++) {
+    if (j === i) continue;
+    const kj = U[j].knn, at = kj.findIndex((e) => e.j === i);
+    if (at < 0) continue;
+    for (const b of kj) dropRef(j, b.j);
+    const best = [];
+    for (let m = 0; m < U.length; m++) { if (m === j || m === i) continue; const d = distOf(U[j].vec, U[m].vec); if (best.length < K || d < best[best.length-1].d) { insertSorted(best, { j: m, d }); if (best.length > K) best.pop(); } }
+    U[j].knn = best; for (const b of best) addRef(j, b.j, b.d);
+  }
+  place(i);
+}
+function rebuildLinks(){
+  linkList = [...links.values()]; deg.fill(0);
+  let s = 0; for (const l of linkList) { deg[l.a]++; deg[l.b]++; s += l.d; }
+  dRef = linkList.length ? Math.max(0.05, s/linkList.length) : 1;
+  linksDirty = false; glLinksDirty = true;
+}
+
+// ---- the pull, in three dimensions: threads draw like springs, every youniverse pushes the others away a little, and all drift
+// gently to the middle. Far groups push as one (Barnes-Hut, an octree), so three thousand cost about as much as a few hundred.
+let alpha = 0.6;
+const ALPHA_MIN = 0.003, ALPHA_DECAY = 0.0228, VKEEP = 0.6, THETA2 = 1, VMAX = 4;
+let ticks = 0, repelMs = 0;
+// close likenesses pull hard and short, far ones long and loose: knots, and filaments between them
+const P = { str: -25, center: 0.015, l0: 1, l1: 20, pow: 3, sk: 1.5 };
+let qcap = 0, qn = 0, qx0, qy0, qz0, qw, qm, qcx, qcy, qcz, qch, qb, qin;
+const nextB = new Int32Array(CAP), stack = new Int32Array(8192);
+function qgrow(){
+  const cap = Math.max(8192, qcap*2), cp = (A, T, n) => { const B = new T(n); if (A) B.set(A); return B; };
+  qx0 = cp(qx0, Float64Array, cap); qy0 = cp(qy0, Float64Array, cap); qz0 = cp(qz0, Float64Array, cap); qw = cp(qw, Float64Array, cap); qm = cp(qm, Float64Array, cap);
+  qcx = cp(qcx, Float64Array, cap); qcy = cp(qcy, Float64Array, cap); qcz = cp(qcz, Float64Array, cap); qch = cp(qch, Int32Array, cap*8); qb = cp(qb, Int32Array, cap); qin = cp(qin, Uint8Array, cap);
+  qcap = cap;
+}
+function qnew(x0, y0, z0, w){
+  if (qn >= qcap) qgrow();
+  const i = qn++; qch.fill(-1, 8*i, 8*i + 8); qb[i] = -1; qin[i] = 0; qm[i] = 0; qx0[i] = x0; qy0[i] = y0; qz0[i] = z0; qw[i] = w; return i;
+}
+function qchild(q, x, y, z){
+  const h = qw[q]/2, ix = x >= qx0[q] + h ? 1 : 0, iy = y >= qy0[q] + h ? 1 : 0, iz = z >= qz0[q] + h ? 1 : 0, c = 8*q + iz*4 + iy*2 + ix;
+  if (qch[c] === -1) { const nq = qnew(qx0[q] + ix*h, qy0[q] + iy*h, qz0[q] + iz*h, h); qch[c] = nq; }
+  return qch[c];
+}
+const PX = new Float64Array(CAP), PY = new Float64Array(CAP), PZ = new Float64Array(CAP);
+function qinsert(root, b){
+  const x = PX[b], y = PY[b], z = PZ[b]; let q = root;
+  for (let depth = 0; ; depth++) {
+    if (!qin[q]) {
+      const o = qb[q];
+      if (o === -1) { qb[q] = b; nextB[b] = -1; return; }
+      if ((PX[o] === x && PY[o] === y && PZ[o] === z) || depth > 40) { nextB[b] = o; qb[q] = b; return; }   // the same spot: they share a leaf
+      qin[q] = 1; qb[q] = -1;
+      const oq = qchild(q, PX[o], PY[o], PZ[o]); qb[oq] = o; nextB[o] = -1;
+    }
+    q = qchild(q, x, y, z);
+  }
+}
+function qsum(q){
+  let m = 0, sx = 0, sy = 0, sz = 0;
+  if (!qin[q]) { for (let b = qb[q]; b !== -1; b = nextB[b]) { m++; sx += PX[b]; sy += PY[b]; sz += PZ[b]; } }
+  else for (let c = 0; c < 8; c++) { const ch = qch[8*q+c]; if (ch !== -1) { qsum(ch); const mc = qm[ch]; m += mc; sx += qcx[ch]*mc; sy += qcy[ch]*mc; sz += qcz[ch]*mc; } }
+  qm[q] = m; qcx[q] = m ? sx/m : 0; qcy[q] = m ? sy/m : 0; qcz[q] = m ? sz/m : 0;
+}
+function repel(every){
+  const n = U.length; if (n < 2) return;
+  let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
+  for (let b = 0; b < n; b++) { const u = U[b], x = PX[b] = u.x, y = PY[b] = u.y, z = PZ[b] = u.z;
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; if (z < z0) z0 = z; if (z > z1) z1 = z; }
+  qn = 0; const root = qnew(x0 - 1, y0 - 1, z0 - 1, Math.max(x1 - x0, y1 - y0, z1 - z0) + 2);
+  for (let b = 0; b < n; b++) qinsert(root, b);
+  qsum(root);
+  const k = P.str*alpha*every;
+  for (let b = 0; b < n; b++) {
+    const x = PX[b], y = PY[b], z = PZ[b]; let fx = 0, fy = 0, fz = 0, sp = 0; stack[sp++] = root;
+    while (sp) {
+      const q = stack[--sp], m = qm[q]; if (!m) continue;
+      if (qin[q]) {
+        const dx = qcx[q] - x, dy = qcy[q] - y, dz = qcz[q] - z; let l = dx*dx + dy*dy + dz*dz; const w = qw[q];
+        if (w*w < l*THETA2) { if (l < 1) l = Math.sqrt(l); const s = m/l; fx += dx*s; fy += dy*s; fz += dz*s; }
+        else { const c8 = 8*q; for (let c = 0; c < 8; c++) { const ch = qch[c8+c]; if (ch !== -1 && sp < stack.length) stack[sp++] = ch; } }
+        continue;
+      }
+      for (let o = qb[q]; o !== -1; o = nextB[o]) {
+        if (o === b) continue;
+        let ex = PX[o] - x, ey = PY[o] - y, ez = PZ[o] - z, l2 = ex*ex + ey*ey + ez*ez;
+        if (l2 === 0) { ex = (Math.random()-0.5)*1e-3; ey = (Math.random()-0.5)*1e-3; ez = (Math.random()-0.5)*1e-3; l2 = ex*ex + ey*ey + ez*ez; }
+        if (l2 < 1) l2 = Math.sqrt(l2);
+        fx += ex/l2; fy += ey/l2; fz += ez/l2;
+      }
+    }
+    const u = U[b]; u.vx += fx*k; u.vy += fy*k; u.vz += fz*k;
+  }
+}
+function tick(){
+  if (alpha < ALPHA_MIN || !U.length) return;
+  alpha += (0 - alpha)*ALPHA_DECAY;
+  for (const l of linkList) {
+    const s = U[l.a], t = U[l.b], da = deg[l.a], db = deg[l.b];
+    let dx = t.x + t.vx - s.x - s.vx, dy = t.y + t.vy - s.y - s.vy, dz = t.z + t.vz - s.z - s.vz;
+    const q = clamp(l.d/dRef, 0.25, 2.2), d = Math.hypot(dx, dy, dz) || 1e-3, len = P.l0 + P.l1*Math.pow(q, P.pow);
+    const g = (d - len)/d*alpha*Math.min(1.8, Math.pow(q, -P.sk))/Math.min(da, db), bias = da/(da + db);
+    dx *= g; dy *= g; dz *= g; t.vx -= dx*bias; t.vy -= dy*bias; t.vz -= dz*bias; s.vx += dx*(1-bias); s.vy += dy*(1-bias); s.vz += dz*(1-bias);
+  }
+  // many on a slow device: push less often, and harder, so a frame never waits on the pull (about 5 ms of it per frame)
+  const every = U.length > 600 ? clamp(Math.ceil(repelMs/5), 1, 4) : 1;
+  if (++ticks % every === 0) { const t0 = performance.now(); repel(every); repelMs = 0.8*repelMs + 0.2*(performance.now() - t0); }
+  for (const u of U) {
+    u.vx -= u.x*P.center*alpha; u.vy -= u.y*P.center*alpha; u.vz -= u.z*P.center*alpha;
+    u.vx *= VKEEP; u.vy *= VKEEP; u.vz *= VKEEP;
+    const v = Math.hypot(u.vx, u.vy, u.vz); if (v > VMAX) { u.vx *= VMAX/v; u.vy *= VMAX/v; u.vz *= VMAX/v; }
+    u.x += u.vx; u.y += u.vy; u.z += u.vz;
+  }
+}
+
+// ---- arrivals. A youniverse is born beside the one most like it, flashes, and sends out a thin ring
+const queue = []; let queueSorted = true;
+const rings = [];
+let now = performance.now();
+let glStatDirty = true, glLinksDirty = true, famDirty = true;
+function admit(item){
+  if (U.length >= CAP) return -1;
+  const i = U.length, depth = depthOf(item.f);
+  const u = Object.assign({ name: '', f: null, path: null, seeds: null, sp: null, c: '', own: false, friend: false, d: '', rec: false, cul: null, hole: '', parent: '' }, item,
+    { vec: vectorOf(item.f, item.path), knn: [], depth, look: lookOf(item.key, depth), born: now, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, fp: 0 });
+  if (!u.seeds) u.seeds = seedsOf(item.key);
+  u.cc = cultureRgb(u.cul);
+  U.push(u); place(i);
+  const r = rngOf(hashStr(item.key) ^ 0x9e3779b9), cz = 2*r() - 1, a = r()*TAU, sz = Math.sqrt(1 - cz*cz);
+  if (u.knn.length) { const m = U[u.knn[0].j], rr = 2 + 4*r(); u.x = m.x + sz*Math.cos(a)*rr; u.y = m.y + cz*rr; u.z = m.z + sz*Math.sin(a)*rr; }
+  else { const rr = 30*Math.cbrt(r()); u.x = sz*Math.cos(a)*rr; u.y = cz*rr; u.z = sz*Math.sin(a)*rr; }
+  alpha = Math.max(alpha, U.length < 12 ? 0.5 : 0.12);           // the web stirs, gently, to make room
+  if (!REDUCED && rings.length < 48) rings.push({ i, t0: now });
+  if (item.key) byKey.set(item.key, i);
+  if (u.name && !byName.has(u.name)) byName.set(u.name, i);
+  if (u.own) { ownIdx.push(i); makeLabel(i); homeBtn.hidden = false; famDirty = true; }
+  if (u.friend) { friendIdx.push(i); weBtn.hidden = false; }
+  glStatDirty = true;
+  if (WANT && sel < 0 && u.name === WANT) select(i, 'url');
+  return i;
+}
+// a record we already hold, or one of yours, learns its full measures: it keeps its place and finds its threads again
+function merge(i, item){
+  const u = U[i];
+  if (item.key) byKey.set(item.key, i);
+  if (!u.name && item.name) { u.name = item.name; if (!byName.has(u.name)) byName.set(u.name, i); famDirty = true; }
+  if (item.f) u.f = item.f;
+  if (item.path) u.path = item.path;
+  if (item.c && !u.c) { u.c = item.c; const dec = decode(item.c); if (dec) u.seeds = dec.seeds; }
+  if (item.sp) u.sp = item.sp;
+  if (item.cul && !u.cul) { u.cul = item.cul; u.cc = cultureRgb(u.cul); }
+  if (item.hole && !u.hole) u.hole = item.hole;
+  u.rec = true; u.depth = depthOf(u.f);
+  const v = vectorOf(u.f, u.path);
+  if (distOf(v, u.vec) > 1e-6) { revector(i, v); alpha = Math.max(alpha, 0.1); }
+  if (i === sel) fillCard(i);
+}
+function arrive(item){
+  if (byKey.has(item.key)) return merge(byKey.get(item.key), item);
+  let li = item.c && localByCode.has(item.c) ? localByCode.get(item.c) : localByName.get(item.name);
+  if (li !== undefined && (U[li].rec || (item.c && U[li].c && item.c !== U[li].c))) li = undefined;
+  if (li !== undefined) return merge(li, item);
+  admit(item);
+}
+
+// ---- the public record: one anonymous record per play, on public relays. Read, never written.
+const seen = new Map();             // d tag -> newest created_at
+const queuedAt = new Map();         // d tag -> its item, while it waits its turn
+function take(ev){
+  if (!ev || ev.kind !== STUDY_KIND || typeof ev.content !== 'string' || ev.content.length > 40000 || !Array.isArray(ev.tags)) return;
+  const dt = ev.tags.find((t) => Array.isArray(t) && t[0] === 'd'), at = +ev.created_at || 0;
+  if (!dt || typeof dt[1] !== 'string' || !dt[1].startsWith(STUDY_TAG + ':') || !ev.tags.some((t) => Array.isArray(t) && t[0] === 't' && t[1] === STUDY_TAG)) return;
+  const d = dt[1].slice(0, 80);
+  if ((seen.get(d) || -1) >= at) return;           // keep only the newest of each play
+  seen.set(d, at);
+  let rec; try { rec = JSON.parse(ev.content); } catch (e) { return; }
+  if (!rec || typeof rec !== 'object' || rec.stage !== 'done' || (rec.test && !TESTS)) return;
+  const f = cleanF(rec.f), path = cleanPath(rec.path);
+  if (!f && !path) return;
+  const c = cleanCode(rec.c), dec = c ? decode(c) : null;
+  const item = { key: d, name: cleanName(rec.sky), f, path, c, seeds: dec ? dec.seeds : null, sp: Array.isArray(rec.sp) ? rec.sp.slice(0, LINES).map(String) : null,
+    cul: cleanCul(rec.cul), hole: cleanHole(rec.hole), at, rec: true };
+  if (queuedAt.has(d)) { Object.assign(queuedAt.get(d), item); return; }
+  if (byKey.has(d)) { merge(byKey.get(d), item); return; }
+  queuedAt.set(d, item); queue.push(item);
+  if (queue.length > 1 && queue[queue.length-2].at > at) queueSorted = false;
+}
+function drain(){
+  if (!queue.length) return;
+  if (!queueSorted) { queue.sort((a, b) => a.at - b.at); queueSorted = true; }   // the oldest plays first, so it grows the way it was played
+  const n = Math.max(3, Math.ceil(queue.length/60));
+  for (let k = 0; k < n && queue.length; k++) { const item = queue.shift(); queuedAt.delete(item.key); arrive(item); }
+}
+function listen(){
+  for (const url of RELAYS) {
+    const rl = { url, ws: null, tries: 0, newest: 0, pages: 0, got: 0, oldest: Infinity };
+    const open = () => {
+      let ws; try { ws = new WebSocket(url); } catch (e) { return later(); }
+      rl.ws = ws;
+      ws.onopen = () => {
+        rl.tries = 0; rl.got = 0; rl.pages = 0; rl.oldest = Infinity;
+        const filt = { kinds: [STUDY_KIND], '#t': [STUDY_TAG] };
+        if (rl.newest) filt.since = rl.newest - 600;         // back again: only what we missed
+        ws.send(JSON.stringify(['REQ', 'macroverse', filt]));
+      };
+      ws.onmessage = (m) => {
+        let d; try { d = JSON.parse(m.data); } catch (e) { return; }
+        if (!Array.isArray(d)) return;
+        if (d[0] === 'EVENT' && d[2] && typeof d[2] === 'object') {
+          const at = +d[2].created_at || 0;
+          if (at > rl.newest) rl.newest = at;
+          if (d[1] !== 'macroverse' || rl.pages === 0) { rl.got++; if (at < rl.oldest) rl.oldest = at; }
+          take(d[2]);
+        } else if (d[0] === 'EOSE') {
+          // a relay hands over a page at a time: when one comes back full, ask for the page before it
+          if (d[1] === 'mv-back') ws.send(JSON.stringify(['CLOSE', 'mv-back']));
+          if (rl.got >= 200 && rl.pages < 40 && Number.isFinite(rl.oldest)) {
+            rl.pages++; rl.got = 0;
+            ws.send(JSON.stringify(['REQ', 'mv-back', { kinds: [STUDY_KIND], '#t': [STUDY_TAG], until: rl.oldest, limit: 500 }]));
+          }
+        }
+      };
+      ws.onclose = () => { if (rl.ws === ws) later(); };
+      ws.onerror = () => {};
+    };
+    const later = () => {                                     // the relay went away: try again, more slowly each time
+      rl.ws = null;
+      const wait = Math.min(120000, 3000*Math.pow(2, rl.tries))*(0.75 + Math.random()*0.5);
+      rl.tries = Math.min(rl.tries + 1, 8);
+      setTimeout(open, wait);
+    };
+    open();
+  }
+}
+
+// ---- the ones kept on this device: yours, and the ones sent to you. Read here, never sent anywhere.
+function readLocal(key){ try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function keepLocal(e, kind){
+  if (!e || typeof e !== 'object') return;
+  const c = cleanCode(e.c), dec = c ? decode(c) : null, f = cleanF(e.f) || (dec ? { you: dec.faces } : null), path = cleanPath(e.p) || (dec ? dec.path : null);
+  if (!f && !path) return;
+  const name = cleanName(e.n) || (dec ? dec.name : '');
+  if (c && localByCode.has(c)) return;
+  const i = admit({ key: kind + ':' + (c || name), name, f, path, c, seeds: dec ? dec.seeds : null, own: kind === 'own', friend: kind === 'friend',
+    d: typeof e.d === 'string' ? e.d.slice(0, 10) : '', cul: cleanCul(e.cul), hole: cleanHole(e.hole), parent: kind === 'own' ? cleanName(e.parent) : '' });
+  if (i < 0) return;
+  if (c) localByCode.set(c, i);
+  if (name && !localByName.has(name)) localByName.set(name, i);
+}
+// your family: each of yours drawn from the one it was born from; one without a parent follows the one grown before it
+let family = [];
+function buildFamily(){
+  family = [];
+  ownIdx.forEach((i, k) => {
+    const p = U[i].parent; let j = -1;
+    if (p) j = ownIdx.find((o) => o !== i && U[o].name === p) ?? (byName.has(p) ? byName.get(p) : -1);
+    if (j === undefined || j === i) j = -1;
+    if (j < 0 && k > 0) j = ownIdx[k-1];
+    if (j >= 0) family.push([j, i]);
+  });
+  famDirty = false;
+}
+
+// ---- ?demo=N: a made-up macroverse, for looking at before the real one is big. Loose clusters, real names, arriving over 20 s.
+const demoDue = [];
+function makeDemo(n){
+  const r = rngOf(20270118 + n), taken = new Set(), D = SAL.length;
+  const styles = Array.from({ length: 7 }, () => {
+    const z = new Float32Array(D); for (let i = 0; i < D; i++) z[i] = gauss(r)*0.35;
+    for (let k = 0; k < 4; k++) { const i = Math.floor(r()*D); z[i] = (r() < 0.5 ? -1 : 1)*(1.2 + 1.2*r()); }
+    return { z, spread: 0.25 + 0.75*r(), order: ['ring', 'line', 'loose'][Math.floor(r()*3)], hour: Math.floor(r()*24) };
+  });
+  const hourIdx = (h) => Math.max(0, HOURS.findIndex(([a, b]) => a < b ? h >= a && h < b : h >= a || h < b));
+  const fakeF = (z) => {
+    const f = { finds: LINES };
+    SAL.forEach((s, i) => { if (!SHAPE.has(s.k)) f[s.k] = s.base + z[i]*s.scale; });
+    for (const k of ['letgo', 'scrubs', 'together', 'you']) f[k] = Math.max(0, Math.round(f[k]));
+    for (const k of ['we', 'knobs', 'noon', 'flipped']) f[k] = f[k] > 0.6 ? 1 : 0;
+    for (const k of ['longest', 'stay', 'seek', 'stir', 'wiped', 'minutes']) f[k] = Math.max(0.1, Math.round(f[k]*100)/100);
+    f.you = Math.min(LINES, f.you); f.direct = clamp(Math.round(f.direct*100)/100, 0.05, 1); f.holds = LINES + f.letgo;
+    return f;
+  };
+  // the culture each play would have pushed, the way the piece pushes it: holding, stirring, scrubbing, wiping, company
+  const PUSH = [['held', 40, 0.008, -0.002], ['stir', 4, 0.017, 0.003], ['scrubs', 24, -0.013, -0.007], ['wiped', 5, 0.012, 0.006], ['together', 2, -0.002, 0.003]];
+  const fakeCul = (f) => {
+    const me = { held: f.minutes*60*0.12*r(), stir: f.stir*r(), scrubs: f.scrubs*(0.5 + r()), wiped: f.wiped, together: f.together };
+    let cf = CULT0[0] - 0.006 + gauss(r)*0.004, ck = CULT0[1] + gauss(r)*0.003;
+    for (const [key, scale, df, dk] of PUSH) { const a = 1 - Math.exp(-(+me[key] || 0)/scale); cf += a*df; ck += a*dk; }
+    return [Math.round(clamp(cf, 0.012, 0.070)*1e4)/1e4, Math.round(clamp(ck, 0.048, 0.070)*1e4)/1e4];
+  };
+  const fakePath = (st) => {
+    const pts = [];
+    for (let k = 0; k < LINES; k++) { const a = r()*Math.PI*2, rad = BASIN_R*0.9*Math.sqrt(st.spread*(0.2 + 0.8*r())); pts.push([Math.cos(a)*rad, Math.sin(a)*rad]); }
+    if (st.order === 'ring') pts.sort((p, q) => Math.atan2(p[1], p[0]) - Math.atan2(q[1], q[0]));
+    else if (st.order === 'line') pts.sort((p, q) => p[0] - q[0]);
+    return pts.map((p) => [Math.round(p[0]*1000)/1000, Math.round(p[1]*1000)/1000]);
+  };
+  const fakeName = (vec, hour) => {           // the measure that stands out most names what it does, as in the piece
+    let bi = 0; for (let i = 1; i < D; i++) if (Math.abs(vec[i]) > Math.abs(vec[bi])) bi = i;
+    const s = SAL[bi], end = vec[bi] > 0 ? 'hi' : 'lo', pool = [s.w[end === 'hi' ? 0 : 1]].concat(PART_MORE[s.k + '.' + end] || []).filter(Boolean);
+    let part = pool.length ? pool[Math.floor(r()*pool.length)] : PARTS[Math.floor(r()*PARTS.length)];
+    for (let t = 0; t < 40; t++) {
+      const still = NOUNS[Math.floor(r()*NOUNS.length)], noun = (r() < 0.5 && LATIN2[still] ? LATIN2[still] : LATIN[still]).toLowerCase();
+      const nm = [noun, part.toLowerCase()].join('_');
+      if (!taken.has(nm)) { taken.add(nm); return nm; }
+      part = PARTS[Math.floor(r()*PARTS.length)];
+    }
+    return '';
+  };
+  const one = (st) => {
+    const z = new Float32Array(D); for (let i = 0; i < D; i++) z[i] = (st ? st.z[i] : 0) + gauss(r)*(st ? 0.55 : 1);
+    const f = fakeF(z), path = fakePath(st || { spread: 0.3 + 0.7*r(), order: 'loose' });
+    const hour = st && r() < 0.6 ? (st.hour + Math.floor(r()*4)) % 24 : Math.floor(r()*24);
+    return { f, path, hour, name: fakeName(vectorOf(f, path), hour), cul: fakeCul(f) };
+  };
+  for (let i = 0; i < n; i++) {
+    const st = r() < 0.85 ? styles[Math.floor(Math.pow(r(), 1.4)*styles.length)] : null, u = one(st);
+    const hole = r() < 0.35 ? HOLES[1 + Math.floor(r()*(HOLES.length - 1))] : '';
+    demoDue.push({ due: 20000*Math.pow((i + r())/n, 0.85), item: { key: 'demo:' + i, name: u.name, f: u.f, path: u.path, cul: u.cul, hole, rec: true } });
+  }
+  demoDue.sort((a, b) => a.due - b.due);
+  // three of "yours", with codes that open in the piece: two from one cluster (the second born from the first), one from far away;
+  // and two sent by friends
+  const bits = (v, k) => Math.max(0, Math.min(2**k-1, Math.round(v))).toString(2).padStart(k, '0');
+  const codeOf = (u) => {
+    const ci = Math.floor(r()*LINES), part = Math.floor(r()*PARTS.length), nv = r() < 0.5 ? 1 : 0, ti = Math.floor(r()*8);
+    let s = bits(2, 3) + bits(ci, 3) + bits(part, 6) + bits(nv, 1) + bits(ti, 3);
+    u.path.forEach((p, j) => { s += bits((p[0]+0.4)/0.8*63, 6) + bits((p[1]+0.4)/0.8*63, 6) + bits(j, 3) + bits(r()*32, 5) + bits(r()*32, 5) + '0' + bits(r()*15, 4) + bits(r()*15, 4) + bits(r()*15, 4) + bits(r()*15, 4); });
+    let c = ''; for (let j = 0; j < s.length; j += 6) c += B64[parseInt(s.slice(j, j+6).padEnd(6, '0'), 2)];
+    return c;
+  };
+  const mine = [];
+  [[styles[0], 'spinning'], [styles[0], 'quasar'], [styles[3], 'torn']].forEach(([st, hole], k) => {
+    const u = one(st), c = codeOf(u), nm = decode(c).name;
+    keepLocal({ c, n: nm, d: '2026-10-1' + (3 + k), f: u.f, cul: u.cul, hole, parent: k === 1 ? mine[0] : '' }, 'own');
+    mine.push(nm);
+  });
+  [styles[5], styles[1]].forEach((st, k) => { const u = one(st), c = codeOf(u); keepLocal({ c, n: decode(c).name, d: '2026-10-1' + (4 + k) }, 'friend'); });
+}
+
+// ---- the view: a space you can turn. WebGL draws the many (points of light, the threads between them); a 2D layer over it draws
+// the few up close (fingerprints, the one folded open, its culture, its black hole), and the words sit over both, on ink.
+const cv = document.getElementById('sky'), fx = document.getElementById('fx'), ctx = fx.getContext('2d');
+const head = document.querySelector('header'), nav = document.querySelector('nav'), homeBtn = document.getElementById('homeBtn'), weBtn = document.getElementById('weBtn');
+const labs = document.getElementById('labs'), tip = document.getElementById('tip');
+const card = document.getElementById('card'), cName = document.getElementById('cName'), cMean = document.getElementById('cMean'), cNear = document.getElementById('cNear'), cOpen = document.getElementById('cOpen');
+let W = 0, H = 0, DPR = 1, PHONE = false, FOC = 600;
+const FOV = 50*Math.PI/180, NEAR = 0.05, FAR = 1e5;
+// the camera turns round a point it looks at: yaw about the vertical, pitch above or below, and how far off it stands.
+// mode: all, home (yours), we (yours and your friends'), node (one open, flown to), free (where your hands left it)
+const cam = { t: [0, 0, 0], yaw: 0.6, pitch: 0.3, dist: 140, mode: 'all', cx: 0, cy: 0 };
+let E = [0, 0, 0], Rv = [1, 0, 0], Uv = [0, 1, 0], Fv = [0, 0, -1];
+const SX = new Float32Array(CAP), SY = new Float32Array(CAP), SZ = new Float32Array(CAP), SK = new Float32Array(CAP), SV = new Uint8Array(CAP);
+const scene = { c: [0, 0, 0], r: 30, at: -1e9 };
+let glyphR = 2, glyphTarget = 2;            // how big a fingerprint is in the space: under half the usual distance between near neighbours
+let fogN = 0, fogF = 1000;
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; PHONE = W <= 640;
+  cv.width = fx.width = Math.round(W*DPR); cv.height = fx.height = Math.round(H*DPR);
+  FOC = (Math.min(W*1.3, H)/2)/Math.tan(FOV/2);
+  if (!cam.cx) { cam.cx = W/2; cam.cy = H/2; }
+  if (gl) gl.viewport(0, 0, cv.width, cv.height);
+  if (sel >= 0) wrapMeaning(U[sel]);
+}
+const sheetH = () => PHONE && !card.hidden ? card.offsetHeight : 0;
+function camBasis(){
+  const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch), cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+  E = [cam.t[0] + cam.dist*cp*sy, cam.t[1] + cam.dist*sp, cam.t[2] + cam.dist*cp*cy];
+  Fv = [-cp*sy, -sp, -cp*cy]; Rv = [cy, 0, -sy]; Uv = [-sy*sp, cp, -cy*sp];
+}
+// where every youniverse falls on the screen, how far it is, and how many pixels one unit of space is there
+function projectAll(){
+  const n = U.length, e0 = E[0], e1 = E[1], e2 = E[2];
+  for (let i = 0; i < n; i++) {
+    const u = U[i], dx = u.x - e0, dy = u.y - e1, dz = u.z - e2, d = dx*Fv[0] + dy*Fv[1] + dz*Fv[2];
+    SZ[i] = d;
+    if (d < NEAR*4) { SV[i] = 0; SX[i] = SY[i] = -1e5; SK[i] = 0; continue; }
+    const k = FOC/d; SK[i] = k; SV[i] = 1;
+    SX[i] = cam.cx + (dx*Rv[0] + dz*Rv[2])*k; SY[i] = cam.cy - (dx*Uv[0] + dy*Uv[1] + dz*Uv[2])*k;
+  }
+}
+function projectPt(x, y, z){
+  const dx = x - E[0], dy = y - E[1], dz = z - E[2], d = dx*Fv[0] + dy*Fv[1] + dz*Fv[2];
+  return [dx*Rv[0] + dz*Rv[2], dx*Uv[0] + dy*Uv[1] + dz*Uv[2], d];
+}
+// a line through space, cut where it passes behind you
+function seg3(a, b){
+  let A = projectPt(a.x, a.y, a.z), B = projectPt(b.x, b.y, b.z); const nz = NEAR*4;
+  if (A[2] < nz && B[2] < nz) return null;
+  if (A[2] < nz) { const t = (nz - A[2])/(B[2] - A[2]); A = [A[0] + (B[0]-A[0])*t, A[1] + (B[1]-A[1])*t, nz]; }
+  else if (B[2] < nz) { const t = (nz - B[2])/(A[2] - B[2]); B = [B[0] + (A[0]-B[0])*t, B[1] + (A[1]-B[1])*t, nz]; }
+  return [cam.cx + A[0]*FOC/A[2], cam.cy - A[1]*FOC/A[2], cam.cx + B[0]*FOC/B[2], cam.cy - B[1]*FOC/B[2], (A[2] + B[2])/2];
+}
+const fogOf = (d) => 1 - 0.86*smooth(fogN, fogF, d);
+// the middle of everything, how far it reaches, and how big a fingerprint should be
+function measureScene(){
+  const n = U.length; if (!n) return;
+  let cx = 0, cy = 0, cz = 0; for (const u of U) { cx += u.x; cy += u.y; cz += u.z; } cx /= n; cy /= n; cz /= n;
+  const ds = new Float32Array(n); for (let i = 0; i < n; i++) { const u = U[i]; ds[i] = Math.hypot(u.x - cx, u.y - cy, u.z - cz); }
+  ds.sort();
+  scene.c = [cx, cy, cz]; scene.r = Math.max(6, ds[Math.min(n - 1, Math.floor(n*0.96))]);
+  const step = Math.max(1, Math.floor(n/300)), nn = [];
+  for (let i = 0; i < n; i += step) { const u = U[i]; if (u.knn.length) { const m = U[u.knn[0].j]; nn.push(Math.hypot(u.x - m.x, u.y - m.y, u.z - m.z)); } }
+  if (nn.length) { nn.sort((a, b) => a - b); glyphTarget = clamp(0.42*nn[nn.length >> 1], 0.4, 40); }
+}
+
+// ---- where the camera wants to be. It eases there, so nothing jumps; your hands take it anywhere, and then it stays.
+function sphereOf(idx){
+  let cx = 0, cy = 0, cz = 0; for (const i of idx) { cx += U[i].x; cy += U[i].y; cz += U[i].z; } cx /= idx.length; cy /= idx.length; cz /= idx.length;
+  let r = 0; for (const i of idx) r = Math.max(r, Math.hypot(U[i].x - cx, U[i].y - cy, U[i].z - cz));
+  return { c: [cx, cy, cz], r };
+}
+function fitDist(r){
+  const vh = (PHONE ? H - 150 : H - 170)/2, vw = (W - (PHONE ? 40 : 120))/2;
+  return r*FOC/Math.max(60, Math.min(vh, vw)) + 0.25*r;
+}
+const openSize = () => PHONE ? clamp(W*0.2, 56, 84) : clamp(Math.min(W, H)*0.15, 78, 128);    // the open one's radius, in pixels
+const foldR = (i, p) => clamp(glyphR*SK[i], 10, openSize()/1.5)*(1 + 0.55*ease(p));          // and as it opens: from its fingerprint's size to that
+let autoAmt = 0, lastHands = -1e9;
+function aim(dt){
+  let pcx = W/2, pcy = H/2;                                // the middle of what is not covered
+  if (!card.hidden) {
+    if (PHONE) pcy = (64 + H - sheetH())/2;
+    else { const r = card.getBoundingClientRect(); if (r.right > W/2 - 170) pcx = (r.right + W)/2; }
+  } else if (PHONE) pcy = H/2 + 10;
+  const ep = 1 - Math.exp(-dt/(REDUCED ? 0.08 : 0.4));
+  cam.cx += (pcx - cam.cx)*ep; cam.cy += (pcy - cam.cy)*ep;
+  // the whole space turns, slowly, when no one is holding it and nothing is open
+  const idle = !REDUCED && !ptrs.size && sel < 0 && !folds.size && now - lastHands > 3500;
+  autoAmt += ((idle ? 1 : 0) - autoAmt)*(1 - Math.exp(-dt/(idle ? 2.5 : 0.35)));
+  cam.yaw += 0.045*autoAmt*dt;
+  if (cam.mode === 'free') return;
+  let tgt = null, dist = cam.dist;
+  if (cam.mode === 'all') { if (!U.length) return; tgt = scene.c; dist = fitDist(scene.r); }
+  else if (cam.mode === 'home' || cam.mode === 'we') {
+    const idx = cam.mode === 'we' ? ownIdx.concat(friendIdx) : ownIdx.slice();
+    if (!idx.length) return;
+    if (idx.length <= 2) for (const i of idx.slice()) for (const e of U[i].knn) idx.push(e.j);
+    const s = sphereOf(idx); tgt = s.c; dist = fitDist(Math.max(s.r, glyphR*6));
+  } else if (cam.mode === 'node' && sel >= 0) { const u = U[sel]; tgt = [u.x, u.y, u.z]; dist = glyphR*1.6*FOC/openSize(); }
+  if (!tgt) return;
+  const e = 1 - Math.exp(-dt/(REDUCED ? 0.1 : cam.mode === 'node' ? 0.42 : 0.9));
+  for (let j = 0; j < 3; j++) cam.t[j] += (tgt[j] - cam.t[j])*e;
+  cam.dist = Math.exp(Math.log(cam.dist) + (Math.log(Math.max(0.5, dist)) - Math.log(cam.dist))*e);
+}
+function setMode(m){
+  cam.mode = m;
+  homeBtn.setAttribute('aria-pressed', m === 'home' ? 'true' : 'false');
+  weBtn.setAttribute('aria-pressed', m === 'we' ? 'true' : 'false');
+}
+const free = () => { if (cam.mode !== 'free') setMode('free'); };
+function dolly(px, py, f){
+  const d0 = cam.dist, d1 = clamp(d0*f, glyphR*0.9, scene.r*10 + 80), ratio = d1/d0;
+  const xc = (px - cam.cx)*d0/FOC, yc = (cam.cy - py)*d0/FOC;
+  const pw = [0, 1, 2].map((j) => cam.t[j] + Rv[j]*xc + Uv[j]*yc);
+  for (let j = 0; j < 3; j++) cam.t[j] = pw[j] + (cam.t[j] - pw[j])*ratio;
+  cam.dist = d1;
+}
+function pan(dx, dy){
+  const s = cam.dist/FOC;
+  for (let j = 0; j < 3; j++) cam.t[j] += (-Rv[j]*dx + Uv[j]*dy)*s;
+}
+
+// ---- WebGL: points of light, and the threads, faint gold
+let gl = null, GLP = null, GLL = null, bufDyn = null, bufStat = null, bufIdx = [], idxN = [0, 0, 0], bufDust = null, bufDustStat = null, DUSTN = 0;
+const DYN = new Float32Array(CAP*5);
+const VS_PT = `
+attribute vec3 aPos; attribute vec2 aDyn; attribute vec3 aLook; attribute vec3 aCol;
+uniform mat4 uVP; uniform float uTime, uDpr, uRef, uFogN, uFogF, uTw;
+varying vec3 vCol; varying float vA;
+void main(){
+  vec4 c = uVP*vec4(aPos, 1.);
+  if (c.w < 0.2 || aDyn.x < 0.004) { gl_Position = vec4(2., 2., 2., 1.); gl_PointSize = 0.; vA = 0.; vCol = vec3(0.); return; }
+  float tw = mix(1., 0.8 + 0.12*sin(uTime*aLook.y*2. + aLook.z) + 0.08*sin(uTime*aLook.y*5.3 + aLook.z*1.7), uTw);
+  float fog = 1. - 0.86*smoothstep(uFogN, uFogF, c.w);
+  vA = aDyn.x*tw*fog; vCol = aCol;
+  gl_Position = c;
+  gl_PointSize = max(2., 2.*aLook.x*aDyn.y*clamp(pow(uRef/c.w, 0.55), 0.45, 2.6)*uDpr);
+}`;
+const FS_PT = `
+precision mediump float;
+varying vec3 vCol; varying float vA;
+void main(){
+  float r = length(gl_PointCoord*2. - 1.);
+  if (r > 1.) discard;
+  float a = r < 0.08 ? 1. : r < 0.22 ? mix(1., 0.42, (r - 0.08)/0.14) : r < 0.5 ? mix(0.42, 0.09, (r - 0.22)/0.28) : mix(0.09, 0., (r - 0.5)/0.5);
+  vec3 col = mix(vec3(1., 0.99, 0.965), vCol, smoothstep(0., 0.08, r));
+  float A = min(vA, 1.)*a;
+  gl_FragColor = vec4(col*A + vec3(1.)*max(0., vA - 1.)*a*0.8, 1.);
+}`;
+const VS_LN = `
+attribute vec3 aPos;
+uniform mat4 uVP; uniform float uFogN, uFogF;
+varying float vF;
+void main(){ vec4 c = uVP*vec4(aPos, 1.); vF = 1. - 0.9*smoothstep(uFogN, uFogF, c.w); gl_Position = c; }`;
+const FS_LN = `
+precision mediump float;
+uniform vec4 uCol; varying float vF;
+void main(){ gl_FragColor = vec4(uCol.rgb*uCol.a*vF, 1.); }`;
+function initGL(){
+  const opts = { alpha: false, antialias: true, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance' };
+  let g = null;
+  try { g = cv.getContext('webgl2', opts) || cv.getContext('webgl', opts); } catch (e) { g = null; }
+  if (!g) return false;
+  const prog = (vs, fs, attrs) => {
+    const p = g.createProgram();
+    for (const [src, type] of [[vs, g.VERTEX_SHADER], [fs, g.FRAGMENT_SHADER]]) { const s = g.createShader(type); g.shaderSource(s, src); g.compileShader(s); if (!g.getShaderParameter(s, g.COMPILE_STATUS)) throw new Error(g.getShaderInfoLog(s)); g.attachShader(p, s); }
+    attrs.forEach((a, i) => g.bindAttribLocation(p, i, a));
+    g.linkProgram(p); if (!g.getProgramParameter(p, g.LINK_STATUS)) throw new Error(g.getProgramInfoLog(p));
+    const u = {}; const nu = g.getProgramParameter(p, g.ACTIVE_UNIFORMS);
+    for (let i = 0; i < nu; i++) { const a = g.getActiveUniform(p, i); u[a.name] = g.getUniformLocation(p, a.name); }
+    return { p, u };
+  };
+  try {
+    GLP = prog(VS_PT, FS_PT, ['aPos', 'aDyn', 'aLook', 'aCol']);
+    GLL = prog(VS_LN, FS_LN, ['aPos']);
+  } catch (e) { return false; }
+  bufDyn = g.createBuffer(); g.bindBuffer(g.ARRAY_BUFFER, bufDyn); g.bufferData(g.ARRAY_BUFFER, DYN.byteLength, g.DYNAMIC_DRAW);
+  bufStat = g.createBuffer();
+  bufIdx = [g.createBuffer(), g.createBuffer(), g.createBuffer()];
+  // dust: faint grains far off, all round, so turning the space shows its depth
+  const r = rngOf(7); DUSTN = 520; const dd = new Float32Array(DUSTN*5), ds = new Float32Array(DUSTN*6);
+  for (let i = 0; i < DUSTN; i++) {
+    const cz = 2*r() - 1, a = r()*TAU, sz = Math.sqrt(1 - cz*cz), rr = 1.4 + 1.2*Math.sqrt(r());
+    dd.set([sz*Math.cos(a)*rr, cz*rr, sz*Math.sin(a)*rr, 0.05 + 0.2*r()*r(), 1], i*5);
+    ds.set([0.9 + 0.8*r(), 0.4 + r(), r()*TAU, 0.91, 0.86, 0.78], i*6);
+  }
+  bufDust = g.createBuffer(); g.bindBuffer(g.ARRAY_BUFFER, bufDust); g.bufferData(g.ARRAY_BUFFER, dd, g.STATIC_DRAW);
+  bufDustStat = g.createBuffer(); g.bindBuffer(g.ARRAY_BUFFER, bufDustStat); g.bufferData(g.ARRAY_BUFFER, ds, g.STATIC_DRAW);
+  gl = g; glStatDirty = glLinksDirty = true;
+  cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); gl = null; sprites(); }, { once: true });
+  return true;
+}
+// the camera as one matrix: world to clip, with the middle of the picture where cam.cx, cam.cy say
+const VP = new Float32Array(16), VPD = new Float32Array(16);
+function makeVP(){
+  const f2w = 2*FOC/W, f2h = 2*FOC/H, a = -2*(cam.cx - W/2)/W, b = -2*(H/2 - cam.cy)/H, A = -(FAR + NEAR)/(FAR - NEAR), B = -2*FAR*NEAR/(FAR - NEAR);
+  const RE = Rv[0]*E[0] + Rv[1]*E[1] + Rv[2]*E[2], UE = Uv[0]*E[0] + Uv[1]*E[1] + Uv[2]*E[2], FE = Fv[0]*E[0] + Fv[1]*E[1] + Fv[2]*E[2];
+  for (let j = 0; j < 3; j++) {
+    VP[j*4] = f2w*Rv[j] - a*Fv[j]; VP[j*4 + 1] = f2h*Uv[j] - b*Fv[j]; VP[j*4 + 2] = -A*Fv[j]; VP[j*4 + 3] = Fv[j];
+  }
+  VP[12] = -f2w*RE + a*FE; VP[13] = -f2h*UE + b*FE; VP[14] = A*FE + B; VP[15] = -FE;
+  // the dust's sphere sits round the middle of everything, sized to it
+  const s = Math.max(scene.r, 20), c = scene.c;
+  for (let k = 0; k < 12; k++) VPD[k] = VP[k]*s;
+  for (let r = 0; r < 4; r++) VPD[12 + r] = VP[r]*c[0] + VP[4 + r]*c[1] + VP[8 + r]*c[2] + VP[12 + r];
+}
+const THREADS = [[0, 0.8, 0.22], [0.8, 1.25, 0.11], [1.25, Infinity, 0.05]];
+let litMul = 1;                                           // how bright the rest are while home or the weverse is lit
+function litOf(u){ return cam.mode === 'home' ? (u.own ? 1 : 0.32) : cam.mode === 'we' ? (u.own || u.friend ? 1 : 0.22) : 1; }
+function fillDyn(){
+  const n = U.length, few = Math.max(0, 1 - n/50);
+  for (let i = 0; i < n; i++) {
+    const u = U[i], L = u.look, p = (now - u.born)/1600, fl = p < 1 ? (1 - p)*(1 - p) : 0, o = i*5;
+    const base = u.own || u.friend ? 1 : L.bright + (1 - L.bright)*0.6*few, fold = folds.has(i) ? folds.get(i).p : 0;
+    DYN[o] = u.x; DYN[o+1] = u.y; DYN[o+2] = u.z;
+    DYN[o+3] = base*(1 + 2.5*fl)*litOf(u)*(1 - 0.7*u.fp)*(1 - 0.95*Math.min(1, fold*3));
+    DYN[o+4] = (1 + 1.1*fl)*(1 + 0.35*few);
+  }
+}
+function renderGL(t){
+  const g = gl, n = U.length;
+  g.clearColor(3/255, 3/255, 4/255, 1); g.clear(g.COLOR_BUFFER_BIT);
+  g.enable(g.BLEND); g.blendFunc(g.ONE, g.ONE);
+  makeVP();
+  if (glStatDirty && n) {
+    const st = new Float32Array(n*6);
+    for (let i = 0; i < n; i++) {
+      const u = U[i], L = u.look, col = u.own ? GOLD : u.friend ? BONE : TINTS[L.tint];
+      const size = u.own ? Math.max(9, L.size*1.5) : u.friend ? Math.max(8, L.size*1.3) : L.size;
+      st.set([size, L.tw, L.ph, col[0]/255, col[1]/255, col[2]/255], i*6);
+    }
+    g.bindBuffer(g.ARRAY_BUFFER, bufStat); g.bufferData(g.ARRAY_BUFFER, st, g.DYNAMIC_DRAW); glStatDirty = false;
+  }
+  if (glLinksDirty) {
+    for (let t3 = 0; t3 < 3; t3++) {
+      const [lo, hi] = THREADS[t3], ix = [];
+      for (const l of linkList) { const q = l.d/dRef; if (q >= lo && q < hi) ix.push(l.a, l.b); }
+      g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, bufIdx[t3]); g.bufferData(g.ELEMENT_ARRAY_BUFFER, new Uint16Array(ix), g.DYNAMIC_DRAW); idxN[t3] = ix.length;
+    }
+    glLinksDirty = false;
+  }
+  if (n) { fillDyn(); g.bindBuffer(g.ARRAY_BUFFER, bufDyn); g.bufferSubData(g.ARRAY_BUFFER, 0, DYN.subarray(0, n*5)); }
+  // the threads
+  if (n > 1) {
+    g.useProgram(GLL.p);
+    g.uniformMatrix4fv(GLL.u.uVP, false, VP); g.uniform1f(GLL.u.uFogN, fogN); g.uniform1f(GLL.u.uFogF, fogF);
+    g.bindBuffer(g.ARRAY_BUFFER, bufDyn); g.enableVertexAttribArray(0); g.vertexAttribPointer(0, 3, g.FLOAT, false, 20, 0);
+    for (let j = 1; j < 4; j++) g.disableVertexAttribArray(j);
+    const lm = (cam.mode === 'home' || cam.mode === 'we' ? 0.45 : 1)*(DPR > 1.5 ? 1.35 : 1);
+    for (let t3 = 0; t3 < 3; t3++) {
+      if (!idxN[t3]) continue;
+      g.uniform4f(GLL.u.uCol, GOLD[0]/255, GOLD[1]/255, GOLD[2]/255, THREADS[t3][2]*lm);
+      g.bindBuffer(g.ELEMENT_ARRAY_BUFFER, bufIdx[t3]); g.drawElements(g.LINES, idxN[t3], g.UNSIGNED_SHORT, 0);
+    }
+  }
+  // the dust, and then every youniverse
+  g.useProgram(GLP.p);
+  g.uniform1f(GLP.u.uTime, t); g.uniform1f(GLP.u.uDpr, DPR); g.uniform1f(GLP.u.uTw, REDUCED ? 0 : 1);
+  const draw = (vp, dyn, stat, count, ref, fn, ff) => {
+    g.uniformMatrix4fv(GLP.u.uVP, false, vp); g.uniform1f(GLP.u.uRef, ref); g.uniform1f(GLP.u.uFogN, fn); g.uniform1f(GLP.u.uFogF, ff);
+    g.bindBuffer(g.ARRAY_BUFFER, dyn); g.enableVertexAttribArray(0); g.vertexAttribPointer(0, 3, g.FLOAT, false, 20, 0);
+    g.enableVertexAttribArray(1); g.vertexAttribPointer(1, 2, g.FLOAT, false, 20, 12);
+    g.bindBuffer(g.ARRAY_BUFFER, stat); g.enableVertexAttribArray(2); g.vertexAttribPointer(2, 3, g.FLOAT, false, 24, 0);
+    g.enableVertexAttribArray(3); g.vertexAttribPointer(3, 3, g.FLOAT, false, 24, 12);
+    g.drawArrays(g.POINTS, 0, count);
+  };
+  draw(VPD, bufDust, bufDustStat, DUSTN, cam.dist + 2*scene.r, 1e9, 2e9);
+  if (n) draw(VP, bufDyn, bufStat, n, cam.dist, fogN, fogF);
+}
+// without WebGL: the same sky, drawn flat in 2D
+function draw2D(t){
+  const n = U.length; sprites();
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#030304'; ctx.fillRect(0, 0, W, H);
+  ctx.lineWidth = 0.6;
+  for (const [lo, hi, a] of THREADS) {
+    ctx.strokeStyle = `rgba(194,162,122,${a*(cam.mode === 'home' || cam.mode === 'we' ? 0.45 : 1)})`; ctx.beginPath();
+    for (const l of linkList) { const q = l.d/dRef; if (q < lo || q >= hi || !SV[l.a] || !SV[l.b]) continue; ctx.moveTo(SX[l.a], SY[l.a]); ctx.lineTo(SX[l.b], SY[l.b]); }
+    ctx.stroke();
+  }
+  fillDyn();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < n; i++) {
+    if (!SV[i]) continue;
+    const u = U[i], L = u.look, R = (u.own ? Math.max(9, L.size*1.5) : u.friend ? Math.max(8, L.size*1.3) : L.size)*DYN[i*5+4]*clamp(Math.pow(cam.dist/SZ[i], 0.55), 0.45, 2.6);
+    if (SX[i] < -R || SX[i] > W + R || SY[i] < -R || SY[i] > H + R) continue;
+    const tw = REDUCED ? 1 : 0.8 + 0.12*Math.sin(t*L.tw*2 + L.ph) + 0.08*Math.sin(t*L.tw*5.3 + L.ph*1.7);
+    ctx.globalAlpha = Math.min(1, DYN[i*5+3]*tw*fogOf(SZ[i]));
+    ctx.drawImage(u.own ? SPR_OWN : u.friend ? SPR_FRIEND : SPR[L.tint], SX[i] - R, SY[i] - R, 2*R, 2*R);
+  }
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+}
+
+// ---- a constellation, close up. The piece's own geometry: the first star found is the furthest away and the last the nearest, each
+// set a little nearer or further by its own seed; facets from the centre to each pair of stars found one after the other, each lit by
+// its angle to a light from the upper left, the undersides darker, gold near and red far.
+const zOf = (k, s) => 0.32*(0.5 - k/(LINES-1)) + 0.10*((s | 0)/15 - 0.5);
+const LIGHT = (() => { const v = [-0.50, 0.62, -0.60], n = Math.hypot(...v); return v.map((x) => x/n); })();
+function rot3v(v, yaw, pitch){                            // into the eye's frame: x right, y up, z away from you
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const x = v[0]*cy + v[2]*sy, z1 = -v[0]*sy + v[2]*cy;
+  return [x, v[1]*cp - z1*sp, v[1]*sp + z1*cp];
+}
+function facets(pts3){                                    // pts3: stars in the eye's frame. Returns [{ v:[[x,y,z]x3 projected], l, c }]
+  const out = [], O = [0, 0, 0], Pj = (v) => { const k = 1.4/(1.4 + v[2]); return [v[0]*k, v[1]*k, v[2]]; };
+  for (let i = 0; i+1 < pts3.length; i++) {
+    const a = pts3[i], b = pts3[i+1];
+    let n = [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; const nl = Math.hypot(...n) || 1; n = n.map((x) => x/nl);
+    if (n[2] > 0) n = n.map((x) => -x);                    // turn it to face you
+    const pa = Pj(a), pb = Pj(b), front = (pa[0]*pb[1] - pa[1]*pb[0]) > 0;
+    const lit = Math.max(0, n[0]*LIGHT[0] + n[1]*LIGHT[1] + n[2]*LIGHT[2]);
+    const far = Math.max(0, Math.min(1, ((a[2] + b[2])/2 + 0.09)/0.20));      // the further the facet, the redder: gold near, red far
+    const c = [1.0 + (0.62-1.0)*far, 0.86 + (0.16-0.86)*far, 0.60 + (0.08-0.60)*far];
+    out.push({ v: [Pj(O), pa, pb], l: (0.05 + 0.95*Math.pow(lit, 1.5))*(front ? 1 : 0.42), c });
+  }
+  return out;
+}
+// Folding, like paper: the centre stays pinned, and each crease (the line from the centre to a star, shared by the two facets either
+// side of it) swings up out of the flat, one after another in the order the stars were found, carrying its facets with it. P runs
+// 0 (the fingerprint, flat, facing you) to 1 (the folded sky, turning). Unfolding is the same, run backwards.
+const RIB = 0.075;
+function skyPoints(u, P, yaw, pitch){
+  const path = u.path, n = path.length, out = [];
+  for (let k = 0; k < n; k++) {
+    const q = ease(clamp((P - k*RIB)/(1 - (LINES-1)*RIB), 0, 1));
+    const px = path[k][0], py = path[k][1], r = Math.hypot(px, py), z = zOf(k, u.seeds[k]);
+    let v;
+    if (r < 1e-4) v = [0, 0, z*q];
+    else { const L = Math.hypot(r, z), a = Math.atan2(z, r)*q, rr = r + (L - r)*q, c = Math.cos(a)*rr/r; v = [px*c, py*c, Math.sin(a)*rr]; }
+    out.push(P > 0 ? rot3v(v, yaw, pitch) : v);
+  }
+  return out;
+}
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
+const mixRgb = (a, b, t) => [0, 1, 2].map((j) => Math.round(a[j] + (b[j] - a[j])*t));
+// draw one: x, y its centre on the screen; R pixels per basin radius; A its opacity; P how folded
+function drawSky(u, x, y, R, A, P, yaw, pitch, mark, hole){
+  if (A < 0.01) return;
+  const c = ctx;
+  if (!u.path || u.path.length < 2) { c.globalAlpha = A; c.drawImage(GLOW, x - 6, y - 6, 12, 12); c.globalAlpha = 1; return; }
+  const eP = ease(P), p3 = skyPoints(u, P, yaw, pitch), s = R/BASIN_R;
+  const pr = p3.map((v) => { const k = 1.4/(1.4 + v[2]); return [x + v[0]*k*s, y - v[1]*k*s, k]; });
+  if (mark && eP < 1) {                                   // yours wear a fine gold ring, the ones sent to you a bone one: the glass's rim
+    c.globalAlpha = A*0.5*(1 - eP); c.strokeStyle = rgba(mark, 1); c.lineWidth = 0.8;
+    c.beginPath(); c.arc(x, y, R*1.12, 0, TAU); c.stroke();
+  }
+  const fa = smooth(0, 0.22, P);
+  if (fa > 0.005) {                                       // the facets, far ones first
+    const fs = facets(p3).sort((a, b) => (b.v[1][2] + b.v[2][2]) - (a.v[1][2] + a.v[2][2]));
+    for (const f3 of fs) {
+      c.globalAlpha = A*0.62*fa;
+      c.fillStyle = `rgb(${f3.c.map((v) => Math.round(255*Math.pow(Math.min(1, 0.02 + v*f3.l), 1/1.6))).join(',')})`;
+      c.beginPath(); f3.v.forEach((v, j) => j ? c.lineTo(x + v[0]*s, y - v[1]*s) : c.moveTo(x + v[0]*s, y - v[1]*s)); c.closePath(); c.fill();
+    }
+    c.globalAlpha = A*0.26*fa; c.strokeStyle = rgba(GOLD, 1); c.lineWidth = 0.6;      // the creases
+    c.beginPath(); for (const q of pr) { c.moveTo(x, y); c.lineTo(q[0], q[1]); } c.stroke();
+  }
+  // its edges, in order found: the culture's colour while flat, gold once folded; nearer edges brighter and thicker
+  const col = rgba(mixRgb(u.cc, GOLD, smooth(0, 0.6, P)), 1), lw = clamp(R/55, 0.8, 1.9);
+  c.strokeStyle = col; c.lineJoin = 'round';
+  for (let i = 1; i < pr.length; i++) {
+    const a = pr[i-1], b = pr[i], nz = (a[2] + b[2])/2;
+    c.globalAlpha = A*Math.min(0.95, 0.8*nz*nz); c.lineWidth = lw*nz;
+    c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke();
+  }
+  if (hole && P > 0.4) drawHole(u.hole, x, y, Math.max(4, R*0.1), now/1000, A*smooth(0.45, 0.95, P));
+  const g = clamp(R*0.05, 1.3, 7);
+  for (let i = 0; i < pr.length; i++) {
+    const q = pr[i], rr = g*q[2]*q[2]*(i ? 1 : 1.25)*3.4;
+    c.globalAlpha = A; c.drawImage(GLOW, q[0] - rr, q[1] - rr, 2*rr, 2*rr);
+  }
+  c.globalAlpha = 1;
+}
+
+// ---- the black hole at the centre of an open youniverse: the kind its record names, or the quiet one
+function drawHole(kind, x, y, rs, t, A){
+  if (A < 0.01) return;
+  const c = ctx; c.save(); c.globalAlpha = A;
+  const halo = (r1, a) => { const g = c.createRadialGradient(x, y, rs*0.9, x, y, r1); g.addColorStop(0, `rgba(194,162,122,${a})`); g.addColorStop(1, 'rgba(194,162,122,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r1, 0, TAU); c.fill(); };
+  const shadow = (sx, sy, r) => { c.fillStyle = 'rgba(3,3,4,.97)'; c.beginPath(); c.arc(sx, sy, r, 0, TAU); c.fill(); };
+  const ring = (sx, sy, r, w, a) => { c.strokeStyle = `rgba(255,236,204,${a})`; c.lineWidth = w; c.beginPath(); c.arc(sx, sy, r, 0, TAU); c.stroke(); };
+  const T = REDUCED ? 0 : t;
+  if (kind === 'white') {                                // a white hole: nothing goes in; light pours out
+    const g = c.createRadialGradient(x, y, 0, x, y, rs*2.6); g.addColorStop(0, 'rgba(255,252,246,.95)'); g.addColorStop(0.35, 'rgba(244,226,190,.55)'); g.addColorStop(1, 'rgba(244,226,190,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(x, y, rs*2.6, 0, TAU); c.fill();
+    c.lineCap = 'round';
+    for (let k = 0; k < 18; k++) {
+      const a = k*TAU/18 + 0.3*Math.sin(k*1.7), ph = (T*0.22 + k*0.618) % 1, r0 = rs*(0.9 + 3.2*ph), r1 = r0 + rs*(0.6 + 0.6*(1 - ph));
+      c.strokeStyle = `rgba(255,248,232,${(0.55*(1 - ph)).toFixed(3)})`; c.lineWidth = Math.max(0.6, rs*0.09);
+      c.beginPath(); c.moveTo(x + Math.cos(a)*r0, y + Math.sin(a)*r0); c.lineTo(x + Math.cos(a)*r1, y + Math.sin(a)*r1); c.stroke();
+    }
+    c.restore(); return;
+  }
+  if (kind === 'supernova') {                            // a bright shell going out, again and again, from a hot heart
+    const g = c.createRadialGradient(x, y, 0, x, y, rs*1.6); g.addColorStop(0, 'rgba(255,250,238,1)'); g.addColorStop(0.5, 'rgba(244,226,190,.5)'); g.addColorStop(1, 'rgba(244,226,190,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(x, y, rs*1.6, 0, TAU); c.fill();
+    for (let s = 0; s < 3; s++) { const ph = (T/3.4 + s/3) % 1, rr = rs*(1 + 4*ease(ph));
+      c.strokeStyle = `rgba(255,240,214,${(0.85*Math.pow(1 - ph, 1.4)).toFixed(3)})`; c.lineWidth = Math.max(0.6, rs*0.32*(1 - ph)); c.beginPath(); c.arc(x, y, rr, 0, TAU); c.stroke(); }
+    c.restore(); return;
+  }
+  if (kind === 'merging') {                              // two, circling closer
+    halo(rs*3, 0.22);
+    const a = T*0.7;
+    for (const sgn of [1, -1]) { const hx = x + sgn*Math.cos(a)*rs*0.95, hy = y + sgn*Math.sin(a)*rs*0.95; shadow(hx, hy, rs*0.58); ring(hx, hy, rs*0.62, 1, 0.85); }
+    c.restore(); return;
+  }
+  halo(rs*2.8, kind === 'quasar' ? 0.36 : 0.26);
+  if (kind === 'torn') {                                  // a star pulled apart: a stream of it spiralling in
+    c.lineCap = 'round';
+    const rot = T*0.25, N = 90;
+    for (let i = 0; i < N; i++) {
+      const t0 = i/N, t1 = (i + 1)/N, th0 = rot + t0*TAU*1.6, th1 = rot + t1*TAU*1.6, r0 = rs*(3.6 - 2.5*t0), r1 = rs*(3.6 - 2.5*t1);
+      c.strokeStyle = `rgba(232,196,150,${(0.85*t0).toFixed(3)})`; c.lineWidth = Math.max(0.6, rs*0.16*(0.3 + t0));
+      c.beginPath(); c.moveTo(x + Math.cos(th0)*r0, y + Math.sin(th0)*r0*0.62); c.lineTo(x + Math.cos(th1)*r1, y + Math.sin(th1)*r1*0.62); c.stroke();
+    }
+  }
+  if (kind === 'quasar') {                                // thin jets, flickering
+    const ax = -1.05, fl = 0.8 + 0.2*Math.sin(T*3.1) + 0.06*Math.sin(T*11.3);
+    for (const sgn of [1, -1]) {
+      const ex = x + sgn*Math.cos(ax)*rs*9, ey = y + sgn*Math.sin(ax)*rs*9, g = c.createLinearGradient(x, y, ex, ey);
+      g.addColorStop(0, `rgba(255,250,238,${(0.95*fl).toFixed(3)})`); g.addColorStop(0.5, `rgba(244,226,190,${(0.4*fl).toFixed(3)})`); g.addColorStop(1, 'rgba(244,226,190,0)');
+      c.strokeStyle = g; c.lineWidth = Math.max(1, rs*0.18); c.beginPath(); c.moveTo(x, y); c.lineTo(ex, ey); c.stroke();
+    }
+  }
+  if (kind === 'pulsar') {                                // two slow beams, sweeping like a lighthouse
+    const a = T*0.45;
+    for (const sgn of [1, -1]) {
+      const b = a + (sgn < 0 ? Math.PI : 0), L = rs*7, w = 0.075, g = c.createRadialGradient(x, y, rs, x, y, L);
+      g.addColorStop(0, 'rgba(255,248,232,.7)'); g.addColorStop(1, 'rgba(255,248,232,0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(b - w)*L, y + Math.sin(b - w)*L); c.lineTo(x + Math.cos(b + w)*L, y + Math.sin(b + w)*L); c.closePath(); c.fill();
+    }
+  }
+  if (kind === 'spinning') {                              // spinning: its shadow pushed to one side, the ring brighter where it comes toward you
+    const sp = T*0.5, ox = Math.cos(sp)*rs*0.14, oy = Math.sin(sp)*rs*0.14;
+    shadow(x + ox, y + oy, rs);
+    for (let i = 0; i < 64; i++) { const a0 = i/64*TAU, a1 = (i + 1.05)/64*TAU, br = 0.5 + 0.5*Math.cos(a0 - sp - Math.PI);
+      c.strokeStyle = `rgba(255,236,204,${(0.25 + 0.75*br).toFixed(3)})`; c.lineWidth = 0.6 + 2.2*br*Math.max(1, rs/10);
+      c.beginPath(); c.arc(x + ox*0.6, y + oy*0.6, rs*1.08, a0, a1); c.stroke(); }
+    c.restore(); return;
+  }
+  shadow(x, y, rs); ring(x, y, rs*1.05, Math.max(0.8, rs*0.1), 0.9);    // still: a quiet shadow, a thin gold ring
+  c.restore();
+}
+
+// ---- the culture, around the open one: a ring of the same two chemicals as the piece's lace (Gray-Scott), fed and culled by its own
+// two numbers, so a starved culture breaks into dying spots, a middling one into holes and nets, a fat one into mazes. It is grown
+// here, small, for the open one only: x the way round, y outward from the rim, where it is seeded.
+const GS = { NA: 400, NR: 24, u: null, v: null, u2: null, v2: null, owner: -1, f: 0, k: 0, steps: 0, cv: null, img: null, lut: null, fade: null, RS: 0, shown: 0 };
+function gsInit(i){
+  const u = U[i], cul = u.cul || CULT0, N = GS.NA*GS.NR, r = rngOf(hashStr(u.key) ^ 0xc0ffee);
+  if (!GS.u) { GS.u = new Float32Array(N); GS.v = new Float32Array(N); GS.u2 = new Float32Array(N); GS.v2 = new Float32Array(N); }
+  GS.u.fill(1); GS.v.fill(0);
+  for (let s = 0; s < 70; s++) {                          // seeded at the rim, and a few further out
+    const x0 = Math.floor(r()*GS.NA), y0 = Math.floor(Math.pow(r(), 2)*(GS.NR - 3));
+    for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 3; dx++) { const j = (y0 + dy)*GS.NA + (x0 + dx) % GS.NA; GS.u[j] = 0.5; GS.v[j] = 0.25 + 0.1*r(); }
+  }
+  GS.f = cul[0] - 0.0025; GS.k = cul[1] - 0.0004; GS.owner = i; GS.steps = 0; GS.shown = 0; GS.r = r;
+  if (!GS.fm) {                                           // and, as in the piece, the weather over it varies a little the way round
+    GS.fm = new Float32Array(GS.NA); GS.km = new Float32Array(GS.NA);
+    for (let x = 0; x < GS.NA; x++) { const a = x/GS.NA*TAU; GS.fm[x] = 0.0008*Math.sin(a*3) + 0.0005*Math.sin(a*7); GS.km[x] = 0.0004*Math.sin(a*2 + 1); }
+  }
+  GS.rgb = u.cul ? cultureRgb(u.cul) : GOLD;
+}
+function gsStep(n){
+  const NA = GS.NA, NR = GS.NR;
+  for (let s = 0; s < n; s++) {
+    const u = GS.u, v = GS.v, u2 = GS.u2, v2 = GS.v2;
+    for (let y = 0; y < NR; y++) {
+      const ym = (y > 0 ? y - 1 : 0)*NA, yp = (y < NR - 1 ? y + 1 : NR - 1)*NA, y0 = y*NA, yy = y/(NR - 1);
+      const ls = 0.68 + 0.32*smooth(0, 0.85, yy), fr = GS.f - 0.0018*yy + 0.0004*Math.sin(yy*9), kr = GS.k + 0.0004*yy, FM = GS.fm, KM = GS.km;
+      for (let x = 0; x < NA; x++) {
+        const f = fr + FM[x], fk = f + kr + KM[x];
+        const xm = x ? x - 1 : NA - 1, xp = x < NA - 1 ? x + 1 : 0, j = y0 + x;
+        const uc = u[j], vc = v[j];
+        const lu = (-uc + 0.13*(u[y0 + xm] + u[y0 + xp]) + 0.27*(u[ym + x] + u[yp + x]) + 0.05*(u[ym + xm] + u[ym + xp] + u[yp + xm] + u[yp + xp]))*ls;
+        const lv = (-vc + 0.13*(v[y0 + xm] + v[y0 + xp]) + 0.27*(v[ym + x] + v[yp + x]) + 0.05*(v[ym + xm] + v[ym + xp] + v[yp + xm] + v[yp + xp]))*ls;
+        const rr = uc*vc*vc;
+        let a = uc + lu - rr + f*(1 - uc), b = vc + 0.5*lv + rr - fk*vc;
+        u2[j] = a < 0 ? 0 : a > 1 ? 1 : a; v2[j] = b < 0 ? 0 : b > 1 ? 1 : b;
+      }
+    }
+    GS.u = u2; GS.v = v2; GS.u2 = u; GS.v2 = v;
+    GS.steps++;
+    // as in the piece: the rim seeds it again now and then, and now and then a patch dies, somewhere, and grows back
+    if (GS.steps % 37 === 0) { const x = Math.floor(GS.r()*NA); GS.v[x] = Math.max(GS.v[x], 0.45); GS.v[(x + 1) % NA] = Math.max(GS.v[(x + 1) % NA], 0.45); }
+    if (GS.steps % 180 === 0) {
+      const px = Math.floor(GS.r()*NA), py = Math.floor((0.15 + 0.7*GS.r())*NR);
+      for (let dy = -3; dy <= 3; dy++) for (let dx = -7; dx <= 7; dx++) { const y = py + dy; if (y < 0 || y >= NR) continue; const w = Math.exp(-(dx*dx/20 + dy*dy/4)), j = y*NA + (px + dx + NA) % NA; GS.u[j] += (1 - GS.u[j])*0.6*w; GS.v[j] *= 1 - 0.6*w; }
+    }
+  }
+}
+const RING_IN = 1.2, RING_OUT = 1.5;                      // the ring, in basin radii: just outside the glass
+function gsPaint(Rpx){
+  const RS = clamp(Math.round(Rpx*2*RING_OUT*DPR/40)*40, 160, PHONE ? 360 : 480);
+  if (GS.RS !== RS) {                                     // where in the culture each pixel of the ring looks: angle round, and outward
+    GS.RS = RS; GS.cv = document.createElement('canvas'); GS.cv.width = GS.cv.height = RS;
+    const g = GS.cv.getContext('2d'); GS.g = g; GS.img = g.createImageData(RS, RS);
+    GS.lx = new Float32Array(RS*RS).fill(-1); GS.ly = new Float32Array(RS*RS); GS.fade = new Float32Array(RS*RS);
+    const Ro = RS/2 - 1, Ri = Ro*RING_IN/RING_OUT;
+    for (let py = 0; py < RS; py++) for (let px = 0; px < RS; px++) {
+      const dx = px + 0.5 - RS/2, dy = py + 0.5 - RS/2, rr = Math.hypot(dx, dy), j = py*RS + px;
+      if (rr < Ri || rr > Ro) continue;
+      GS.lx[j] = (Math.atan2(dy, dx) + Math.PI)/TAU*GS.NA; GS.ly[j] = clamp((rr - Ri)/(Ro - Ri)*GS.NR - 0.5, 0, GS.NR - 1.001);
+      GS.fade[j] = smooth(Ri, Ri + 1.5, rr)*smooth(Ro, Ro - 0.25*(Ro - Ri), rr);
+    }
+  }
+  const d = GS.img.data, v = GS.v, lx = GS.lx, ly = GS.ly, fade = GS.fade, c = GS.rgb, N = RS*RS, NA = GS.NA;
+  for (let j = 0; j < N; j++) {
+    const o = j*4, X = lx[j];
+    if (X < 0) { d[o + 3] = 0; continue; }
+    const x0 = Math.floor(X) % NA, x1 = (x0 + 1) % NA, fx = X - Math.floor(X), Y = ly[j], y0 = Math.floor(Y), fy = Y - y0, r0 = y0*NA, r1 = (y0 + 1)*NA;
+    const vv = (v[r0 + x0]*(1 - fx) + v[r0 + x1]*fx)*(1 - fy) + (v[r1 + x0]*(1 - fx) + v[r1 + x1]*fx)*fy;
+    const a = smooth(0.05, 0.3, vv)*fade[j];
+    d[o] = c[0] + (255 - c[0])*vv*0.3; d[o + 1] = c[1] + (250 - c[1])*vv*0.3; d[o + 2] = c[2] + (238 - c[2])*vv*0.3; d[o + 3] = 255*a*0.55;
+  }
+  GS.g.putImageData(GS.img, 0, 0);
+}
+
+// ---- the open ones: each folds over 1.2 s when opened, turns slowly while open, and unfolds when let go
+const FOLD_S = REDUCED ? 0.25 : 1.2;
+const folds = new Map();          // index -> { p, t0, yaw0, pitch0 }
+let pinP = null;                  // tests only: hold every fold at one point
+function stepFolds(dt){
+  for (const [i, f] of folds) {
+    const want = i === sel ? 1 : 0;
+    f.p = clamp(f.p + (want ? 1 : -1)*dt/FOLD_S, 0, 1);
+    if (!want && f.p <= 0) { folds.delete(i); if (U[i]) U[i].fp = 1; if (GS.owner === i) GS.owner = -1; }   // flat again: it is its fingerprint, and fades as one
+  }
+  if (sel >= 0 && GS.owner === sel) {
+    const f = folds.get(sel), p = f ? f.p : 0;
+    gsStep(p < 1 ? 28 : GS.steps < 2600 ? 24 : 3);
+    if (now - GS.shown > 60 && SV[sel]) { gsPaint(foldR(sel, p)); GS.shown = now; }
+  }
+}
+
+// ---- which show their fingerprint: the near ones, the one under your hand, the open one's neighbours, and yours
+let hov = -1;
+const nbr = new Set();
+function stepPrints(dt){
+  const n = U.length, e = 1 - Math.exp(-dt/0.22), maxN = PHONE ? 18 : 40, minR = PHONE ? 10 : 11;
+  nbr.clear(); if (sel >= 0) for (const k of U[sel].knn) nbr.add(k.j);
+  const near = [];
+  for (let i = 0; i < n; i++) {
+    const u = U[i];
+    let want = 0;
+    if (SV[i] && SZ[i] > glyphR*1.4 && SX[i] > -60 && SX[i] < W + 60 && SY[i] > -60 && SY[i] < H + 60) {
+      const R = glyphR*SK[i];
+      if (u.own || (u.friend && cam.mode === 'we') || nbr.has(i) || i === hov) want = 1;
+      else if (sel < 0 && R > minR) { want = smooth(minR, minR + 8, R)*smooth(cam.dist*0.25, cam.dist*0.45, SZ[i]); if (want > 0) near.push(i); }   // right by you, it passes
+    }
+    if (folds.has(i)) want = 0;
+    u.fpW = want;
+  }
+  if (near.length > maxN) { near.sort((a, b) => SK[b] - SK[a]); for (let k = maxN; k < near.length; k++) U[near[k]].fpW = 0; }
+  for (let i = 0; i < n; i++) { const u = U[i]; u.fp += (u.fpW - u.fp)*(REDUCED ? 1 : e); if (u.fp < 0.002) u.fp = 0; }
+}
+
+// how big a fingerprint is drawn: as near as it is, but never past a cap; the open one's neighbours stay smaller than it
+const RCAP = () => PHONE ? 46 : 64;
+function printSize(i){
+  if (!SV[i]) return 0;
+  const forced = U[i].fpW >= 1; let r = Math.min(glyphR*SK[i], RCAP()*(forced ? 1 : 1.25));
+  if (forced) r = Math.max(r, 10);
+  if (sel >= 0 && nbr.has(i)) r = Math.min(r, openSize()*0.5);
+  return r;
+}
+
+// ---- drawing the few, over the many
+function drawOver(dt, t){
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (gl) ctx.clearRect(0, 0, W, H);
+  const n = U.length;
+  // your family through the macroverse: one thin gold line, parent to child
+  if (famDirty) buildFamily();
+  if (family.length) {
+    ctx.lineWidth = 0.9; ctx.strokeStyle = rgba(GOLD, 1);
+    for (const [a, b] of family) { const s = seg3(U[a], U[b]); if (!s) continue; ctx.globalAlpha = 0.62*fogOf(s[4])*(cam.mode === 'we' || cam.mode === 'home' ? 1 : 0.85); ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.lineTo(s[2], s[3]); ctx.stroke(); }
+  }
+  // the open one, joined to its neighbours
+  if (sel >= 0) {
+    const f = folds.get(sel), a = f ? smooth(0, 0.5, f.p) : 0;
+    ctx.lineWidth = 0.8; ctx.strokeStyle = rgba(BONE, 1);
+    for (const k of U[sel].knn) { const s = seg3(U[sel], U[k.j]); if (!s) continue; ctx.globalAlpha = 0.5*a*Math.max(0.35, fogOf(s[4])); ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.lineTo(s[2], s[3]); ctx.stroke(); }
+  }
+  // fingerprints, the furthest first
+  const fp = [];
+  for (let i = 0; i < n; i++) if (U[i].fp > 0.01 && SV[i]) fp.push(i);
+  fp.sort((a, b) => SZ[b] - SZ[a]);
+  for (const i of fp) {
+    const u = U[i], R = printSize(i), A = u.fp*Math.max(0.3, fogOf(SZ[i]))*litOf(u);
+    if (R < 4) continue;
+    drawSky(u, SX[i], SY[i], R, A, 0, 0, 0, u.own ? GOLD : u.friend ? BONE : null);
+  }
+  // the open ones: culture, folded sky, black hole
+  for (const [i, f] of folds) {
+    if (!SV[i]) continue;
+    const u = U[i], P = pinP === null ? f.p : pinP, eP = ease(P), R = foldR(i, P);
+    const T = (now - f.t0)/1000;
+    const yaw = eP*(0.5 + 0.35*Math.sin(T*0.13) + clamp(cam.yaw - f.yaw0, -1.2, 1.2)), pitch = eP*(-0.28 + 0.12*Math.sin(T*0.097 + 1.3) - clamp(cam.pitch - f.pitch0, -0.8, 0.8));   // turn the space, and it turns with it
+    // the glass: inside the ring the space goes dark, the way the piece's basin is dark, so the open one reads on its own
+    const Rg = R*RING_OUT, back = smooth(0, 0.45, P);
+    if (back > 0.01) {
+      const g = ctx.createRadialGradient(SX[i], SY[i], R*1.12, SX[i], SY[i], Rg*1.08);
+      g.addColorStop(0, 'rgba(3,3,4,.86)'); g.addColorStop(1, 'rgba(3,3,4,0)');
+      ctx.globalAlpha = back; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(SX[i], SY[i], Rg*1.08, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(3,3,4,.86)'; ctx.beginPath(); ctx.arc(SX[i], SY[i], R*1.12, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    if (i === GS.owner && GS.cv && P > 0.5) {
+      const Ro = R*RING_OUT;
+      ctx.globalAlpha = smooth(0.55, 1, P); ctx.drawImage(GS.cv, SX[i] - Ro, SY[i] - Ro, 2*Ro, 2*Ro); ctx.globalAlpha = 1;
+    }
+    drawSky(u, SX[i], SY[i], R, 1, P, yaw, pitch, null, true);
+  }
+  // arrivals: a thin ring opening
+  for (let r = rings.length - 1; r >= 0; r--) {
+    const g = rings[r], p = (now - g.t0)/1800;
+    if (p >= 1) { rings.splice(r, 1); continue; }
+    if (!SV[g.i] || SX[g.i] < -60 || SX[g.i] > W + 60 || SY[g.i] < -60 || SY[g.i] > H + 60) continue;
+    const e = 1 - Math.pow(1 - p, 3), z = clamp(Math.pow(cam.dist/SZ[g.i], 0.55), 0.4, 2);
+    ctx.globalAlpha = 0.5*(1 - p)*fogOf(SZ[g.i]); ctx.strokeStyle = U[g.i].own ? '#c2a27a' : '#eadbc0'; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.arc(SX[g.i], SY[g.i], (3 + 34*e)*z, 0, TAU); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ---- your youniverses' names, placed where they don't cover each other, the words, or the open one
+const rectOf = (el, m) => { if (el.hidden) return null; const r = el.getBoundingClientRect(); return r.width ? { x: r.left - m, y: r.top - m, w: r.width + 2*m, h: r.height + 2*m } : null; };
+const meets = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+function makeLabel(i){
+  const u = U[i], b = document.createElement('button');
+  b.type = 'button'; b.className = 'lab off'; b.textContent = u.name || nameOf(u);
+  b.addEventListener('click', () => select(i, 'hop'));
+  b.addEventListener('focus', () => { if (sel !== i) select(i, 'key'); });
+  labs.appendChild(b); u.lab = b; u.lw = b.offsetWidth; u.lh = b.offsetHeight; u.side = 0;
+}
+const printR = (i) => printSize(i)*(U[i].fp > 0.3 ? 1 : 0.2);
+function layLabels(){
+  if (!ownIdx.length) return;
+  const block = [rectOf(head, 10), rectOf(nav, 6), rectOf(card, 14), rectOf(tip, 2)].filter(Boolean), placed = [];
+  for (const [i, f] of folds) if (SV[i]) { const R = foldR(i, f.p)*RING_OUT*f.p; block.push({ x: SX[i] - R, y: SY[i] - R, w: 2*R, h: 2*R }); }
+  if (sel >= 0) for (const k of U[sel].knn) { const j = k.j, R = printR(j) + 4; block.push({ x: SX[j] - R, y: SY[j] - R, w: 2*R, h: 2*R }); }
+  const order = ownIdx.slice().sort((a, b) => (b === sel) - (a === sel) || b - a);     // the open one first, then the newest
+  for (const i of order) {
+    const u = U[i], b = u.lab, w = u.lw || b.offsetWidth, h = u.lh || b.offsetHeight, sx = SX[i], sy = SY[i], g = Math.max(9, printR(i)*1.15 + 5);
+    let spot = null;
+    if (SV[i] && !folds.has(i) && sx > -20 && sx < W + 20 && sy > -20 && sy < H + 20 && litOf(u) > 0.5) {
+      const cands = [[sx + g, sy - h/2], [sx - g - w, sy - h/2], [sx - w/2, sy - g - h], [sx - w/2, sy + g]];
+      for (let c = 0; c < 4; c++) {
+        const side = (u.side + c) % 4, [x, y] = cands[side], r = { x, y, w, h };
+        if (x < 4 || y < 4 || x + w > W - 4 || y + h > H - 4) continue;
+        if (placed.some((o) => meets(o, r)) || block.some((o) => meets(o, r))) continue;
+        spot = r; u.side = side; break;
+      }
+    }
+    b.classList.toggle('on', i === sel);
+    if (spot) { placed.push(spot); b.style.transform = `translate(${spot.x.toFixed(1)}px,${spot.y.toFixed(1)}px)`; b.classList.remove('off'); }
+    else if (!b.classList.contains('off')) { b.classList.add('off'); b.style.transform = 'translate(-999px,-999px)'; }
+  }
+}
+
+// ---- one youniverse, open: its meaning as a comment, its name assigned as code, its neighbours as a list, and a way back in
+let sel = -1, selSig = '';
+let charW = 0;
+function wrapMeaning(u){
+  const m = u ? meaningOf(u.name || '') : '';
+  cMean.hidden = !m; if (!m) return;
+  if (!charW) { const c = document.createElement('canvas').getContext('2d'); c.font = getComputedStyle(cMean).font; charW = c.measureText('0000000000').width/10 || 7.5; }
+  const per = Math.max(16, Math.floor(((cMean.clientWidth || card.clientWidth - 40 || 300) - 26)/charW) - 2);
+  const wrap = (n) => { const out = []; let cur = ''; for (const w of m.split(' ')) { if (cur && (cur + ' ' + w).length > n) { out.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; } if (cur) out.push(cur); return out; };
+  let lines = wrap(per);                                   // then as even as the same number of lines allows: no word left alone
+  for (let n = per - 1; n > 12 && lines.length > 1; n--) { const t = wrap(n); if (t.length > lines.length) break; lines = t; }
+  cMean.replaceChildren(...lines.map((l) => { const s = document.createElement('span'); s.textContent = '# ' + l; return s; }));
+}
+const nameNode = (nm) => { const f = document.createDocumentFragment(); nm.split('_').forEach((w, k) => { if (k) { f.append('_'); f.append(document.createElement('wbr')); } f.append(w); }); return f; };
+function fillNear(u){
+  selSig = u.knn.map((e) => e.j).join(',');
+  cNear.replaceChildren(); cNear.hidden = !u.knn.length;
+  if (!u.knn.length) return;
+  cNear.append('neighbours = [\n');
+  u.knn.forEach((e) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = nameOf(U[e.j]);
+    b.addEventListener('click', () => select(e.j, 'hop'));
+    cNear.append('    "', b, '",\n');
+  });
+  cNear.append(']');
+}
+function fillCard(i){
+  const u = U[i], who = u.own ? 'you' : u.friend ? 'friend' : 'someone', s = document.createElement('span');
+  s.className = 's'; s.append('"', nameNode(nameOf(u)), '"');
+  cName.replaceChildren(who + ' = ', s);
+  fillNear(u);
+  cOpen.hidden = !u.c; if (u.c) cOpen.href = 'veritas3.html?sky=' + encodeURIComponent(u.c);
+  card.hidden = false;
+  wrapMeaning(u);
+}
+function setU(name){
+  try {
+    const p = new URLSearchParams(location.search); if (name) p.set('u', name); else p.delete('u');
+    const q = [...p].map(([k, v]) => v ? k + '=' + encodeURIComponent(v) : k).join('&');
+    history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash);
+  } catch (e) {}
+}
+function select(i, how){
+  if (i < 0 || i >= U.length || i === sel) return;
+  sel = i; fillCard(i); hideTip(); U[i].fp = 0;
+  if (!folds.has(i)) folds.set(i, { p: 0, t0: now, yaw0: cam.yaw, pitch0: cam.pitch });
+  else { const f = folds.get(i); f.yaw0 = cam.yaw; f.pitch0 = cam.pitch; }
+  gsInit(i);
+  if (U[i].name) setU(U[i].name);
+  setMode('node');
+}
+function deselect(){
+  if (sel < 0) return;
+  sel = -1; card.hidden = true; setU('');
+  if (cam.mode === 'node') setMode('free');
+  if (document.activeElement && (labs.contains(document.activeElement) || card.contains(document.activeElement))) document.activeElement.blur();
+}
+
+// ---- hands: drag to turn the space, right-drag or two fingers to move it, wheel or pinch to go nearer, tap a youniverse to open it
+const ptrs = new Map(); let tap0 = null, pinch = null, dragging = false, panning = false;
+const pinchOf = () => { const [a, b] = [...ptrs.values()]; return { d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), mx: (a.x + b.x)/2, my: (a.y + b.y)/2 }; };
+function pick(x, y, rad){
+  let best = -1, bs = Infinity;
+  for (let i = 0; i < U.length; i++) {
+    if (!SV[i]) continue;
+    const dx = SX[i] - x, dy = SY[i] - y, d = Math.hypot(dx, dy);
+    let r = rad + (U[i].own || U[i].friend ? 6 : 0);
+    if (folds.has(i)) r = Math.max(r, foldR(i, folds.get(i).p)*0.95);
+    else if (U[i].fp > 0.3) r = Math.max(r, printR(i)*0.85);
+    if (d > r) continue;
+    const s = d/r + SZ[i]/(cam.dist*40);                   // nearest the hand, and among equals the nearer one
+    if (s < bs) { bs = s; best = i; }
+  }
+  return best;
+}
+function hideTip(){ tip.hidden = true; cv.classList.remove('hot'); }
+function hover(x, y){
+  const i = pick(x, y, 9);
+  hov = i;
+  cv.classList.toggle('hot', i >= 0);
+  if (i < 0 || i === sel || (U[i].own && U[i].lab && !U[i].lab.classList.contains('off'))) { tip.hidden = true; return; }
+  tip.textContent = nameOf(U[i]); tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight, g = printR(i) + 10;
+  tip.style.transform = `translate(${clamp(x + 14, 4, W - w - 4)}px,${clamp(y - h - Math.max(10, g*0.6), 4, H - h - 4)}px)`;
+}
+cv.addEventListener('contextmenu', (e) => e.preventDefault());
+cv.addEventListener('pointerdown', (e) => {
+  try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  lastHands = now;
+  if (ptrs.size === 1) { tap0 = { x: e.clientX, y: e.clientY, t: performance.now(), touch: e.pointerType !== 'mouse' }; dragging = false; panning = e.button === 2 || e.shiftKey; }
+  else { tap0 = null; if (ptrs.size === 2) pinch = pinchOf(); }
+});
+cv.addEventListener('pointermove', (e) => {
+  const p = ptrs.get(e.pointerId);
+  if (!p) { if (e.pointerType === 'mouse') hover(e.clientX, e.clientY); return; }
+  const dx = e.clientX - p.x, dy = e.clientY - p.y;
+  if (ptrs.size === 1 && !dragging && tap0 && Math.hypot(e.clientX - tap0.x, e.clientY - tap0.y) < 6) return;
+  p.x = e.clientX; p.y = e.clientY; lastHands = now;
+  if (ptrs.size === 1) {
+    dragging = true; cv.classList.add('drag'); hideTip(); hov = -1;
+    if (panning) { free(); pan(dx, dy); }
+    else { cam.yaw -= dx*0.0055; cam.pitch = clamp(cam.pitch + dy*0.0055, -1.45, 1.45); }
+  } else if (ptrs.size === 2 && pinch) {
+    const q = pinchOf(); free(); dragging = true;
+    dolly(q.mx, q.my, pinch.d/q.d); pan(q.mx - pinch.mx, q.my - pinch.my); pinch = q;
+  }
+});
+const lift = (e) => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId);
+  if (e.type === 'pointerup' && tap0 && !dragging && !ptrs.size && performance.now() - tap0.t < 700) {
+    const i = pick(tap0.x, tap0.y, tap0.touch ? 20 : 11);
+    if (i >= 0 && i === sel && U[i].own && U[i].c && folds.has(i) && folds.get(i).p > 0.5) { location.href = cOpen.href; return; }   // yours, open: tap again to go in
+    if (i >= 0) select(i, 'tap'); else deselect();
+  }
+  if (!ptrs.size) { dragging = false; tap0 = null; pinch = null; panning = false; cv.classList.remove('drag'); }
+  else if (ptrs.size === 1) { pinch = null; tap0 = null; }
+};
+cv.addEventListener('pointerup', lift); cv.addEventListener('pointercancel', lift);
+cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !ptrs.size) { hideTip(); hov = -1; } });
+addEventListener('wheel', (e) => {
+  if (e.target instanceof Element && e.target.closest('#card')) return;
+  e.preventDefault(); free(); hideTip(); lastHands = now;
+  dolly(e.clientX, e.clientY, Math.exp(e.deltaY*(e.deltaMode === 1 ? 16 : 1)*(e.ctrlKey ? 0.01 : 0.0015)));
+}, { passive: false });
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { deselect(); hideTip(); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === '+' || e.key === '=') { free(); dolly(cam.cx, cam.cy, 0.8); }
+  else if (e.key === '-' || e.key === '_') { free(); dolly(cam.cx, cam.cy, 1.25); }
+  else if (/^Arrow/.test(e.key) && ownIdx.length && !(document.activeElement && card.contains(document.activeElement))) {   // step through yours, in the order you grew them
+    e.preventDefault();
+    const at = ownIdx.indexOf(sel), step = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1;
+    const j = ownIdx[at < 0 ? (step > 0 ? 0 : ownIdx.length - 1) : (at + step + ownIdx.length) % ownIdx.length];
+    select(j, 'key'); U[j].lab.focus({ preventScroll: true });
+  }
+});
+card.querySelector('.x').addEventListener('click', deselect);
+const toggle = (m) => { const on = cam.mode !== m; if (sel >= 0) deselect(); setMode(on ? m : 'all'); lastHands = now; };
+homeBtn.addEventListener('click', () => toggle('home'));
+weBtn.addEventListener('click', () => toggle('we'));
+addEventListener('resize', resize);
+
+// ---- the loop
+let last = performance.now(), t0 = last;
+const stats = { frames: 0, work: 0, sim: 0, paint: 0, dts: [] };
+function frame(ts){
+  now = ts; const dt = Math.min(0.1, Math.max(0, (ts - last)/1000)); last = ts;
+  if (stats.dts.length >= 240) stats.dts.shift(); stats.dts.push(dt*1000);
+  const w0 = performance.now();
+  while (demoDue.length && demoDue[0].due <= ts - t0) arrive(demoDue.shift().item);
+  drain();
+  if (linksDirty) rebuildLinks();
+  const w1 = performance.now();
+  tick();
+  const w2 = performance.now();
+  if (now - scene.at > 250) { measureScene(); scene.at = now; }
+  glyphR += (glyphTarget - glyphR)*(1 - Math.exp(-dt/(U.length < 2 ? 0.01 : 1.5)));
+  aim(dt); camBasis();
+  { const dC = Math.hypot(E[0] - scene.c[0], E[1] - scene.c[1], E[2] - scene.c[2]); fogN = Math.max(0, dC - 0.35*scene.r); fogF = dC + 1.25*scene.r; }
+  projectAll();
+  stepPrints(dt); stepFolds(dt);
+  if (gl) renderGL(ts/1000); else draw2D(ts/1000);
+  drawOver(dt, ts/1000);
+  stats.sim += w2 - w1; stats.paint += performance.now() - w2;
+  layLabels();
+  if (sel >= 0 && U[sel].knn.map((e) => e.j).join(',') !== selSig) fillNear(U[sel]);   // new neighbours arrived
+  stats.frames++; stats.work += performance.now() - w0;
+  requestAnimationFrame(frame);
+}
+initGL();
+resize();
+for (const e of readLocal('veritas.skies').slice(-60).map((e, k) => [e, k]).sort((a, b) => String(a[0] && a[0].d).localeCompare(String(b[0] && b[0].d)) || a[1] - b[1]).map((p) => p[0])) keepLocal(e, 'own');
+for (const e of readLocal('veritas.friends').slice(-60)) keepLocal(e, 'friend');
+if (DEMO) makeDemo(DEMO); else listen();
+if (HOME && ownIdx.length && !WANT) setMode('home');
+requestAnimationFrame(frame);
+window.__macroverse = { U, cam, stats, P, select, deselect, setMode, get sel(){ return sel; }, get links(){ return linkList.length; }, get alpha(){ return alpha; },
+  get queue(){ return queue.length; }, get glyphR(){ return glyphR; }, get gl(){ return !!gl; }, get folds(){ return [...folds].map(([i, f]) => [i, f.p]); },
+  get scene(){ return scene; }, get gs(){ return { owner: GS.owner, steps: GS.steps, f: GS.f, k: GS.k }; },
+  at: (i) => [SX[i], SY[i], SZ[i], SV[i]], pin(p){ pinP = p; }, fps(){ const d = stats.dts.slice(-120); return d.length ? 1000/(d.reduce((a, b) => a + b, 0)/d.length) : 0; } };
+})();
+</script>
+</body>
+</html>

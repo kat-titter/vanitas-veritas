@@ -22,7 +22,10 @@
   body.door #lead { display:block; }
   #lead:focus-visible { outline:1px solid var(--gold); }
   #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9; visibility:hidden;
-    text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
+    text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9);
+    /* one type scale, set by the comment size p: code a little smaller, the name a little larger; spacing in multiples of p */
+    --col:340px; --p:min(13px, calc(var(--col) / 24.5)); --k:max(11px, calc(var(--p) * .88)); --n:calc(var(--p) * 1.2);
+    --in:calc(var(--p) * .1); --pair:calc(var(--p) * .8); --head:calc(var(--p) * 1.2); --act:calc(var(--p) * 1.6); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); white-space:nowrap; }
   h1 i { font-style:normal; color:var(--gold); }
   #title { transition:opacity 1.4s ease, letter-spacing 2.4s cubic-bezier(.2,.8,.2,1); }
@@ -35,15 +38,21 @@
   body.veritas #mid { color:#f2e2c4; text-shadow:0 0 14px rgba(194,162,122,.9); }
   body.veritas h1 { text-shadow:0 0 22px rgba(194,162,122,.55), 0 0 3px rgba(3,3,4,.9); }
   pre { margin:20px 0 0; font:inherit; transition:opacity .8s; }
-  pre span { display:block; min-height:1.75em; }
+  pre span { display:block; min-height:0; }
   pre b { font-weight:400; color:var(--dim); }
   body.held pre { opacity:.22; }
   /* the program: one line for every new form of life, its caption. Point at a line and that one comes back. */
-  #lines { font-size:11.5px; line-height:1.75; }
-  #prog .lv, #prog .def { font-size:11.5px; line-height:1.75; }
+  #prog { font-size:var(--k); line-height:1.45; }                                          /* the machine: grey code, one size */
+  #lines { font-size:var(--k); line-height:1.45; }
+  #prog .pc, #prog .cmt, #prog .ln.cmt2, #prog > span:last-child { font-size:var(--p); }   /* every comment a size up; the riddle is a comment */
+  #prog > :not(.pc) + .pc, #lines > .cmt2, #lines > .cmt:first-child { margin-top:var(--pair); }   /* a comment opens a pair */
+  body.tall #youPc { margin-top:0; }                                                      /* phones: the lines above it are hidden */
+  #prog > span:last-child { margin-top:var(--head); }                                      /* # macrofluidic × __ stands outside the def */
   body.tall #lines .ln.life:not(.a0) { display:none; }          /* a phone: the newest form of life only */
   #prog .pc { color:var(--bone); white-space:pre; }                 /* the primer: what each opening line means, in words */
-  body.tall.primed #prog .pc, body.end #prog .pc { display:none; } /* once you have found one, the words have done their work */
+  body.primed #prog .pc, body.end #prog .pc { display:none; }     /* once you have found one, the primer has done its work */
+  body.primed #prog .hd, body.primed:not(.bio) #bio, body.primed:not(.held) #lvHold { display:none; }   /* then only what is happening: the culture while your hand is on it, the hold while you hold */
+  body:not(.tall) #lines .ln.life:not(.a0):not(.a1):not(.a2) { display:none; }   /* the poem as it grows: its newest lines, never a wall */
   #prog .ln { display:block; min-height:0; padding-left:2ch; text-indent:-2ch; white-space:pre-wrap; pointer-events:auto; cursor:pointer; outline:none; }
   #prog .ln:hover, #prog .ln:focus-visible, #prog .ln.on { color:var(--bone); }
   #prog .ln.cmt2 { color:var(--bone); cursor:default; }            /* a person's words over the machine's line */
@@ -62,27 +71,33 @@
   body.gallery #bar, body.sink #bar { display:none; }
   #say .f { display:block; color:var(--gold); }
   /* sharing: the card, and what to do with it, in one place */
-  #sharer { position:fixed; inset:0; z-index:6; display:none; overflow:auto; background:var(--ink); padding:48px 24px 32px; }
+  /* one column, the picture filling it: the circle's left tangent and every line share one edge. Only the icons are centred */
+  #sharer { position:fixed; inset:0; z-index:6; display:none; overflow:auto; background:var(--ink); padding:56px 16px 48px; }
   #sharer.on { display:block; }
-  #sharer .in { max-width:520px; margin:0 auto; text-align:left; }
-  #sharer img { display:block; width:min(100%, 360px); height:auto; aspect-ratio:1; margin:0 auto; border-radius:50%; object-fit:cover; }
-  #shText p, #shText h2 { white-space:nowrap; }                     /* every line of the script is one line */
-  #shText { margin:30px 0 0; color:var(--bone); }
-  #shText .nm { margin:0; font:400 min(22px, calc((100vw - 48px)/25))/1.3 var(--mono); color:var(--gold); }   /* the longest name still fits one line on a phone */
-  #shText .nm.sp { font-style:italic; }
-  #shText .mn { margin:10px 0 0; font-size:min(15px, calc((100vw - 48px)/30)); line-height:1.6; }
-  #shText .ps { margin:30px 0 0; }
-  #shText .pc { margin:18px 0 0; font-size:14px; line-height:1.55; }
-  #shText .cd { margin:3px 0 0; font-size:max(11px, min(12px, calc((100vw - 48px)/40))); line-height:1.5; color:var(--gold); }
-  #sharer .icons { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 18px; margin:38px 0 0; }
-  #sharer .icons > span { display:flex; gap:4px; }
+  #sharer .in { --col:min(400px, calc(100vw - 32px)); --p:min(15px, calc(var(--col) / 24.5)); --k:max(11px, calc(var(--p) * .88)); --n:calc(var(--p) * 1.2);
+    --in:calc(var(--p) * .1); --pair:calc(var(--p) * .8); --head:calc(var(--p) * 1.2);
+    position:relative; width:var(--col); margin:0 auto; text-align:left; }
+  #sharer img { display:block; width:100%; height:auto; aspect-ratio:1; margin:0; border-radius:50%; object-fit:cover; }
+  #shText { margin:calc(var(--p) * 2.2) 0 0; }
+  #shText p, #shText h2 { margin:0; font-family:var(--mono); font-weight:400; line-height:1.45; white-space:pre; }   /* every line of the script is one line */
+  #shText .mn, #shText .pc { font-size:var(--p); color:var(--bone); }
+  #shText .nm { font-size:var(--n); line-height:1.3; color:var(--gold); margin-top:var(--in); }
+  #shText .cd { font-size:var(--k); color:var(--gold); margin-top:var(--in); }
+  #shText .ps { margin-top:var(--head); }
+  #shText .pc { margin-top:var(--pair); }
+  #shText .ps > .pc:first-child { margin-top:0; }
+  #sharer .icons { display:flex; flex-direction:column; align-items:center; gap:8px; margin:40px 0 0; }
+  #sharer .icons > span { display:flex; justify-content:center; gap:8px; }
+  #shMacro { margin-top:20px; }
   #sharer .ic { display:inline-grid; place-items:center; width:44px; height:44px; border-radius:50%; color:var(--gold); text-decoration:none; outline:none; }
   #sharer .ic svg { width:20px; height:20px; fill:currentColor; }
-  #sharer .ic svg .ln { fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
-  #sharer .ic:hover, #sharer .ic:focus-visible { color:var(--bone); background:rgba(228,223,210,.07); }
-  #sharer .ic.done { color:var(--bone); }
+  #sharer .tools .ic svg, #shMacro svg { width:22px; height:22px; }
+  #sharer .ic svg .ln { fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  #shMacro svg .ln { stroke-width:1.4; }
+  #sharer .ic:hover, #sharer .ic:focus-visible, #sharer .ic.done { color:var(--bone); background:rgba(228,223,210,.07); }
   .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
-  #sharer .x { position:fixed; top:16px; right:22px; background:none; border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
+  #sharer .x { position:fixed; top:8px; right:8px; z-index:1; width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:rgba(3,3,4,.9);
+    border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
   #sharer .x:hover, #sharer .x:focus-visible { color:var(--bone); }
   #prog .ln.sent { color:#a8916f; }
   /* the sky book: every sky grown on this device, named, to look back at and to send */
@@ -108,7 +123,8 @@
   @keyframes blink { 50% { opacity:0; } }
   /* the credit: two letters to find */
   #we { width:2.6ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px solid var(--gold); color:var(--gold);
-    font:inherit; font-weight:700; letter-spacing:.3em; pointer-events:auto; outline:none; caret-color:var(--gold); border-radius:0; }
+    font:inherit; font-weight:700; letter-spacing:.3em; pointer-events:auto; outline:none; caret-color:var(--gold); border-radius:0;
+    height:1.25em; line-height:1.25em; vertical-align:baseline; }                     /* the input adds no height to its line */
   #we::placeholder { color:var(--gold); opacity:1; font-weight:700; animation:blink 1.6s steps(1) infinite; }
   #we.hint::placeholder { opacity:1; animation:none; }
   #we.hint { border-bottom-style:dotted; }
@@ -133,20 +149,25 @@
   .knob { color:var(--cult, var(--gold)) !important; transition:color .4s; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
   .knob:focus-visible { outline:none; border-bottom-style:solid; }
   /* one line at a time: the words as a comment, the code under it */
-  #say { margin:16px 0 0; min-height:7.6em; color:var(--bone); white-space:pre-wrap; transition:min-height 1.4s ease; }
+  /* a comment is a person's words (bone), the code under it the machine's (gold, a size down). Every line is one line: never wrapped */
+  #say { margin:16px 0 0; min-height:7.6em; color:var(--bone); white-space:pre; transition:min-height 1.4s ease; }
   body.end #say { min-height:12.6em; }                /* the reading and its two ways on: room for them, never over the tools */
-  #say .sp { display:block; font-style:italic; color:var(--gold); font-size:12px; letter-spacing:.04em; }
-  #say .la { pointer-events:auto; cursor:help; border-bottom:1px dotted rgba(194,162,122,.55); }
-  #say .sp.id { font-style:normal; letter-spacing:.02em; }
+  #say .sp { display:block; font-style:italic; color:var(--gold); font-size:12px; letter-spacing:.04em; white-space:pre; }
   #say .c .g { font-weight:400; color:var(--gold); }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
-  #say code { display:block; font:inherit; color:var(--gold); white-space:pre-wrap; }
-  #say .keep { display:inline-block; margin:.5em 1.2em 0 0; }
+  #say .c { display:block; font-size:var(--p); line-height:1.45; color:var(--bone); white-space:pre; }
+  #say code { display:block; margin-top:var(--in); font:400 var(--k)/1.45 var(--mono); color:var(--gold); white-space:pre; }
+  #say code.nm { font-size:var(--n); line-height:1.3; }                 /* the name: the largest code line, fitted, never a title */
+  #say code + .c { margin-top:var(--pair); }                          /* a new pair */
+  #say .nm + .c { margin-top:var(--head); }                           /* air after the name */
   body.end #say { margin-top:26px; }                           /* the reading gets room of its own */
   body.end #lines .ln.life, body.end #prog .hd { display:none; } /* at the end the program folds to its bones: the reading is the thing */
-  #say .c { display:block; color:var(--bone); white-space:pre-wrap; }
+  body.end #prog, body.end #say { text-shadow:0 0 2px var(--ink), 0 0 8px var(--ink); }   /* small lines at the end: a dark halo, not a glow */
   #say .c.gold { color:var(--gold); }
-  #say .keep { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px dotted var(--gold); white-space:nowrap; }
+  #say .keep.ic { border-bottom:0; vertical-align:-5px; }
+  #say .keep.ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  #say .keep { display:inline-block; margin:var(--act) 24px 0 0; font-size:var(--p); line-height:1.45; color:var(--gold); pointer-events:auto;
+    text-decoration:none; border-bottom:1px dotted var(--gold); white-space:nowrap; }
   #say.quiet { color:var(--bone); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; animation:breath 3.2s ease-in-out infinite; }
   @keyframes breath { 0%, 100% { opacity:.42; } 50% { opacity:.95; } }   /* hold: it breathes at the pace of one held breath */
   /* the eye: the drain is a button once it has started looking at you */
@@ -186,7 +207,7 @@
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
 <button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"></span></button>
 <section id="shelf" aria-label="Your youniverses" role="dialog"><button class="x" type="button" aria-label="Close">&times;</button><h2 id="shelfHead">youniverses</h2><div class="grid" id="shelfGrid"></div></section>
-<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><img id="shImg" alt=""><div id="shText"></div><p class="icons"><span id="shGo"></span><span class="tools"><a href="#" id="shShare" class="ic" aria-label="share the picture" title="share the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a><a href="#" id="shSave" class="ic" aria-label="save the picture" title="save the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></a><a href="#" id="shCopy" class="ic" aria-label="copy the link" title="copy the link"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></a><a href="macroverse.html" id="shMacro" class="ic" aria-label="your place in the macroverse" title="your place in the macroverse"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M5.5 17 12 6.5l6.5 8.5M5.5 17l13-2"/><circle cx="5.5" cy="17" r="1.8"/><circle cx="12" cy="6.5" r="1.8"/><circle cx="18.5" cy="15" r="1.8"/></svg></a></span></p><p id="shLink" class="sr"></p></div></section>
+<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><img id="shImg" alt=""><div id="shText"></div><p class="icons"><span id="shGo"></span><span class="tools"><a href="#" id="shShare" class="ic" aria-label="share the picture" title="share the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a><a href="#" id="shSave" class="ic" aria-label="save the picture" title="save the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></a><a href="#" id="shCopy" class="ic" aria-label="copy the link" title="copy the link"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></a></span><a href="macroverse.html" id="shMacro" class="ic" aria-label="your place in the macroverse" title="your place in the macroverse"><svg viewBox="0 0 24 24" aria-hidden="true"><circle class="ln" cx="12" cy="12" r="10"/><circle class="ln" cx="10" cy="13.5" r="5.5"/><circle cx="9" cy="14.5" r="2"/></svg></a></p><p id="shSaid" class="sr" aria-live="polite"></p></div></section>
 <main id="words">
   <h1 id="title" aria-label="vanitas, veritas">v<span class="br">[</span><span id="mid">an</span><span class="br">]</span>i<i>+</i>as</h1>
   <div id="bar" role="progressbar" aria-label="stars found" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b class="eye"></b></div>
@@ -992,21 +1013,22 @@ const EN_PART = { Nascens:'is being born', Manens:'remains', Fugiens:'flees', Mo
   Convertens:'turns around' };
 // a sky's name, as code: noun_participle_hour. The thing in the form of life you stayed with, what the play did most, and when you came.
 // 64 nouns x 64 participles x 8 hours = 32,768 names; none repeats on this device, nor (as far as the public record reaches) anywhere.
-const NOUN_EN = Object.assign(Object.fromEntries(Object.entries(EN_NOUN).map(([k, v]) => [k.toLowerCase(), v])), {"persona": "the mask", "reticulum": "the little net", "cachinnus": "the loud laugh", "sopor": "the deep sleep", "phantasma": "the phantom", "corona": "the crown", "anulus": "the ring", "nebula": "the mist", "favus": "the honeycomb", "imago": "the likeness", "cranium": "the skull", "guttus": "the narrow flask", "lumen": "the light of the eye", "vitrum": "the glass", "rictus": "the gape", "scintilla": "the spark", "basium": "the kiss", "macula": "the spot", "globus": "the globe", "ocellus": "the little eye", "corolla": "the garland", "medulla": "the marrow", "caligo": "the gloom", "cera": "the wax", "unda": "the wave", "nimbus": "the halo", "candor": "the whiteness", "cortex": "the rind", "unio": "the pearl", "favilla": "the ember", "caput": "the head", "foramen": "the opening"});
+const NOUN_EN = Object.assign(Object.fromEntries(Object.entries(EN_NOUN).map(([k, v]) => [k.toLowerCase(), v])), {"persona": "the mask", "reticulum": "the little net", "cachinnus": "the loud laugh", "sopor": "the deep sleep", "phantasma": "the phantom", "corona": "the crown", "anulus": "the ring", "nebula": "the mist", "favus": "the honeycomb", "imago": "the likeness", "cranium": "the skull", "guttus": "the narrow flask", "lumen": "the eye's light", "vitrum": "the glass", "rictus": "the gape", "scintilla": "the spark", "basium": "the kiss", "macula": "the spot", "globus": "the globe", "ocellus": "the little eye", "corolla": "the garland", "medulla": "the marrow", "caligo": "the gloom", "cera": "the wax", "unda": "the wave", "nimbus": "the halo", "candor": "the whiteness", "cortex": "the rind", "unio": "the pearl", "favilla": "the ember", "caput": "the head", "foramen": "the opening"});
 const PART_EN = Object.assign(Object.fromEntries(Object.entries(EN_PART).map(([k, v]) => [k.toLowerCase(), v])), {"perdurans": "endures", "retinens": "holds on", "desinens": "leaves off", "fruens": "savours", "habitans": "dwells", "volitans": "flits on", "dimittens": "lets go", "collineans": "aims true", "vagans": "wanders", "perveniens": "arrives at last", "contemplans": "looks long", "opperiens": "bides its time", "inveniens": "finds", "inaurans": "gilds", "undans": "surges", "commovens": "stirs", "quiescens": "keeps still", "temptans": "tests by touch", "comitans": "keeps company", "circumdans": "encircles", "stans": "stands its ground", "revisens": "revisits", "remeans": "comes home", "lustrans": "looks all around", "spectans": "faces one way", "varians": "varies", "sequens": "follows", "intuens": "gazes", "percipiens": "takes it in", "apparens": "shows itself", "solvens": "solves", "ludens": "plays", "occurrens": "goes to meet", "revelans": "unveils"});
 const HOUR_EN = Object.fromEntries(HOURS.map((h) => [h[2], h[3]]));
 const meaningOf = (name) => { const t = String(name).toLowerCase().split(/[ _]/), n = NOUN_EN[t[0]], v = PART_EN[t[1]], h = t[2] ? HOUR_EN[t[2]] : '';
   return n && v ? `${n} that ${v}${h ? ', ' + h : ''}.` : ''; };
-// comments wrap the way code does: every line starts with its own marker, never a bare continuation
-let charW = 0;
-function perLine(){
-  if (!charW) { const cx = document.createElement('canvas').getContext('2d'); cx.font = getComputedStyle(document.body).font; charW = cx.measureText('0000000000').width/10 || 7.5; }
-  return Math.max(20, Math.floor((say.clientWidth || 300)/charW));
+// the name's meaning, as comment lines: one line, or (over 40 characters) split once after its comma. The same on every surface.
+const meanLines = (name) => { const m = meaningOf(name); if (!m) return []; const t = '# ' + m, i = t.indexOf(', ');
+  return t.length <= 40 || i < 0 ? [t] : [t.slice(0, i + 1), '# ' + t.slice(i + 2)]; };
+// a line is one line: too wide for its box, it is set smaller (never under 11px), never wrapped
+function fitLine(el, min = 11){
+  el.style.fontSize = '';
+  const box = el.clientWidth, w = el.scrollWidth; if (!box || w <= box + 0.5) return;
+  el.style.fontSize = Math.max(min, Math.floor(parseFloat(getComputedStyle(el).fontSize)*box/w*4)/4) + 'px';
 }
-function wrapWords(text, n){ const out = []; let cur = ''; for (const w of String(text).split(' ')) { if (cur && (cur + ' ' + w).length > n) { out.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; } if (cur) out.push(cur); return out; }
-const commentHTML = (text, mark = '#', cls = 'c') => text ? wrapWords(text, perLine() - mark.length - 1).map((l) => `<span class="${cls}">${mark} ${l}</span>`).join('') : '';
-const glossHTML = (name) => String(name).split(/([ _])/).map((w) => { const lw = w.toLowerCase(), g = NOUN_EN[lw] || PART_EN[lw] || HOUR_EN[lw];
-  return g ? `<span class="la" title="${lw}: ${g}">${w}</span>` : w; }).join('');
+const fitAll = (root) => { if (root) root.querySelectorAll('.c, code, .sp, .mn, .nm, .pc, .cd').forEach((el) => fitLine(el)); };
+const commentHTML = (text, mark = '#', cls = 'c') => text ? `<span class="${cls}">${mark} ${text}</span>` : '';
 function skyNameOf(m, part, nv = 0, ti = -1){
   const still = m ? nounOf(m.a ?? m.sign) : '', noun = (nv && LATIN2[still] ? LATIN2[still] : (LATIN[still] || 'Speculum')).toLowerCase();
   return [noun, (PARTS[part] || PARTS[0]).toLowerCase()].join('_');   // the thing and what it did; never the hour you came (Kat: the time stays hidden)
@@ -1307,10 +1329,10 @@ const bioEl = document.getElementById('bio');
 bioEl.addEventListener('pointerenter', () => { bioHover = true; });
 bioEl.addEventListener('pointerleave', () => { bioHover = false; bioUntil = performance.now()+2500; });
 
-const keepLink = (label = 'keep') => MODE === 'web' ? ` <a class="keep" href="#keep">${label} -&gt;</a>` : '';
+const keepLink = (label = 'keep') => MODE === 'web' ? `<a class="keep" href="#keep">${label}</a>` : '';
 function announce(i, now){
   shown = spLine(i) + poemLine(codeOf(i), lineOf(i)) + keepLink();
-  say.innerHTML = shown; say.classList.remove('quiet'); linger = now+5200;
+  say.innerHTML = shown; say.classList.remove('quiet'); fitAll(say); linger = now+5200;
 }
 let shownSync = '';
 function poem(){                              // sink == sync: True while the beam holds everyone in step, False once enough of us have stopped
@@ -1332,7 +1354,7 @@ let lastEcho = -1, ghostAt = 0;
 const saidOnce = {};                                       // what has been said on this device; said once, never again
 if (KEEP) try { Object.assign(saidOnce, JSON.parse(localStorage.getItem('veritas.told') || '{}')); } catch (e) {}
 function once(key){ if (saidOnce[key]) return false; saidOnce[key] = 1; if (KEEP) try { localStorage.setItem('veritas.told', JSON.stringify(saidOnce)); } catch (e) {} return true; }
-const sayIt = (html, quiet = false) => { if (html !== shown) { shown = html; say.innerHTML = html; say.classList.toggle('quiet', quiet); } };
+const sayIt = (html, quiet = false) => { if (html === shown) return; shown = html; say.innerHTML = html; say.classList.toggle('quiet', quiet); fitAll(say); };   // every line it writes is fitted
 function tell(now){
   poem();
   if (MODE === 'sink') return;                                     // the sink speaks with water only
@@ -1340,14 +1362,13 @@ function tell(now){
     const m = recall.snap;
     sayIt(`<span class="sp">${m.sp}</span>` + poemLine(captionOf(m), recall.sent ? wordsOf(m, m.line) : lineOf(recall.line)) + (recall.sent ? '' : keepLink())); return;
   }
-  if (silence && !held) {                                          // the end: your sky's name, and the mirror. Then: send it, or grow another.
+  if (silence && !held) {                                          // the end: what your name means, your name, the reading. Then: send it, or birth another.
     const r = reading || (reading = readYou());
     if (!document.body.classList.contains('end')) document.body.classList.add('end');
-    const on = MODE === 'web' ? `<a class="keep" data-act="share" href="#share">your reading -&gt;</a> <a class="keep" data-act="again" href="#again">birth another -&gt;</a>` : '';
-    const many = document.body.classList.contains('tall') ? 1 : 3;
-    sayIt(`<span class="sp id">${glossHTML(r.sky)}</span>` + commentHTML(meaningOf(r.sky)) + `<code>youniverse = mirror(you)</code>`
-      + (r.pairs || (r.horo || [r.vanitas]).map((t) => [t, ''])).slice(0, many).map(([c, k]) => commentHTML(c) + (k ? `<code>${k}</code>` : '')).join('')
-      + on);
+    const on = MODE === 'web' ? `<a class="keep" data-act="again" href="#again">begin again</a><a class="keep ic" data-act="share" href="#share" aria-label="your reading" title="your reading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a>` : '';
+    const many = document.body.classList.contains('tall') ? 1 : 3, ps = r.pairs || (r.horo || [r.vanitas]).map((t) => [t, '']);
+    sayIt(meanLines(r.sky).map((l) => `<span class="c">${l}</span>`).join('') + `<code class="nm">you = "${r.sky}"</code>`
+      + ps.slice(0, many).map(([c, k]) => commentHTML(c) + (k ? `<code>${k}</code>` : '')).join('') + on);
     return;
   }
   // Nothing here is a tutorial. The piece shows what to do first (the breathing word, the ghost of a hand, the empty ring, a line that
@@ -1817,7 +1838,7 @@ function render(){
 // ---- one composition. Wide: the disc is cropped by the left edge and the words stand to its right.
 // Tall: the disc is cropped by the top and the words stand under it. A wall or a sink: the disc, centred.
 const RING = 0.470/0.395;
-let cardFrame = false, tight = 0, tightAt = 0;
+let cardFrame = false, tight = 0, tightAt = 0, colW = 0;
 function resize(){
   const { w, h, dpr } = layoutWords();
   const pw = Math.max(2, Math.round(w*dpr)), ph = Math.max(2, Math.round(h*dpr));
@@ -1832,7 +1853,7 @@ function layoutWords(){
   const w = window.innerWidth, h = window.innerHeight;
   const tall = MODE === 'web' && !cardFrame && !(w > 1.3*h);
   if (!cardFrame && document.body.classList.contains('tall') !== tall) document.body.classList.toggle('tall', tall);
-  const ww = Math.min(tall ? 320 : 340, w-48);
+  const ww = Math.min(tall ? 343 : 340, w-32);              // 16px gutters on a phone: the measure the one-line rule needs
   if (!cardFrame && MODE === 'web' && performance.now() - tightAt > 500) {   // fit (wide screens; a tall one shrinks the basin instead): if the column
     tightAt = performance.now();                                              // runs off the bottom, fold the oldest lines away, a step at a time
     const r0 = words.getBoundingClientRect(), over = tall ? -999 : r0.bottom - (h - 10);
@@ -1856,10 +1877,11 @@ function layoutWords(){
   } else {
     Rb = Math.min(0.6*w, (h-wh-70)/(RING+0.92));          // on a phone the disc may run off both sides; better than an empty foot
     cx = 0.46*w; cy = 0.92*Rb;
-    wx = Math.max(24, Math.min(w-ww-24, cx-0.35*Rb)); wy = cy+RING*Rb+52;
+    wx = Math.max(16, Math.min(w-ww-16, cx-0.35*Rb)); wy = cy+RING*Rb+52;
     lead = [wx-14, wy+13];
   }
   words.style.width = ww+'px';
+  if (ww !== colW) { colW = ww; words.style.setProperty('--col', ww+'px'); fitAll(say); }   // the type scale follows the measure
   words.style.transform = `translate(${Math.round(wx)}px,${Math.round(wy)}px)`;
   document.getElementById('lead').style.transform = `translate(${Math.round(lead[0])}px,${Math.round(lead[1])}px)`;
   document.getElementById('eye').style.transform = `translate(${Math.round(cx)}px,${Math.round(cy)}px)`;
@@ -2039,13 +2061,14 @@ async function autoplay(){
   tickN(200);
   if (params.has('seen')) { window.__veritas.fakeSee(5); await new Promise((r) => setTimeout(r, 900)); tickN(20); }
   let hand = [0, -0.2];
-  for (let k = 0; k < LINES && !read.every(Boolean); k++) {
+  const upTo = Math.min(LINES, parseInt(mode, 10) || LINES);          // autoplay=3 stops after three stars, mid-play
+  for (let k = 0; k < upTo && !read.every(Boolean); k++) {
     move(hand); tickN(8); setHeld(true);
     const spot = pause.spot.slice(); for (let j = 1; j <= 20; j++) { hand = [hand[0] + (spot[0]-hand[0])*0.2, hand[1] + (spot[1]-hand[1])*0.2]; move(hand); tickN(1); }
     let g = 0; while (!pause.done && g++ < 300) { move(spot); tickN(1); } tickN(20); setHeld(false); tickN(30);
     await new Promise((r) => setTimeout(r, 0));
   }
-  tickN(1000);
+  tickN(upTo < LINES ? 90 : 1000);
   if (mode === 'reading' || mode === 'card') { await openSharer(); if (mode === 'card') shImg.src = URL.createObjectURL(shareCard.blob); }
   document.body.dataset.autoplay = 'done';
 }
@@ -2473,7 +2496,7 @@ function readYou(){
   // the code is a little script, step by step: each line does something different (a loop, a sum, a test, a call, a list, a slice),
   // and the numbers in it are what the play really counted. The sky, the hour and the day only chose the poem above it.
   const TERM = { longest:(v) => `while held < ${one(v)}: stay()`, stay:(v) => `for star in stars: star.stay(${one(v)})`,
-    seek:(v) => `patience = ${one(v*(f.finds || 7))} / len(stars)`, direct:(v) => `you.aim = ${dec(v)}`, turn:(v) => `you.turn(${Math.round(v*57.3)})`,
+    seek:(v) => `patience = ${one(Math.max(0, v)*(f.finds || 7))} / len(stars)`, direct:(v) => `you.aim = ${dec(v)}`, turn:(v) => `you.turn(${Math.round(v*57.3)})`,
     sectors:(v) => `faces = set(directions[:${v}])`, hull:(v) => `you.room += ${dec(v)}`, stir:(v) => `for _ in range(${Math.round(v)}): stir()`,
     scrubs:(v) => `gold = [wash() for _ in range(${v})]`, taps:(v) => `beats = [tap] * ${v}`, holds:(v) => `held = holds[:${v}]`,
     letgo:(v) => `del doubts[:${v}]`, minutes:(v) => `attention = ${one(v)} * 60`, closure:(v) => `if dist(first, last) < ${dec(v + 0.05)}: home()`,
@@ -2486,7 +2509,7 @@ function readYou(){
   [cand.trait0, cand.trait1, cand.trait2] = tr;
   // what the play counted that the traits above did not say: these sit under the lines the sky chose, so every code line is true
   const spare = ['holds', 'taps', 'stir', 'minutes', 'longest', 'stay', 'seek', 'turn', 'sectors', 'hull', 'letgo', 'scrubs', 'direct', 'closure']
-    .filter((k) => !ranked.some((x) => x.d.k === k) && +f[k] > 0);   // nothing that did not happen
+    .filter((k) => !ranked.some((x) => x.d.k === k) && f[k] !== undefined && +f[k] >= (['direct', 'hull', 'closure'].includes(k) ? 0.005 : 0.05));   // only what was really counted: nothing that did not happen
   const count = (j) => { const k = spare[(hashI(seed + j*53) + j) % Math.max(1, spare.length)]; spare.splice(spare.indexOf(k), 1);
     return k ? termOf(k) : `stars = path[:${f.finds}]`; };
   cand.sun = [pick(HORO.sun[`${el(sk.si)}.${mo(sk.si)}`] || [], 21), count(1)];
@@ -2494,9 +2517,9 @@ function readYou(){
   cand.rising = [pick(HORO.rising[el(sk.ai)] || [], 29), count(3)];
   cand.hour = [pick(HORO.hours[hourKey] || [], 31), count(4)];
   cand.season = [pick(HORO.season[ctx.season] || [], 37), count(5)];
-  if (f.you) cand.seen = [pick(HORO.seen, 41), 'you = see(you)']; else if (CAN_SEE) cand.unseen = [pick(HORO.unseen, 43), 'face = None'];
+  if (f.you) cand.seen = [pick(HORO.seen, 41), 'see(you) == you'];   // never reassigns you under its name else if (CAN_SEE) cand.unseen = [pick(HORO.unseen, 43), 'face = None'];
   if (f.together) cand.company = [pick(HORO.company, 47), `us = [you, *others[:${f.together}]]`];
-  else if (sent && !sent.own) cand.company = [pick(HORO.sent, 53), 'you += friend.youniverse'];
+  else if (sent && !sent.own) cand.company = [pick(HORO.sent, 53), 'weverse = [you, friend.youniverse]'];
   else if (skies.length) cand.company = [pick(HORO.returning, 59), 'youniverses.append(you)'];
   if (ctx.davos > 0) cand.davos = [pick(HORO.davos, 61), 'davos = next(future)'];
   { // the day's sky, the same for everyone who played that day: a planet turning, going back, changing sign; a new or full moon; an eclipse
@@ -2513,7 +2536,7 @@ function readYou(){
   const depth = Math.max(0, Math.min(1, 0.06 + 0.16*Math.min(1, (f.minutes || 0)/6) + 0.12*Math.min(1, ((f.letgo || 0) + Math.max(0, (f.holds || 7) - 7))/5)
     + 0.13*Math.min(1, ((f.stir || 0) + 0.5*(f.scrubs || 0) + 0.5*(f.taps || 0))/14) + 0.09*Math.min(1, (f.hull || 0)/0.3) + (f.you ? 0.2 : 0) + (f.we ? 0.08 : 0)
     + (f.knobs ? 0.04 : 0) + (f.together ? 0.05 : 0) + (f.noon ? 0.04 : 0) + 0.05*Math.min(1, skies.length/5) + 0.16*((hashI(seed + 71) % 1000)/1000 - 0.5)));
-  const n = 3 + Math.round(7*depth);
+  const n = 3 + Math.min(2, Math.floor(depth*3));             // three to five: a light play reads short, a deep one a little longer
   const PRIORITY = ['trait0', 'sun', 'seen', 'today', 'forecast', 'moon', 'trait1', 'rising', 'company', 'hour', 'unseen', 'season', 'trait2', 'davos'];
   const ORDER = ['sun', 'trait0', 'moon', 'rising', 'seen', 'unseen', 'trait1', 'hour', 'season', 'company', 'trait2', 'davos', 'today', 'forecast'];
   const keep = new Set(PRIORITY.filter((k) => cand[k]).slice(0, n));
@@ -2547,7 +2570,6 @@ function studyPublish(stage){
 // about anyone. Whoever opens it finds the sky in their glass, under their own, and can grow its forms of life again: where the
 // program says "you", it grows them from their own face, if they let it see them. Links always point at the published page.
 const PUBLIC = /(^|\.)github\.io$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://kat-titter.github.io/vanitas_veritas_verse/';
-const PUBLIC_TEXT = PUBLIC.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const bitsOf = (v, n) => Math.max(0, Math.min(2**n-1, Math.round(v))).toString(2).padStart(n, '0');
 function encodeSky(){
@@ -2662,12 +2684,6 @@ function chosenSnap(){                        // the form of life you stayed wit
   if (!best) { const o = orderOf(); best = o.length ? mem[o[o.length-1]] : null; }
   return best;
 }
-function wrapText(c, text, maxW){
-  const words = String(text).split(' '), lines = []; let cur = '';
-  for (const w of words) { const t = cur ? cur + ' ' + w : w; if (c.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }
-  if (cur) lines.push(cur);
-  return lines;
-}
 async function makeCard(only){
   const W = 1080, Hc = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = Hc;
   const c = cv.getContext('2d');
@@ -2677,10 +2693,11 @@ async function makeCard(only){
   const r = done ? (reading || (reading = readYou())) : null;
   const li = one >= 0 ? one : lastRead;
   const snap = done ? chosenSnap() : (li >= 0 ? mem[li] : null);
-  const mono = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace', L = 120, MW = W-2*L;
-  const pairsC = r ? (r.pairs || []).slice(0, 4) : [];       // the first lines of the reading (the strongest come first)
-  const textH = r ? 56 + 50 + 40 + pairsC.length*84 : snap ? 330 : 80, foot = 150;
-  const Dm = Math.max(560, Math.min(r ? 760 : 800, Hc - foot - textH - 64 - 76)), ox = (W-Dm)/2, oy = 64;
+  const mono = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace', BONE = '#e4dfd2', GOLD = '#c2a27a', DIM = '#8a8d93';
+  const Dm = 700, ox = (W-Dm)/2, oy = 64;                  // the disc: x 190-890, y 64-764, for every card
+  const X0 = ox, MW = W-64-X0;                              // one left edge, the disc's tangent; a line may run to 64px from the right edge (826)
+  const P = 34, K = 30, N = 41;                             // comment, code, name: 11.8 / 10.4 / 14.2 px in a 375px feed
+  const pairsC = r ? (r.pairs || []).slice(0, 2) : [];      // the first lines of the reading (the strongest come first); the panel has them all
   try {
     cardFrame = true; cardMode = !!snap; cardSnap = snap;
     resize(); render();                                    // one frame: the whole disc in view, the glass clear; copied before it is ever shown
@@ -2702,6 +2719,27 @@ async function makeCard(only){
     }
   }
   if (sent && one < 0) { c.strokeStyle = 'rgba(194,162,122,0.30)'; c.lineWidth = 1.5; c.beginPath(); sent.stars.forEach((m, i) => i ? c.lineTo(X(m.spot), Y(m.spot)) : c.moveTo(X(m.spot), Y(m.spot))); c.stroke(); }
+  if (seen) {                                              // you: the black hole of your universe, seen through its lens
+    const cx0 = X([0, 0]), cy0 = Y([0, 0]), R0 = Math.round(0.17*Dm);   // 119
+    const g = c.createRadialGradient(cx0, cy0, 0, cx0, cy0, 1.4*R0);     // dig the hole: ink out to the ring, fading away past it (the glass there is white,
+    g.addColorStop(0, 'rgba(3,3,4,.95)'); g.addColorStop(0.72, 'rgba(3,3,4,.95)'); g.addColorStop(1, 'rgba(3,3,4,0)');   // and would wash a face out)
+    c.fillStyle = g; c.beginPath(); c.arc(cx0, cy0, 1.4*R0, 0, 2*Math.PI); c.fill();
+    if (faceCv) {
+      const F = document.createElement('canvas'); F.width = F.height = 2*R0; const f = F.getContext('2d');
+      f.drawImage(faceCv, 64, 48, 384, 384, 0, 0, 2*R0, 2*R0);
+      const m = f.createRadialGradient(R0, R0, 0, R0, R0, R0);           // a soft fade that is gone before the ring: no edge, no disc
+      m.addColorStop(0, '#000'); m.addColorStop(0.45, '#000'); m.addColorStop(0.7, 'rgba(0,0,0,.6)'); m.addColorStop(0.92, 'rgba(0,0,0,0)');
+      f.globalCompositeOperation = 'destination-in'; f.fillStyle = m; f.fillRect(0, 0, 2*R0, 2*R0);
+      c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = 0.9; c.drawImage(F, cx0-R0, cy0-R0); c.restore();
+    }
+    c.save(); c.beginPath(); c.arc(cx0, cy0, 1.05*R0, 0, 2*Math.PI); c.clip();   // the fluted glass and its grain, over you
+    for (let x = cx0-1.05*R0; x < cx0+1.05*R0; x += 6) { c.fillStyle = 'rgba(3,3,4,.14)'; c.fillRect(x, cy0-1.05*R0, 2, 2.1*R0); c.fillStyle = 'rgba(228,223,210,.05)'; c.fillRect(x+3, cy0-1.05*R0, 1, 2.1*R0); }
+    for (let k = 0; k < 2200; k++) { const a = Math.random()*2*Math.PI, rr = Math.sqrt(Math.random())*1.05*R0, al = (0.04 + 0.06*Math.random()).toFixed(3);
+      c.fillStyle = k % 2 ? `rgba(228,223,210,${al})` : `rgba(3,3,4,${al})`; c.fillRect(cx0 + rr*Math.cos(a), cy0 + rr*Math.sin(a), 1, 1); }
+    c.restore();
+    c.save(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(242,226,196,.75)'; c.shadowBlur = 10; c.shadowColor = 'rgba(194,162,122,.7)';   // the photon ring
+    c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.stroke(); c.restore();
+  }
   if (seen && path.length) { c.strokeStyle = 'rgba(194,162,122,0.38)'; c.lineWidth = 1.5; c.beginPath(); for (const p of P3) { c.moveTo(X([0, 0]), Y([0, 0])); c.lineTo(X(p), Y(p)); } c.stroke(); }
   for (let i = 1; i < P3.length; i++) { const a = P3[i-1], b2 = P3[i], nz = (a[2] + b2[2])/2;     // nearer lines are brighter and thicker
     c.strokeStyle = `rgba(194,162,122,${Math.min(0.95, 0.7*nz*nz).toFixed(2)})`; c.lineWidth = 2*nz; c.beginPath(); c.moveTo(X(a), Y(a)); c.lineTo(X(b2), Y(b2)); c.stroke(); }
@@ -2711,64 +2749,49 @@ async function makeCard(only){
     g.addColorStop(0, 'rgba(255,250,238,1)'); g.addColorStop(0.16, 'rgba(244,226,190,0.95)'); g.addColorStop(0.45, 'rgba(194,162,122,0.28)'); g.addColorStop(1, 'rgba(194,162,122,0)');
     c.fillStyle = g; c.beginPath(); c.arc(X(p), Y(p), rr*3.4, 0, 2*Math.PI); c.fill();
   });
-  if (seen) {                                              // you: the centre of your universe, large enough to know yourself
-    const cx0 = X([0, 0]), cy0 = Y([0, 0]), R0 = Math.round(Dm*0.15);
-    const g = c.createRadialGradient(cx0, cy0, R0*0.8, cx0, cy0, R0*2.2);
-    g.addColorStop(0, 'rgba(194,162,122,0.35)'); g.addColorStop(1, 'rgba(194,162,122,0)');
-    c.fillStyle = g; c.beginPath(); c.arc(cx0, cy0, R0*2.2, 0, 2*Math.PI); c.fill();
-    c.save(); c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.clip();
-    if (faceCv) c.drawImage(faceCv, 96, 96, 320, 320, cx0-R0, cy0-R0, 2*R0, 2*R0); else { c.fillStyle = '#030304'; c.fill(); }
-    c.restore();
-    c.strokeStyle = '#c2a27a'; c.lineWidth = 3; c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.stroke();
-  }
   const disc = document.createElement('canvas'); disc.width = disc.height = 720;   // the picture alone, for the page
   disc.getContext('2d').drawImage(cv, ox, oy, Dm, Dm, 0, 0, 720, 720);
-  const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '.'), CX = W/2;
-  c.textBaseline = 'alphabetic'; c.textAlign = 'center';
-  let y = oy + Dm + 84;
+  // the words: one left edge, the disc's tangent. A comment, then its code; every line one line, set smaller if it must, never squeezed
+  c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+  const fitFont = (t, px, min) => { c.font = `400 ${px}px ${mono}`; const w = c.measureText(t).width; if (w > MW) c.font = `400 ${Math.max(min, Math.floor(px*MW/w))}px ${mono}`; };
+  const line = (t, px, min, col, yy) => { fitFont(t, px, min); c.fillStyle = col; c.fillText(t, X0, yy); };
+  let y = oy + Dm + 72;                                     // 836: the first baseline under the disc
   if (r) {
-    c.font = `400 52px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.sky, CX, y, MW); y += 50;
-    c.font = `400 27px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText('# ' + meaningOf(r.sky), CX, y, MW); y += 40 + 48;
-    for (const [pc, cd] of pairsC) {
-      c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText('# ' + pc, CX, y, MW);
-      c.font = `400 21px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(cd, CX, y + 34, MW); y += 84;
-    }
+    meanLines(r.sky).forEach((t, j) => { if (j) y += 44; line(t, P, 29, BONE, y); });        // 836 (+ 880)
+    y += 54; line(`you = "${r.sky}"`, N, 34, GOLD, y);                                      // 890 or 934
+    y += 76;
+    pairsC.forEach(([pc, cd], j) => { if (j) y += 60; line('# ' + pc, P, 29, BONE, y); y += 40; line(cd, K, 29, GOLD, y); });   // worst case ends at 1150
   } else if (snap) {
-    c.font = `italic 400 46px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(snap.sp || '', CX, y, MW); y += 34;
-    for (let j = 0; j < LINES; j++) { c.fillStyle = j <= (snap.ord ?? 0) ? '#c2a27a' : '#5f6268'; c.fillRect(CX - (LINES*30-6)/2 + j*30, y, 24, 3); }   // marks, not a count
-    y += 70;
-    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, '# ' + lineOf(li), MW).slice(0, 2)) { c.fillText(ln, CX, y); y += 38; }
-    c.font = `400 22px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of wrapText(c, codeOf(li), MW).slice(0, 2)) { c.fillText(ln, CX, y); y += 32; }
-  } else {
-    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText('# ' + POINT, CX, y);
-  }
-  {                                                      // the mark and the riddle, small, at the foot
-    c.font = `400 30px ${mono}`; const word = 'VERI+AS', gap = 14, ww = [...word].reduce((t, ch) => t + c.measureText(ch).width + gap, -gap);
-    c.font = `400 19px ${mono}`; const rid = '   # macrofluidic × __', rw = c.measureText(rid).width;
-    let x = CX - (ww + rw)/2; c.textAlign = 'left'; c.font = `400 30px ${mono}`;
-    for (const ch of word) { c.fillStyle = ch === '+' ? '#c2a27a' : '#e4dfd2'; c.fillText(ch, x, Hc-104); x += c.measureText(ch).width + gap; }
-    c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(rid, x - gap, Hc-104);
-    c.textAlign = 'center'; c.fillText(PUBLIC_TEXT, CX, Hc-62);
+    line('# ' + lineOf(li), P, 29, BONE, y); y += 54;
+    line(`life = "${snap.sp}"`, N, 34, GOLD, y); y += 46;
+    line(codeOf(li), K, 29, GOLD, y);
+  } else line('# ' + POINT, P, 29, BONE, y);
+  {                                                        // the foot: the riddle, a comment, over the mark, the page's title turned, in the code's own voice
+    c.font = `400 30px ${mono}`; c.fillStyle = DIM; c.fillText('# macrofluidic × __', X0, Hc-106);   // always __: never spoil the riddle
+    let x = X0;
+    for (const [t, col] of [['v', BONE], ['[', DIM], ['er', GOLD], [']', DIM], ['i', BONE], ['+', GOLD], ['as', BONE]]) { c.fillStyle = col; c.fillText(t, x, Hc-62); x += c.measureText(t).width; }
   }
   const [blob, discBlob] = await Promise.all([cv, disc].map((k) => new Promise((res) => k.toBlob(res, 'image/jpeg', 0.9))));
-  return blob ? { blob, disc: discBlob, text: r ? `${r.sky}\n# ${meaningOf(r.sky)}` : snap ? `${snap.sp}\n# ${lineOf(li)}` : `# ${POINT}` } : null;
+  return blob ? { blob, disc: discBlob, text: r ? [...meanLines(r.sky), `you = "${r.sky}"`, 'return youniverse(me + you)'].join('\n')
+    : snap ? `# ${lineOf(li)}\nlife = "${snap.sp}"` : `# ${POINT}` } : null;
 }
-const saveBlob = (blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'veritas.jpg'; a.click(); };
-// sharing: one panel. The card is shown first, so you see what you send; then the link (which opens your sky, under theirs, for whoever
-// you send it to), the picture, or the phone's own share sheet with both.
-const sharer = document.getElementById('sharer'), shImg = document.getElementById('shImg'), shLink = document.getElementById('shLink');
+const saveBlob = (blob, name = 'veritas.jpg') => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); };
+// sharing: one panel. The card is shown first, so you see what you send; then where to post it, the phone's own share sheet, the picture,
+// or the link (which opens your sky, under theirs, for whoever you send it to). The link itself is never shown: it travels with the post.
+const sharer = document.getElementById('sharer'), shImg = document.getElementById('shImg'), shSaid = document.getElementById('shSaid'), shText = document.getElementById('shText');
 let shareCard = null;
 async function openSharer(only){
   const card = await makeCard(only); if (!card) return;
   const code = read.every(Boolean) ? encodeSky() : '', link = code ? `${PUBLIC}?sky=${code}` : PUBLIC;
-  if (shImg.src.startsWith('blob:')) URL.revokeObjectURL(shImg.src);
-  shareCard = { ...card, link, file: new File([card.blob], 'veritas.jpg', { type:'image/jpeg' }) };
-  shImg.src = URL.createObjectURL(card.disc || card.blob); shLink.textContent = link;
   const r = !Number.isInteger(only) && read.every(Boolean) ? (reading || (reading = readYou())) : null, li = Number.isInteger(only) ? only : lastRead, m = li >= 0 ? mem[li] : null;
-  shImg.alt = r ? `${r.sky}: your youniverse` : m ? `${m.sp}: a new form of life` : 'veri+as';
-  document.getElementById('shText').innerHTML = r
-    ? `<p class="mn"># ${meaningOf(r.sky)}</p><h2 class="nm">you = "${r.sky}"</h2><div class="ps">` + (r.pairs || []).map(([c2, k2]) => `<p class="pc"># ${c2}</p><p class="cd">${k2}</p>`).join('') + '</div>'
-    : m ? `<h2 class="nm sp">${m.sp}</h2><p class="mn"># ${lineOf(li)}</p><div class="ps"><p class="cd">${codeOf(li)}</p></div>` : '';
+  if (shImg.src.startsWith('blob:')) URL.revokeObjectURL(shImg.src);
+  shareCard = { ...card, link, file: new File([card.blob], `${r ? r.sky : m ? varOf(m.sp) : 'veritas'}.jpg`, { type:'image/jpeg' }) };   // the picture keeps your name
+  shImg.src = URL.createObjectURL(card.disc || card.blob);
+  shImg.alt = r ? `your youniverse, ${r.sky}` : m ? `${m.sp}, a new form of life` : 'veri+as';
+  shText.innerHTML = r                                     // the reading, the column's way: what the name means, the name, then every pair
+    ? meanLines(r.sky).map((l) => `<p class="mn">${l}</p>`).join('') + `<h2 class="nm">you = "${r.sky}"</h2><div class="ps">`
+      + (r.pairs || []).map(([c2, k2]) => `<p class="pc"># ${c2}</p><p class="cd">${k2}</p>`).join('') + '</div>'
+    : m ? `<p class="mn"># ${lineOf(li)}</p><h2 class="nm">life = "${m.sp}"</h2><p class="cd">${codeOf(li)}</p>` : '';
   // where to send it: the link opens this universe, under theirs. The picture goes through the phone's own sheet (stories, messages).
   const E = encodeURIComponent, text = card.text;
   document.getElementById('shGo').innerHTML = [
@@ -2776,13 +2799,17 @@ async function openSharer(only){
     ['bluesky', `https://bsky.app/intent/compose?text=${E(text + '\n' + link)}`, 'M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.74 3.71 3.66 6.38 3.36.14-.02.28-.04.42-.06-.14.02-.28.04-.42.06-3.91.58-7.39 2-2.83 7.08 5.01 5.19 6.87-1.11 7.83-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08l-.42-.06c.14.02.28.04.42.06 2.67.3 5.57-.63 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.21-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8z'],
     ['threads', `https://www.threads.com/intent/post?text=${E(text)}&url=${E(link)}`, 'M12.19 24h-.01c-3.58-.02-6.33-1.21-8.18-3.51C2.35 18.44 1.5 15.59 1.47 12.01v-.02c.03-3.58.88-6.43 2.53-8.48C5.85 1.21 8.6.02 12.18 0h.01c2.75.02 5.04.73 6.83 2.1 1.68 1.29 2.86 3.13 3.51 5.47l-2.04.57c-1.1-3.96-3.9-5.98-8.3-6.02-2.91.02-5.11.94-6.54 2.72C4.31 6.5 3.62 8.91 3.59 12c.03 3.09.72 5.5 2.06 7.16 1.43 1.78 3.63 2.7 6.54 2.72 2.62-.02 4.36-.63 5.8-2.05 1.65-1.61 1.62-3.59 1.09-4.8-.31-.71-.87-1.3-1.63-1.75-.19 1.35-.62 2.45-1.28 3.27-.89 1.1-2.14 1.7-3.73 1.79-1.2.07-2.36-.22-3.26-.8-1.06-.69-1.69-1.74-1.75-2.96-.07-1.19.41-2.29 1.33-3.08.88-.76 2.12-1.21 3.58-1.29a13.85 13.85 0 0 1 3.02.14c-.13-.74-.38-1.33-.75-1.76-.51-.59-1.31-.88-2.36-.89h-.03c-.84 0-1.99.23-2.72 1.32L7.73 7.85c.98-1.45 2.57-2.26 4.48-2.26h.04c3.19.02 5.1 1.98 5.29 5.39.11.05.22.09.32.14 1.49.7 2.58 1.76 3.15 3.07.8 1.82.87 4.79-1.55 7.16-1.85 1.81-4.09 2.63-7.28 2.65zm1-11.69c-.24 0-.49.01-.74.02-1.84.1-2.98.95-2.92 2.14.07 1.26 1.45 1.84 2.78 1.77 1.22-.07 2.82-.54 3.09-3.71a10.5 10.5 0 0 0-2.22-.22z'],
     ['linkedin', `https://www.linkedin.com/sharing/share-offsite/?url=${E(link)}`, 'M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z'],
-  ].map(([n, u, d]) => `<a class="ic" href="${u}" target="_blank" rel="noopener" data-go="${n}" aria-label="share on ${n}" title="${n}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`).join('');
+  ].map(([n, u, d]) => `<a class="ic" href="${u}" target="_blank" rel="noopener" data-go="${n}" aria-label="post on ${n}" title="post on ${n}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`).join('');
   const mac = document.getElementById('shMacro');
   mac.href = r ? `macroverse.html?u=${E(r.sky)}` : 'macroverse.html'; mac.style.display = r ? '' : 'none';
-  for (const id of ['shCopy', 'shSave']) document.getElementById(id).classList.remove('done');
   document.getElementById('shShare').style.display = navigator.canShare && navigator.canShare({ files:[shareCard.file] }) ? '' : 'none';
-  sharer.classList.add('on'); sharer.scrollTop = 0; sharer.querySelector('.x').focus();
+  sharer.classList.add('on'); sharer.scrollTop = 0; fitAll(shText); sharer.querySelector('.x').focus();   // fit only once it is laid out
 }
+addEventListener('resize', () => { if (sharer.classList.contains('on')) fitAll(shText); });
+// copied, saved: the icon turns to a check for a moment, and it is said aloud
+const CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const didIt = (a, said) => { const was = a.innerHTML, lab = a.getAttribute('aria-label'); a.innerHTML = CHECK; a.classList.add('done'); a.setAttribute('aria-label', said); shSaid.textContent = said;
+  setTimeout(() => { a.innerHTML = was; a.classList.remove('done'); a.setAttribute('aria-label', lab); shSaid.textContent = ''; }, 1600); };
 const keepCard = (only) => openSharer(only);
 const shareSky = () => openSharer();
 const closeSharer = () => sharer.classList.remove('on');
@@ -2790,8 +2817,9 @@ sharer.addEventListener('click', async (ev) => {
   if (ev.target === sharer || ev.target.closest('.x')) { closeSharer(); return; }
   const a = ev.target.closest('a'); if (!a || !shareCard || a.dataset.go || a.id === 'shMacro') return;   // out to the world: let the link go
   ev.preventDefault();
-  if (a.id === 'shCopy') { try { await navigator.clipboard.writeText(shareCard.link); a.classList.add('done'); a.title = 'copied'; } catch (e) { window.prompt('', shareCard.link); } }
-  else if (a.id === 'shSave') { saveBlob(shareCard.blob); a.classList.add('done'); a.title = 'saved'; }
+  if (a.classList.contains('done')) return;
+  if (a.id === 'shCopy') { try { await navigator.clipboard.writeText(shareCard.link); didIt(a, 'link copied'); } catch (e) { window.prompt('', shareCard.link); } }
+  else if (a.id === 'shSave') { saveBlob(shareCard.blob, shareCard.file.name); didIt(a, 'picture saved'); }
   else if (a.id === 'shShare') { try { await navigator.share({ files:[shareCard.file], title:'veri+as', text: `${shareCard.text}\n${shareCard.link}` }); } catch (e) {} }
 });
 sharer.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeSharer(); });
