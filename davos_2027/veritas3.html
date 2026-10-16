@@ -40,6 +40,28 @@
   #prog .v, #prog .g, #prog .cm { display:inline; min-height:0; }
   #prog .v, #prog .g { color:var(--gold); }
   .look { color:var(--gold); pointer-events:auto; text-decoration:none; border-bottom:1px dotted var(--gold); cursor:pointer; }
+  #prog .cmt { display:block; min-height:0; color:var(--dim); }
+  #prog .ln.sent { color:#a8916f; }
+  /* the sky book: every sky grown on this device, named, to look back at and to send */
+  #book { display:none; margin-right:14px; color:var(--gold) !important; border-bottom-color:var(--gold) !important; }
+  body.skies #book { display:inline; }
+  #shelf { position:fixed; inset:0; z-index:5; display:none; overflow:auto; background:rgba(3,3,4,.94); padding:56px 28px 40px; }
+  #shelf.on { display:block; }
+  #shelf h2 { margin:0 auto 26px; max-width:980px; font:400 11px/1.6 var(--mono); letter-spacing:.3em; text-transform:uppercase; color:var(--dim); }
+  #shelf .grid { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:30px 22px; }
+  #shelf figure { margin:0; }
+  #shelf svg { display:block; width:100%; aspect-ratio:1; cursor:pointer; }
+  #shelf svg circle.rim { fill:none; stroke:#2a2c31; }
+  #shelf svg path { fill:none; stroke:var(--gold); stroke-width:.9; stroke-linejoin:round; }
+  #shelf svg path.fold { stroke:none; opacity:.55; }
+  #shelf svg .st { fill:var(--bone); }
+  #shelf svg:hover path, #shelf svg:focus-visible path { stroke:var(--bone); }
+  #shelf figcaption { margin-top:8px; font:italic 400 13px/1.4 var(--mono); color:var(--gold); }
+  #shelf figcaption small { display:block; font-style:normal; font-size:10.5px; letter-spacing:.12em; color:var(--dim); }
+  #shelf figcaption a { color:var(--dim); text-decoration:none; border-bottom:1px dotted #3a3d44; font-style:normal; font-size:10.5px; letter-spacing:.12em; }
+  #shelf figcaption a:hover, #shelf figcaption a:focus-visible { color:var(--bone); }
+  #shelf .x { position:fixed; top:16px; right:22px; background:none; border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
+  #shelf .x:hover, #shelf .x:focus-visible { color:var(--bone); }
   body.invite .look { animation:breath 3.2s ease-in-out infinite; }
   @keyframes blink { 50% { opacity:0; } }
   /* the credit: two letters to find */
@@ -52,13 +74,16 @@
   @keyframes no { 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
   /* the culture's two numbers: they surface while a hand is on the culture */
   #bio { margin-top:14px; visibility:hidden; opacity:0; transition:opacity .6s, visibility .6s; }
-  body.bio #bio { visibility:visible; opacity:1; }
+  body.bio #bio, body.end #bio { visibility:visible; opacity:1; }   /* at the end, your culture's numbers stay */
   body.tall #bio { display:none; }                     /* phones: the dials are for a mouse; the basin gets the room */
   .knob { color:var(--gold) !important; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
   .knob:focus-visible { outline:none; border-bottom-style:solid; }
   /* one line at a time: the words as a comment, the code under it */
-  #say { margin:16px 0 0; height:7.6em; color:var(--bone); white-space:pre-wrap; }
+  #say { margin:16px 0 0; min-height:7.6em; color:var(--bone); white-space:pre-wrap; transition:min-height 1.4s ease; }
+  body.end #say { min-height:12.6em; }                /* the reading and its two ways on: room for them, never over the tools */
   #say .sp { display:block; font-style:italic; color:var(--gold); font-size:12px; letter-spacing:.04em; }
+  #say .la { pointer-events:auto; cursor:help; border-bottom:1px dotted rgba(194,162,122,.55); }
+  #say .c .g { font-weight:400; color:var(--gold); }
   #say .rd { display:block; color:var(--gold); font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
   #say code { font:inherit; color:var(--gold); white-space:pre-wrap; }
@@ -73,11 +98,12 @@
   #ask { position:absolute; left:52px; top:50%; transform:translateY(-50%); margin:0; white-space:nowrap; font:inherit; font-size:11.5px; color:var(--bone);
     opacity:0; transition:opacity .6s; pointer-events:none; text-shadow:0 0 2px #030304, 0 0 6px #030304, 0 0 14px #030304; }
   #eye:hover #ask, #eye:focus-visible #ask, #eye.said #ask { opacity:1; }
+  body.tall #ask { left:50%; top:auto; bottom:-8px; transform:translate(-50%, 100%); white-space:normal; width:max-content; max-width:min(300px, calc(100vw - 48px)); text-align:center; }   /* phones: under the eye, never off the edge */
   #ask b { font-weight:400; color:var(--gold); }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
   #tools { margin:12px 0 0; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
-  #tools a { color:#5a5e64; pointer-events:auto; text-decoration:none; border-bottom:1px dotted #3a3d44; }
-  #tools a:hover, #tools a:focus-visible { color:var(--dim); }
+  #tools a { color:var(--dim); pointer-events:auto; text-decoration:none; border-bottom:1px dotted #3a3d44; }   /* quiet, and still 6:1 */
+  #tools a:hover, #tools a:focus-visible { color:var(--bone); }
   #nostudy { margin-left:14px; }
   #door { display:none; margin-right:14px; color:var(--gold) !important; border-bottom-color:var(--gold) !important; }
   body.door #door { display:inline; }
@@ -97,13 +123,14 @@
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with a living culture. Faces, skulls and flowers melt toward the drain and come back from the tap. Hold, and the glass goes clear."></canvas>
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
 <button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"><b>look</b> &middot; one frame, stays on this device</span></button>
+<section id="shelf" aria-label="Your skies" role="dialog"><button class="x" type="button" aria-label="Close">&times;</button><h2 id="shelfHead">your skies</h2><div class="grid" id="shelfGrid"></div></section>
 <main id="words">
   <h1 id="title" aria-label="vanitas, veritas">v<span id="mid">an</span>i<i>+</i>as</h1>
 <pre id="prog" aria-label="The program: one line for every new form of life you grow"><span>sink = drain(sink)</span><span id="you"></span><span>sink == sync<b id="pS"></b></span><span id="lines"></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
-<pre id="bio" aria-label="The culture, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0390</b>, k=<b class="knob" data-k="k" tabindex="0">0.0580</b>)</span></pre>
+<pre id="bio" aria-label="The culture, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0310</b>, k=<b class="knob" data-k="k" tabindex="0">0.0600</b>)</span></pre>
   <p id="say" class="quiet" aria-live="polite">hold</p>
   <div id="err"></div>
-  <p id="tools"><a href="blackpaper.html" id="door">black paper</a><a href="?reset" id="reset">reset</a><a href="#" id="nostudy" title="How you play is counted, anonymously, for a study of everyone's play: no picture, no face, no name. Click to keep your play out.">count me out</a></p>
+  <p id="tools"><a href="blackpaper.html" id="door">black paper</a><a href="#skies" id="book">skies</a><a href="?reset" id="reset">reset</a><a href="#" id="nostudy" title="How you play is counted, anonymously, for a study of everyone's play: no picture, no face, no name. Click to keep your play out.">count me out</a></p>
 </main>
 
 <script>
@@ -191,7 +218,7 @@ vec3 still(vec2 p){
   m = (m*w0 + mg*uBlend.x + mc*uBlend.y + ms*uBlend.z)/max(1e-3, w0+uBlend.x+uBlend.y+uBlend.z);
   if (uSelf > 0.) {                                    // you, in the middle of it; where the other is bone and you are shadow, the bone wins
     vec2 gb = xf(g, uPB, uPFlip.y);
-    float oval = smoothstep(0.42, 0.20, length((gb-0.5)*vec2(1.0, 0.82)));
+    float oval = smoothstep(0.42*uSelf, 0.20*uSelf, length((gb-0.5)*vec2(1.0, 0.82)));
     float la = dot(a, vec3(0.2126,0.7152,0.0722)), lb = dot(b, vec3(0.2126,0.7152,0.0722));
     float peek = smoothstep(0.22, 0.75, la-0.9*lb)*(0.35 + 0.35*n2(g*5.3+uPSeed));   // a ghost of bone through you, never all of it
     m = mix(m, max(m*0.6, oval*(1.-0.75*peek)), uSelf);
@@ -326,8 +353,8 @@ void main(){
   float a = vUv.x*6.28318;
   // holes, all the way out: a net of cells. Further out the holes drift (chaos and holes); the weather over it is mild
   // as the sky fills, the culture leaves holes for mazes: the cells join up, and fewer die
-  float f = mix(0.0390, 0.0372, vUv.y) - 0.0050*uLit + uDf + 0.0008*sin(a*3.+uTime*0.021) + 0.0005*sin(a*7.-uTime*0.013) + 0.0004*sin(vUv.y*9.-uTime*0.05);
-  float k = mix(0.0580, 0.0584, vUv.y) - 0.0008*uLit + uDk + 0.0004*sin(a*2.-uTime*0.017+1.);
+  float f = mix(0.0390, 0.0372, vUv.y) - 0.0025*uLit + uDf + 0.0008*sin(a*3.+uTime*0.021) + 0.0005*sin(a*7.-uTime*0.013) + 0.0004*sin(vUv.y*9.-uTime*0.05);
+  float k = mix(0.0580, 0.0584, vUv.y) - 0.0004*uLit + uDk + 0.0004*sin(a*2.-uTime*0.017+1.);
   float r = c.r*c.g*c.g;
   vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
   // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
@@ -355,8 +382,11 @@ uniform sampler2D uKura; uniform float uSyncR;        // the beam: every tile of
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
 uniform vec2 uPath[8]; uniform float uPathN, uGrow;   // the places you have found, in order: your path; the last still arriving
+uniform float uPathS[8]; uniform float uLift;          // a finished sky in space: each star's nearness, and how far it has lifted off the glass
+uniform vec2 uTri[24]; uniform float uTriZ[24], uTriL[8], uTriN, uFold;   // the sky as a folded surface: facets from you to each pair of stars, lit from the upper left
 uniform vec2 uLead;                                   // where the line from the tap arrives
 uniform vec2 uTap, uCenter, uRes, uCursor;
+uniform vec2 uSent[8]; uniform float uSentN, uHiSent;    // a sky someone sent you: under yours, in gold; the star of one you point at
 uniform float uSelfOn, uVacant, uSeen, uGlint, uHiStar;   // you: the centre of your sky once it has seen you, or the empty place kept for you;
                                                           // seen, the clear places are easier to find; the star of a line you point at
 ${IMG_FN}
@@ -369,6 +399,7 @@ float vnoise(vec2 p){
 }
 float fbm(vec2 p){ float a = 0.5, v = 0.; for(int i=0;i<4;i++){ v += a*vnoise(p); p = p*2.03+17.; a *= 0.5; } return v; }
 float seg(vec2 p, vec2 a, vec2 b){ vec2 pa=p-a, ba=b-a; return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.,1.)); }
+vec2 segT(vec2 p, vec2 a, vec2 b){ vec2 pa=p-a, ba=b-a; float h = clamp(dot(pa,ba)/max(dot(ba,ba),1e-9),0.,1.); return vec2(length(pa-ba*h), h); }
 float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
 float bit(float n, float k){ return step(1., mod(floor(n/k),2.)); }
 // lub-dub
@@ -486,20 +517,47 @@ void main(){
     // the path: every place found is marked, and joined to the last. No two visitors draw the same one.
     // Once it has seen you, you are the centre: every star is joined to you as well.
     {
-      float dm = 9., dd = 9., ds = 9., dh = 9.;
+      // a finished sky is one folded thing: a facet from the centre to each pair of stars, each lit by its own angle to the light, the
+      // undersides darker, the nearest facet in front. It turns, and the light moves across it.
+      if (uFold > 0.) {
+        float bz = 1e9, sh = -1.;
+        for(int t=0;t<8;t++){
+          if(float(t) >= uTriN) break;
+          vec2 A0 = uTri[t*3], v0 = uTri[t*3+1]-A0, v1 = uTri[t*3+2]-A0, v2 = q-A0;
+          float d00 = dot(v0,v0), d01 = dot(v0,v1), d11 = dot(v1,v1), d20 = dot(v2,v0), d21 = dot(v2,v1), den = d00*d11-d01*d01;
+          if(abs(den) < 1e-12) continue;
+          float w1 = (d11*d20-d01*d21)/den, w2 = (d00*d21-d01*d20)/den, w0 = 1.-w1-w2;
+          if(min(w0, min(w1, w2)) < 0.) continue;
+          float z = w0*uTriZ[t*3] + w1*uTriZ[t*3+1] + w2*uTriZ[t*3+2];
+          if(z < bz){ bz = z; sh = uTriL[t]; }
+        }
+        if(sh >= 0.) b = mix(b, mix(vec3(0.015,0.015,0.02), mix(BONE, vec3(0.80,0.62,0.40), 0.30), sh), 0.62*uFold);
+      }
+      // nearer stars are larger and brighter, and so are the nearer ends of lines
+      float dm = 0., dd = 0., ds = 0., dh = 9.;
       for(int i=0;i<8;i++){
         if(float(i) >= uPathN) break;
         float g = float(i) == uPathN-1. ? uGrow : 1.;                                  // the newest mark is still arriving
-        dd = min(dd, abs(length(q-uPath[i])-0.008*g));
-        if(i>0) dm = min(dm, seg(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)));
-        ds = min(ds, seg(q, vec2(0.), uPath[i]*g));
-        if(float(i) == uHiStar) dh = abs(length(q-uPath[i])-0.017);
+        float sc = uPathS[i], bf = clamp(sc*sc, 0.4, 1.6);
+        dd = max(dd, bf*smoothstep(0.0010*sc+aa*2., 0.0010*sc, abs(length(q-uPath[i])-0.0105*g*sc)));
+        if(i>0){ vec2 st = segT(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)); dm = max(dm, clamp(pow(mix(uPathS[i-1], sc, st.y), 2.), 0.35, 1.5)*smoothstep(0.0008+aa*2., 0.0008, st.x)); }
+        vec2 so = segT(q, vec2(0.), uPath[i]*g); ds = max(ds, clamp(mix(1., sc, so.y), 0.4, 1.5)*smoothstep(0.0005+aa*2., 0.0005, so.x));
+        if(float(i) == uHiStar) dh = abs(length(q-uPath[i])-0.017*sc);
       }
       float bright = mix(0.30, 1.0, max(uHold, uWhole));                              // faint while it flows, bright while you are still
-      float th = 0.45*smoothstep(0.0006+aa*2.,0.0006,dm) + 0.7*smoothstep(0.0008+aa*2.,0.0008,dd) + 0.8*smoothstep(0.0008+aa*2.,0.0008,dh);
+      float th = 0.5*dm + 0.75*dd + 0.8*smoothstep(0.0008+aa*2.,0.0008,dh);
       b = mix(b, BONE, min(1., th)*bright);
-      float spoke = smoothstep(0.0005+aa*2.,0.0005,ds)*smoothstep(0.05,0.08,length(q))*uSelfOn;
-      b = mix(b, mix(BONE, vec3(0.78,0.58,0.36), 0.55), 0.38*spoke*bright);
+      float sl = 9., sd2 = 9., sh = 9.;                                              // the sent sky
+      for(int i=0;i<8;i++){
+        if(float(i) >= uSentN) break;
+        sd2 = min(sd2, abs(length(q-uSent[i])-0.008));
+        if(i>0) sl = min(sl, seg(q, uSent[i-1], uSent[i]));
+        if(float(i) == uHiSent) sh = abs(length(q-uSent[i])-0.017);
+      }
+      float sent = 0.32*smoothstep(0.0006+aa*2.,0.0006,sl) + 0.6*smoothstep(0.0008+aa*2.,0.0008,sd2) + 0.8*smoothstep(0.0008+aa*2.,0.0008,sh);
+      b = mix(b, vec3(0.78,0.58,0.36), min(1., sent)*mix(0.45, 0.9, max(uHold, uWhole)));
+      float spoke = ds*smoothstep(0.05,0.08,length(q))*uSelfOn;
+      b = mix(b, mix(BONE, vec3(0.78,0.58,0.36), 0.55), 0.38*min(1., spoke)*bright);
     }
 
     // drain
@@ -685,7 +743,7 @@ function grow(n){
   const u = use(P.lace);
   gl.uniform2f(u.uTx, 1/RDW, 1/RDH); gl.uniform1f(u.uTime, simTime);
   gl.uniform1f(u.uSeed, Math.floor(beats)); gl.uniform3f(u.uTouch, touch.x, touch.y, touch.z);
-  gl.uniform1f(u.uDf, bio.f-0.0390); gl.uniform1f(u.uDk, bio.k-0.0580); gl.uniform1f(u.uLit, litFrac);
+  gl.uniform1f(u.uDf, cult.f-0.0390); gl.uniform1f(u.uDk, cult.k-0.0580); gl.uniform1f(u.uLit, litFrac);
   gl.viewport(0,0,RDW,RDH);
   for (let i = 0; i < n; i++) {
     unit = 0; bind(u.uRD, rdA.tex);
@@ -753,7 +811,7 @@ function speciesOf(m, taken){                // genus from the picture (or from 
 const spLine = (i) => mem[i] && mem[i].sp ? `<span class="sp">${mem[i].sp}</span>` : '';
 // ---- the mirror: what you do, counted. Read back to you at the end, flattering as a mirror is, and true because it only counts what you did.
 const freshMe = () => ({ first:0, done:0, holds:0, held:0, longest:0, letgo:0, stayed:0, finds:[], stir:0, scrubs:0, wiped:0,
-  knobs:false, tries:0, we:false, looked:false, together:0, flipped:false, noon:false, byKey:0 });
+  knobs:false, tries:0, we:false, looked:false, together:0, flipped:false, noon:false, byKey:0, sky:'', part:0, partKey:'', meFirst:false });
 const me = freshMe();
 let hold0 = { x:0, y:0 }, lastHP = { x:0, y:0 }, holdPath = 0, foundAt = -1, handSpeed = 0, lastMoveT = 0;
 const read = new Array(LINES).fill(false);
@@ -765,6 +823,30 @@ const orderOf = () => mem.map((m, i) => m ? [m.ord ?? i, i] : null).filter(Boole
 // made of, how it was joined, and by how much. The joins are the thesis as verbs: haunt (one life drifting through another, the
 // living and the dead), graft (across species), culture (grown out of the culture's cells: emergence), merge (two as one: softness).
 const NOUN = { skull:'skull', face:'face', flower:'daisy', foam:'foam' };
+// one word for each of the 32 anchors, in loop order, for what is in it: a laugh, a jaw, a daisy with a skull for a heart
+const NOUNS = ['mask','lattice','laugh','sleeper','dreamer','gilt','goldeye','froth','hive','profile','skull','vial','waking','bottle','jaw','burst',
+               'kiss','stipple','bubble','daisy','bloom','heart','obsidian','melt','foam','orb','pale','crust','pearl','pumice','bone','pores'];
+const nounOf = (i) => N === NOUNS.length ? NOUNS[((i % N)+N) % N] : NOUN[classOf(i)];
+// and in Latin, for naming skies the way the old constellations were named: a thing, and what it does
+const LATIN = { mask:'Larva', lattice:'Clathrus', laugh:'Risus', sleeper:'Somnus', dreamer:'Somnium', gilt:'Aurum', goldeye:'Oculus', froth:'Halitus',
+  hive:'Alveus', profile:'Vultus', skull:'Calva', vial:'Ampulla', waking:'Vigilia', bottle:'Lagena', jaw:'Mandibula', burst:'Fulgor', kiss:'Osculum',
+  stipple:'Punctum', bubble:'Bulla', daisy:'Bellis', bloom:'Flos', heart:'Cor', obsidian:'Umbra', melt:'Liquor', foam:'Spuma', orb:'Orbis',
+  pale:'Pallor', crust:'Crusta', pearl:'Margarita', pumice:'Pumex', bone:'Os', pores:'Cribrum', face:'Facies', flower:'Flos' };
+// what a sky does: one participle for the end of each measure that can stand out. Fixed order: a sent sky carries the index.
+const PARTS = ['Nascens','Manens','Fugiens','Morans','Transiens','Quaerens','Videns','Errans','Exspectans','Rapiens','Lavans','Agitans','Tacens','Tangens',
+  'Socians','Amplectens','Tenens','Rediens','Revertens','Vertens','Intendens','Mutans','Constans','Attendens','Cernens','Patens','Respondens','Fingens',
+  'Meridians','Convertens'];
+// what the names mean, a hover away, for anyone who wants to go further
+const GLOSS = { Larva:'mask, ghost', Clathrus:'lattice', Risus:'laughter', Somnus:'sleep', Somnium:'dream', Aurum:'gold', Oculus:'eye', Halitus:'breath',
+  Alveus:'hive', Vultus:'face', Calva:'skull', Ampulla:'vial', Vigilia:'waking', Lagena:'flask', Mandibula:'jaw', Fulgor:'gleam', Osculum:'kiss',
+  Punctum:'point', Bulla:'bubble', Bellis:'daisy', Flos:'flower', Cor:'heart', Umbra:'shadow', Liquor:'liquid', Spuma:'foam', Orbis:'orb', Pallor:'pallor',
+  Crusta:'crust', Margarita:'pearl', Pumex:'pumice', Os:'bone', Cribrum:'sieve', Facies:'face', Speculum:'mirror',
+  Nascens:'being born', Manens:'remaining', Fugiens:'fleeing', Morans:'lingering', Transiens:'passing', Quaerens:'seeking', Videns:'seeing', Errans:'wandering',
+  Exspectans:'waiting', Rapiens:'seizing', Lavans:'washing', Agitans:'stirring', Tacens:'silent', Tangens:'touching', Socians:'joining', Amplectens:'embracing',
+  Tenens:'holding', Rediens:'returning', Revertens:'turning back', Vertens:'turning', Intendens:'intent', Mutans:'changing', Constans:'steadfast',
+  Attendens:'attending', Cernens:'discerning', Patens:'open', Respondens:'answering', Fingens:'shaping', Meridians:'resting at noon', Convertens:'turning around' };
+const glossHTML = (name) => String(name).split(' ').map((w) => GLOSS[w] ? `<span class="la" title="${w.toLowerCase()}: ${GLOSS[w]}">${w}</span>` : w).join(' ');
+const skyNameOf = (m, part) => m ? `${LATIN[nounOf(m.a ?? m.sign)] || 'Speculum'} ${PARTS[part] || PARTS[0]}` : `Speculum ${PARTS[part] || PARTS[0]}`;
 const varOf = (sp) => String(sp || 'homo novus').toLowerCase().replace(/[^a-z]+/g, '_');
 const amt = (x) => x.toFixed(2).replace(/^0/, '');
 function joinOf(m){                          // the largest amount names the join
@@ -773,8 +855,8 @@ function joinOf(m){                          // the largest amount names the joi
 }
 function captionOf(m){
   if (!m) return '';
-  const [verb, x] = joinOf(m), still = NOUN[classOf(m.a ?? m.sign)];
-  return `${varOf(m.sp)} = ${m.face ? 'you' : still}.${verb}(${m.face ? still : NOUN[classOf(m.p)]}, ${amt(x)})`;
+  const [verb, x] = joinOf(m), still = nounOf(m.a ?? m.sign);
+  return `${varOf(m.sp)} = ${m.face ? 'you' : still}.${verb}(${m.face ? still : nounOf(m.p)}, ${amt(x)})`;
 }
 const codeOf = (i) => captionOf(mem[i]);
 const capHTML = (m) => { const c = captionOf(m), k = c.indexOf(' = '); return k < 0 ? c : `<span class="v">${c.slice(0, k)}</span>${c.slice(k)}`; };
@@ -801,6 +883,11 @@ weEl.addEventListener('input', () => {
     const tk = () => { const k = Math.min(1, (performance.now()-t0)/900); weEl.value = cipher('we', k, Math.floor(performance.now()/90)); if (k < 1) requestAnimationFrame(tk); };
     tk();
   }
+  else if (v === 'me') {                                  // me, turned over, is we
+    me.meFirst = true; weEl.blur();
+    setTimeout(() => { weEl.value = '\u026fe'; }, 420);
+    setTimeout(() => { weEl.value = 'we'; weEl.dispatchEvent(new Event('input')); }, 900);
+  }
   else { me.tries++; weEl.classList.add('no'); setTimeout(() => { weEl.classList.remove('no'); weEl.value = ''; }, 500); }
 });
 document.getElementById('reset').addEventListener('click', (ev) => {       // twice, to be sure
@@ -825,14 +912,47 @@ function gather(){
 
 // ---- your path: the places, in the order you found them
 const path = [];
+// ---- depth. The stars of a sky are not on the glass but in space. The first light you found is the furthest away and the last the
+// nearest (as with real stars, the older light comes from further off); each is set a little nearer or further by its own seed, so a
+// sent sky has the same depth wherever it is opened. When the sky is whole it lifts off the glass and turns, slowly; your hand tilts it.
+const zOf = (k, m) => 0.32*(0.5 - k/(LINES-1)) + 0.10*(((m && m.s) | 0)/15 - 0.5);
+function project(p, z, yaw, pitch){
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const x = p[0]*cy + z*sy, z1 = -p[0]*sy + z*cy;           // turn about the vertical
+  const y = p[1]*cp - z1*sp, z2 = p[1]*sp + z1*cp;          // tip about the horizontal
+  const k = 1.4/(1.4 + z2);                                 // nearer is larger
+  return [x*k, y*k, k];
+}
+let lift = 0, turnT = 0, foldVis = 1;
+const proj2 = [], projS = new Float32Array(8), ONES8 = new Float32Array(8).fill(1);
+const triXY = new Float32Array(48), triZ = new Float32Array(24), triL = new Float32Array(8); let triN = 0;
+const LIGHT = (() => { const v = [-0.50, 0.62, -0.60], n = Math.hypot(...v); return v.map((x) => x/n); })();   // up and to the left, toward you
+function rot3(p, z, yaw, pitch){                          // into the eye's frame: x right, y up, z away from you
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const x = p[0]*cy + z*sy, z1 = -p[0]*sy + z*cy;
+  return [x, p[1]*cp - z1*sp, p[1]*sp + z1*cp];
+}
+// the folded sky: one facet from the centre to each pair of stars found one after the other. Each is lit by its angle to the light;
+// a facet seen from behind (its corners wound the other way on screen) is the paper's underside, darker.
+function facets(pts3){                                    // pts3: stars in the eye's frame. Returns [{ v:[[x,y,z]x3 projected], l }]
+  const out = [], O = [0, 0, 0], P = (v) => { const k = 1.4/(1.4 + v[2]); return [v[0]*k, v[1]*k, v[2]]; };
+  for (let i = 0; i+1 < pts3.length; i++) {
+    const a = pts3[i], b = pts3[i+1];
+    let n = [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; const nl = Math.hypot(...n) || 1; n = n.map((x) => x/nl);
+    if (n[2] > 0) n = n.map((x) => -x);                    // turn it to face you
+    const pa = P(a), pb = P(b), front = (pa[0]*pb[1] - pa[1]*pb[0]) > 0;
+    const lit = Math.max(0, n[0]*LIGHT[0] + n[1]*LIGHT[1] + n[2]*LIGHT[2]);
+    out.push({ v: [P(O), pa, pb], l: (0.10 + 0.90*lit)*(front ? 1 : 0.55) });
+  }
+  return out;
+}
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
 let growT = 1, gaze = 0, litFrac = 0;
 function mark(pt){ if (path.length < LINES) { path.push([pt[0], pt[1]]); growT = 0; } save(); }
 function snapNow(fromPause){
-  const rnd = (a, b) => a + Math.random()*(b-a);
-  const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
-  const q = fromPause ? pause : { p:(sign + 3 + Math.floor(Math.random()*(N-6))) % N, A:frame(1.25, 0.12), B:frame(1.9, 0.6), flip:[1, Math.random() < 0.5 ? -1 : 1], seed:rnd(0, 60), spot:[0, 0] };
-  const snap = { sign, mix: mixAB, a: fromPause ? pause.a : sign, blend: fromPause ? pause.blend.slice() : [0,0,0], p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, spot: (fromPause && q.found ? q.found : q.spot).slice() };
+  let q = pause;
+  if (!fromPause) { q = { a: sign, p: (sign + 3 + Math.floor(Math.random()*(N-6))) % N, face: false, s: Math.floor(Math.random()*16), spot: [0, 0] }; Object.assign(q, framing(q)); }
+  const snap = { sign, mix: mixAB, a: fromPause ? pause.a : sign, blend: fromPause ? pause.blend.slice() : [0,0,0], p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, s: q.s|0, self: q.self || 0, spot: (fromPause && q.found ? q.found : q.spot).slice() };
   if (fromPause && pause.face) snap.face = true;          // you are in this one
   snap.sp = speciesOf(snap);
   return snap;
@@ -848,7 +968,11 @@ function reveal(i, fromPause){
 const linesEl = document.getElementById('lines');
 function writeProgram(fresh = -1){
   const order = orderOf();
-  linesEl.innerHTML = order.map((i) => `<span class="ln" data-i="${i}" tabindex="0" role="button" aria-label="${mem[i].sp}: show it again">${i === fresh ? '' : capHTML(mem[i])}</span>`).join('');
+  if (!order.length && sent) {                             // someone's sky, before yours: its forms of life, to point at and grow again
+    linesEl.innerHTML = `<span class="cmt">// ${sent.name}, ${sent.own ? 'one of yours' : 'sent to you'}</span>` + sent.stars.map((m, k) => `<span class="ln sent" data-k="s${k}" data-s="${k}" tabindex="0" role="button" aria-label="${m.sp}: grow it here">${capHTML(m)}</span>`).join('');
+    return;
+  }
+  linesEl.innerHTML = order.map((i) => `<span class="ln" data-k="i${i}" data-i="${i}" tabindex="0" role="button" aria-label="${mem[i].sp}: show it again">${i === fresh ? '' : capHTML(mem[i])}</span>`).join('');
   const el = fresh >= 0 ? linesEl.querySelector(`[data-i="${fresh}"]`) : null;
   if (!el) return;
   const text = captionOf(mem[fresh]), t0 = performance.now();
@@ -857,21 +981,23 @@ function writeProgram(fresh = -1){
   tk();
 }
 // point at a line (or tap it) and that form of life comes back into the glass, with its name and its words
-let peekUntil = 0, hiLine = -1;
+let peekUntil = 0, hiLine = '', starPeek = false;
 function peekAt(i, ms){ if (held || !mem[i] || recall && !recall.peek) return; recall = { line:i, snap:mem[i], peek:true }; peekUntil = ms ? performance.now()+ms : Infinity; }
+function peekSent(k, ms){ const m = sent && sent.stars[k]; if (held || !m || recall && !recall.peek) return; recall = { line:m.line, snap:m, peek:true, sent:true, k }; peekUntil = ms ? performance.now()+ms : Infinity; }
+const peekLn = (ln, ms) => ln.dataset.s !== undefined ? peekSent(+ln.dataset.s, ms) : peekAt(+ln.dataset.i, ms);
 function peekOff(after = 0){ if (!recall || !recall.peek) return; if (after) peekUntil = Math.min(peekUntil, performance.now()+after); else recall = null; }
-linesEl.addEventListener('pointerover', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.pointerType === 'mouse') peekAt(+ln.dataset.i, 0); });
+linesEl.addEventListener('pointerover', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.pointerType === 'mouse') peekLn(ln, 0); });
 linesEl.addEventListener('pointerout', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.pointerType === 'mouse') peekOff(2200); });
-linesEl.addEventListener('click', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln) peekAt(+ln.dataset.i, 4000); });
-linesEl.addEventListener('focusin', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln) peekAt(+ln.dataset.i, 0); });
+linesEl.addEventListener('click', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln) peekLn(ln, 4000); });
+linesEl.addEventListener('focusin', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln) peekLn(ln, 0); });
 linesEl.addEventListener('focusout', () => peekOff(1500));
-linesEl.addEventListener('keydown', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.key === 'Enter') { ev.preventDefault(); keepCard(+ln.dataset.i); } });
+linesEl.addEventListener('keydown', (ev) => { const ln = ev.target.closest && ev.target.closest('.ln'); if (ln && ev.key === 'Enter' && ln.dataset.i !== undefined) { ev.preventDefault(); keepCard(+ln.dataset.i); } });
 for (const t of ['pointerdown', 'keydown']) linesEl.addEventListener(t, (ev) => ev.stopPropagation());   // pointing at the program is not holding the glass
 let afterEnd = 0, endDir = 1, lastWords = false;
 // what the page keeps, on this machine only. An installation keeps nothing.
 function save(){
   if (!KEEP) return;
-  try { localStorage.setItem('veritas.iii', JSON.stringify({ v:3, read, path, mem, bio, we: weOk, seen, me, playId })); } catch (e) {}
+  try { localStorage.setItem('veritas.iii', JSON.stringify({ v:3, read, path, mem, man, we: weOk, seen, me, playId })); } catch (e) {}
 }
 function restore(){
   if (!KEEP) return;
@@ -884,7 +1010,8 @@ function restore(){
     if (Array.isArray(k.mem)) k.mem.forEach((s, i) => { if (s && s.A && i < LINES) mem[i] = s; });
     if (Array.isArray(k.read)) k.read.forEach((v, i) => { if (i < LINES && v) { read[i] = true; if (!mem[i]) { mem[i] = snapNow(false); mem[i].ord = i; } } });
     if (Array.isArray(k.path)) path.push(...k.path.slice(0, LINES).filter(p => Array.isArray(p) && p.length === 2));
-    if (k.bio) { bio.f = +k.bio.f || bio.f; bio.k = +k.bio.k || bio.k; document.querySelectorAll('.knob').forEach(el => { el.textContent = bio[el.dataset.k].toFixed(4); }); }
+    if (k.man && Number.isFinite(+k.man.f) && Number.isFinite(+k.man.k)) { man.f = Math.max(-0.03, Math.min(0.03, +k.man.f)); man.k = Math.max(-0.03, Math.min(0.03, +k.man.k)); }
+    Object.assign(cult, cultTarget());
     const order = orderOf(); lastRead = order.length ? order[order.length-1] : -1;
     writeProgram();
     if (read.every(Boolean)) { document.body.classList.add('whole'); whole = 1; end = 1; afterEnd = 99; lastWords = true; silence = true; reading = readYou(); }   // it already ended here
@@ -903,24 +1030,39 @@ function cipher(text, k, salt){
 }
 const probe = params.has('probe') ? [] : null;   // ?probe: keep render times, and let a test drive the clock
 let shown = '', linger = 0, wiped = 0;
-// the two numbers that make the culture what it is. Put a hand on the culture and they surface; drag them and it becomes something else.
-const bio = { f:0.0390, k:0.0580 };
+// the two numbers that make the culture what it is: f, how fast the food is poured back in, and k, how fast what lives is taken away.
+// It starts in the middle, where spots, stripes and holes meet, so any push shows. How you play pushes it: holding still joins the cells
+// into a net, moving hands grow wandering loops, scrubbing breaks it into foam, wiping it makes it divide, holding with others sets it
+// into a lattice. By the end it is a culture no one else has. Put a hand on the culture and the numbers surface; drag them and push it yourself.
+const CULT0 = { f:0.031, k:0.060 };
+const PUSH = [['held', 40, 0.008, -0.002], ['stir', 4, 0.017, 0.003], ['scrubs', 24, -0.013, -0.007], ['wiped', 5, 0.012, 0.006], ['together', 2, -0.002, 0.003]];
+const cult = { f:CULT0.f, k:CULT0.k }, man = { f:0, k:0 };
+function cultTarget(){
+  let f = CULT0.f + man.f, k = CULT0.k + man.k;
+  for (const [key, scale, df, dk] of PUSH) { const a = 1 - Math.exp(-(+me[key] || 0)/scale); f += a*df; k += a*dk; }
+  return { f: Math.max(0.012, Math.min(0.070, f)), k: Math.max(0.048, Math.min(0.070, k)) };
+}
+const bio = cult;                                          // what the dials show
 for (const el of document.querySelectorAll('.knob')) {
   let x0 = 0, v0 = 0;
-  el.addEventListener('pointerdown', (ev) => { ev.preventDefault(); ev.stopPropagation(); x0 = ev.clientX; v0 = bio[el.dataset.k]; el.dragging = true; try { el.setPointerCapture(ev.pointerId); } catch (e) {} });
+  el.addEventListener('pointerdown', (ev) => { ev.preventDefault(); ev.stopPropagation(); x0 = ev.clientX; v0 = man[el.dataset.k]; el.dragging = true; try { el.setPointerCapture(ev.pointerId); } catch (e) {} });
   for (const t of ['pointerup', 'pointercancel']) el.addEventListener(t, () => { el.dragging = false; });
   el.addEventListener('pointermove', (ev) => {
     if (!el.dragging) return;
-    const k = el.dataset.k, lo = k === 'f' ? 0.020 : 0.050, hi = 0.070;
-    bio[k] = Math.max(lo, Math.min(hi, v0 + (ev.clientX-x0)*0.00004));
-    el.textContent = bio[k].toFixed(4); me.knobs = true; save();
+    const k = el.dataset.k; man[k] = Math.max(-0.03, Math.min(0.03, v0 + (ev.clientX-x0)*0.00004)); me.knobs = true; save();
   });
   el.addEventListener('keydown', (ev) => {
     const d = ev.key === 'ArrowRight' || ev.key === 'ArrowUp' ? 0.0002 : ev.key === 'ArrowLeft' || ev.key === 'ArrowDown' ? -0.0002 : 0;
     if (!d) return; ev.preventDefault();
-    const k = el.dataset.k, lo = k === 'f' ? 0.020 : 0.050, hi = 0.070;
-    bio[k] = Math.max(lo, Math.min(hi, bio[k]+d)); el.textContent = bio[k].toFixed(4);
+    const k = el.dataset.k; man[k] = Math.max(-0.03, Math.min(0.03, man[k]+d)); me.knobs = true;
   });
+}
+let knobShown = '';
+function cultTick(dt){                                     // the culture drifts toward where this play has pushed it, slowly
+  const t = cultTarget(), e = 1-Math.exp(-dt/6);
+  cult.f += (t.f-cult.f)*e; cult.k += (t.k-cult.k)*e;
+  const shownNow = cult.f.toFixed(4) + cult.k.toFixed(4);
+  if (shownNow !== knobShown) { knobShown = shownNow; for (const el of document.querySelectorAll('.knob')) el.textContent = cult[el.dataset.k].toFixed(4); }
 }
 let bioUntil = 0, bioHover = false;
 const bioEl = document.getElementById('bio');
@@ -947,43 +1089,52 @@ function noonTick(now){
   const [h, m] = zoneFmt.format(new Date()).split(':').map(Number), t = h*60+m;
   noon = t >= 718 && t < 726 ? 'now' : t >= 690 && t < 718 ? 'soon' : '';
 }
-let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, toldYou = 0, introOff = 0, reading = null;
+let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, toldYou = 0, toldSent = false, introOff = 0, reading = null, shareSaid = '';
+let lastEcho = -1, ghostAt = 0;
+const saidOnce = {};                                       // what has been said on this device; said once, never again
+if (KEEP) try { Object.assign(saidOnce, JSON.parse(localStorage.getItem('veritas.told') || '{}')); } catch (e) {}
+function once(key){ if (saidOnce[key]) return false; saidOnce[key] = 1; if (KEEP) try { localStorage.setItem('veritas.told', JSON.stringify(saidOnce)); } catch (e) {} return true; }
 const sayIt = (html, quiet = false) => { if (html !== shown) { shown = html; say.innerHTML = html; say.classList.toggle('quiet', quiet); } };
 function tell(now){
   poem();
   if (MODE === 'sink') return;                                     // the sink speaks with water only
-  if (recall && recall.peek) {                                     // a line of the program, pointed at: its picture is back, with its name and its words
-    sayIt(spLine(recall.line) + poemLine(codeOf(recall.line), lineOf(recall.line)) + keepLink()); return;
+  if (recall && recall.peek) {                                     // a line or a star, pointed at: its picture is back, with its name and its words
+    const m = recall.snap;
+    sayIt(`<span class="sp">${m.sp}</span>` + poemLine(captionOf(m), lineOf(recall.line)) + (recall.sent ? '' : keepLink())); return;
   }
-  if (silence && !held) {                                          // the end: the mirror
+  if (silence && !held) {                                          // the end: your sky's name, and the mirror. Then: send it, or grow another.
     const r = reading || (reading = readYou());
-    sayIt(`<span class="sp">${r.name}</span><span class="c">// ${r.vanitas}</span><code>mirror(you)  # ${r.veritas}</code>` + keepLink('keep your reading'));
+    if (!document.body.classList.contains('end')) document.body.classList.add('end');
+    const on = MODE === 'web' ? ` <a class="keep" data-act="share" href="#share">${shareSaid || 'share your sky -&gt;'}</a> <a class="keep" data-act="again" href="#again">grow another -&gt;</a>` : '';
+    sayIt(`<span class="sp">${glossHTML(r.sky)}</span><span class="c">// ${r.vanitasHTML || r.vanitas}</span><code>sky = mirror(you)  # ${r.veritas}</code>` + on);
     return;
   }
-  if (!begun && !held && introOff && intro <= 0 && !read.some(Boolean) && now-introOff > 1200) {   // just after the first clear picture: how it is played, once
-    begun = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher('while held: seek(clear)', k, salt), cipher('hold, then find where the glass clears.', k, salt)) };
+  // Nothing here is a tutorial. The piece shows what to do first (the breathing word, the ghost of a hand, the empty ring, a line that
+  // pulses); a line of help is said only if that did not do it, and only once on this device. The rest are news, also said once.
+  if (sent && !toldSent && !held && intro <= 0) {                  // arriving with someone's sky: just whose it is
+    toldSent = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sent = sky("${sent.name}")`, k, salt), cipher(sent.own ? 'one of your skies.' : 'someone sent you their sky.', k, salt)) };
+  }
+  if (!held && !whisper && ghostAt && !me.holds && now-ghostAt > 9000 && once('hold')) {   // the ghost hand did not do it: one line, once
+    whisper = { t0: now, html: (k, salt) => poemLine(cipher('while held: seek(clear)', k, salt), cipher('hold, then find where the glass clears.', k, salt)) };
   }
   if (toldTurn === 1 && !held && now >= linger) {                  // the title turned: why, once
-    toldTurn = 2; whisper = { t0: now, html: (k, salt) => poemLine(cipher('sink == sync  # False', k, salt), cipher('enough of us held still. the clocks let go.', k, salt)) };
+    toldTurn = 2; if (once('turn')) whisper = { t0: now, html: (k, salt) => poemLine(cipher('sink == sync  # False', k, salt), cipher('enough of us held still. the clocks let go.', k, salt)) };
   }
-  if (period !== lastSign) {                                        // a new still: sometimes, a line, unprompted
+  if (period !== lastSign) {                                        // a new still: now and then, a line, unprompted
     lastSign = period;
     const found = read.filter(Boolean).length;
-    if (toldYou < 1 && CAN_SEE && !seen && !held && intro <= 0 && found >= 1) {   // after the first find: be in it
-      toldYou = 1; whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = see(you)', k, salt), cipher('let it see you, and it grows you too.', k, salt)) };
+    if (CAN_SEE && !seen && !held && intro <= 0 && found >= 2 && !saidOnce.you && once('you')) {   // the pulsing line and the empty ring did not do it
+      whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = see(you)', k, salt), cipher('it can grow you too.', k, salt)) };
     }
-    else if (!toldSink && !held && intro <= 0 && found >= 1) {     // where the real one is
-      toldSink = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sink.where()  # ${SINK.place}, ${SINK.when}`, k, salt), cipher(`the real one is in ${SINK.place}.`, k, salt)) };
+    else if (!held && intro <= 0 && found >= 1 && !saidOnce.sink && once('sink')) {     // news: where the real one is
+      whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sink.where()  # ${SINK.place}, ${SINK.when}`, k, salt), cipher(`the real one is in ${SINK.place}.`, k, salt)) };
     }
-    else if (toldYou < 2 && CAN_SEE && !seen && !held && intro <= 0 && found >= 3) {   // still hidden: the middle of your sky is empty
-      toldYou = 2; whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = None', k, salt), cipher('the middle of your sky is empty.', k, salt)) };
+    else if (!held && intro <= 0 && found >= 3 && !saidOnce.mirror && once('mirror')) {  // news: it has been watching how you play
+      whisper = { t0: now, html: (k, salt) => poemLine(cipher('mirror.learn(you)', k, salt), cipher('the glass is learning your hand.', k, salt)) };
     }
-    else if (!toldMirror && !held && intro <= 0 && found >= 3) {   // halfway: it has been watching how you play
-      toldMirror = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher('mirror.learn(you)', k, salt), cipher('the glass is learning your hand.', k, salt)) };
-    }
-    else if (!held && period % 2 === 0 && intro <= 0) {            // or one of yours, again
-      const given = read.map((r, i) => r ? i : -1).filter(i => i >= 0);
-      if (given.length) whisper = { i: given[Math.floor(Math.random()*given.length)], t0: now };
+    else if (!held && !hand.on && period % 4 === 0 && intro <= 0) {  // seldom, and only to a still hand: one of yours, again
+      const given = read.map((r, i) => r && i !== lastEcho ? i : -1).filter(i => i >= 0);
+      if (given.length) { lastEcho = given[Math.floor(Math.random()*given.length)]; whisper = { i: lastEcho, t0: now }; }
     }
   }
   if (whisper && !held && now < linger) whisper = null;
@@ -1019,7 +1170,11 @@ function tell(now){
 }
 say.addEventListener('pointerenter', () => { if (recall && recall.peek) peekUntil = Infinity; });       // on the way to "keep", it waits
 say.addEventListener('pointerleave', () => { if (recall && recall.peek) peekUntil = performance.now()+1500; });
-say.addEventListener('click', (ev) => { const a = ev.target.closest && ev.target.closest('.keep'); if (!a) return; ev.preventDefault(); keepCard(recall && recall.peek ? recall.line : undefined); });
+say.addEventListener('click', (ev) => {
+  const a = ev.target.closest && ev.target.closest('.keep'); if (!a) return; ev.preventDefault();
+  if (a.dataset.act === 'share') shareSky(); else if (a.dataset.act === 'again') growAnother();
+  else keepCard(recall && recall.peek && !recall.sent ? recall.line : undefined);
+});
 
 let unit = 0;
 function use(prog){ gl.useProgram(prog.p); unit = 0; return prog.u; }
@@ -1340,10 +1495,12 @@ function render(){
   const self = rs ? !!(rs.face && faceTex) : !!(pause.face && faceTex);
   if (rs) { const a = (rs.a ?? rs.sign) % N; bind(u.uImgA, imgTex[a]); bind(u.uImgB, imgTex[a]); bind(u.uImgP, self ? faceTex : imgTex[rs.p % N]); }
   else { bind(u.uImgA, imgTex[pause.a % N]); bind(u.uImgB, imgTex[pause.a % N]); bind(u.uImgP, self ? faceTex : imgTex[pause.p]); }
-  gl.uniform1f(u.uSelf, self ? 1 : 0);
+  gl.uniform1f(u.uSelf, self ? ((rs || pause).self || 1) : 0);
+  gl.uniform2fv(u['uSent[0]'], sentFlat); gl.uniform1f(u.uSentN, CM || !sent ? 0 : sent.stars.length);
+  gl.uniform1f(u.uHiSent, !CM && recall && recall.sent ? recall.k : -1);
   gl.uniform1f(u.uSelfOn, CM ? 0 : selfOn); gl.uniform1f(u.uVacant, CM ? 0 : vacant); gl.uniform1f(u.uSeen, faceTex ? 1 : 0);
   gl.uniform1f(u.uGlint, !CM && held && faceTex && !pause.done && !pause.byKey ? 1 : 0);
-  gl.uniform1f(u.uHiStar, !CM && recall && mem[recall.line] ? (mem[recall.line].ord ?? -1) : -1);
+  gl.uniform1f(u.uHiStar, !CM && recall && !recall.sent && mem[recall.line] ? (mem[recall.line].ord ?? -1) : -1);
   bind(u.uRD, rdA.tex); bind(u.uKura, kura.tex);
   const sp = rs || pause;
   gl.uniform4f(u.uPA, ...sp.A); gl.uniform4f(u.uPB, ...sp.B);
@@ -1355,7 +1512,11 @@ function render(){
   gl.uniform1f(u.uFocus, CM ? 1 : focus); gl.uniform2f(u.uSpot, sp.spot[0], sp.spot[1]);
   gl.uniform1f(u.uGaze, CM ? 0 : gaze); gl.uniform1f(u.uHb, hb); gl.uniform1f(u.uLaceScale, laceScale); gl.uniform1f(u.uDpr, view.dpr);
   gl.uniform1f(u.uSyncR, kura.r);
-  gl.uniform2fv(u['uPath[0]'], pathFlat(path)); gl.uniform1f(u.uPathN, cardFrame ? 0 : path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
+  const up = lift > 0.001 && proj2.length === path.length;
+  gl.uniform2fv(u['uPath[0]'], pathFlat(up ? proj2 : path)); gl.uniform1f(u.uPathN, cardFrame ? 0 : path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
+  gl.uniform1fv(u['uPathS[0]'], up ? projS : ONES8); gl.uniform1f(u.uLift, up ? lift : 0);
+  gl.uniform2fv(u['uTri[0]'], triXY); gl.uniform1fv(u['uTriZ[0]'], triZ); gl.uniform1fv(u['uTriL[0]'], triL);
+  gl.uniform1f(u.uTriN, up ? triN : 0); gl.uniform1f(u.uFold, CM || !up ? 0 : lift*foldVis);
   gl.uniform4f(u.uWords, view.box[0]*view.dpr, (view.h-view.box[3])*view.dpr, view.box[2]*view.dpr, (view.h-view.box[1])*view.dpr);
   gl.uniform2f(u.uLead, view.lead[0]*view.dpr, (view.h-view.lead[1])*view.dpr);
   gl.uniform1f(u.uS, view.S*view.dpr);
@@ -1461,6 +1622,7 @@ function tick(now){
       flash = 1; announce(WIPE_LINE, now);
     }
   }
+  cultTick(dt);
   if (!held && dt > 0) step(dt);
   // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
   let want = 0;
@@ -1505,13 +1667,13 @@ function tick(now){
   selfOn += ((seen ? 1 : 0)-selfOn)*(1-Math.exp(-dt/1.2));            // you, arriving at the centre of your sky
   vacant += ((CAN_SEE && !seen && read.some(Boolean) ? 1 : 0)-vacant)*(1-Math.exp(-dt/1.5));   // until then, a place kept for you
   if (recall && recall.peek && now > peekUntil) recall = null;
-  { const hi = recall ? recall.line : -1; if (hi !== hiLine) { hiLine = hi; for (const el of linesEl.children) el.classList.toggle('on', +el.dataset.i === hi); } }
+  { const hi = !recall ? '' : recall.sent ? 's' + recall.k : 'i' + recall.line; if (hi !== hiLine) { hiLine = hi; for (const el of linesEl.children) el.classList.toggle('on', el.dataset.k === hi); } }
   const showStill = held || intro > 0 || ghost.on || meet > 0 || !!recall;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
   if (intro > 0 || meet > 0 || recall) focus = 1;
   jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;   // the glass as a spring
   idle = hand.on || held ? 0 : idle+dt;
-  if (MODE !== 'sink' && !ghost.on && idle > 8 && intro <= 0 && !read.some(Boolean)) { ghost.on = true; ghost.t = 0; }
+  if (MODE !== 'sink' && !ghost.on && idle > 8 && intro <= 0 && !read.some(Boolean)) { ghost.on = true; ghost.t = 0; if (!ghostAt) ghostAt = now; }   // first, show
   if (ghost.on) { ghost.t += dt; if (ghost.t > 7 || hand.on || held) ghost.on = false; }
   depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
@@ -1524,9 +1686,22 @@ function tick(now){
   }
   if (end >= 1 && endDir > 0) {
     afterEnd += dt;
-    if (!lastWords) { lastWords = true; silence = true; reading = readYou(); save(); studyPublish('done'); }   // the mirror: what this play says
+    if (!lastWords) { lastWords = true; silence = true; reading = readYou(); save(); keepSky(); studyPublish('done'); }   // the mirror: what this play says
     if (MODE !== 'web' && afterEnd > 75) resetRun();
   }
+  lift += ((whole > 0.5 && endDir > 0 && end > 0.8 ? 1 : 0) - lift)*(1-Math.exp(-dt/2.2));   // the finished sky lifts into space, once the stills have gone back
+  turnT += dt;
+  if (lift > 0.001) {
+    const order = orderOf(), lim = (v) => Math.max(-1, Math.min(1, v));
+    const hx = hand.on ? lim((hand.x-view.cx)/(view.S*BASIN_R)) : 0, hy = hand.on ? lim((view.cy-hand.y)/(view.S*BASIN_R)) : 0;
+    const yaw = lift*(0.50*Math.sin(turnT*0.13) + 0.45*hx), pitch = lift*(0.28*Math.sin(turnT*0.097+1.3) - 0.35*hy);
+    proj2.length = 0;
+    const p3 = path.map((pt, k) => rot3(pt, lift*zOf(k, mem[order[k]]), yaw, pitch));
+    p3.forEach((v, k) => { const s3 = 1.4/(1.4 + v[2]); proj2.push([v[0]*s3, v[1]*s3]); projS[k] = s3; });
+    const fs = facets(p3); triN = Math.min(8, fs.length);
+    fs.slice(0, 8).forEach((f3, t) => { f3.v.forEach((v, j) => { triXY[(t*3+j)*2] = v[0]; triXY[(t*3+j)*2+1] = v[1]; triZ[t*3+j] = v[2]; }); triL[t] = f3.l; });
+  }
+  foldVis += ((recall ? 0.15 : 1) - foldVis)*(1-Math.exp(-dt/0.5));   // a form of life pointed at shows through the fold
   laceScale = 1 + 0.06*(0.5+0.5*Math.sin(2*Math.PI*beats/6)) + 0.045*hb;
   flash *= Math.exp(-dt/1.8);
   scrub.energy *= Math.exp(-dt/(held ? 0.6 : 2.5));
@@ -1539,7 +1714,8 @@ function tick(now){
     gl.readPixels(0,0,1,1, gl.RGBA, gl.UNSIGNED_BYTE, drainRGBA);
     probe.push(performance.now()-t0); if (probe.length > 120) probe.shift();
     window.__veritas = { ms:probe, tick, pause, view, read, loss, reveal, kura, share, setHeld, keepCard, scrub, me, readYou, compose, path, features, studyPublish, get playId(){ return playId; }, get STUDY_ON(){ return STUDY_ON; },
-      captionOf, peekAt, get recall(){ return recall; }, get seen(){ return seen; }, get selfOn(){ return selfOn; }, get N(){ return N; },
+      captionOf, peekAt, peekSent, encodeSky, decodeSky, growAnother, shareSky, get sent(){ return sent; }, get skies(){ return skies; }, get shareSaid(){ return shareSaid; },
+      peekAtFor: peekAt, get recall(){ return recall; }, get seen(){ return seen; }, get selfOn(){ return selfOn; }, get N(){ return N; },
       fakeSee(k){ const im = new Image(); im.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = 512; const cx = cv.getContext('2d', { willReadFrequently:true });
         const sz = Math.min(im.width, im.height); cx.translate(512, 0); cx.scale(-1, 1); cx.drawImage(im, (im.width-sz)/2, (im.height-sz)/2, sz, sz, 0, 0, 512, 512); took(cv); }; im.src = FRAMES[k % FRAMES.length]; },
       get reading(){ return reading; }, get handSpeed(){ return handSpeed; }, set handSpeed(v){ handSpeed = v; },
@@ -1579,6 +1755,13 @@ canvas.addEventListener('pointermove', (ev) => {
   }
   stir.x = x; stir.y = y; stir.px = x; stir.py = y;
   const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S, rr = Math.hypot(qx, qy)-BASIN_R;
+  if (!held && !hand.pressing && MODE === 'web' && !(recall && !recall.peek)) {
+    let best = null, bd = 0.034;
+    const order = orderOf();
+    (lift > 0.3 && proj2.length === path.length ? proj2 : path).forEach((p, k) => { const d = Math.hypot(qx-p[0], qy-p[1]); if (d < bd && order[k] !== undefined) { bd = d; best = () => peekAt(order[k], 0); } });
+    if (sent) sent.stars.forEach((m, k) => { const d = Math.hypot(qx-m.spot[0], qy-m.spot[1]); if (d < bd) { bd = d; best = () => peekSent(k, 0); } });
+    if (best) { best(); starPeek = true; } else if (starPeek) { starPeek = false; peekOff(900); }
+  }
   if (rr > 0 && rr < 0.26*laceScale) {
     const tx = Math.atan2(qy, qx)/(2*Math.PI)+0.5+simTime*0.0022;
     touch.x = tx-Math.floor(tx); touch.y = (rr-0.006)/(0.24*laceScale); touch.z = 0.5;
@@ -1602,9 +1785,19 @@ canvas.addEventListener('pointercancel', () => { hand.pressing = false; hand.on 
 canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
 // the still for this hold: a partner from somewhere else in the loop, and a chance framing for each
+// a form of life's crop, turn, mirror and the size of you in it come from its own small seed (and its two stills), so the same
+// recipe grows the same picture anywhere: that is what lets a sky be sent as a line of text
+const prng = (a) => () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0)/4294967296; };
+function framing(m){
+  const r = prng((((m.s|0)+1)*7919) ^ ((m.a|0)*131) ^ ((m.p|0)*31) ^ (m.face ? 977 : 0)), rnd = (a, b) => a + r()*(b-a);
+  const frame = (zMax, turn) => { const z = rnd(1, zMax), k = (1-1/z)/2; return [z, rnd(-k, k), rnd(-k, k), rnd(-turn, turn)]; };
+  const A = frame(1.25, 0.12), B = m.face ? frame(1.08 + 0.3*r(), 0.12) : frame(1.9, 0.6);
+  return { A, B, flip: [1, m.face ? 1 : (r() < 0.5 ? -1 : 1)], seed: rnd(0, 60), self: m.face ? rnd(0.8, 1.25) : 0 };
+}
 function compose(){
   const rnd = (a, b) => a + Math.random()*(b-a);
-  const frame = (zMax, turn) => { const z = rnd(1, zMax), m = (1-1/z)/2; return [z, rnd(-m, m), rnd(-m, m), rnd(-turn, turn)]; };
+  const youGrown = mem.filter((m) => m && m.face).length;
+  pause.face = !!faceTex && (youGrown === 0 || Math.random() < 0.7);   // once it has seen you, you are in most of what grows, never all, so the pictures stay many
   // how you came to it, as amounts, not types: how still or moving your hand was, how much you scrubbed, whether anyone else is
   // holding. They weight what grows into the picture and how it is joined. No two holds are the same, and nobody is sorted.
   const others = [...share.remote.values()].filter((r) => !r.src.startsWith('sink')).length;
@@ -1631,7 +1824,7 @@ function compose(){
     else pause.p = -1;
     if (pause.p < 0) pause.p = pick((i) => cd(i, pause.a) >= 2);
     if (pause.p < 0) pause.p = (pause.a + 3 + Math.floor(Math.random()*(N-6))) % N;
-    if (faceTex) { pause.a = pause.p; ca2 = classOf(pause.a); }        // with you in it, the still that joins you is the one your hands chose
+    if (pause.face) { pause.a = pause.p; ca2 = classOf(pause.a); }     // with you in it, the still that joins you is the one your hands chose
     const cb = classOf(pause.p);
     ca = ca2;
     let gr = Math.min(1, 0.85*mv + (cb === 'flower' ? 0.25 : 0)), ce = Math.min(1, 0.9*sc + (cb === 'foam' ? 0.25 : 0)), se = Math.min(1, wi + (ca === 'face' && cb === 'face' ? 0.35 : 0));
@@ -1642,12 +1835,10 @@ function compose(){
     }
     const sum = gr + ce + se; if (sum > 1) { gr /= sum; ce /= sum; se /= sum; }
     { const cap = 0.70 + 0.22*Math.random(); gr *= cap; ce *= cap; se *= cap; }   // never wholly joined: some of the fog stays, and the skull shows through it
-    pause.blend = [+gr.toFixed(3), +ce.toFixed(3), +se.toFixed(3)];
+    pause.blend = [gr, ce, se].map((v) => Math.round(v*15)/15);     // on fifteenths, so a sent sky grows exactly this
   }
-  pause.A = frame(1.25, 0.12); pause.B = frame(1.9, 0.6);
-  pause.flip = [1, Math.random() < 0.5 ? -1 : 1];
-  pause.face = !!faceTex; if (pause.face) { pause.B = frame(1.08 + 0.3*Math.random(), 0.12); pause.flip = [pause.flip[0], 1]; }   // you, in every one from now on
-  pause.seed = rnd(0, 60);
+  pause.s = Math.floor(Math.random()*16);
+  Object.assign(pause, framing(pause));
   {   // the clear place: never on a star already found, never under the hand. How far it lies from the last star follows how you
       // play: still hands draw close, careful shapes; moving hands draw wide ones; scrubbing hands throw it far. The shape is a portrait.
     const hx = (hand.x-view.cx)/view.S, hy = (view.cy-hand.y)/view.S;
@@ -1766,7 +1957,7 @@ function features(){
     finds: n, holds: me.holds, letgo: me.letgo, longest: r2(me.longest), held: r2(me.held),
     stay: r2(mean(F.map((f) => f.stay || 0))), seek: r2(mean(F.map((f) => f.t))),
     direct: r2(mean(F.map((f) => f.key ? 1 : (f.path > 0.02 ? Math.min(1, f.direct/f.path) : 1)))),
-    stir: r2(me.stir/0.79), scrubs: me.scrubs, wiped: r2(me.wiped), knobs: me.knobs ? 1 : 0, tries: me.tries, we: me.we ? 1 : 0,
+    stir: r2(me.stir/0.79), scrubs: me.scrubs, wiped: r2(me.wiped), knobs: me.knobs ? 1 : 0, tries: me.tries, we: me.we ? 1 : 0, mefirst: me.meFirst ? 1 : 0,
     looked: me.looked ? 1 : 0, together: me.together, flipped: me.flipped ? 1 : 0, noon: me.noon ? 1 : 0, keys: me.byKey,
     minutes: me.first ? r2(((me.done || Date.now())-me.first)/60000) : 0,
     hull: r2(hull), sectors, turn: r2(turns ? turn/turns : 0), cross,
@@ -1778,37 +1969,49 @@ function features(){
 // what each measure says, at either end. base and scale are guesses until there is a population to compare with.
 const f1 = (x) => (Math.round(x*10)/10).toFixed(1);
 const SAL = [
-  { k:'longest', base:5, scale:6,      hi:['you can hold what other people drop', 'you stay with a thing long after it is yours'], lo:['you know the moment a thing is done', 'you take what you came for, and no more'], fact:(f) => `longest hold ${f1(f.longest)} s` },
-  { k:'stay', base:1.2, scale:2,       hi:['you linger with what you find', 'you let a good thing last'], lo:['you move on lightly', 'you never overstay'], fact:(f) => `${f1(f.stay)} s stayed after each find` },
-  { k:'letgo', base:1, scale:1.5,      hi:['you never settle for the first clear place', 'you would rather begin again than hold the wrong thing'], lo:null, fact:(f) => `let go ${f.letgo} ${f.letgo === 1 ? 'time' : 'times'} before it was yours` },
-  { k:'direct', base:0.6, scale:0.18,  hi:['you see where it is clear before it is', 'you go straight to what matters'], lo:['you take the long way, and you arrive', 'you look everywhere before you choose'], fact:(f) => `${Math.round(f.direct*100)}% of your way went straight there` },
-  { k:'seek', base:3.5, scale:2.5,     hi:['you give things time to show themselves', 'you look properly before you take'], lo:['you find what other people are still looking for', 'you are quick to see it'], fact:(f) => `${f1(f.seek)} s to find, on average` },
-  { k:'scrubs', base:8, scale:18,      hi:['everything you touch turns a little gold', 'you try to make things clean, and they shine instead'], lo:null, fact:(f) => `you tried to wash it ${f.scrubs} times; it only spread` },
-  { k:'stir', base:4, scale:6,         hi:['the water moves just because you are near', 'you leave a wake'], lo:['you move only when it counts', 'your hands are quiet'], fact:(f) => `your hand crossed the basin ${Math.max(1, Math.round(f.stir))} times` },
-  { k:'wiped', base:0.5, scale:2.5,    hi:['you test the edges of things, gently', 'you touch what other people only look at'], lo:null, fact:(f) => `${f1(f.wiped)} s wiping the culture` },
-  { k:'together', base:0, scale:1,     hi:['other people find it easier to be still near you', 'you are better with company, and so is it'], lo:null, fact:(f) => `held with ${f.together} ${f.together === 1 ? 'other' : 'others'} at once` },
-  { k:'hull', base:0.18, scale:0.08,   hi:['you leave room around everything you touch', 'you think in wide circles'], lo:['you keep what matters close', 'you know exactly where you stand'], fact:(f) => `your stars enclose ${Math.round(f.hull*100)}% of the glass` },
-  { k:'cross', base:1, scale:1.5,      hi:['you come back across your own path', 'you return to things'], lo:null, fact:(f) => `your path crosses itself ${f.cross} times` },
-  { k:'closure', base:0.6, scale:0.25, hi:null, lo:['you end close to where you began', 'you come home'], fact:() => 'your last star sits beside your first' },
-  { k:'sectors', base:5, scale:1.4,    hi:['you turn toward every direction', 'you leave no side unseen'], lo:['you know which way you face', 'you keep to one horizon'], fact:(f) => `your stars face ${f.sectors} of 8 directions` },
-  { k:'turn', base:1.4, scale:0.5,     hi:['you never go the same way twice', 'you change your mind beautifully'], lo:['you keep a steady line', 'you follow one current'], fact:(f) => `your path turns ${Math.round(f.turn*57.3)} degrees at each star` },
-  { k:'minutes', base:6, scale:4,      hi:['you give a thing your whole attention'], lo:['you see the shape of a thing quickly'], fact:(f) => `${f1(f.minutes)} minutes from first touch to last star` },
-  { k:'you', base:0, scale:4,          hi:['being seen suits you', 'you put yourself into everything you make'], lo:null, fact:(f) => `you are in ${f.you} of your ${f.finds} forms of life` },
-  { k:'we', base:0, scale:1.2,         hi:['you answer riddles meant for two'], lo:null, fact:(f) => f.tries ? `you answered the riddle after ${f.tries} ${f.tries === 1 ? 'guess' : 'guesses'}` : 'you answered the riddle first time' },
-  { k:'knobs', base:0, scale:1.4,      hi:['you change the rules when they bore you'], lo:null, fact:() => 'you turned the culture\'s dials' },
-  { k:'noon', base:0, scale:0.7,       hi:['you keep appointments with strangers'], lo:null, fact:() => 'you held at noon, with everyone' },
-  { k:'flipped', base:0, scale:1,      hi:['you have turned vanity into truth at least once'], lo:null, fact:() => 'you were holding when the title turned' },
+  { k:'longest', w:['Manens','Fugiens'], base:5, scale:6,      hi:['you can hold what other people drop', 'you stay with a thing long after it is yours'], lo:['you know the moment a thing is done', 'you take what you came for, and no more'], fact:(f) => `longest hold ${f1(f.longest)} s` },
+  { k:'stay', w:['Morans','Transiens'], base:1.2, scale:2,       hi:['you linger with what you find', 'you let a good thing last'], lo:['you move on lightly', 'you never overstay'], fact:(f) => `${f1(f.stay)} s stayed after each find` },
+  { k:'letgo', w:['Quaerens',null], base:1, scale:1.5,      hi:['you never settle for the first clear place', 'you would rather begin again than hold the wrong thing'], lo:null, fact:(f) => `let go ${f.letgo} ${f.letgo === 1 ? 'time' : 'times'} before it was yours` },
+  { k:'direct', w:['Videns','Errans'], base:0.6, scale:0.18,  hi:['you see where it is clear before it is', 'you go straight to what matters'], lo:['you take the long way, and you arrive', 'you look everywhere before you choose'], fact:(f) => `${Math.round(f.direct*100)}% of your way went straight there` },
+  { k:'seek', w:['Exspectans','Rapiens'], base:3.5, scale:2.5,     hi:['you give things time to show themselves', 'you look properly before you take'], lo:['you find what other people are still looking for', 'you are quick to see it'], fact:(f) => `${f1(f.seek)} s to find, on average` },
+  { k:'scrubs', w:['Lavans',null], base:8, scale:18,      hi:['everything you touch turns a little gold', 'you try to make things clean, and they shine instead'], lo:null, fact:(f) => `you tried to wash it ${f.scrubs} times; it only spread` },
+  { k:'stir', w:['Agitans','Tacens'], base:4, scale:6,         hi:['the water moves just because you are near', 'you leave a wake'], lo:['you move only when it counts', 'your hands are quiet'], fact:(f) => `your hand crossed the basin ${Math.max(1, Math.round(f.stir))} times` },
+  { k:'wiped', w:['Tangens',null], base:0.5, scale:2.5,    hi:['you test the edges of things, gently', 'you touch what other people only look at'], lo:null, fact:(f) => `${f1(f.wiped)} s wiping the culture` },
+  { k:'together', w:['Socians',null], base:0, scale:1,     hi:['other people find it easier to be still near you', 'you are better with company, and so is it'], lo:null, fact:(f) => `held with ${f.together} ${f.together === 1 ? 'other' : 'others'} at once` },
+  { k:'hull', w:['Amplectens','Tenens'], base:0.18, scale:0.08,   hi:['you leave room around everything you touch', 'you think in wide circles'], lo:['you keep what matters close', 'you know exactly where you stand'], fact:(f) => `your stars enclose ${Math.round(f.hull*100)}% of the glass` },
+  { k:'cross', w:['Rediens',null], base:1, scale:1.5,      hi:['you come back across your own path', 'you return to things'], lo:null, fact:(f) => `your path crosses itself ${f.cross} times` },
+  { k:'closure', w:[null,'Revertens'], base:0.6, scale:0.25, hi:null, lo:['you end close to where you began', 'you come home'], fact:() => 'your last star sits beside your first' },
+  { k:'sectors', w:['Vertens','Intendens'], base:5, scale:1.4,    hi:['you turn toward every direction', 'you leave no side unseen'], lo:['you know which way you face', 'you keep to one horizon'], fact:(f) => `your stars face ${f.sectors} of 8 directions` },
+  { k:'turn', w:['Mutans','Constans'], base:1.4, scale:0.5,     hi:['you never go the same way twice', 'you change your mind beautifully'], lo:['you keep a steady line', 'you follow one current'], fact:(f) => `your path turns ${Math.round(f.turn*57.3)} degrees at each star` },
+  { k:'minutes', w:['Attendens','Cernens'], base:6, scale:4,      hi:['you give a thing your whole attention'], lo:['you see the shape of a thing quickly'], fact:(f) => `${f1(f.minutes)} minutes from first touch to last star` },
+  { k:'you', w:['Patens',null], base:0, scale:4,          hi:['being seen suits you', 'you put yourself into everything you make'], lo:null, fact:(f) => `you are in ${f.you} of your ${f.finds} forms of life` },
+  { k:'we', w:['Respondens',null], base:0, scale:1.2,         hi:['you answer riddles meant for two'], lo:null, fact:(f) => f.mefirst ? 'you said me, and it turned into we' : f.tries ? `you answered the riddle after ${f.tries} ${f.tries === 1 ? 'guess' : 'guesses'}` : 'you answered the riddle first time' },
+  { k:'knobs', w:['Fingens',null], base:0, scale:1.4,      hi:['you change the rules when they bore you'], lo:null, fact:() => 'you turned the culture\'s dials' },
+  { k:'noon', w:['Meridians',null], base:0, scale:0.7,       hi:['you keep appointments with strangers'], lo:null, fact:() => 'you held at noon, with everyone' },
+  { k:'flipped', w:['Convertens',null], base:0, scale:1,      hi:['you have turned vanity into truth at least once'], lo:null, fact:() => 'you were holding when the title turned' },
 ];
 function readYou(){
   const f = features(), seed = hashI(Math.round(f.longest*100) + f.scrubs*7 + Math.round(f.hull*1000)*13 + f.letgo*31 + (me.first % 100003));
   const ranked = SAL.map((d) => { const z = ((f[d.k] ?? 0) - d.base)/d.scale; return { d, z, dir: z >= 0 ? 'hi' : 'lo' }; })
     .filter((x) => x.d[x.dir] && Math.abs(x.z) >= 0.5).sort((x, y) => Math.abs(y.z) - Math.abs(x.z)).slice(0, 2);
   const kept = chosenSnap(), name = kept && kept.sp ? kept.sp : 'Homo novus';
-  if (!ranked.length) return { name, vanitas:'you made a shape no one else will make.', veritas:`seven places, ${f.sectors} of 8 directions.`, f };
+  if (!me.sky) {                                         // the sky's name: the thing in the form of life you stayed with, and what this play did most
+    const taken = new Set(skies.map((k) => k.n));
+    const stand = SAL.map((d) => { const z = ((f[d.k] ?? 0) - d.base)/d.scale; return { d, z, w: d.w && d.w[z >= 0 ? 0 : 1] }; })
+      .filter((x) => x.w && Math.abs(x.z) >= 0.3).sort((x, y) => Math.abs(y.z) - Math.abs(x.z)).map((x) => PARTS.indexOf(x.w)).filter((i) => i >= 0);
+    let part = stand.find((i) => !taken.has(skyNameOf(kept, i)));
+    if (part === undefined) part = PARTS.findIndex((w, i) => !taken.has(skyNameOf(kept, i)));
+    me.part = Math.max(0, part); me.sky = skyNameOf(kept, me.part);
+    me.partKey = (SAL.find((d) => d.w && d.w.includes(PARTS[me.part])) || {}).k || ''; save();
+  }
+  const sky = me.sky, part = me.part;
+  if (!ranked.length) return { name, sky, part, vanitas:'you made a shape no one else will make.', veritas:`seven places, ${f.sectors} of 8 directions.`, f };
   const said = ranked.map((x, i) => { const v = x.d[x.dir]; return v[hashI(seed + i*977) % v.length]; });
   const vanitas = said.length > 1 ? `${said[0]}, and ${said[1]}.` : `${said[0]}.`;
+  const marked = said.map((t, i) => ranked[i].d.k === me.partKey ? `<span class="g">${t}</span>` : t);   // the clause the sky was named from, in its gold
+  const vanitasHTML = marked.length > 1 ? `${marked[0]}, and ${marked[1]}.` : `${marked[0]}.`;
   const veritas = ranked.map((x) => x.d.fact(f)).join('; ') + '.';
-  return { name, vanitas, veritas, f, said: ranked.map((x) => x.d.k) };
+  return { name, sky, part, vanitas, vanitasHTML, veritas, f, said: ranked.map((x) => x.d.k) };
 }
 
 // ---- the study: how many people played, and how. One anonymous record per play: the counts above, the shape of the
@@ -1822,7 +2025,8 @@ const STUDY_ON = !params.has('nostudy') && (/(^|\.)github\.io$/.test(location.ho
 function studyPublish(stage){
   if (!STUDY_ON || studyOff || !share.on || !share.finalize) return;
   if (!playId) { playId = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join(''); save(); }
-  const rec = { v:2, stage, test: !!probe, mode: MODE, day: Math.round(loss*111), hour: new Date().getHours(), coarse: SMALL ? 1 : 0, stills: N,
+  const rec = { v:3, stage, test: !!probe, mode: MODE, day: Math.round(loss*111), hour: new Date().getHours(), coarse: SMALL ? 1 : 0, stills: N,
+    skies: skies.length, sent: sent ? 1 : 0, sky: stage === 'done' && reading ? reading.sky : '',
     f: features(), path: path.slice(0, LINES).map((p) => [Math.round(p[0]*1000)/1000, Math.round(p[1]*1000)/1000]), sp: mem.filter(Boolean).map((m) => m.sp) };
   try {
     const ev = share.finalize({ kind:STUDY_KIND, created_at:Math.floor(Date.now()/1000), tags:[['d', 'veritas-play:' + playId], ['t', STUDY_TAG]], content:JSON.stringify(rec) }, share.sk);
@@ -1838,6 +2042,106 @@ function studyPublish(stage){
     label();
     out.addEventListener('click', (ev) => { ev.preventDefault(); studyOff = !studyOff; try { localStorage.setItem('veritas.nostudy', studyOff ? '1' : '0'); } catch (e) {} label(); });
   }
+}
+
+// ---- a sky, sent as a link: the seven stars and the recipe of each form of life, in 51 characters. No picture, no face, nothing
+// about anyone. Whoever opens it finds the sky in their glass, under their own, and can grow its forms of life again: where the
+// program says "you", it grows them from their own face, if they let it see them. Links always point at the published page.
+const PUBLIC = /(^|\.)github\.io$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://kat-titter.github.io/vanitas-veritas/davos_2027/';
+const PUBLIC_TEXT = PUBLIC.replace(/^https?:\/\//, '').replace(/\/$/, '');
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const bitsOf = (v, n) => Math.max(0, Math.min(2**n-1, Math.round(v))).toString(2).padStart(n, '0');
+function encodeSky(){
+  const order = orderOf(); if (order.length < LINES || N !== NOUNS.length) return '';
+  const r = reading || readYou(), ch = chosenSnap(), ci = Math.max(0, order.findIndex((i) => mem[i] === ch));
+  let bits = bitsOf(1, 3) + bitsOf(ci, 3) + bitsOf(r.part, 6);
+  order.forEach((i, k) => {
+    const m = mem[i], pt = path[k] || m.spot, b = blendOf(m);
+    bits += bitsOf((pt[0]+0.4)/0.8*63, 6) + bitsOf((pt[1]+0.4)/0.8*63, 6) + bitsOf(i, 3) + bitsOf(m.a ?? m.sign, 5) + bitsOf(m.p, 5) + (m.face ? '1' : '0')
+          + bitsOf(b[0]*15, 4) + bitsOf(b[1]*15, 4) + bitsOf(b[2]*15, 4) + bitsOf(m.s|0, 4);
+  });
+  let out = ''; for (let j = 0; j < bits.length; j += 6) out += B64[parseInt(bits.slice(j, j+6).padEnd(6, '0'), 2)];
+  return out;
+}
+function decodeSky(str){
+  if (!/^[A-Za-z0-9_-]{51}$/.test(str || '') || N !== NOUNS.length) return null;
+  let bits = ''; for (const ch of str) bits += B64.indexOf(ch).toString(2).padStart(6, '0');
+  let o = 0; const take = (n) => { const v = parseInt(bits.slice(o, o+n), 2); o += n; return v; };
+  if (take(3) !== 1) return null;
+  const ci = take(3), part = take(6), stars = [], lines = new Set(), taken = [];
+  for (let k = 0; k < LINES; k++) {
+    const x = take(6)/63*0.8-0.4, y = take(6)/63*0.8-0.4, line = take(3), a = take(5), p = take(5), face = take(1) === 1;
+    const blend = [take(4)/15, take(4)/15, take(4)/15], sd = take(4);
+    if (line >= LINES || lines.has(line)) return null;
+    lines.add(line);
+    const m = { a, sign: a, p, face, blend, s: sd, spot: [x, y], ord: k, line };
+    Object.assign(m, framing(m)); m.sp = speciesOf(m, taken); taken.push(m.sp);
+    stars.push(m);
+  }
+  const chosen = Math.min(ci, LINES-1);
+  return { stars, chosen, part, name: skyNameOf(stars[chosen], part), code: str };
+}
+let sent = null, sentFlat = new Float32Array(16);
+function showSky(code, own){                             // a sky arrives: under yours, in gold, its forms of life to point at
+  const d = decodeSky(code); if (!d) return false;
+  sent = d; sent.own = !!own; sentFlat = pathFlat(sent.stars.map((m) => m.spot)); toldSent = false; writeProgram();
+  return true;
+}
+
+// ---- your skies: every sky grown here stays on this device, named, to look back at and to send. Nothing leaves the device.
+let skies = [];
+if (KEEP) try { const k = JSON.parse(localStorage.getItem('veritas.skies') || '[]'); if (Array.isArray(k)) skies = k.filter((x) => x && typeof x.c === 'string' && typeof x.n === 'string').slice(-60); } catch (e) {}
+function keepSky(){
+  if (!KEEP) return;
+  const c = encodeSky(); if (!c || skies.some((k) => k.c === c)) return;
+  skies.push({ c, n: (reading || readYou()).sky, d: new Date().toISOString().slice(0, 10) });
+  if (skies.length > 60) skies.shift();
+  try { localStorage.setItem('veritas.skies', JSON.stringify(skies)); } catch (e) {}
+  document.body.classList.add('skies');
+}
+const shelf = document.getElementById('shelf');
+function glyph(code){                                    // a sky, drawn small: its stars joined in the order they were found, in the glass's ring
+  const d = decodeSky(code); if (!d) return '';
+  const X = (v) => (50 + v*110).toFixed(1), Y = (v) => (50 - v*110).toFixed(1);
+  const P3 = d.stars.map((m, k) => project(m.spot, zOf(k, m), 0.5, -0.28));
+  const fs = facets(d.stars.map((m, k) => rot3(m.spot, zOf(k, m), 0.5, -0.28))).sort((a, b2) => (b2.v[1][2] + b2.v[2][2]) - (a.v[1][2] + a.v[2][2]));
+  const folds = fs.map((f3) => { const g8 = Math.round(18 + 200*f3.l); return `<path class="fold" style="fill:rgb(${g8 + 10},${Math.round(g8*0.95)},${Math.round(g8*0.86)})" d="M${f3.v.map((v) => X(v[0]) + ' ' + Y(v[1])).join('L')}Z"/>`; }).join('');
+  const line = P3.map((q3, i) => (i ? 'L' : 'M') + X(q3[0]) + ' ' + Y(q3[1])).join('');
+  const dots = P3.map((q3) => `<circle class="st" cx="${X(q3[0])}" cy="${Y(q3[1])}" r="${(1.7*q3[2]*q3[2]).toFixed(2)}"/>`).join('');
+  return `<svg viewBox="0 0 100 100" role="button" tabindex="0" aria-label="${d.name}: show it in the glass" data-c="${code}"><circle class="rim" cx="50" cy="50" r="44"/>${folds}<path d="${line}"/>${dots}</svg>`;
+}
+function openShelf(){
+  document.getElementById('shelfHead').textContent = `your skies · ${skies.length}`;
+  document.getElementById('shelfGrid').innerHTML = skies.slice().reverse().map((k) =>
+    `<figure>${glyph(k.c)}<figcaption title="${k.n.split(' ').map((w) => GLOSS[w] ? w.toLowerCase() + ': ' + GLOSS[w] : w).join(' / ')}">${k.n}<small>${k.d.split('-').reverse().join('.')}</small><a href="${PUBLIC}?sky=${k.c}" class="send">copy link</a></figcaption></figure>`).join('');
+  shelf.classList.add('on'); shelf.querySelector('.x').focus();
+}
+const closeShelf = () => shelf.classList.remove('on');
+document.getElementById('book').addEventListener('click', (ev) => { ev.preventDefault(); openShelf(); });
+shelf.addEventListener('click', (ev) => {
+  if (ev.target === shelf || ev.target.closest('.x')) { closeShelf(); return; }
+  const send = ev.target.closest('a.send');
+  if (send) { ev.preventDefault(); navigator.clipboard?.writeText(send.href).then(() => { send.textContent = 'copied'; }, () => { location.href = send.href; }); return; }
+  const g = ev.target.closest('svg[data-c]');
+  if (g && showSky(g.dataset.c, true)) closeShelf();
+});
+shelf.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape') closeShelf();
+  else if (ev.key === 'Enter') { const g = ev.target.closest && ev.target.closest('svg[data-c]'); if (g && showSky(g.dataset.c, true)) closeShelf(); }
+});
+for (const t of ['pointerdown', 'keydown']) shelf.addEventListener(t, (ev) => ev.stopPropagation());   // reading the shelf is not holding the glass
+
+// ---- grow another: a new sky, new stills, new places, new forms of life. What it knows of you stays: the two letters, and your face
+// for as long as this page is open. Every finished sky is kept on this device.
+function growAnother(){
+  keepSky(); lift = 0;
+  Object.assign(me, freshMe()); me.we = weOk; me.looked = !!faceTex;
+  reading = null; playId = ''; shareSaid = '';
+  read.fill(false); mem = new Array(LINES).fill(null); path.length = 0; lastRead = -1;
+  lastWords = false; silence = false; afterEnd = 0; endDir = -1; recall = null; toldMirror = false; linger = 0; whisper = null;
+  document.body.classList.remove('whole', 'end');
+  sign = Math.floor(Math.random()*N); walkNext = stepWalk(sign);
+  writeProgram(); save(); compose();
 }
 
 // k, or "keep": a card to share. After a find (or for any line of the program you point at): that new form of life, its name, its
@@ -1856,7 +2160,7 @@ function wrapText(c, text, maxW){
   if (cur) lines.push(cur);
   return lines;
 }
-async function keepCard(only){
+async function makeCard(only){
   const W = 1080, Hc = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = Hc;
   const c = cv.getContext('2d');
   c.fillStyle = '#030304'; c.fillRect(0, 0, W, Hc);
@@ -1877,12 +2181,24 @@ async function keepCard(only){
     c.drawImage(canvas, sx, sy, 2*rpx, 2*rpx, ox, oy, Dm, Dm);
     c.restore();
   } finally { cardFrame = false; cardMode = false; cardSnap = null; resize(); render(); }
-  // your stars: a light at every place you found, brighter the longer you stayed; joined in the order you found them, and each to you
+  // your stars: a light at every place you found, brighter the longer you stayed; joined in the order you found them, and each to you.
+  // A finished sky is drawn in space, turned a little: nearer stars larger, and the whole of it one folded surface lit from the upper left.
   const kk = (Dm/2)/(BASIN_R*1.08), X = (p) => W/2 + p[0]*kk, Y = (p) => oy + Dm/2 - p[1]*kk;
-  if (seen && path.length) { c.strokeStyle = 'rgba(194,162,122,0.38)'; c.lineWidth = 1.5; c.beginPath(); for (const p of path) { c.moveTo(X([0, 0]), Y([0, 0])); c.lineTo(X(p), Y(p)); } c.stroke(); }
-  if (path.length > 1) { c.strokeStyle = 'rgba(194,162,122,0.7)'; c.lineWidth = 2; c.beginPath(); path.forEach((p, i) => i ? c.lineTo(X(p), Y(p)) : c.moveTo(X(p), Y(p))); c.stroke(); }
-  path.forEach((p, i) => {
-    const f = me.finds[i], stay = f ? (f.stay || 0) : 0, rr = 6 + Math.min(9, stay*1.4);
+  const ord = orderOf(), P3 = path.map((pt, k) => r ? project(pt, zOf(k, mem[ord[k]]), 0.5, -0.28) : [pt[0], pt[1], 1]);
+  if (r) {                                               // the folded sky, far facets first
+    const fs = facets(path.map((pt, k) => rot3(pt, zOf(k, mem[ord[k]]), 0.5, -0.28)));
+    fs.sort((a, b2) => (b2.v[1][2] + b2.v[2][2]) - (a.v[1][2] + a.v[2][2]));
+    for (const f3 of fs) {
+      const g8 = Math.round(18 + 200*f3.l), col = `rgba(${g8 + 10}, ${Math.round(g8*0.95)}, ${Math.round(g8*0.86)}, 0.55)`;
+      c.fillStyle = col; c.beginPath(); f3.v.forEach((v, j) => j ? c.lineTo(X(v), Y(v)) : c.moveTo(X(v), Y(v))); c.closePath(); c.fill();
+    }
+  }
+  if (sent && one < 0) { c.strokeStyle = 'rgba(194,162,122,0.30)'; c.lineWidth = 1.5; c.beginPath(); sent.stars.forEach((m, i) => i ? c.lineTo(X(m.spot), Y(m.spot)) : c.moveTo(X(m.spot), Y(m.spot))); c.stroke(); }
+  if (seen && path.length) { c.strokeStyle = 'rgba(194,162,122,0.38)'; c.lineWidth = 1.5; c.beginPath(); for (const p of P3) { c.moveTo(X([0, 0]), Y([0, 0])); c.lineTo(X(p), Y(p)); } c.stroke(); }
+  for (let i = 1; i < P3.length; i++) { const a = P3[i-1], b2 = P3[i], nz = (a[2] + b2[2])/2;     // nearer lines are brighter and thicker
+    c.strokeStyle = `rgba(194,162,122,${Math.min(0.95, 0.7*nz*nz).toFixed(2)})`; c.lineWidth = 2*nz; c.beginPath(); c.moveTo(X(a), Y(a)); c.lineTo(X(b2), Y(b2)); c.stroke(); }
+  P3.forEach((p, i) => {
+    const f = me.finds[i], stay = f ? (f.stay || 0) : 0, rr = (6 + Math.min(9, stay*1.4))*p[2];
     const g = c.createRadialGradient(X(p), Y(p), 0, X(p), Y(p), rr*3.4);
     g.addColorStop(0, 'rgba(255,250,238,1)'); g.addColorStop(0.16, 'rgba(244,226,190,0.95)'); g.addColorStop(0.45, 'rgba(194,162,122,0.28)'); g.addColorStop(1, 'rgba(194,162,122,0)');
     c.fillStyle = g; c.beginPath(); c.arc(X(p), Y(p), rr*3.4, 0, 2*Math.PI); c.fill();
@@ -1902,7 +2218,7 @@ async function keepCard(only){
   c.textBaseline = 'alphabetic';
   let y = oy + Dm + 74;
   if (r) {
-    c.font = `italic 400 44px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.name, L, y); y += 46;
+    c.font = `italic 400 44px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.sky, L, y); y += 46;
     c.font = `400 21px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(captionOf(snap).slice(0, 62), L, y); y += 62;
     c.font = `400 16px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V A N I T A S', L, y); y += 36;
     c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, r.vanitas, MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
@@ -1919,12 +2235,26 @@ async function keepCard(only){
   title(Hc-112);
   c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93';
   c.fillText('// macrofluidic × __', L + 236, Hc-112);
-  c.fillText(location.host + location.pathname.replace(/\/[^/]*$/, ''), L, Hc-70);
+  c.fillText(PUBLIC_TEXT, L, Hc-70);
   const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.9));
-  if (!blob) return;
-  const file = new File([blob], 'veritas.jpg', { type:'image/jpeg' });
-  if (navigator.canShare && navigator.canShare({ files:[file] })) { try { await navigator.share({ files:[file], title:'veri+as', text: r ? `${r.name}. ${r.vanitas}` : POINT }); return; } catch (e) { if (e.name === 'AbortError') return; } }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'veritas.jpg'; a.click();
+  return blob ? { blob, text: r ? `${r.sky}. ${r.vanitas}` : snap ? `${snap.sp}. ${lineOf(li)}` : POINT } : null;
+}
+const saveBlob = (blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'veritas.jpg'; a.click(); };
+async function keepCard(only){                           // one picture: shared from a phone, saved on a computer
+  const card = await makeCard(only); if (!card) return;
+  const file = new File([card.blob], 'veritas.jpg', { type:'image/jpeg' });
+  if (navigator.canShare && navigator.canShare({ files:[file] })) { try { await navigator.share({ files:[file], title:'veri+as', text: card.text }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  saveBlob(card.blob);
+}
+async function shareSky(){                               // the card and the link together, in one tap. On a computer: the card is saved and the link copied.
+  const code = encodeSky(), link = code ? `${PUBLIC}?sky=${code}` : PUBLIC;
+  const card = await makeCard(); if (!card) return;
+  const file = new File([card.blob], 'veritas.jpg', { type:'image/jpeg' });
+  if (navigator.canShare && navigator.canShare({ files:[file] })) {
+    try { await navigator.share({ files:[file], title:'veri+as', text: `${card.text}\n${link}` }); shareSaid = 'shared'; return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  let copied = false; try { await navigator.clipboard.writeText(link); copied = true; } catch (e) {}
+  saveBlob(card.blob); shareSaid = copied ? 'card saved, link copied' : 'card saved';
 }
 
 // ---- begin, once the stills are in ----
@@ -1942,6 +2272,8 @@ Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image()
   }
   restore();                                       // and what you left here last time is still here
   youLine();
+  if (params.has('sky')) showSky(params.get('sky'));   // a sky someone sent
+  if (skies.length) document.body.classList.add('skies');
   const preroll = Math.min(600, Math.max(0, parseFloat(params.get('t') ?? '6') || 0));
   grow(2600);                                      // let the culture establish itself before anyone sees it
   for (let i = 0; i < preroll*30; i++) step(1/30);

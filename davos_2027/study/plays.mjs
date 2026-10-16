@@ -25,6 +25,8 @@ const MEASURES = ['finds', 'holds', 'letgo', 'longest', 'stay', 'seek', 'direct'
   'together', 'noon', 'minutes', 'hull', 'sectors', 'turn', 'cross', 'closure', 'graft', 'cells', 'seam', 'you'];
 // record v1: 24 stills, the eye forgot you after two holds; v2 (from 15.10.2026, evening): 32 stills, and once seen you are in every
 // form of life after, so "you" (how many have the viewer in them) is counted. Compare groups across versions with care.
+// v3 (same evening): you are in most forms of life after you are seen, not all; each play also carries how many skies this device
+// had grown before it (skies), whether it arrived through a sent sky (sent), and the name its sky was given (sky).
 const args = process.argv.slice(2);
 const K = args.includes('--k') ? parseInt(args[args.indexOf('--k')+1], 10) : 0;
 const TESTS = args.includes('--tests');
@@ -55,8 +57,8 @@ for (const ev of events) {
 const plays = [...byPlay.values()].sort((a, b) => a.at - b.at);
 writeFileSync(join(HERE, 'plays.json'), JSON.stringify(plays, null, 1));
 
-const csv = [['id', 'at', 'v', 'stage', 'mode', 'day', 'hour', 'coarse', ...MEASURES].join(',')];
-for (const p of plays) csv.push([p.id, new Date(p.at*1000).toISOString(), p.v ?? 1, p.stage, p.mode, p.day, p.hour, p.coarse, ...MEASURES.map((k) => p.f?.[k] ?? '')].join(','));
+const csv = [['id', 'at', 'v', 'stage', 'mode', 'day', 'hour', 'coarse', 'skies', 'sent', 'sky', ...MEASURES].join(',')];
+for (const p of plays) csv.push([p.id, new Date(p.at*1000).toISOString(), p.v ?? 1, p.stage, p.mode, p.day, p.hour, p.coarse, p.skies ?? '', p.sent ?? '', String(p.sky || '').replace(/[^A-Za-z ]/g, ''), ...MEASURES.map((k) => p.f?.[k] ?? '')].join(','));
 writeFileSync(join(HERE, 'plays.csv'), csv.join('\n') + '\n');
 
 // ---- how many, and how far they got
