@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>if (/\/vanitas-veritas\/davos_2027\//.test(location.pathname)) location.replace('https://kat-titter.github.io/vanitas_veritas_verse/' + location.search + location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>vanitas_veritas</title>
 <meta name="description" content="A sink you can't wash your hands in. Hold, and it is still. Hold together, and it is true.">
@@ -2544,7 +2545,7 @@ function studyPublish(stage){
 // ---- a sky, sent as a link: the seven stars and the recipe of each form of life, in 51 characters. No picture, no face, nothing
 // about anyone. Whoever opens it finds the sky in their glass, under their own, and can grow its forms of life again: where the
 // program says "you", it grows them from their own face, if they let it see them. Links always point at the published page.
-const PUBLIC = /(^|\.)github\.io$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://kat-titter.github.io/vanitas-veritas/davos_2027/';
+const PUBLIC = /(^|\.)github\.io$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://kat-titter.github.io/vanitas_veritas_verse/';
 const PUBLIC_TEXT = PUBLIC.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const bitsOf = (v, n) => Math.max(0, Math.min(2**n-1, Math.round(v))).toString(2).padStart(n, '0');
