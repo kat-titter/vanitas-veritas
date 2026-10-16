@@ -24,8 +24,9 @@
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); white-space:nowrap; }
   h1 i { font-style:normal; color:var(--gold); }
-  #mid { display:inline-block; transition:opacity .45s; }
-  body.veritas #mid { color:var(--gold); }
+  #mid { display:inline-block; transition:opacity .45s; color:var(--gold); }       /* the letters that turn: an, vanity; er, truth */
+  h1 .br { color:var(--dim); }
+  body.veritas #mid { color:#f2e2c4; text-shadow:0 0 14px rgba(194,162,122,.9); }
   body.veritas h1 { text-shadow:0 0 22px rgba(194,162,122,.55), 0 0 3px rgba(3,3,4,.9); }
   pre { margin:20px 0 0; font:inherit; transition:opacity .8s; }
   pre span { display:block; min-height:1.75em; }
@@ -55,7 +56,7 @@
   body.gallery #bar, body.sink #bar { display:none; }
   #say .f { display:block; color:var(--gold); }
   /* sharing: the card, and what to do with it, in one place */
-  #sharer { position:fixed; inset:0; z-index:6; display:none; overflow:auto; background:rgba(3,3,4,.95); padding:48px 24px 32px; }
+  #sharer { position:fixed; inset:0; z-index:6; display:none; overflow:auto; background:var(--ink); padding:48px 24px 32px; }
   #sharer.on { display:block; }
   #sharer .in { max-width:460px; margin:0 auto; }
   #sharer img { display:block; width:100%; max-height:64vh; object-fit:contain; }
@@ -63,13 +64,18 @@
   #sharer .links a { color:var(--gold); text-decoration:none; border-bottom:1px dotted var(--gold); }
   #sharer .links a:hover, #sharer .links a:focus-visible { color:var(--bone); border-bottom-color:var(--bone); }
   #sharer #shLink { margin:14px 0 0; font-size:10.5px; color:var(--dim); word-break:break-all; user-select:all; }
+  #sharer h2 { margin:0 0 16px; font:400 11px/1.6 var(--mono); letter-spacing:.3em; text-transform:uppercase; color:var(--dim); }
+  #shText { margin:20px 0 0; font-size:13px; line-height:1.75; color:var(--bone); }
+  #shText p { margin:0 0 .9em; }
+  #shText .sp { font-style:italic; color:var(--gold); font-size:15px; }
+  #shText .f { color:var(--gold); }
   #sharer .x { position:fixed; top:16px; right:22px; background:none; border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
   #sharer .x:hover, #sharer .x:focus-visible { color:var(--bone); }
   #prog .ln.sent { color:#a8916f; }
   /* the sky book: every sky grown on this device, named, to look back at and to send */
   #book { display:none; margin-right:14px; color:var(--gold) !important; border-bottom-color:var(--gold) !important; }
   body.skies #book { display:inline; }
-  #shelf { position:fixed; inset:0; z-index:5; display:none; overflow:auto; background:rgba(3,3,4,.94); padding:56px 28px 40px; }
+  #shelf { position:fixed; inset:0; z-index:5; display:none; overflow:auto; background:var(--ink); padding:56px 28px 40px; }
   #shelf.on { display:block; }
   #shelf h2 { margin:0 auto 26px; max-width:980px; font:400 11px/1.6 var(--mono); letter-spacing:.3em; text-transform:uppercase; color:var(--dim); }
   #shelf .grid { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:30px 22px; }
@@ -148,9 +154,9 @@
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
 <button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"><b>look</b> &middot; one frame, stays on this device</span></button>
 <section id="shelf" aria-label="Your skies" role="dialog"><button class="x" type="button" aria-label="Close">&times;</button><h2 id="shelfHead">your skies</h2><div class="grid" id="shelfGrid"></div></section>
-<section id="sharer" role="dialog" aria-label="Share your sky"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><img id="shImg" alt="Your sky, as a card"><p class="links"><a href="#" id="shShare">share -&gt;</a><a href="#" id="shCopy">copy the link</a><a href="#" id="shSave">save the picture</a></p><p id="shLink"></p></div></section>
+<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><h2 id="shHead">your reading</h2><img id="shImg" alt="Your sky, as a card"><div id="shText"></div><p class="links"><a href="#" id="shShare">share -&gt;</a><a href="#" id="shCopy">copy the link</a><a href="#" id="shSave">save the picture</a></p><p id="shLink"></p></div></section>
 <main id="words">
-  <h1 id="title" aria-label="vanitas, veritas">v<span id="mid">an</span>i<i>+</i>as</h1>
+  <h1 id="title" aria-label="vanitas, veritas">v<span class="br">[</span><span id="mid">an</span><span class="br">]</span>i<i>+</i>as</h1>
   <div id="bar" role="progressbar" aria-label="stars found" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b class="eye" title="the eye"></b><span id="barN">0 / 7</span></div>
 <pre id="prog" aria-label="The program: one line for every new form of life you grow"><span>sink = drain(sink)</span><span id="you"></span><span>sink == sync<b id="pS"></b></span><span id="lines"></span><span>// macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
 <pre id="bio" aria-label="The culture, live"><span>culture(f=<b class="knob" data-k="f" tabindex="0">0.0310</b>, k=<b class="knob" data-k="k" tabindex="0">0.0600</b>)</span></pre>
@@ -852,7 +858,7 @@ function speciesOf(m, taken){                // genus from the picture (or from 
 const spLine = (i) => mem[i] && mem[i].sp ? `<span class="sp">${mem[i].sp}</span>` : '';
 // ---- the mirror: what you do, counted. Read back to you at the end, flattering as a mirror is, and true because it only counts what you did.
 const freshMe = () => ({ first:0, done:0, holds:0, held:0, longest:0, letgo:0, stayed:0, finds:[], stir:0, scrubs:0, wiped:0,
-  knobs:false, tries:0, we:false, looked:false, together:0, flipped:false, noon:false, byKey:0, sky:'', part:0, partKey:'', meFirst:false });
+  knobs:false, tries:0, we:false, looked:false, together:0, flipped:false, noon:false, byKey:0, sky:'', part:0, partKey:'', meFirst:false, chosenLine:-1 });
 const me = freshMe();
 let hold0 = { x:0, y:0 }, lastHP = { x:0, y:0 }, holdPath = 0, foundAt = -1, handSpeed = 0, lastMoveT = 0;
 const read = new Array(LINES).fill(false);
@@ -1203,9 +1209,9 @@ function tell(now){
   if (silence && !held) {                                          // the end: your sky's name, and the mirror. Then: send it, or grow another.
     const r = reading || (reading = readYou());
     if (!document.body.classList.contains('end')) document.body.classList.add('end');
-    const on = MODE === 'web' ? `<a class="keep" data-act="share" href="#share">share your sky -&gt;</a> <a class="keep" data-act="again" href="#again">another sky -&gt;</a>` : '';
+    const on = MODE === 'web' ? `<a class="keep" data-act="share" href="#share">your reading -&gt;</a> <a class="keep" data-act="again" href="#again">another sky -&gt;</a>` : '';
     const facts = String(r.veritas).replace(/\.$/, '').split('; ');
-    sayIt(`<span class="sp">${glossHTML(r.sky)}</span>` + commentHTML(meaningOf(r.sky)) + commentHTML(r.vanitas)
+    sayIt(`<span class="sp">${glossHTML(r.sky)}</span>` + commentHTML(meaningOf(r.sky)) + commentHTML((r.horo && r.horo[0]) || r.vanitas)
       + `<code>sky = mirror(you)</code>` + facts.map((f2, j) => commentHTML(f2 + (j < facts.length-1 ? ';' : '.'), '#', 'f')).join('') + on);
     return;
   }
@@ -1463,15 +1469,23 @@ function youLine(){
 }
 youEl.addEventListener('click', (ev) => { const a = ev.target.closest && ev.target.closest('.look'); if (a) see(ev); });
 youEl.addEventListener('pointerdown', (ev) => ev.stopPropagation());
-function grade(cx){                 // the same grade as the stills: cool mono, a little gold in the light, dark at the edges
-  const im = cx.getImageData(0, 0, 512, 512), d = im.data;
+function grade(cx){                 // the loop's own grade (code/morph_v45_sr.py), so a face looks dreamed like the stills: a little soft, a gloss on the
+  // highlights, deep blacks, cool where the light is cool and gold where it is warm (skin is warm: it turns gold, as the stills do), the same S-curve,
+  // dark at the edges, a little grain
+  const W = 512, im = cx.getImageData(0, 0, W, W), d = im.data;
+  const blurred = (data, r) => { const a = document.createElement('canvas'); a.width = a.height = W; const ax = a.getContext('2d'); ax.putImageData(new ImageData(data, W, W), 0, 0);
+    const b = document.createElement('canvas'); b.width = b.height = W; const bx = b.getContext('2d', { willReadFrequently:true }); bx.filter = `blur(${r}px)`; bx.drawImage(a, 0, 0); return bx.getImageData(0, 0, W, W).data; };
+  const soft = blurred(new Uint8ClampedArray(d), 2.2);
+  const hi = new Uint8ClampedArray(d.length);
+  for (let i = 0; i < d.length; i += 4) { for (let j = 0; j < 3; j++) hi[i+j] = Math.max(0, 0.9*d[i+j] + 0.1*soft[i+j] - 205)*4; hi[i+3] = 255; }
+  const bloom = blurred(hi, 6);
   for (let i = 0, n = 0; i < d.length; i += 4, n++) {
-    let l = (0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2])/255;
-    l = l*l*(3-2*l); l = Math.pow(l, 1.15);
-    const x = (n % 512)/512-0.5, y = Math.floor(n/512)/512-0.5, v = 1-0.7*Math.max(0, Math.hypot(x, y)-0.28)/0.22;
-    l *= Math.max(0, Math.min(1, v));
-    const g = Math.max(0, (l-0.72)/0.28);
-    d[i] = 255*Math.min(1, l*(0.93+0.29*g)); d[i+1] = 255*Math.min(1, l*(0.98-0.18*g)); d[i+2] = 255*Math.min(1, l*(1.09-0.79*g));
+    const warm = Math.max(0, Math.min(1, (d[i] - d[i+2])/40));
+    let rgb = [0, 1, 2].map((j) => { let x = 0.9*d[i+j] + 0.1*soft[i+j]; const bl = 0.55*bloom[i+j]/4; x = 255 - (255-x)*(255-bl)/255; return Math.min(1, Math.pow(Math.min(1, x/255), 1.18)*1.05)*255; });
+    const lum = 0.299*rgb[0] + 0.587*rgb[1] + 0.114*rgb[2];
+    const C = [0.93, 0.98, 1.09], G = [1.22, 0.80, 0.30];
+    const x = (n % W)/W-0.5, y = Math.floor(n/W)/W-0.5, v = Math.max(0, Math.min(1, 1-0.7*Math.max(0, Math.hypot(x, y)-0.28)/0.22));
+    for (let j = 0; j < 3; j++) { const t = Math.min(1, ((1-warm)*lum*C[j] + warm*lum*G[j])/255); d[i+j] = (255/(1 + Math.exp(-5.2*(t-0.5))))*v + (Math.random()-0.5)*8; }
   }
   cx.putImageData(im, 0, 0);
 }
@@ -2109,10 +2123,39 @@ const SAL = [
   { k:'noon', w:['Meridians',null], base:0, scale:0.7,       hi:['you keep appointments with strangers'], lo:null, fact:() => 'you held at noon, with everyone' },
   { k:'flipped', w:['Convertens',null], base:0, scale:1,      hi:['you have turned vanity into truth at least once'], lo:null, fact:() => 'you were holding when the title turned' },
 ];
+// ---- the horoscope. A reading in the old manner, put together from this play alone: what you are like (only ever from what you did, and
+// kindly), when and where you came to it, and what to do next. Nothing in it is a type. The hour, the day, the season, the moon and the
+// place come from this device's own clock and time zone; none of it leaves the device.
+const MOONS = [[0.03,'new'], [0.22,'waxing crescent'], [0.28,'first quarter'], [0.47,'waxing gibbous'], [0.53,'full'], [0.72,'waning gibbous'], [0.78,'last quarter'], [0.97,'waning crescent'], [1.01,'new']];
+const moonOf = (t) => { const ph = ((((t/86400000 + 2440587.5) - 2451550.1)/29.530588853) % 1 + 1) % 1; return MOONS.find(([e]) => ph < e)[1]; };
+const SOUTH = /^(Australia|Antarctica|Pacific\/(Auckland|Chatham|Fiji)|America\/(Santiago|Argentina|Sao_Paulo|Montevideo|Asuncion|La_Paz|Lima)|Africa\/(Johannesburg|Maputo|Harare|Windhoek|Gaborone|Lusaka)|Indian\/(Mauritius|Reunion))/;
+function whenWhere(t){
+  const d = new Date(t), h = d.getHours();
+  let zone = ''; try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  const months = ['winter','winter','spring','spring','spring','summer','summer','summer','autumn','autumn','autumn','winter'];
+  return { part: h < 4 ? 'the small hours' : h < 7 ? 'the hour before dawn' : h < 11 ? 'the morning' : h < 14 ? 'the middle of the day' : h < 17 ? 'the afternoon' : h < 20 ? 'the evening' : 'the night',
+    day: d.toLocaleDateString('en-GB', { weekday:'long' }).toLowerCase(), city: zone.includes('/') ? zone.split('/').pop().replace(/_/g, ' ').toLowerCase() : '',
+    season: months[(d.getMonth() + (SOUTH.test(zone) ? 6 : 0)) % 12], moon: moonOf(t), davos: Math.max(0, Math.ceil((DAVOS - t)/86400000)) };
+}
+const HOUR_SAYS = { 'the small hours':'the small hours keep their own counsel, and so do you', 'the hour before dawn':'the hour before dawn belongs to those who can wait',
+  'the morning':'mornings favour clear eyes, and yours were', 'the middle of the day':'midday leaves nowhere to hide, and you did not try',
+  'the afternoon':'the long light of the afternoon rewards patience', 'the evening':'evening light is gold, and so was your hand',
+  'the night':'night brings pictures closer to those who stay up for them' };
+const MOON_SAYS = { 'new':'a new moon favours beginnings', 'waxing crescent':'a waxing moon favours what you are growing', 'first quarter':'a half moon favours decisions',
+  'waxing gibbous':'a swelling moon favours finishing what you start', 'full':'a full moon shows everything, and it showed you', 'waning gibbous':'a waning moon favours giving back',
+  'last quarter':'a half moon, waning, favours letting go', 'waning crescent':'a thin moon favours rest' };
+const NEXT = { longest:['stay with one thing a little longer than feels polite', 'leave while it is still good'], stay:['let something good last', 'travel light'],
+  letgo:['let one thing go before it is yours; something clearer is coming', null], direct:['trust the first clear place you see', 'take the long way; you notice more there'],
+  seek:['give someone time to show themselves', 'say the thing you already see'], scrubs:['stop washing; leave the gold where it falls', null],
+  stir:['move; the water likes you near', 'keep still; it is your strongest move'], wiped:['touch the edges; they grow back', null], together:['hold with someone; it works better', null],
+  hull:['leave room around someone you love', 'keep what matters close'], cross:['go back for the thing you passed', null], closure:[null, 'come home early, once'],
+  sectors:['turn toward the side you never face', 'keep facing the way you face'], turn:['change your mind once, on purpose', 'keep your line; it is a good one'],
+  minutes:['give one thing your whole attention', 'decide quickly; you are usually right'], you:['be seen once more than is comfortable', null],
+  we:['answer a riddle meant for two', null], knobs:['change one rule that bores you', null], noon:['keep an appointment with strangers', null], flipped:['turn something vain into something true', null] };
 function readYou(){
   const f = features(), seed = hashI(Math.round(f.longest*100) + f.scrubs*7 + Math.round(f.hull*1000)*13 + f.letgo*31 + (me.first % 100003));
   const ranked = SAL.map((d) => { const z = ((f[d.k] ?? 0) - d.base)/d.scale; return { d, z, dir: z >= 0 ? 'hi' : 'lo' }; })
-    .filter((x) => x.d[x.dir] && Math.abs(x.z) >= 0.5).sort((x, y) => Math.abs(y.z) - Math.abs(x.z)).slice(0, 2);
+    .filter((x) => x.d[x.dir] && Math.abs(x.z) >= 0.5).sort((x, y) => Math.abs(y.z) - Math.abs(x.z)).slice(0, 3);
   const kept = chosenSnap(), name = kept && kept.sp ? kept.sp : 'Homo novus';
   if (!me.sky) {                                         // the sky's name: the thing in the form of life you stayed with, and what this play did most
     const taken = new Set(skies.map((k) => k.n));
@@ -2120,15 +2163,31 @@ function readYou(){
       .filter((x) => x.w && Math.abs(x.z) >= 0.3).sort((x, y) => Math.abs(y.z) - Math.abs(x.z)).map((x) => PARTS.indexOf(x.w)).filter((i) => i >= 0);
     let part = stand.find((i) => !taken.has(skyNameOf(kept, i)));
     if (part === undefined) part = PARTS.findIndex((w, i) => !taken.has(skyNameOf(kept, i)));
-    me.part = Math.max(0, part); me.sky = skyNameOf(kept, me.part);
+    me.part = Math.max(0, part); me.sky = skyNameOf(kept, me.part); me.chosenLine = mem.indexOf(kept);
     me.partKey = (SAL.find((d) => d.w && d.w.includes(PARTS[me.part])) || {}).k || ''; save();
   }
   const sky = me.sky, part = me.part;
-  if (!ranked.length) return { name, sky, part, vanitas:'you made a shape no one else will make.', veritas:`seven places, ${f.sectors} of 8 directions.`, f };
   const said = ranked.map((x, i) => { const v = x.d[x.dir]; return v[hashI(seed + i*977) % v.length]; });
-  const vanitas = said.length > 1 ? `${said[0]}, and ${said[1]}.` : `${said[0]}.`;
-  const veritas = ranked.map((x) => x.d.fact(f)).join('; ') + '.';
-  return { name, sky, part, vanitas, veritas, f, said: ranked.map((x) => x.d.k) };
+  const vanitas = !said.length ? 'you made a shape no one else will make.' : said.length > 1 ? `${said[0]}, and ${said[1]}.` : `${said[0]}.`;
+  const veritas = ranked.length ? ranked.slice(0, 2).map((x) => x.d.fact(f)).join('; ') + '.' : `seven places, ${f.sectors} of 8 directions.`;
+  // the horoscope, sentence by sentence
+  const pick = (arr, k) => arr[hashI(seed + k*131) % arr.length];
+  const ctx = whenWhere(me.first || Date.now()), [nA, nB] = String(sky).split(' ');
+  const horo = [];
+  horo.push(`born under ${EN_NOUN[nA] || 'this sky'} that ${EN_PART[nB] || 'is being born'}: ${said[0] || 'you made a shape no one else will make'}.`);
+  if (said[1]) horo.push(pick([`${said[1]}, and people notice.`, `${said[1]}; it shows.`, `${said[1]}, which is rarer than it sounds.`], 1));
+  if (said[2]) horo.push(pick([`underneath, ${said[2]}.`, `and when no one is looking, ${said[2]}.`], 2));
+  horo.push(`you came to the glass in ${ctx.part}, on a ${ctx.day} in ${ctx.season}${ctx.city ? `, by ${ctx.city} time` : ''}; ${HOUR_SAYS[ctx.part]}.`);
+  horo.push(`${MOON_SAYS[ctx.moon]}.`);
+  if (f.you) horo.push(pick(['you let it see you, and it grew new life out of your face; most people never look back.', 'you let yourself be seen, and the glass made something new of you.'], 3));
+  else if (CAN_SEE) horo.push('you kept your face to yourself; the glass will wait.');
+  if (f.together) horo.push(`you held with ${f.together} ${f.together === 1 ? 'other' : 'others'} at once, and the clocks loosened faster for it.`);
+  else if (sent && !sent.own) horo.push('someone sent you their sky; answer them with yours.');
+  else if (skies.length) horo.push(`this is sky ${skies.length + (skies.some((k) => k.n === sky) ? 0 : 1)}; you come back to things, and they come back to you.`);
+  const nx = ranked[0] && NEXT[ranked[0].d.k] && NEXT[ranked[0].d.k][ranked[0].dir === 'hi' ? 0 : 1];
+  horo.push(`this week, ${nx || 'hold still once a day, at noon, with everyone'}.`);
+  if (ctx.davos > 0) horo.push(`in ${ctx.davos} days the real sink opens in davos.`);
+  return { name, sky, part, vanitas, veritas, horo, f, said: ranked.map((x) => x.d.k) };
 }
 
 // ---- the study: how many people played, and how. One anonymous record per play: the counts above, the shape of the
@@ -2265,9 +2324,11 @@ function growAnother(){
 // words and its line of code, your stars so far. At the end: the one you stayed with longest, your constellation over it with you at
 // its centre if it has seen you, and the mirror's reading. The riddle stays unanswered.
 let cardMode = false, cardSnap = null;
-function chosenSnap(){
+function chosenSnap(){                        // the form of life you stayed with longest; if it has seen you, the one with your face it was
+  if (me.chosenLine >= 0 && mem[me.chosenLine]) return mem[me.chosenLine];
   let best = null, bs = -1;
-  for (const f of me.finds) { const m = mem[f.i]; if (!m) continue; const sc = (f.stay || 0) + 0.05*(f.t || 0); if (sc > bs) { bs = sc; best = m; } }
+  const withYou = mem.some((m) => m && m.face);
+  for (const f of me.finds) { const m = mem[f.i]; if (!m || (withYou && !m.face)) continue; const sc = (f.stay || 0) + 0.05*(f.t || 0); if (sc > bs) { bs = sc; best = m; } }
   if (!best) { const o = orderOf(); best = o.length ? mem[o[o.length-1]] : null; }
   return best;
 }
@@ -2287,9 +2348,13 @@ async function makeCard(only){
   const li = one >= 0 ? one : lastRead;
   const snap = done ? chosenSnap() : (li >= 0 ? mem[li] : null);
   const mono = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace', L = 120, MW = W-2*L;
-  let nv = 0, nt = 0;                                      // the reading's lines, counted first, so the disc leaves them room above the footer
-  if (r) { c.font = `400 28px ${mono}`; nv = Math.min(2, wrapText(c, r.vanitas, MW).length); c.font = `400 26px ${mono}`; nt = Math.min(2, wrapText(c, r.veritas, MW).length); }
-  const Dm = r ? Math.min(800, 884 - 38*nv - 36*nt) : 800, ox = (W-Dm)/2, oy = 64;
+  let horoLines = [], factLines = [];                     // the reading's lines, counted first, so the disc leaves them room above the footer
+  if (r) {
+    c.font = `400 24px ${mono}`;
+    for (const t of r.horo) { const ls = wrapText(c, t, MW); if (horoLines.length + ls.length > 8) break; horoLines.push(...ls); }
+    c.font = `400 21px ${mono}`; factLines = wrapText(c, r.veritas, MW).slice(0, 3);
+  }
+  const Dm = r ? Math.max(520, Math.min(760, 949 - 33*horoLines.length - 30*factLines.length)) : 800, ox = (W-Dm)/2, oy = r ? 56 : 64;
   try {
     cardFrame = true; cardMode = !!snap; cardSnap = snap;
     resize(); render();                                    // one frame: the whole disc in view, the glass clear; copied before it is ever shown
@@ -2333,14 +2398,14 @@ async function makeCard(only){
   const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '.');
   const title = (y) => { c.font = `400 30px ${mono}`; let x = L; for (const ch of 'VERI+AS') { c.fillStyle = ch === '+' ? '#c2a27a' : '#e4dfd2'; c.fillText(ch, x, y); x += c.measureText(ch).width + 14; } };
   c.textBaseline = 'alphabetic';
-  let y = oy + Dm + 74;
+  let y = oy + Dm + (r ? 66 : 74);
   if (r) {
-    c.font = `italic 400 44px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.sky, L, y); y += 46;
-    c.font = `400 21px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText(('// ' + meaningOf(r.sky)).slice(0, 66), L, y); y += 62;
-    c.font = `400 16px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V A N I T A S', L, y); y += 36;
-    c.font = `400 28px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of wrapText(c, r.vanitas, MW).slice(0, 2)) { c.fillText(ln, L, y); y += 38; }
-    y += 14; c.font = `400 16px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V E R I T A S', L, y); y += 36;
-    c.font = `400 26px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of wrapText(c, r.veritas, MW).slice(0, 2)) { c.fillText(ln, L, y); y += 36; }
+    c.font = `italic 400 42px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(r.sky, L, y); y += 44;
+    c.font = `400 21px ${mono}`; c.fillStyle = '#e4dfd2'; c.fillText(('// ' + meaningOf(r.sky)).slice(0, 66), L, y); y += 40;
+    c.font = `400 15px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V A N I T A S', L, y); y += 32;
+    c.font = `400 24px ${mono}`; c.fillStyle = '#e4dfd2'; for (const ln of horoLines) { c.fillText(ln, L, y); y += 33; }
+    y += 9; c.font = `400 15px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText('V E R I T A S', L, y); y += 30;
+    c.font = `400 21px ${mono}`; c.fillStyle = '#c2a27a'; for (const ln of factLines) { c.fillText(ln, L, y); y += 30; }
   } else if (snap) {
     c.font = `italic 400 42px ${mono}`; c.fillStyle = '#c2a27a'; c.fillText(snap.sp || '', L, y); y += 46;
     c.font = `400 19px ${mono}`; c.fillStyle = '#8a8d93'; c.fillText(`a new form of life  ·  ${(snap.ord ?? 0)+1} of 7  ·  ${date}`, L, y); y += 62;
@@ -2354,7 +2419,7 @@ async function makeCard(only){
   c.fillText('// macrofluidic × __', L + 236, Hc-112);
   c.fillText(PUBLIC_TEXT, L, Hc-70);
   const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.9));
-  return blob ? { blob, text: r ? `${r.sky}. ${r.vanitas}` : snap ? `${snap.sp}. ${lineOf(li)}` : POINT } : null;
+  return blob ? { blob, text: r ? `${r.sky}: ${meaningOf(r.sky)} ${r.horo[0]}` : snap ? `${snap.sp}. ${lineOf(li)}` : POINT } : null;
 }
 const saveBlob = (blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'veritas.jpg'; a.click(); };
 // sharing: one panel. The card is shown first, so you see what you send; then the link (which opens your sky, under theirs, for whoever
@@ -2367,6 +2432,11 @@ async function openSharer(only){
   if (shImg.src.startsWith('blob:')) URL.revokeObjectURL(shImg.src);
   shareCard = { ...card, link, file: new File([card.blob], 'veritas.jpg', { type:'image/jpeg' }) };
   shImg.src = URL.createObjectURL(card.blob); shLink.textContent = link;
+  const r = !Number.isInteger(only) && read.every(Boolean) ? (reading || (reading = readYou())) : null, li = Number.isInteger(only) ? only : lastRead, m = li >= 0 ? mem[li] : null;
+  document.getElementById('shHead').textContent = r ? 'your reading' : 'a new form of life';
+  document.getElementById('shText').innerHTML = r
+    ? `<p class="sp">${r.sky}</p><p>${meaningOf(r.sky)}</p>` + r.horo.map((t) => `<p>${t}</p>`).join('') + String(r.veritas).replace(/\.$/, '').split('; ').map((t) => `<p class="f"># ${t}</p>`).join('')
+    : m ? `<p class="sp">${m.sp}</p><p>// ${lineOf(li)}</p><p class="f">${codeOf(li)}</p>` : '';
   document.getElementById('shCopy').textContent = 'copy the link'; document.getElementById('shSave').textContent = 'save the picture';
   document.getElementById('shShare').style.display = navigator.canShare && navigator.canShare({ files:[shareCard.file] }) ? '' : 'none';
   sharer.classList.add('on'); sharer.querySelector('.x').focus();
