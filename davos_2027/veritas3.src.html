@@ -2457,7 +2457,7 @@ function readYou(){
   const horo = [];
   // pairs: a line of the poem (the human: a little obscure, broad enough to see yourself in, never naming the sky or saying why) over the
   // machine's literal line (code). The sky over you when you came (where the sun and the moon stood, what was rising, the hour, the season)
-  // only colours which lines are chosen; the code says it plainly, in degrees. The reading is as long as the play was deep.
+  // only colours which lines are chosen; the code never says it. The reading is as long as the play was deep.
   const dec = (v) => (+v).toFixed(2).replace(/^0/, ''), one = (v) => (+v).toFixed(1);
   const NAME = { longest:'longest_hold_seconds', stay:'stay_seconds', seek:'seek_seconds', wiped:'wipe_seconds', turn:'turn_degrees', sectors:'directions_of_8',
     you:'forms_with_you', together:'held_with', letgo:'let_go_times', scrubs:'wash_times', stir:'crossings', cross:'path_crossings', direct:'straight_to_it',
@@ -2486,7 +2486,7 @@ function readYou(){
   [cand.trait0, cand.trait1, cand.trait2] = tr;
   // what the play counted that the traits above did not say: these sit under the lines the sky chose, so every code line is true
   const spare = ['holds', 'taps', 'stir', 'minutes', 'longest', 'stay', 'seek', 'turn', 'sectors', 'hull', 'letgo', 'scrubs', 'direct', 'closure']
-    .filter((k) => !ranked.some((x) => x.d.k === k) && f[k] !== undefined);
+    .filter((k) => !ranked.some((x) => x.d.k === k) && +f[k] > 0);   // nothing that did not happen
   const count = (j) => { const k = spare[(hashI(seed + j*53) + j) % Math.max(1, spare.length)]; spare.splice(spare.indexOf(k), 1);
     return k ? termOf(k) : `stars = path[:${f.finds}]`; };
   cand.sun = [pick(HORO.sun[`${el(sk.si)}.${mo(sk.si)}`] || [], 21), count(1)];
@@ -2501,7 +2501,8 @@ function readYou(){
   if (ctx.davos > 0) cand.davos = [pick(HORO.davos, 61), 'davos = next(future)'];
   { // the day's sky, the same for everyone who played that day: a planet turning, going back, changing sign; a new or full moon; an eclipse
     const keyOf = (e) => e.planet ? `${e.kind}.${e.planet}` : e.kind, e = skyDay(t0).find((x) => HORO.today && HORO.today[keyOf(x)]);
-    if (e) cand.today = [pick(HORO.today[keyOf(e)], 73), 'you in us'];   // the same line for everyone who played that day
+    const day = Math.floor((t0 - new Date(t0).getTimezoneOffset()*60000)/86400000), ls = e && HORO.today[keyOf(e)];
+    if (e) cand.today = [ls[hashI(day*977 + 13) % ls.length], 'you in us'];   // chosen by the day, not the play: the same line for everyone that day
   }
   const fk = ranked[0] ? `${ranked[0].d.k}.${ranked[0].dir}` : '';
   cand.forecast = [pick(HORO.forecasts[fk] || HORO.close, 67), 'return you'];   // the script ends where it began
@@ -2542,7 +2543,7 @@ function studyPublish(stage){
   } catch (e) {}
 }
 
-// ---- a sky, sent as a link: the seven stars and the recipe of each form of life, in 51 characters. No picture, no face, nothing
+// ---- a sky, sent as a link: the seven stars and the recipe of each form of life, in 52 characters. No picture, no face, nothing
 // about anyone. Whoever opens it finds the sky in their glass, under their own, and can grow its forms of life again: where the
 // program says "you", it grows them from their own face, if they let it see them. Links always point at the published page.
 const PUBLIC = /(^|\.)github\.io$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://kat-titter.github.io/vanitas_veritas_verse/';

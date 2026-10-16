@@ -3,33 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>veri+as · the proposal</title>
-<meta name="description" content="veri+as: the proposal. Thesis, vision, impact, what it is, how it is built, and the road to Davos 2027.">
+<title>vanitas_veritas · proposal</title>
+<meta name="description" content="The first proposal for vanitas_veritas, 29 September 2026, updated: the thesis, the piece as built, what is in progress, and what is proposed for Davos in January 2027.">
 <style>
   :root { --acc:#c2a27a; --bone:#e4dfd2; --cool:#a9acb2; --ink:#030304; --dim:#8a8d93; --line:#1c1d21; --panel:#08080a;
     --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--ink); color:var(--cool); font:13px/1.8 var(--mono); }
   .wrap { max-width:860px; margin:0 auto; padding:7vh 20px 12vh; }
-  .path { margin:0 0 6px; color:var(--dim); font-size:12px; }
+  .top { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px 16px; margin:0 0 6px; }
+  .path { margin:0; color:var(--dim); font-size:12px; }
   .path::before { content:"// "; color:var(--acc); }
   h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
   h1 i, h2 i { font-style:normal; color:var(--acc); }
   .lede { margin:14px 0 0; max-width:62ch; }
-  .tag { display:inline-block; margin:18px 0 0; color:var(--dim); font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
+  .tag { color:var(--dim); font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
   h2 { margin:64px 0 16px; font:400 10.5px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--acc);
     padding-top:18px; border-top:1px solid var(--line); }
   h3 { margin:0 0 6px; font:400 13px/1.5 var(--mono); color:var(--bone); }
   h3 span { color:var(--acc); margin-right:10px; }
+  h3.st { margin:24px 0 8px; color:var(--acc); }
   p { margin:0 0 12px; max-width:68ch; }
   b { color:var(--bone); font-weight:400; }
   a { color:var(--bone); text-underline-offset:3px; }
+  code { font:inherit; color:var(--bone); }
   .study { display:block; width:100%; height:min(160vw,1200px); border:1px solid var(--line); background:#000; }
   @media (min-width:900px){ .study { height:640px; } }
   .open { margin:10px 0 0; font-size:12.5px; color:var(--dim); }
   pre { margin:0 0 14px; padding:12px 16px; background:var(--panel); border-left:1px solid var(--acc);
-    font:inherit; color:var(--bone); overflow-x:auto; }
-  pre .c { color:#565b63; }
+    font:inherit; color:var(--cool); overflow-x:auto; }
+  pre .c { color:var(--bone); }
+  pre i { font-style:normal; color:var(--acc); }
   .cols { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin:0 0 14px; }
   .card { border:1px solid var(--line); padding:16px; background:var(--panel); }
   .card p:last-child { margin-bottom:0; }
@@ -41,6 +45,7 @@
   th, td { text-align:left; vertical-align:top; padding:9px 12px 9px 0; border-bottom:1px solid var(--line); }
   th { color:var(--dim); font-weight:400; font-size:12px; }
   td:first-child { color:var(--bone); white-space:nowrap; }
+  table.refs td:first-child { white-space:normal; min-width:10ch; }
   .tw { overflow-x:auto; }
   .note { color:var(--dim); font-size:12.5px; }
 </style>
@@ -48,60 +53,114 @@
 <body>
 <div class="wrap">
 
-  <p class="path">vanitas-veritas/davos_2027</p>
+  <div class="top">
+    <p class="path">vanitas-veritas/davos_2027</p>
+    <span class="tag">proposal · 29.09.2026 · updated 15.10.2026</span>
+  </div>
   <h1>veri<i>+</i>as</h1>
-  <p class="lede">Working notes for a Kat Titterton and Olive Allen piece for Davos, January 2027.
+  <p class="lede">Working notes for a piece by Kat Titterton, in conversation with Olive Allen, proposed for Davos in January 2027.
     It starts from the sink in <a href="../">Vanitas / Veritas</a> and asks what happens when the water is allowed to move,
     and when nothing that goes down the drain is allowed to leave.</p>
-  <span class="tag">proposal · 2026-09-29 · a seed, open for edits</span>
-  <p class="note" style="margin-top:12px">Archived. The current context is the <a href="blackpaper.html">black paper</a>; the current piece is <a href="veritas3.html">iii</a>.</p>
+  <p class="note" style="margin-top:12px">The seed of 29 September, updated. What is not built is marked in progress or proposed. The piece: <a href="veritas3.html">veri+as iii</a>. The context: the <a href="blackpaper.html">black paper</a>.</p>
 
-  <h2><i>00</i> &nbsp;outline</h2>
+  <h2><i>00</i> &nbsp;thesis</h2>
+  <ul>
+    <li><b>A new biology.</b> New forms of life; the uncanny in-between, of life and death and of species; emergence; softness.</li>
+    <li><b>you can't wash your hands of it.</b> A sink you cannot wash your hands in. Pictures dreamed by AI drain away and come back from the tap, copies of copies.
+      Generative models now train on their own output; so do markets; so do feeds.</li>
+    <li><b>sink == sync.</b> Two clocks on one beam fall into step (Huygens); a crowd of clocks does once the coupling passes a threshold (Kuramoto).
+      The glass is a crowd of clocks. When enough people hold still at once, the rhythm breaks and the title turns from vanitas to veritas.</li>
+    <li><b>we.</b> The answer to the riddle, and the credit line: macrofluidic&nbsp;&times;&nbsp;we.</li>
+    <li><b>birth another.</b> Every black hole births a new universe, in Lee Smolin's fecund universes. At the centre of every youniverse is a black hole.</li>
+  </ul>
   <div class="tw"><table>
-    <tr><td>a new biology</td><td><b>we need a new biology.</b> The sink is a closed loop: what goes down the drain comes back out of the tap, and what keeps coming back grows a culture on the rim. Generative models now train on their own output; so do markets; so do feeds. <b>merge.</b></td></tr>
-    <tr><td>resistance</td><td><b>resistance is futile.</b> Visitors can wipe the culture off the rim with a hand and watch it grow back; nothing they add ever leaves the room. <b>it's all ok.</b></td></tr>
-    <tr><td>ok</td><td><b>it shall be ok.</b> The only clear thing in the loop is a held moment, and you have to find where it is clear. <b>beautiful even. great even.</b></td></tr>
-    <tr><td>the spotlight</td><td><b>you can't hide.</b> The drain is an eye; once it is ready it looks toward your hand, and if you look back it keeps one frame of you for ten seconds and pours it into the loop. <b>the spotlight.</b></td></tr>
-    <tr><td>the sky</td><td>Every line read lights a star. Eight make a constellation; three plays, three constellations, each with its own words and its own stills. A lit star remembers the still and the line it was earned with. This page opens when the sky is full.</td></tr>
+    <tr><td>a new biology</td><td><b>we need a new biology.</b> The sink is a closed loop: what goes down the drain comes back out of the tap.
+      What keeps coming back grows new forms of life, each from two of the loop's pictures: a face with the skull showing through, a skull in flower, bubbles becoming cells.
+      Between life and death, between species; emergent, soft. <b>merge.</b></td></tr>
+    <tr><td>resistance</td><td><b>resistance is futile.</b> Scrub the glass and it only spreads; the hand comes away gold. <b>you can't wash your hands of it.</b>
+      Wipe the culture on the rim and it divides and grows back. <b>it's all ok.</b></td></tr>
+    <tr><td>ok</td><td><b>it shall be ok.</b> Hold still and the glass clears. Seven stars hide under it; each one found grows a new form of life and writes a line of the program. <b>beautiful even. great even.</b></td></tr>
+    <tr><td>the spotlight</td><td><b>you can't hide.</b> At the centre is a black hole, and it is an eye. If you let it, it takes one frame from your camera, kept on your device and never sent.
+      You become the centre of your youniverse, and most of what you grow after that carries your face, the bone of the dream showing through. <b>the spotlight.</b></td></tr>
+    <tr><td>the sky</td><td>Every find lights a star. Seven make a youniverse, named in Latin as code (<code>spuma_exspectans_concubii</code>: the foam that waits, at first sleep),
+      with the culture your hands pushed. The end reads you back: a line of poem over a line of code that counts what you did. Two letters finish the credit line and open the black paper.</td></tr>
   </table></div>
 
   <h2><i>01</i> &nbsp;the piece</h2>
-  <iframe class="study" src="veritas.html" title="veri+as, live" loading="lazy"></iframe>
-  <p class="open"><a href="veritas.html">open it full size -&gt;</a> &nbsp;&middot;&nbsp; <a href="veritas2.html">ii: the version that loses -&gt;</a></p>
-  <p class="note"><b>ii</b> is the same basin with one change of nature: the still pours in once, and after that the basin drinks only what it has drained.
-    Each pass through the drain returns as a copy of a copy. The decay runs on one clock for everyone: it began on 29 September 2026 and reaches
-    the bottom on 18 January 2027, so whoever opens it sees that day's state (<code>?day=N</code> looks ahead). After the eighth line the drain takes
-    the rest, and what remains is the sign. No ash, no fog, no fringe, no ring of cuts.</p>
-  <p style="margin-top:18px">A basin seen from above, under fluted glass. Twenty-four stills from the vanitas loop melt toward the drain and come back
-    out of the tap twelve seconds later. Hold, and the picture stills; somewhere in it a window of the glass is clear.
-    Move to it, keep your hand there for one heartbeat, and a line of this outline is read. Wipe the lace on the rim for a while and it reads you its own line. Every hold composes a new still and hides
-    the place somewhere else. Eight finds and the poem gives way to the outline. Round the rim a culture grows: a reaction-diffusion
-    lace that clears where your hand passes and grows back. The ring of cuts spells the poem in binary, and lights an eighth for every
-    line you have read. The pulse is 38 bpm, a freediver's heart on a breath-hold.</p>
+  <iframe class="study" src="veritas3.html" title="vanitas_veritas, live" loading="lazy"></iframe>
+  <p class="open"><a href="veritas3.html">open it full size -&gt;</a> &nbsp;&middot;&nbsp; earlier: <a href="veritas.html">i</a>, <a href="veritas2.html">ii</a></p>
+  <p class="note">i (29 September) and ii (5 October) are kept as they were. One clock carries into iii: it runs from 29 September to the first day of Davos,
+    and each day a little less is poured and the clocks in the glass are coupled tighter (<code>?day=N</code> looks ahead).</p>
+  <p style="margin-top:18px">A basin seen from above, under fluted glass, ringed by a living culture. It is born from nothing: a flash, a ring of gold, the sphere,
+    the culture growing out of the rim, the title arriving as v[an]i+as and turning once. Nothing explains itself: a star glints, a tap ripples,
+    and the first hold finds its place under the hand. Seven stars hide under the glass. Each grows a new form of life from two of the loop's 32 pictures,
+    named like a species (<i style="font-style:normal;color:var(--bone)">Calvaria florens</i>; <i style="font-style:normal;color:var(--bone)">Ipse</i>, the self, once it has seen you),
+    and adds a line of poem over a line of code. How you play pushes the culture, so each youniverse ends with its own.
+    What drains comes back from the tap ten seconds later, copies of copies. The pulse is 38 bpm, a freediver's heart on a breath-hold.</p>
+  <div class="tw"><table>
+    <tr><td>vanitas_veritas</td><td>the work. The live web piece is veri+as iii.</td></tr>
+    <tr><td>youniverse</td><td>one person's universe. <code>def youniverse(you):</code> &hellip; <code>return youniverse(me + you)</code>; once answered, or ended, <code>return youniverse(we)</code>.</td></tr>
+    <tr><td>weverse</td><td>you and your friends: the youniverses sent to you.</td></tr>
+    <tr><td>macroverse</td><td>everyone's youniverses on one live <a href="macroverse.html">map</a>.</td></tr>
+  </table></div>
+
+  <h2><i>01b</i> &nbsp;built, in progress, proposed</h2>
+  <h3 class="st">built</h3>
+  <ul>
+    <li><b>The program.</b> A primer, then a poem, written as Python: a human comment over the machine's code (<a href="#program">03</a>).</li>
+    <li><b>Two poems.</b> The hint poem: one line per find, written from what grew (its join, its two pictures, whether your face is in it, its place in the seven).
+      Kat's seven lines appear only now and then, later finds lean toward we, and <code>return youniverse(me + you)</code> shows from the start, so anyone who reads code can solve the riddle at once.
+      The reading, at the end: pairs of a kind, slightly obscure line of poem over a line of code that is a literal count of the play (<code>while held &lt; 14.3: stay()</code>).
+      On some days, one line is the same for everyone who played that day. A light play reads short, a deep one long, from three pairs to ten. What chooses the lines stays hidden.</li>
+    <li><b>Holding together.</b> Every hold, anywhere, is a ring in everyone's basin, carried over public Nostr relays: no server, no accounts.
+      Every day at noon, Davos time, everyone holds. The coupling tightens toward January: in October one long breath can turn the title alone; by January it takes more than one.</li>
+    <li><b>The study.</b> Each play leaves one anonymous record on public Nostr relays (NIP-78): counts of the play, the shape of its stars, the forms of life by name, the culture and, at the end, the youniverse's name and code.
+      No picture, no face. <code>?nostudy</code> or Global Privacy Control keeps a play out; there is no opt-out button, by design.</li>
+    <li><b>Keeping and sending.</b> A youniverse travels as a 52-character link, never a picture. It goes out by symbol (X, Bluesky, Threads, LinkedIn),
+      or with its card through the phone's own share sheet, or saved, or copied; the raw link is never shown. Every youniverse grown stays on the device. <i style="font-style:normal;color:var(--bone)">birth another</i> starts a new one.</li>
+  </ul>
+  <h3 class="st">in progress</h3>
+  <ul>
+    <li><b>The reading, redrawn:</b> left-aligned like code and poems, big to small, the name once, symbols.</li>
+    <li><b>The macroverse in 3D:</b> youniverses placed by how alike they were played, with clusters and filaments forming after the fact, turning slightly.
+      Each youniverse is a flat constellation that folds into its 3D sky when opened, never both at once, with its culture shown. <i style="font-style:normal;color:var(--bone)">home</i> frames your own; the weverse lights you and your friends.</li>
+  </ul>
+  <h3 class="st">proposed</h3>
+  <ul>
+    <li><b>The black hole grows.</b> The drain grows into a black hole as you find stars, of a kind set by how you played: still, or spinning;
+      rarer, a quasar, a torn star, two merging when you held with someone, a pulsar or a supernova; very rarely, a white hole.</li>
+    <li><b>birth another, as rebirth.</b> The old youniverse falls into its black hole and a new one is born from it, inheriting its culture with a small mutation. Lineages in the macroverse.</li>
+    <li><b>Faces in the macroverse, opt-in only.</b> Only the dreamed image, never the raw frame. A separate consent step: 18 or over, only you in the frame, a separate yes for the Davos projection, a removal code.
+      Kept privately in the EU, every image approved by Kat before it appears anywhere, and an expiry date. No promise that a face cannot be recognised.
+      No face landmarks or face-shape detection. Reviewed by a Swiss or EU data-protection lawyer before Davos.</li>
+    <li><b>The sink.</b> One real sink in Davos, running the same page (<a href="#format">04b</a>).</li>
+  </ul>
 
   <h2><i>02</i> &nbsp;what style makes sense</h2>
   <p><b>The lenticular.</b> The ridged glass in the <i style="font-style:normal;color:var(--bone)">singulari+i</i> image and the ridged plastic on a 2000s holo trading card
     are the same optical object. One is a lens you look through; the other is a collectible you tilt. A lenticular shows two pictures
-    from one surface depending on where you stand, which is already the whole premise of vanitas / veritas.</p>
+    from one surface depending on where you stand, which is already the whole premise of vanitas_veritas.</p>
   <div class="tw"><table>
     <tr><th></th><th>Kat</th><th>Olive</th><th>where they meet</th></tr>
     <tr><td>surface</td><td>fluted glass, comb-fringed edges, grain</td><td>gloss, vinyl, blister pack, foil</td><td>a fluted lens with holo foil in the highlights</td></tr>
-    <tr><td>colour</td><td>bone on deep black</td><td>candy, saturated</td><td>four colours only: ink, bone, ember, ice. Chosen to stay apart for colour-blind viewers</td></tr>
-    <tr><td>language</td><td>code-poems, equations as verse</td><td>drops, sets, game rules</td><td>a poem that is also the rulebook</td></tr>
-    <tr><td>object</td><td>the sink, the screen in the drain</td><td>the collectible, the toy</td><td>eight signs, issued as a set, poured through a basin</td></tr>
-    <tr><td>time</td><td>slow, looping, held breath</td><td>the drop: scarce, scheduled, hyped</td><td>a slow loop punctuated by timed drops</td></tr>
+    <tr><td>colour</td><td>bone on deep black</td><td>candy, saturated</td><td>ink, bone and gold, with ice; red at the black hole's edge, in the farthest stars and in a starved culture</td></tr>
+    <tr><td>language</td><td>code-poems, equations as verse</td><td>drops, sets, game rules</td><td>a poem that is also the program</td></tr>
+    <tr><td>object</td><td>the sink, the screen in the drain</td><td>the collectible, the toy</td><td>seven stars and the eye; a youniverse kept as a card</td></tr>
+    <tr><td>time</td><td>slow, looping, held breath</td><td>the drop: scarce, scheduled, hyped</td><td>a slow loop, and every day at noon, Davos time, everyone holds</td></tr>
   </table></div>
-  <p>Rules I would hold to: signs are drawn with one stroke weight, like pictograms on a 2003 device. Fluid is cel-shaded with an inked
+  <p>September's rules: signs are drawn with one stroke weight, like pictograms on a 2003 device. Fluid is cel-shaded with an inked
     contour and one hard highlight, so it reads as cartoon, then given real grain and a soft second highlight so it does not quite.
     No periodic waves. Colour arrives only in a pour or in the foil.</p>
   <p><b>Third pass, after "weird, mysterious, apocalyptic, shamanistic":</b> the sink becomes a scrying basin. Same lens, same signs, but staged as a rite.
     The disc is a black sun with a fibrous corona that brightens on the beat. Ash rises. Ember and ice are the only colours, one pour at a time. Fog crosses the rim and the glass is scratched.
     Space is the other material: the disc is cropped by the edge of the screen and the words sit small in what is left.</p>
-  <p class="note">Caveat: what I know of Olive's work is public and mostly 2019 to 2022 (Pokémon cards, Furbies, UnBearables, drops, the passport burn).
-    If her current work has moved, this table should move with it.</p>
+  <p><b>Where it went.</b> The black sun became a black hole at the centre, an eye that lights as the sky fills. Ash, fog and the ring of cuts were dropped.
+    Colour now also lives in the stars and in the culture's threads.</p>
+  <p class="note">Kat is in conversation with Olive Allen about the work; Olive's part in it is not yet set. What I know of Olive's work is public and mostly 2019 to 2022
+    (Pokémon cards, Furbies, UnBearables, drops, the passport burn). If her current work has moved, this table should move with it.</p>
 
   <h2><i>02b</i> &nbsp;references looked at</h2>
-  <div class="tw"><table>
+  <div class="tw"><table class="refs">
     <tr><th>site</th><th>what it does</th><th>what I took</th></tr>
     <tr><td><a href="https://rose-engine.org/signalis/">Signalis</a></td><td>Near-black, one red, a thin wireframe emblem, small crosses marking empty space, a poem before any product copy.</td>
       <td>One accent. Registration crosses in the void. Poem first.</td></tr>
@@ -110,32 +169,38 @@
     <tr><td><a href="https://kentuckyroutezero.com/">Kentucky Route Zero</a></td><td>Pure black, one emblem built from a few stepped grey shapes, italic mono tagline.</td>
       <td>Stepped greys in the corona and the title. One italic line. More black.</td></tr>
     <tr><td><a href="https://science.nasa.gov/mission/voyager/golden-record-cover/">Voyager Golden Record cover</a></td><td>Instructions for a reader with no shared language: binary cuts around a disc, a pulsar map, pictures built from vertical lines, a circle to check you decoded it right.</td>
-      <td>The ring of cuts carries a real message. Rays counted out from the drain. The fluted lens is the record's vertical picture lines.</td></tr>
+      <td>The ring of cuts (in i) carried a real message. Rays counted out from the drain. The fluted lens is the record's vertical picture lines.</td></tr>
     <tr><td><a href="https://cari.institute/aesthetics/y2k-aesthetic">CARI: Y2K aesthetic</a></td><td>A catalogue of the period: silver, gloss, gradients, blobby objects.</td>
       <td>Confirms the fluid treatment: silver, glossy, blobby, inked.</td></tr>
   </table></div>
-  <p class="note">Also opened: 100r.co (hand-drawn and white, less relevant, though their August log is about ciphers). luyang.asia would not load in the browser pane, so Lu Yang is not represented here and should be.</p>
+  <p class="note">Also opened: 100r.co (hand-drawn and white, less relevant, though their August log is about ciphers).</p>
 
-  <h2><i>03</i> &nbsp;draft poem</h2>
-<pre>veri+as
-
-sink = [sync] * n
-n -&gt; &infin;
+  <h2 id="program"><i>03</i> &nbsp;the program</h2>
+<pre><span class="c"># what drains away comes back</span>
+sink = drain(sink)
+<span class="c"># we have not seen you yet</span>
+you = None
+<span class="c"># every clock keeps one time</span>
 sink == sync
-
-<span class="c">// macrofluidic &times; olive allen</span></pre>
-  <p class="note">A placeholder in Kat's form so the panel has something to say. Hers to overwrite.</p>
+<span class="c"># a youniverse, grown from you</span>
+def youniverse(you):
+<span class="c">  # what grows here, and how fast</span>
+  culture = grow(f=.0310, k=.0600)
+<span class="c">  # the intention: be still, and look</span>
+  while held(0.0): seek(warm=.00)
+<span class="c">  # and again, together</span>
+  return youniverse(me + you)
+<span class="c"># macrofluidic &times; </span><i>__</i></pre>
 
   <h2><i>04</i> &nbsp;six ways in</h2>
   <div class="cols">
     <div class="card"><h3><span>a</span>double vanity</h3>
-      <p>A double vanity is a bathroom unit with two sinks. Two basins, two artists, one loop: what drains from Kat's basin pours from Olive's tap, and back.
-        Can run side by side in one room, or San Francisco to New York over a network with the delay left visible.</p>
+      <p>A double vanity is a bathroom unit with two sinks. Proposed: two basins, one loop. What drains from one pours from the other's tap, and back,
+        side by side or in two cities. The holds already travel between basins over public relays; a second sink would join them.</p>
       <small>Davos reading: two parties who cannot wash their hands without the other receiving it.</small></div>
-    <div class="card"><h3><span>b</span>the set of eight</h3>
-      <p>Eye, drop, bubble, skull, bloom, hand, tap, loop. Eight signs issued as physical lenticular cards that flip vanitas / veritas.
-        The basin is where the set is read aloud. Olive's territory: how a set is released, what is rare, what completing it gets you.</p>
-      <small>The eight map onto the eight source frames of the existing loop.</small></div>
+    <div class="card"><h3><span>b</span>the cards</h3>
+      <p>Proposed: lenticular cards, vanitas at one tilt and veritas at the other. Built: any form of life, and every youniverse, can be kept as a card and sent.</p>
+      <small>In September, eight signs issued as a set. Eight became seven stars and the eye.</small></div>
     <div class="card"><h3><span>c</span>liquidity pool</h3>
       <p>The basin taken literally. Each visitor adds one drop of pigment. It circulates, dilutes, and never leaves. By Friday the pool is
         the colour of everyone who came. The colour on the last day is the work.</p>
@@ -145,70 +210,72 @@ sink == sync
         A drain makes the same promise. Here the promise is broken: whatever is burned into the drain comes back out of the tap.</p>
       <small>Mechanic: burn to pour.</small></div>
     <div class="card"><h3><span>e</span>hold</h3>
-      <p>The existing piece pauses when you hold the faucet. Give it two handles, too far apart for one person.
-        The loop only stops when two strangers hold at once, for as long as they can both stand to.</p>
+      <p>Built, in another form: every hold, anywhere, is a ring in everyone's basin. When enough hold at once the rhythm breaks and the title turns from vanitas to veritas.
+        Two handles on one sink, too far apart for one person, is still proposed.</p>
       <small>Davos sits at about 1,560 m. Breath is already short.</small></div>
     <div class="card"><h3><span>f</span>snowmelt</h3>
       <p>No screen. Real water, a small pump, a fluted acrylic disc over a lit basin, pigment dosed on the heartbeat.
         The water is snow collected outside the venue on day one and returned on day five.</p>
       <small>Hardest to build, easiest to explain.</small></div>
   </div>
-  <p>My recommendation: <b>a + b</b>. The double vanity is the object, the set of eight is the language, and the study above is already most of the screen content.
-    <b>e</b> folds into it for free, since the hold sensor exists.</p>
+  <p>In September the recommendation was <b>a + b</b>. Where it went: <b>e</b> is built, as the shared hold. The double vanity (<b>a</b>) is proposed for after Davos.
+    The cards (<b>b</b>) are proposed. <b>c</b>, <b>d</b> and <b>f</b> stay ideas.</p>
 
-  <h2><i>04b</i> &nbsp;format</h2>
-  <p><b>Live software first, one object second, a card in the hand third.</b> The work is a real-time piece that runs in a browser.
-    Everything else is a container for it.</p>
+  <h2 id="format"><i>04b</i> &nbsp;format</h2>
+  <p><b>The web page is the invitation; the sink is the work; a card travels in the pocket.</b></p>
   <div class="tw"><table>
     <tr><th>stage</th><th>format</th><th>why</th></tr>
-    <tr><td>teaser, now</td><td>The study as a link, plus a 20 second capture for feeds.</td><td>Already exists. Costs nothing to send to a curator or a house.</td></tr>
-    <tr><td>Davos, January</td><td>One basin or one window screen running the live work. A lenticular card, or a newsprint tabloid, handed over on the street.</td>
-      <td>Venue is unknown and the week runs on thirty second encounters and things passed hand to hand. Software fits any wall; a card travels in a pocket.</td></tr>
-    <tr><td>full exhibit, after</td><td>The double vanity: two basins, fluted discs, the hold handles, the set of eight on the wall.</td><td>Needs a room, freight and time. Davos is the proof, not the build.</td></tr>
+    <tr><td>now to December</td><td>Built: the web basin, open to everyone. A youniverse travels as a 52-character link, its card through a phone's own share sheet. Everyone holds at noon, Davos time.</td><td>It is the invitation.</td></tr>
+    <tr><td>Davos, January</td><td>18 to 22 January 2027, proposed: one real sink, in the room people enter alone, running the same page and holding with the web at noon; the macroverse, projected; cards.</td>
+      <td>The week runs on short encounters and things passed hand to hand. Nothing is confirmed.</td></tr>
+    <tr><td>after Davos</td><td>Proposed: the double vanity, two sinks in two cities with one loop between them, and everyone's youniverses on the wall as the macroverse.</td><td>Davos is the proof, not the build.</td></tr>
   </table></div>
   <ul>
     <li><b>Not a video.</b> The loop never repeats, the hold has to be live, and what drains has to come back. A render would be a recording of the piece.</li>
-    <li><b>Not water, yet.</b> Pumps and pigment are a freight and leak problem in a borrowed space. Keep it for the full exhibit.</li>
-    <li><b>Not a room-scale projection.</b> That is the Forum's own commissioned territory and budget. A small dense object reads better against it.</li>
-    <li><b>The AI has to be real.</b> The study is a fluid simulation. For an AI art context the honest options are the diffusion loop poured through the basin (exists),
-      signs dreamed by a model instead of drawn, or an oracle that reads the basin and answers in a line of code-poem. One of these should be load-bearing, not a label.</li>
-    <li><b>The edition is Olive's call.</b> Card, token, both, or neither. The software does not care.</li>
+    <li><b>Not water, yet.</b> Pumps and pigment leak. Keep water for the full exhibit.</li>
+    <li><b>Not a room-scale projection.</b> One basin, in the room people enter alone, against the Forum's room-scale work.</li>
+    <li><b>The AI is in the pictures.</b> The loop was dreamed with open-source diffusion through 32 anchors, and the page walks among them the way the loop walked the model's latent space.
+      Every form of life is grown from two of them. No language model runs in the page: the poems are chosen from written lines by what grew and what your hands did.</li>
+    <li><b>Editions, proposed.</b> The sink unique, the web piece free, the cards numbered or open.</li>
   </ul>
 
   <h2><i>05</i> &nbsp;build notes</h2>
-  <p><b>What the page is, technically.</b> One HTML file, no server, no libraries. WebGL2.</p>
+  <p><b>What the page is, technically.</b> One HTML page, no framework, no server of its own, no accounts. WebGL2.
+    One small library, nostr-tools, carries the shared hold and the study over public relays.</p>
   <ul>
-    <li><b>Basin:</b> a stable-fluids solver (semi-Lagrangian advection, 36 Jacobi pressure iterations) on a 256&sup2; grid with a source at the tap and a sink at the drain,
-      a swirl that reverses each still, and a 1024&sup2; dye field. The dye is the picture: it is fed from the current still and carried by the flow.</li>
-    <li><b>The return:</b> what is going down the drain is sampled every frame into a 12-second ring buffer and poured back in at the tap.</li>
-    <li><b>Glass:</b> 58 flutes per basin width; each compresses its slice sideways and drags bright edges into a fringe. Holding flattens the glass in proportion to how near you are to the clear place.</li>
-    <li><b>Stills:</b> 24 frames sampled evenly round the 8:26 loop, centre-cropped to 768&sup2; WebP and inlined by <code>build.py</code>. Each hold composes a new one: the current frame, a random partner, each zoomed, turned and mirrored by chance, merged through a noise mask.</li>
-    <li><b>Lace:</b> Gray-Scott reaction-diffusion on a 4096&times;256 polar field (holes regime at the rim, mitosis further out), six steps a frame, drawn as contour threads with glints. The pointer clears it; it regrows.</li>
-    <li><b>The face (ii):</b> once, a line offers <i style="font-style:normal;color:var(--bone)">let it see you</i>. On a click and the browser's own permission, one mirrored frame is taken, the camera is stopped, the frame is graded like the stills and poured into the loop, where it drains and returns like everything else. It exists only in the loop's ten-second memory on the viewer's machine; nothing is stored or sent, and the next two holds may bring it up clear.</li>
-    <li><b>The path:</b> every place found is marked and joined to the last. Eight finds make a sign no one else will draw; it is encoded in a link (<code>?p=</code>, 32 hex characters) that can be sent, and a sent path is drawn in gold in the receiver's basin.</li>
-    <li><b>Ring of cuts:</b> 240 cuts, long for 1 and short for 0, spelling <code>sink=[sync]*n;n-&gt;inf;sink=sync</code>.</li>
-    <li><b>Finish:</b> a soft-focus pass (quarter-resolution blur, lighter inside the basin), desaturation to 58%, one warm tint, grain. Four colours: ink, bone, ember, ice.</li>
-    <li><b>Render cost:</b> 3 to 9 ms a frame on an M-series laptop at 1.5&times;2K. Press <code>r</code> to record a 15-second clip.</li>
+    <li><b>Basin:</b> a stable-fluids solver (semi-Lagrangian advection, 36 pressure passes, 24 on phones) on a 256&sup2; grid with a source at the tap and a sink at the drain,
+      a swirl that reverses each still, and a 1280&sup2; dye field (768&sup2; on phones). The dye is the picture: it is fed from the current still and carried by the flow.</li>
+    <li><b>The return:</b> what is going down the drain is remembered for ten seconds and poured back at the tap, dimmer each pass: copies of copies.</li>
+    <li><b>Glass:</b> 72 flutes per basin unit. The glass is 2,048 coupled clocks (Kuramoto). In step, bands of light run down the flutes and <code>sink == sync</code> is <code>True</code>.
+      A hold takes tiles out of step, and when enough hold at once the rhythm breaks, the basin clears and the title turns. Each day the coupling is a little stronger.</li>
+    <li><b>Stills:</b> the 32 anchors the loop was dreamed through (Kat's eight pictures, lightly dreamed, and three dreamed between each pair), 1024&sup2; WebP, inlined by <code>build.py</code>.
+      The page walks among them at random. Each find grows a named form of life from two of them, joined as haunt (the living and the dead), graft (across species),
+      culture (grown from the culture's cells) or merge (two as one), in amounts set by how the hand arrived.</li>
+    <li><b>Culture:</b> Gray-Scott reaction-diffusion on a 4096&times;256 polar field, drawn as contour threads with glints. It starts at f .031, k .060, where stripes, spots and holes meet.
+      How you play pushes the two numbers: stillness toward a net, moving toward loops, scrubbing toward foam, wiping toward dividing cells, holding with others toward a lattice.
+      Its threads turn red when underfed, gold in the middle, white when fed. Each youniverse ends with its own culture.</li>
+    <li><b>The face:</b> on a click and the browser's own permission, the eye takes one frame and the camera stops. The frame is graded like the stills and blended into the forms of life
+      inside a fixed oval, with no face detection, at the centre of your youniverse. It stays in the page, on the device: never sent, never stored, gone when the page closes.
+      A card carries it only if you send the card.</li>
+    <li><b>The youniverse:</b> seven finds make one. A 52-character link (<code>?sky=</code>) carries its stars and each form of life's recipe, never a picture.
+      Whoever opens it finds it under theirs in gold and can grow its forms of life again, with their own face where yours was.</li>
+    <li><b>Ring of cuts (i only):</b> 240 cuts, long for 1 and short for 0, spelling <code>sink=[sync]*n;n-&gt;inf;sink=sync</code>.</li>
+    <li><b>Finish:</b> a soft-focus pass (quarter-resolution blur, lighter inside the basin), desaturation to 58%, one warm tint, grain. Colours: ink, bone, gold, ice; red at the black hole's edge, in the farthest stars and in a starved culture.</li>
+    <li><b>Render cost (measured on i):</b> 3 to 9 ms a frame on an M-series laptop at 1.5&times;2K. Phones get a lighter basin, and without WebGL the page shows one still and the words.
+      Press <code>r</code> to record a 15-second clip.</li>
   </ul>
   <p><b>Toward the installation.</b></p>
   <ul>
-    <li>The tiat build seals a flat acrylic disc over the basin screen. Swapping it for a <b>fluted or lenticular acrylic sheet</b> gets the lens look optically, with no shader.
-      The on-screen lens in the study is a stand-in for that.</li>
-    <li>The Raspberry Pi, hall sensor and magnet from the build guide carry over. The study is a web page, so the Pi runs a browser in kiosk mode instead of a video player.
-      Worth testing early: a Pi 4 GPU may need the simulation grid reduced.</li>
-    <li>The slop feed mode pours the existing basin loop through the same fluid, so the 8:26 render is reusable as pigment.</li>
-    <li>Shipping a stainless sink to Switzerland is the expensive part. The Pearlhaus joke works just as well bought locally.</li>
+    <li>The sink as designed for tiat (not built) seals a flat acrylic disc over the basin screen. Swapping it for a <b>fluted or lenticular acrylic sheet</b> gets the lens look optically, with no shader.
+      The on-screen lens in the web basin is a stand-in for that.</li>
+    <li>Built in the page: a sink mode (<code>?sink=davos</code>), the disc only, with Space as the faucet. Proposed for the sink: the lever moves a magnet past a Hall sensor, and a small USB board types Space.
+      A sink keeps nothing and fills again about 75 seconds after each ending. Worth testing early: a Raspberry Pi's GPU may need the simulation grid reduced.</li>
   </ul>
 
-  <h2><i>06</i> &nbsp;davos, as far as I could verify</h2>
+  <h2><i>06</i> &nbsp;davos</h2>
   <div class="tw"><table>
     <tr><td>dates</td><td>World Economic Forum Annual Meeting, 18 to 22 January 2027, Davos Congress Centre.</td></tr>
-    <tr><td>from today</td><td>16 weeks.</td></tr>
-    <tr><td>official route</td><td>The Forum runs its own arts and culture programme (head: Joseph Fowler). In 2026 it included Forum-commissioned work by Ronen Tanchum,
-      an installation by Thijs Biersteker, and Marina Abramović's bus. It reads as commissioned and invited, not open call. I found no public application.</td></tr>
-    <tr><td>side route</td><td>The Promenade houses: companies, countries and groups take over chalets and shopfronts for the week. AI House Davos was at Promenade 67 in 2026.
-      A house that wants an artwork in its window is the more realistic door at this date.</td></tr>
-    <tr><td>not verified</td><td>The 2027 theme, any 2027 arts call, and whether either of you already has an invitation. If you do, that decides the format.</td></tr>
+    <tr><td>proposed</td><td>One real sink in Davos that week. No venue is confirmed. vanitas_veritas is an independent work, not part of the Forum's programme.</td></tr>
   </table></div>
 
   <h2><i>06b</i> &nbsp;art at davos, before us</h2>
@@ -233,30 +300,21 @@ sink == sync
     policymakers delegate ethics to artists. A sink you cannot wash your hands in answers that directly.</p>
   <p><b>What to take.</b></p>
   <ul>
-    <li><b>Be the shortest ritual in Davos.</b> THE BUS asks twenty minutes. We ask one breath, and ninety seconds to read the whole thing. It fits between sessions, and it leaves something in the pocket.</li>
-    <li><b>Put it where they wash their hands.</b> The bus was parked outside the Congress Centre; JR pasted on facades. The sink belongs in a restroom of a Promenade house, the one room every delegate enters alone. Art where the policy briefs cannot go.</li>
-    <li><b>Live data, but ours is a clock.</b> Forestate runs on deforestation; Living Archive on weather. Ours runs on the days until the meeting, and it will have emptied by the time they arrive. That is the only feed it needs.</li>
-    <li><b>Faces: our own, not borrowed.</b> Anadol used the Yawanawá's drawings; JR used strangers' faces. The faces melting in our basin are the artist's. The viewer's lands on top. No one is witnessed on someone else's behalf.</li>
-    <li><b>Duration as material.</b> Sunde stood in the sea for a tide. One held breath a day at the sink, in person, at a fixed hour, is a performance the Forum's audience would understand.</li>
+    <li><b>Be the shortest ritual in Davos.</b> THE BUS asks twenty minutes. We ask one breath. It fits between sessions, and what you grew leaves in the pocket, as a link.</li>
+    <li><b>Put it where they wash their hands.</b> The bus was parked outside the Congress Centre; JR pasted on facades. The sink belongs in the room people enter alone. Art where the policy briefs cannot go.</li>
+    <li><b>Live data, but ours is people holding still.</b> Forestate runs on deforestation; Living Archive on weather. Every hold, anywhere, reaches every basin, and one clock runs to the first day of the meeting.</li>
+    <li><b>Faces: our own, not borrowed.</b> Anadol used the Yawanawá's drawings; JR used strangers' faces. The faces melting in our basin are the artist's.
+      The viewer's, only if they allow it, is grown into what they make and stays on their device; in the macroverse only with a separate yes (proposed). No one is witnessed on someone else's behalf.</li>
+    <li><b>Duration as material.</b> Sunde stood in the sea for a tide. Every day at noon, Davos time, everyone holds: on the web now, and at the sink in January (proposed).</li>
     <li><b>Let it end.</b> Every work listed runs for the week and loops. Ours is the one that will be over.</li>
   </ul>
 
-  <h2><i>07</i> &nbsp;questions for Olive</h2>
-  <ul>
-    <li>Screen, object, or both? Does the set of eight exist physically, on chain, or only in the basin?</li>
-    <li>Which candy colour is yours. Pink is a guess.</li>
-    <li>What is the drop: a sign, a pour, a card, a time of day?</li>
-    <li>Do the signs stay pictograms, or do your characters take their place?</li>
-    <li>Whose house, whose wall, who pays for the sink.</li>
-  </ul>
-
-  <h2><i>08</i> &nbsp;sources</h2>
+  <h2><i>07</i> &nbsp;sources</h2>
   <ul class="note">
     <li><a href="https://www.davos.ch/en/experience/events/world-economic-forum-annual-meeting-2027">davos.ch: World Economic Forum Annual Meeting 2027</a> (dates)</li>
     <li><a href="https://www.weforum.org/stories/2026/01/davos-2026-arts-and-culture-programme/">weforum.org: The Davos 2026 arts and culture programme</a></li>
     <li><a href="https://www.theartnewspaper.com/2026/01/21/the-davos-arts-programme-art-ventures-where-policy-briefs-and-position-papers-cannot-go">The Art Newspaper: The Davos arts programme (Jan 2026)</a></li>
     <li><a href="https://www.artsy.net/article/artsy-editorial-marina-abramovic-launches-new-immersive-artwork-economic-forum-2026-davos">Artsy: Marina Abramović at the World Economic Forum 2026</a></li>
-    <li><a href="https://www.aihousedavos.com/davos-2026">AI House Davos 2026</a></li>
     <li><a href="https://en.wikipedia.org/wiki/Olive_Allen">Wikipedia: Olive Allen</a></li>
     <li><a href="https://news.artnet.com/art-world/olive-allens-metaverse-vision-looks-nothing-like-zuckerbergs-2116534">Artnet News: NFT pioneer Olive Allen</a></li>
     <li><a href="https://whitewall.art/art/discover-the-metaverse-with-olive-allen-at-postmasters-gallery/">Whitewall: Olive Allen at Postmasters Gallery</a></li>
@@ -265,6 +323,10 @@ sink == sync
     <li><a href="https://www.theartnewspaper.com/2026/01/21/marina-abramovic-rolls-into-davos-with-an-immersive-project-that-encourages-world-leaders-to-take-a-digital-detox">The Art Newspaper: Abramović's THE BUS at Davos 2026</a></li>
     <li><a href="https://www.designboom.com/art/refik-anadol-open-source-ai-large-nature-model-world-economic-forum-01-17-2024/">designboom: Anadol's Living Archive: Nature at WEF 2024</a></li>
     <li><a href="https://www.rightclicksave.com/article/art-and-resilience-at-the-world-economic-forum">Right Click Save: Art and Resilience at the World Economic Forum</a></li>
+    <li>Bennett, M., Schatz, M. F., Rockwood, H., &amp; Wiesenfeld, K. (2002). Huygens's clocks. <i>Proceedings of the Royal Society of London. Series A</i>, 458(2019), 563&ndash;579. <a href="https://doi.org/10.1098/rspa.2001.0888">doi:10.1098/rspa.2001.0888</a></li>
+    <li>Kuramoto, Y. (1975). Self-entrainment of a population of coupled non-linear oscillators. In <i>International Symposium on Mathematical Problems in Theoretical Physics</i> (Lecture Notes in Physics, vol. 39, pp. 420&ndash;422). Springer. <a href="https://doi.org/10.1007/BFb0013365">doi:10.1007/BFb0013365</a></li>
+    <li>Smolin, L. (1992). Did the universe evolve? <i>Classical and Quantum Gravity</i>, 9(1), 173&ndash;191. <a href="https://doi.org/10.1088/0264-9381/9/1/016">doi:10.1088/0264-9381/9/1/016</a></li>
+    <li>Nostr protocol. NIP-78: Arbitrary custom app data. <a href="https://github.com/nostr-protocol/nips/blob/master/78.md">github.com/nostr-protocol/nips</a></li>
   </ul>
 
 </div>
