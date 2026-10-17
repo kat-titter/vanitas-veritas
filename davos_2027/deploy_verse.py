@@ -3,7 +3,9 @@
 # macroverse, the black paper and the pitch beside it. Links between them are rewritten for the new home; the older versions (i, ii)
 # stay at the project's address. The sources, the build and the study stay here; only built pages go there.
 #   python3 davos_2027/deploy_verse.py                 the piece, black paper and pitch as they are on disk
-#   python3 davos_2027/deploy_verse.py --committed     black paper and pitch as last committed here (while they are being edited)
+#   python3 davos_2027/deploy_verse.py --committed     every page as last committed here (while the working tree is being edited)
+# The link preview (og.jpg, 1200x630, about 60 KB: a finished youniverse on ink) lives only in the published repo, never here
+# (no binaries in the source repo); the meta tags that point at it are added at publish time.
 #   python3 davos_2027/deploy_verse.py --no-macroverse leave the macroverse page out (while it is being rebuilt)
 #   add --push to commit and push (otherwise it only writes the files)
 import pathlib, re, subprocess, sys
@@ -24,13 +26,28 @@ def rehome(html):
     html = re.sub(r'href="(veritas2?\.html)', lambda m: f'href="{OLD}{m.group(1)}', html)   # i and ii stay where they were
     return html
 
-pages = {'index.html': read('veritas3.html'),
-         'blackpaper.html': read('blackpaper.html', '--committed' in args),
-         'pitch.html': read('pitch.html', '--committed' in args)}
+C = '--committed' in args
+pages = {'index.html': read('veritas3.html', C), 'blackpaper.html': read('blackpaper.html', C), 'pitch.html': read('pitch.html', C)}
 if '--no-macroverse' not in args and (HERE / 'macroverse.html').exists():
-    pages['macroverse.html'] = read('macroverse.html')
+    pages['macroverse.html'] = read('macroverse.html', C)
+
+NEW = 'https://kat-titter.github.io/vanitas_veritas_verse/'
+def preview(html, name):                      # the picture a shared link unfurls with, on every page
+    url = NEW + ('' if name == 'index.html' else name)
+    tags = (f'<meta property="og:url" content="{url}">\n<meta property="og:image" content="{NEW}og.jpg">\n'
+            '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
+            f'<meta name="twitter:image" content="{NEW}og.jpg">\n')
+    html = re.sub(r'<meta name="twitter:card" content="[^"]*">\n?', '', html)
+    if 'property="og:title"' not in html:
+        title = re.search(r'<title>(.*?)</title>', html)
+        desc = re.search(r'<meta name="description" content="([^"]*)">', html)
+        tags = (f'<meta property="og:title" content="{title.group(1) if title else "vanitas_veritas"}">\n'
+                + (f'<meta property="og:description" content="{desc.group(1)}">\n' if desc else '') + '<meta property="og:type" content="website">\n' + tags)
+    tags += '<meta name="twitter:card" content="summary_large_image">\n'
+    return html.replace('<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + tags, 1)
+
 for name, html in pages.items():
-    (DEST / name).write_text(rehome(html) if name != 'index.html' else html)
+    (DEST / name).write_text(preview(rehome(html) if name != 'index.html' else html, name))
 (DEST / '.nojekyll').write_text('')
 (DEST / 'README.md').write_text("""# vanitas_veritas
 
