@@ -5,6 +5,7 @@
 <script>if (/\/vanitas-veritas\/davos_2027\//.test(location.pathname)) location.replace('https://kat-titter.github.io/vanitas_veritas_verse/' + location.search + location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>vanitas_veritas</title>
+<link rel="icon" href="data:,">
 <meta name="description" content="A sink you can't wash your hands in. Hold, and it is still. Hold together, and it is true.">
 <meta property="og:title" content="vanitas_veritas">
 <meta property="og:description" content="A sink you can't wash your hands in. Hold, and it is still. Hold together, and it is true.">
@@ -21,7 +22,7 @@
   #lead { position:fixed; left:0; top:0; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; cursor:pointer; display:none; }
   body.door #lead { display:block; }
   #lead:focus-visible { outline:1px solid var(--gold); }
-  #words { position:fixed; left:0; top:0; width:300px; pointer-events:none; opacity:.9; visibility:hidden;
+  #words { position:fixed; left:0; top:0; width:300px; display:flex; flex-direction:column; pointer-events:none; opacity:.9; visibility:hidden;
     text-shadow:0 0 18px rgba(228,223,210,.30), 0 0 3px rgba(3,3,4,.9);
     /* one type scale, set by the comment size p: code a little smaller, the name a little larger; spacing in multiples of p */
     --col:340px; --p:min(13px, calc(var(--col) / 24.5)); --k:max(11px, calc(var(--p) * .88)); --n:calc(var(--p) * 1.2);
@@ -40,7 +41,7 @@
   pre { margin:20px 0 0; font:inherit; transition:opacity .8s; }
   pre span { display:block; min-height:0; }
   pre b { font-weight:400; color:var(--dim); }
-  body.held pre { opacity:.22; }
+  body.held pre { opacity:0; }
   /* the program: one line for every new form of life, its caption. Point at a line and that one comes back. */
   #prog { font-size:var(--k); line-height:1.45; }                                          /* the machine: grey code, one size */
   #lines { font-size:var(--k); line-height:1.45; }
@@ -56,19 +57,13 @@
   #prog .ln { display:block; min-height:0; padding-left:2ch; text-indent:-2ch; white-space:pre-wrap; pointer-events:auto; cursor:pointer; outline:none; }
   #prog .ln:hover, #prog .ln:focus-visible, #prog .ln.on { color:var(--bone); }
   #prog .ln.cmt2 { color:var(--bone); cursor:default; }            /* a person's words over the machine's line */
+  #prog .ln.cmt2:not(.a0) { color:#b9b3a6; }                       /* only the newest is bone; the earlier sit a half-step toward dim */
   #prog .v, #prog .g, #prog .cm { display:inline; min-height:0; }
   #prog .v, #prog .g { color:var(--gold); }
   #prog .cmt { display:block; min-height:0; color:var(--dim); }
   #prog .ln.act { cursor:default; }
   #prog .cm { display:inline; min-height:0; color:var(--dim); }
 
-  /* progress: seven stars to find, and the eye */
-  #bar { display:flex; align-items:center; gap:3px; margin:14px 0 0; }
-  #bar i { flex:0 0 auto; width:24px; height:3px; background:#5f6268; transition:background .6s, box-shadow .6s; }
-  #bar i.on { background:var(--gold); box-shadow:0 0 6px rgba(194,162,122,.6); }
-  #bar .eye { width:9px; height:9px; margin-left:8px; border-radius:50%; border:1px solid #5f6268; background:#030304; transition:all .8s; }
-  #bar .eye.on { border-color:var(--gold); background:radial-gradient(circle, #030304 38%, #f2e2c4 44%, var(--gold) 58%, #a8483a 82%); box-shadow:0 0 9px rgba(194,162,122,.7); }
-  body.gallery #bar, body.sink #bar { display:none; }
   #say .f { display:block; color:var(--gold); }
   /* sharing: the card, and what to do with it, in one place */
   /* one column, the picture filling it: the circle's left tangent and every line share one edge. Only the icons are centred */
@@ -77,7 +72,7 @@
   #sharer .in { --col:min(400px, calc(100vw - 32px)); --p:min(15px, calc(var(--col) / 24.5)); --k:max(11px, calc(var(--p) * .88)); --n:calc(var(--p) * 1.2);
     --in:calc(var(--p) * .1); --pair:calc(var(--p) * .8); --head:calc(var(--p) * 1.2);
     position:relative; width:var(--col); margin:0 auto; text-align:left; }
-  #sharer img { display:block; width:100%; height:auto; aspect-ratio:1; margin:0; border-radius:50%; object-fit:cover; }
+  #sharer img { display:block; width:min(100%, 46vh); height:auto; aspect-ratio:1; margin:0; border-radius:50%; object-fit:cover; }   /* small enough that the symbols stay in view */
   #shText { margin:calc(var(--p) * 2.2) 0 0; }
   #shText p, #shText h2 { margin:0; font-family:var(--mono); font-weight:400; line-height:1.45; white-space:pre; }   /* every line of the script is one line */
   #shText .mn, #shText .pc { font-size:var(--p); color:var(--bone); }
@@ -86,40 +81,19 @@
   #shText .ps { margin-top:var(--head); }
   #shText .pc { margin-top:var(--pair); }
   #shText .ps > .pc:first-child { margin-top:0; }
-  #sharer .icons { display:flex; flex-direction:column; align-items:center; gap:8px; margin:40px 0 0; }
-  #sharer .icons > span { display:flex; justify-content:center; gap:8px; }
-  #shMacro { margin-top:20px; }
+  #sharer .icons { display:flex; flex-wrap:nowrap; justify-content:center; gap:4px; margin:40px 0 0; }
+  #sharer .icons > span { display:contents; }
   #sharer .ic { display:inline-grid; place-items:center; width:44px; height:44px; border-radius:50%; color:var(--gold); text-decoration:none; outline:none; }
   #sharer .ic svg { width:20px; height:20px; fill:currentColor; }
-  #sharer .tools .ic svg, #shMacro svg { width:22px; height:22px; }
+  #sharer .tools .ic svg { width:22px; height:22px; }
   #sharer .ic svg .ln { fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-  #shMacro svg .ln { stroke-width:1.4; }
   #sharer .ic:hover, #sharer .ic:focus-visible, #sharer .ic.done { color:var(--bone); background:rgba(228,223,210,.07); }
   .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   #sharer .x { position:fixed; top:8px; right:8px; z-index:1; width:44px; height:44px; display:grid; place-items:center; border-radius:50%; background:rgba(3,3,4,.9);
     border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
   #sharer .x:hover, #sharer .x:focus-visible { color:var(--bone); }
+  #sharer .x:focus-visible { outline:1px solid var(--gold); }
   #prog .ln.sent { color:#a8916f; }
-  /* the sky book: every sky grown on this device, named, to look back at and to send */
-  #book { display:none; margin-right:14px; color:var(--gold) !important; border-bottom-color:var(--gold) !important; }
-  body.skies #book { display:inline; }
-  #shelf { position:fixed; inset:0; z-index:5; display:none; overflow:auto; background:var(--ink); padding:56px 28px 40px; }
-  #shelf.on { display:block; }
-  #shelf h2 { margin:0 auto 26px; max-width:980px; font:400 11px/1.6 var(--mono); letter-spacing:.3em; text-transform:uppercase; color:var(--dim); }
-  #shelf .grid { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:30px 22px; }
-  #shelf figure { margin:0; position:relative; }
-  #shelf svg { display:block; width:100%; aspect-ratio:1; cursor:pointer; }
-  #shelf svg circle.rim { fill:none; stroke:#2a2c31; }
-  #shelf svg path { fill:none; stroke:var(--gold); stroke-width:.9; stroke-linejoin:round; }
-  #shelf svg path.fold { stroke:none; opacity:.55; }
-  #shelf svg .st { fill:var(--bone); }
-  #shelf svg:hover path, #shelf svg:focus-visible path { stroke:var(--bone); }
-  #shelf figcaption { margin-top:8px; font:italic 400 13px/1.4 var(--mono); color:var(--gold); }
-  #shelf figcaption small { display:block; font-style:normal; font-size:10.5px; letter-spacing:.12em; color:var(--dim); }
-  #shelf figcaption a { color:var(--dim); text-decoration:none; border-bottom:1px dotted #3a3d44; font-style:normal; font-size:10.5px; letter-spacing:.12em; }
-  #shelf figcaption a:hover, #shelf figcaption a:focus-visible { color:var(--bone); }
-  #shelf .x { position:fixed; top:16px; right:22px; background:none; border:0; color:var(--dim); font:400 22px/1 var(--mono); cursor:pointer; }
-  #shelf .x:hover, #shelf .x:focus-visible { color:var(--bone); }
   @keyframes blink { 50% { opacity:0; } }
   /* the credit: two letters to find */
   #we { width:2.6ch; margin:0; padding:0 0 1px; background:none; border:0; border-bottom:1px solid var(--gold); color:var(--gold);
@@ -127,7 +101,6 @@
     height:1.25em; line-height:1.25em; vertical-align:baseline; }                     /* the input adds no height to its line */
   #we::placeholder { color:var(--gold); opacity:1; font-weight:700; animation:blink 1.6s steps(1) infinite; }
   #we.hint::placeholder { opacity:1; animation:none; }
-  #we.hint { border-bottom-style:dotted; }
   #we:focus::placeholder { animation:none; opacity:.35; }
   body.we #we { border-bottom-color:transparent; color:var(--gold); pointer-events:none; }
   #we.no { animation:no .5s; }
@@ -141,17 +114,16 @@
   #prog .ar { display:inline-block; width:1ch; font-style:normal; color:var(--cult, var(--gold)); }
   #prog .ar:empty { width:0; }                                     /* no arrow, no gap before the comma */
   #prog .def { display:block; min-height:0; }
-  body.tall #prog .hd { display:none; }                            /* phones: the running lines, not the header */
+  #prog .hd { display:none; }                                      /* the header riddles sleep; the sink build may wake them */
   body.tight1 #prog .pc { display:none; }
   body.tight2 #prog .hd, body.tight2 #lines .ln.life:not(.a0):not(.a1):not(.a2) { display:none; }
   body.tight3 #prog .lv, body.tight3 #prog .def, body.tight3 #lines .ln.life:not(.a0) { display:none; }
 
-  .knob { color:var(--cult, var(--gold)) !important; transition:color .4s; pointer-events:auto; cursor:ew-resize; border-bottom:1px dotted var(--gold); user-select:none; }
-  .knob:focus-visible { outline:none; border-bottom-style:solid; }
+  .knob { color:var(--cult, var(--gold)) !important; transition:color .4s; pointer-events:none; }   /* a readout: the culture's own record of your hands */
   /* one line at a time: the words as a comment, the code under it */
   /* a comment is a person's words (bone), the code under it the machine's (gold, a size down). Every line is one line: never wrapped */
-  #say { margin:16px 0 0; min-height:7.6em; color:var(--bone); white-space:pre; transition:min-height 1.4s ease; }
-  body.end #say { min-height:12.6em; }                /* the reading and its two ways on: room for them, never over the tools */
+  #say { margin:16px 0 0; min-height:calc(var(--p) * 6.45); color:var(--bone); white-space:pre; transition:min-height 1.4s ease; }   /* px, not em: the same room quiet or speaking */
+  body.end #say { min-height:calc(var(--p) * 12.1); }              /* the reading and its two ways on: room for them, never over the tools */
   #say .sp { display:block; font-style:italic; color:var(--gold); font-size:12px; letter-spacing:.04em; white-space:pre; }
   #say .c .g { font-weight:400; color:var(--gold); }
   #say b { display:block; font:400 10px/1.75 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
@@ -162,31 +134,33 @@
   #say .nm + .c { margin-top:var(--head); }                           /* air after the name */
   body.end #say { margin-top:26px; }                           /* the reading gets room of its own */
   body.end #lines .ln.life, body.end #prog .hd { display:none; } /* at the end the program folds to its bones: the reading is the thing */
+  body.end #you, body.end #youPc { display:none; }               /* the name is shown once, as code, in the reading */
   body.end #prog, body.end #say { text-shadow:0 0 2px var(--ink), 0 0 8px var(--ink); }   /* small lines at the end: a dark halo, not a glow */
   #say .c.gold { color:var(--gold); }
   #say .keep.ic { border-bottom:0; vertical-align:-5px; }
+  a.us { color:inherit; text-decoration:none; pointer-events:auto; }
+  a.us:hover, a.us:focus-visible { color:var(--bone); outline:none; }
   #say .keep.ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
   #say .keep { display:inline-block; margin:var(--act) 24px 0 0; font-size:var(--p); line-height:1.45; color:var(--gold); pointer-events:auto;
-    text-decoration:none; border-bottom:1px dotted var(--gold); white-space:nowrap; }
+    text-decoration:none; border-bottom:0; white-space:nowrap; }
   #say.quiet { color:var(--bone); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; animation:breath 3.2s ease-in-out infinite; }
   @keyframes breath { 0%, 100% { opacity:.42; } 50% { opacity:.95; } }   /* hold: it breathes at the pace of one held breath */
   /* the eye: the drain is a button once it has started looking at you */
   #eye { position:fixed; left:0; top:0; width:44px; height:44px; margin:-22px 0 0 -22px; border-radius:50%; display:none; cursor:pointer; background:none; border:0; padding:0; }
   #eye.on { display:block; }
+  #eye:focus-visible { outline:1px solid var(--gold); }
   #ask { position:absolute; left:52px; top:50%; transform:translateY(-50%); margin:0; white-space:nowrap; font:inherit; font-size:11.5px; color:var(--bone);
     opacity:0; transition:opacity .6s; pointer-events:none; text-shadow:0 0 2px #030304, 0 0 6px #030304, 0 0 14px #030304; }
   #eye:hover #ask, #eye:focus-visible #ask, #eye.said #ask { opacity:1; }
   body.tall #ask { left:50%; top:auto; bottom:-8px; transform:translate(-50%, 100%); white-space:normal; width:max-content; max-width:min(300px, calc(100vw - 48px)); text-align:center; }   /* phones: under the eye, never off the edge */
   #ask b { font-weight:400; color:var(--gold); }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
-  #tools { margin:12px 0 0; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
-  #tools a { color:var(--dim); pointer-events:auto; text-decoration:none; border-bottom:1px dotted #3a3d44; }   /* quiet, and still 6:1 */
+  #tools { margin:auto 0 0; padding-top:12px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }   /* the foot of the measure */
+  #tools a { color:var(--dim); pointer-events:auto; text-decoration:none; }   /* quiet, and still 6:1 */
   #tools a:hover, #tools a:focus-visible { color:var(--bone); }
   #macro { display:inline-block; margin-right:14px; vertical-align:-6px; border-bottom:0 !important; color:var(--gold) !important; }
   #macro svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.3; }
   #macro svg .me { fill:currentColor; stroke:none; }
-  #reset { display:inline-block; vertical-align:-6px; border-bottom:0 !important; }
-  #reset svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
   #macro:hover, #macro:focus-visible { color:var(--bone) !important; }
   #door { display:none; margin-right:14px; color:var(--gold) !important; border-bottom-color:var(--gold) !important; }
   body.door #door { display:inline; }
@@ -202,20 +176,18 @@
   @media (prefers-reduced-motion: reduce) { #we::placeholder { animation:none; } pre { transition:none; } #say.quiet { animation:none; opacity:.8; } }
 </style>
 </head>
-<body>
-<canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with a living culture. Faces, skulls and flowers melt toward the drain and come back from the tap. Hold, and the glass goes clear."></canvas>
+<body class="unborn mute">
+<canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with a living culture. Faces, skulls and flowers melt toward the black hole at its centre. Hold still, and the glass goes clear."></canvas>
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
 <button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"></span></button>
-<section id="shelf" aria-label="Your youniverses" role="dialog"><button class="x" type="button" aria-label="Close">&times;</button><h2 id="shelfHead">youniverses</h2><div class="grid" id="shelfGrid"></div></section>
-<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><img id="shImg" alt=""><div id="shText"></div><p class="icons"><span id="shGo"></span><span class="tools"><a href="#" id="shShare" class="ic" aria-label="share the picture" title="share the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a><a href="#" id="shSave" class="ic" aria-label="save the picture" title="save the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></a><a href="#" id="shCopy" class="ic" aria-label="copy the link" title="copy the link"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></a></span><a href="macroverse.html" id="shMacro" class="ic" aria-label="your place in the macroverse" title="your place in the macroverse"><svg viewBox="0 0 24 24" aria-hidden="true"><circle class="ln" cx="12" cy="12" r="10"/><circle class="ln" cx="10" cy="13.5" r="5.5"/><circle cx="9" cy="14.5" r="2"/></svg></a></p><p id="shSaid" class="sr" aria-live="polite"></p></div></section>
+<section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><img id="shImg" alt=""><div id="shText"></div><p class="icons"><span id="shGo"></span><span class="tools"><a href="#" id="shShare" class="ic" aria-label="share the picture" title="share the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a><a href="#" id="shSave" class="ic" aria-label="save the picture" title="save the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></a><a href="#" id="shCopy" class="ic" aria-label="copy the link" title="copy the link"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></a></span></p><p id="shSaid" class="sr" aria-live="polite"></p></div></section>
 <main id="words">
   <h1 id="title" aria-label="vanitas, veritas">v<span class="br">[</span><span id="mid">an</span><span class="br">]</span>i<i>+</i>as</h1>
-  <div id="bar" role="progressbar" aria-label="stars found" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b class="eye"></b></div>
-<pre id="prog" aria-label="The program, running as you play"><span class="pc hd"># what drains away comes back</span><span class="hd">sink = drain(sink)</span><span class="pc" id="youPc"></span><span id="you"></span><span class="pc hd"># every clock keeps one time</span><span class="hd">sink == sync<b id="pS"></b></span><span class="pc"># a youniverse, grown from you</span><span class="def">def youniverse(you):</span><span class="pc">  # what grows here, and how fast</span><span class="lv" id="bio">  culture = grow(f=<b class="knob" data-k="f" tabindex="0" aria-label="feed: drag to change">.0310</b><i class="ar" id="arf"></i>, k=<b class="knob" data-k="k" tabindex="0" aria-label="kill: drag to change">.0600</b><i class="ar" id="ark"></i>) </span><span class="pc">  # the intention: be still, and look</span><span class="lv" id="lvHold">  while held(<b id="lvSec">0.0</b>): seek(warm=<b id="lvWarm">.00</b>)</span><span id="lines"></span><span class="pc" id="retPc">  # and again, together</span><span class="lv" id="ret">  return youniverse(me + you)</span><span># macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
+<pre id="prog" aria-label="The program, running as you play"><span class="pc hd"># what drains away comes back</span><span class="hd">sink = drain(sink)</span><span class="pc" id="youPc"></span><span id="you"></span><span class="pc hd"># every clock keeps one time</span><span class="hd">sink == sync<b id="pS"></b></span><span class="pc"># a youniverse, grown from you</span><span class="def">def youniverse(you):</span><span class="pc">  # what grows here, and how fast</span><span class="lv" id="bio">  culture = grow(f=<b class="knob" data-k="f" aria-label="feed">.0310</b><i class="ar" id="arf"></i>, k=<b class="knob" data-k="k" aria-label="kill">.0600</b><i class="ar" id="ark"></i>) </span><span class="pc">  # the intention: be still, and look</span><span class="lv" id="lvHold">  while held(<b id="lvSec">0.0</b>): seek(warm=<b id="lvWarm">.00</b>)</span><span id="lines"></span><span class="pc" id="retPc">  # and again, together</span><span class="lv" id="ret">  return youniverse(me + you)</span><span># macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
 
   <p id="say" class="quiet" aria-live="polite"></p>
   <div id="err"></div>
-  <p id="tools"><a href="blackpaper.html" id="door">black paper</a><a href="macroverse.html?home" id="macro" aria-label="your youniverses, in the macroverse" title="youniverse ⊂ weverse ⊂ macroverse"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="10" cy="13.5" r="5.5"/><circle cx="9" cy="14.5" r="2" class="me"/></svg></a><a href="?reset" id="reset" aria-label="fresh start" title="fresh start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.3-5.4M4.5 4v4.5H9"/></svg></a></p>
+  <p id="tools"><a href="blackpaper.html" id="door">black paper</a><a href="macroverse.html?home" id="macro" aria-label="your youniverses, in the macroverse" title="youniverse ⊂ weverse ⊂ macroverse"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="10" cy="13.5" r="5.5"/><circle cx="9" cy="14.5" r="2" class="me"/></svg></a></p>
 </main>
 
 <script>
@@ -430,7 +402,7 @@ void main(){ o = vec4(texture(uDye, C+(vUv-0.5)*0.15).rgb, 1.); }`,
 // the lace: two chemicals, one feeding on the other (Gray-Scott). x is the way round the rim, y is outward.
 // Near the rim it grows as a net with holes; further out it breaks into cells that divide.
 lace: `
-uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed, uDf, uDk, uLit; uniform vec3 uTouch;
+uniform sampler2D uRD; uniform vec2 uTx; uniform float uTime, uSeed, uSeedOn, uDf, uDk, uLit; uniform vec3 uTouch;
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 void main(){
   vec2 c = texture(uRD, vUv).rg;
@@ -445,8 +417,15 @@ void main(){
   float k = mix(0.0580, 0.0584, vUv.y) - 0.0004*uLit + uDk + 0.0004*sin(a*2.-uTime*0.017+1.);
   float r = c.r*c.g*c.g;
   vec2 v = c + vec2(lap.r - r + f*(1.-c.r), 0.5*lap.g + r - (f+k)*c.g);
-  // on the beat the rim seeds it again, somewhere; a hand passing through clears it, and it grows back
-  float sd = step(0.994, hash(vec2(floor(vUv.x*440.), uSeed)))*step(vUv.y,0.06);
+  // on the beat the rim seeds it again, somewhere: a soft dot, once, then left to grow (held for a whole beat it set as a dark notch);
+  // a hand passing through clears it, and it grows back
+  float sd = 0.;
+  if (uSeedOn > 0.5 && hash(vec2(floor(vUv.x*440.), uSeed)) > 0.994) {
+    vec2 sq = vec2((fract(vUv.x*440.)-0.5)*9.3, (vUv.y-0.02)*256.);
+    float near = max(c.g, texture(uRD, vUv + vec2(0., 6.*uTx.y)).g);     // and only on bare rim: in a grown net or maze a seed only sets a dark notch
+    for (int i = -2; i <= 2; i++) near = max(near, texture(uRD, vUv + vec2(float(i)*6.*uTx.x, 0.)).g);
+    sd = exp(-dot(sq,sq)/10.)*(1. - smoothstep(0.03, 0.10, near));
+  }
   v.g = max(v.g, sd*0.45);
   float ev = floor(uTime*0.33);                                         // a patch dies every three seconds, somewhere
   vec2 pc = vec2(hash(vec2(ev,1.7)), 0.15+0.7*hash(vec2(ev,9.2)));
@@ -477,6 +456,8 @@ uniform vec3 uCultT;                                  // the culture's colour: w
 uniform float uBH, uLensE; uniform vec3 uDiskN;       // the black hole at the centre: how lit, how hard it bends the picture, the tilt of its disk
 uniform float uIntro, uIntroT;                        // the opening: how much of it is left, and how long it has run
 uniform float uBirth;                                 // the beginning: 0, nothing; 1, the sphere is open
+uniform float uLaceT;                                 // the lace: how far it has grown out from the rim since the birth
+uniform float uCard;                                  // the card's one frame: the whole disc clear, and no lace inside its crop
 uniform vec2 uLure, uLureAt;                          // a star not yet found: (there is one, a hand is near it), and where it is
 uniform vec3 uRipple;                                 // a tap: the glass clears for a heartbeat where you touched (x, y, how much)
 uniform float uStarM[8];                              // each star's own magnitude: some are bright and large, some faint and small
@@ -521,7 +502,7 @@ void main(){
   vec2 dd = abs(gl_FragCoord.xy-wc)-(wh-rad);
   float sd = length(max(dd,0.))+min(max(dd.x,dd.y),0.)-rad;
   sd += (fbm(q*2.6+vec2(uTime*0.03,-uTime*0.02))-0.5)*0.06*uRes.y;
-  float clear = mix(0.18, 1., smoothstep(-0.02*uRes.y, 0.13*uRes.y, sd));
+  float clear = mix(0.03, 1., smoothstep(0., 0.14*uRes.y, sd));             // the words sit on ink: the lace thins from just outside their box
   clear = mix(1., clear, smoothstep(R+0.01, R+0.10, r));
 
   // corona: lace grown on the rim. Threads follow the edges of the culture; signals run out along them on the beat.
@@ -541,8 +522,9 @@ void main(){
     float pulse = 0.5+0.5*cos(6.28318*(uBeats*0.5-rr*1.2));                     // a slow swell that moves outward, never a flash
     float signal = smoothstep(0.78,1.,vnoise(vec2(lp.x*60., rr*8.-uBeats*0.35)));   // something travelling outward, faint
     float lobe = 0.10*cos(13.*atan(q.y,q.x)+uTime*0.012) + 0.05*cos(5.*atan(q.y,q.x)-uTime*0.008) + 0.04*uWaltz;
-    float fall = smoothstep(-0.09,0.04,rr)*smoothstep(1.,0.45-0.3*uLoss,lp.y-lobe)*exp(-max(rr,0.)*(3.2-1.6*uLoss));
-    float lace = (thread*(0.24+0.34*relief+0.09*pulse+0.22*signal*thread) + body*0.045 + thread*glint*0.5)*fall;
+    float fall = smoothstep(-0.09,0.04,rr)*smoothstep(1.,0.45-0.3*uLoss,lp.y-lobe)*exp(-max(rr,0.)*(5.0-1.6*uLoss));
+    fall *= smoothstep(0., 1., uLaceT*1.6 - max(rr,0.)*2.2)*smoothstep(0.30, 0.14, rr);   // grown out from the rim in the first seconds; never further: the far field is ink
+    float lace = (thread*(0.24+0.34*relief+0.09*pulse+0.22*signal*thread) + body*0.045 + thread*glint*0.5)*fall*(1.-uCard*smoothstep(0.05, 0.03, rr));   // the card's disc is glass, not a milled coin
     lace *= 1.+0.35*uHb*smoothstep(0.11,0.,abs(rr));                       // the heart of it: the fine cells at the rim light on the beat
     // under it, what is left of the rays: fine hair
     float live = (1.-0.35*uHold)*(1.+0.45*uSurge)*(1.+0.5*uFlash)*(1.+0.9*uLoss)*(1.-0.85*uEnd);
@@ -552,12 +534,9 @@ void main(){
     col += tint*lace*0.95*live*clear;
   }
 
-  // rim: a lens bezel. Two hairlines, twelve marks, the light on the upper left of the ring
+  // rim: two hairlines, and the light on the upper left of the ring
   {
     float bez = 0.7*smoothstep(aa*3.,0.,abs(r-R)-0.0004) + 0.35*smoothstep(aa*3.,0.,abs(r-(R+0.011))-0.0003);
-    float ma = fract(atan(q.y,q.x)/6.28318*12.+0.5)-0.5;
-    float markw = abs(ma)*6.28318*r/12.;
-    bez += 0.5*smoothstep(0.0012+aa*2.,0.0012,markw)*smoothstep(R+0.004,R+0.006,r)*smoothstep(R+0.012,R+0.010,r);
     float sheen = 0.6+0.6*max(0., dot(q/r, normalize(vec2(-0.6,0.8))));
     col = mix(col, BONE*0.30*sheen, bez*0.45);
   }
@@ -565,8 +544,12 @@ void main(){
   // basin, seen through fluted glass. Held, the glass goes flat and the picture is simply there.
   if(r < R+0.004){
     // the glass only goes fully clear when you have found the place: see seek, below
-    float win = smoothstep(mix(0.19, 0.27, uSeen), 0.05, length(q-uSpot));   // a window of clear glass, to be found: wider once it has seen you
-    float L = 1.-smoothstep(0.,1.,uHold)*max(mix(0.24,1.,uFocus), win);
+    vec2 hq = q - (uCursor-uCenter)/uS;                                           // basin units from the hand
+    float pool = smoothstep(0.09 + 0.28*uFocus, 0.02, length(hq))*uCursorOn;      // under the hand: a clear pool, wider the warmer
+    float win  = smoothstep(mix(0.19, 0.27, uSeen), 0.05, length(q-uSpot))*(1.-uFold);   // the place itself shows through
+    float keep = smoothstep(R, R*0.72, r);                                         // the glass stays glass at the rim
+    float clearAll = mix(uFocus*uFocus*keep, 1., uCard);
+    float L = 1.-smoothstep(0.,1.,uHold)*max(max(pool*keep*(1.-uFold), win), clearAll);
     // the beam: in step, bands of light run down the flutes like a feed scrolling. Where someone holds, the tiles stop keeping time
     // and the glass there lies flat. When enough of us hold at once the whole field falls out of step, and all of it goes clear.
     vec4 kz = texture(uKura, vec2(q.x/(2.*R)+0.5, q.y/(2.*R)+0.5));
@@ -633,7 +616,10 @@ void main(){
       b += vec3(1.0,0.86,0.60)*st2*uLure.x*(1.-uHold)*(1.-uIntro)*(0.20*tw + 0.95*uLure.y); }
 
     // seen, the glass shows you where it is clear: a glint there, on the beat, while you seek
-    { float gs = length(q-uSpot); b += vec3(0.78,0.58,0.36)*uGlint*(1.-uFocus)*exp(-gs*gs/0.0012)*(0.30+0.22*sin(uBeats*3.14159)); }
+    { vec2 gq = q - uSpot; float gs = length(gq), gIn = uGlint*(1.-uFocus);
+      float st = (exp(-gs*gs/0.00016) + 0.45*(exp(-abs(gq.x)/0.0007)*exp(-abs(gq.y)/0.022) + exp(-abs(gq.y)/0.0007)*exp(-abs(gq.x)/0.022)))*(0.55 + 0.45*uHb);
+      b *= 1. - 0.55*exp(-gs*gs/0.0011)*gIn;                                    // a little ink round it, so it is a point on any picture
+      b += vec3(1.0,0.80,0.48)*2.2*st*gIn; }
 
     // the path: every place found is marked, and joined to the last. No two visitors draw the same one.
     // Once it has seen you, you are the centre: every star is joined to you as well.
@@ -655,7 +641,7 @@ void main(){
         if(sh >= 0.) b = mix(b, mix(vec3(0.010,0.009,0.010), uTriC[ti], sh), 0.68*uFold);
       }
       // nearer stars are larger and brighter, and so are the nearer ends of lines
-      float dm = 0., ds = 0., dh = 9.; vec3 glowS = vec3(0.);
+      float dm = 0., dk = 0., ds = 0., dh = 9.; vec3 glowS = vec3(0.);
       for(int i=0;i<8;i++){
         if(float(i) >= uPathN) break;
         float g = float(i) == uPathN-1. ? uGrow : 1.;                                  // the newest mark is still arriving
@@ -665,14 +651,16 @@ void main(){
         float mg = uStarM[i];
         float star = mg*(1.05*exp(-rv*rv/(0.0000050*sc*sc*mg*mg)) + 0.75*exp(-rv/(0.0060*sc*mg)))
                    + 0.32*(exp(-abs(dv.x)/0.0005)*exp(-abs(dv.y)/(0.012*sc)) + exp(-abs(dv.y)/0.0005)*exp(-abs(dv.x)/(0.012*sc)));
+        b *= 1. - 0.35*exp(-rv*rv/(0.00004*sc*sc))*g;                                      // a thin ink halo round each star, so it reads on milk
         glowS += uStarC[i]*star*tw*g*bf;
-        if(i>0){ vec2 st = segT(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)); dm = max(dm, clamp(pow(mix(uPathS[i-1], sc, st.y), 2.), 0.35, 1.5)*smoothstep(0.0008+aa*2., 0.0008, st.x)); }
+        if(i>0){ vec2 st = segT(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)); dm = max(dm, clamp(pow(mix(uPathS[i-1], sc, st.y), 2.), 0.35, 1.5)*smoothstep(0.0008+aa*2., 0.0008, st.x)); dk = max(dk, smoothstep(0.0024+aa*2., 0.0024, st.x)*g); }
         vec2 so = segT(q, vec2(0.), uPath[i]*g); ds = max(ds, clamp(mix(1., sc, so.y), 0.4, 1.5)*smoothstep(0.0005+aa*2., 0.0005, so.x));
         if(float(i) == uHiStar) dh = abs(length(q-uPath[i])-0.017*sc);
       }
       float bright = mix(0.30, 1.0, max(uHold, uWhole));                              // faint while it flows, bright while you are still
       float th = 0.5*dm + 0.8*smoothstep(0.0008+aa*2.,0.0008,dh);
-      b = mix(b, BONE, min(1., th)*bright);
+      b = mix(b, vec3(0.010,0.009,0.010), 0.45*min(1., dk)*bright);                      // an ink bed under the hairline
+      b = mix(b, mix(BONE, vec3(0.76,0.64,0.48), 0.6), min(1., th)*bright);
       b += glowS*mix(0.55, 1.15, max(uHold, uWhole));
       float sl = 9., sd2 = 9., sh = 9.;                                              // the sent sky
       for(int i=0;i<8;i++){
@@ -718,14 +706,6 @@ void main(){
     col = mix(col, b, smoothstep(R+0.03,R-0.10,r));             // the picture thins out into the lace, over a wide band
   }
 
-  // tap: a small mouth, and one line that runs from it out through the ring to the title
-  {
-    vec2 m = uTap-C;
-    vec2 le = (uLead-uCenter)/uS;
-    float mr = length(d-m);
-    col *= smoothstep(0.004,0.022,mr);
-    col = mix(col, BONE*0.34, 0.7*smoothstep(aa*3.,0.,abs(mr-0.012)-0.0005));
-  }
 
   col *= mix(1., smoothstep(0.95,0.40,r), 0.8*uDepth);             // the longer you hold, the further down
 
@@ -733,7 +713,7 @@ void main(){
   if (uBirth < 1.) {
     float rb = uBirth*1.35;
     col *= smoothstep(rb + 0.01, rb - 0.06, r);
-    col += vec3(1.0,0.80,0.48)*exp(-pow((r - rb)/0.012, 2.))*(1.-uBirth)*2.6*smoothstep(0., 0.04, uBirth);
+    col += vec3(1.0,0.80,0.48)*exp(-pow((r - rb)/0.012, 2.))*(1.-uBirth)*2.6*smoothstep(0., 0.04, uBirth)*clear;   // it passes under the words, never across them
     col += vec3(1.0,0.92,0.78)*exp(-r*r/(0.0006 + 0.05*uBirth))*pow(1.-uBirth, 2.5)*3.2;
   }
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
@@ -756,7 +736,6 @@ post: `
 uniform sampler2D uScene, uBlur;
 uniform vec2 uRes, uCursor, uCenter;
 uniform float uTime, uHold, uArc, uCursorOn, uDpr, uFocus, uS;
-uniform vec2 uGhost; uniform float uGhostOn, uGhostArc;
 uniform vec3 uRing[8]; uniform float uRingN, uDirt;    // other hands holding, anywhere (pixels; held seconds, negative at a real sink)
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
@@ -769,16 +748,12 @@ void main(){
 
   // the hand: a ring that tightens as the picture comes clear; the arc is how long you have kept it there
   float cd = length(gl_FragCoord.xy-uCursor)/uDpr;
-  float ringc = smoothstep(1.8,0.,abs(cd-mix(15.,mix(11.,6.,uFocus),uHold))-0.3);
+  float ringc = smoothstep(1.8,0.,abs(cd-mix(15.,mix(13.,5.,uFocus),uHold))-0.3);
   vec2 cv = gl_FragCoord.xy-uCursor;
   float arc = smoothstep(1.8,0.,abs(cd-21.)-0.3)*step(fract(atan(cv.x,cv.y)/6.28318+1.), uArc)*uHold;
-  col = mix(col, mix(vec3(0.80,0.77,0.70), vec3(0.78,0.58,0.36), uDirt), 0.85*max(ringc,arc)*uCursorOn);   // scrub, and the hand comes away gold
-  // a ghost of a hand, showing what to do
-  float gd = length(gl_FragCoord.xy-uGhost)/uDpr;
-  float gring = smoothstep(1.8,0.,abs(gd-mix(15.,8.,uGhostArc))-0.3);
-  vec2 gv = gl_FragCoord.xy-uGhost;
-  float garc = smoothstep(1.8,0.,abs(gd-21.)-0.3)*step(fract(atan(gv.x,gv.y)/6.28318+1.), uGhostArc);
-  col = mix(col, vec3(0.80,0.77,0.70), 0.5*max(gring,garc)*uGhostOn);
+  float rk = smoothstep(3.4,0.,abs(cd-mix(15.,mix(13.,5.,uFocus),uHold))-0.3), ak = smoothstep(3.4,0.,abs(cd-21.)-0.3)*step(fract(atan(cv.x,cv.y)/6.28318+1.), uArc)*uHold;
+  col = mix(col, vec3(0.004), 0.55*max(rk,ak)*uCursorOn);                         // an ink bed under it, so it reads on milk as on ink
+  col = mix(col, mix(vec3(0.80,0.77,0.70), vec3(0.78,0.58,0.36), uDirt), mix(0.7, 1.0, uFocus)*max(ringc,arc)*uCursorOn);   // scrub, and the hand comes away gold
   // other hands: anyone holding, anywhere, is a ring where they hold. Someone at a real sink is a gold ring round the drain.
   for(int i=0;i<8;i++){
     if(float(i) >= uRingN) break;
@@ -877,11 +852,12 @@ const touch = { x:0, y:0, z:0 };
 function grow(n){
   const u = use(P.lace);
   gl.uniform2f(u.uTx, 1/RDW, 1/RDH); gl.uniform1f(u.uTime, simTime);
-  gl.uniform1f(u.uSeed, Math.floor(beats)); gl.uniform3f(u.uTouch, touch.x, touch.y, touch.z);
+  const bt = Math.floor(beats), seedNow = bt !== rdBeat; gl.uniform1f(u.uSeed, bt); rdBeat = bt;   // the seed: one step at each new beat, then left to grow or fade
+  gl.uniform3f(u.uTouch, touch.x, touch.y, touch.z);
   gl.uniform1f(u.uDf, cult.f-0.0390); gl.uniform1f(u.uDk, cult.k-0.0580); gl.uniform1f(u.uLit, litFrac);
   gl.viewport(0,0,RDW,RDH);
   for (let i = 0; i < n; i++) {
-    unit = 0; bind(u.uRD, rdA.tex);
+    unit = 0; bind(u.uRD, rdA.tex); if (i < 2) gl.uniform1f(u.uSeedOn, i === 0 && seedNow ? 1 : 0);
     gl.bindFramebuffer(gl.FRAMEBUFFER, rdB.fbo); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     [rdA, rdB] = [rdB, rdA];
   }
@@ -953,7 +929,7 @@ const read = new Array(LINES).fill(false);
 let mem = new Array(LINES).fill(null);    // what each found place remembers: the still that was held there
 let lastRead = -1;
 // FINDS: the banks the hint poem is drawn from (injected; see the HANDOFF). {a} and {b} are the two things that joined, in plain words.
-const FINDS = {"first": ["we need a new biology.", "a new kind of alive.", "out of the glass, a guest.", "the glass clears. hello.", "first light, first life.", "life, in a new key.", "hold still. something grows.", "still water, sudden bloom.", "{a}, meet {b}.", "{a} + {b} = new.", "{a}, dressed as {b}.", "{a}, dreaming {b}."], "you": ["you, in a softer font.", "you, but in bloom.", "you, in another language.", "beautiful even. great even.", "the spotlight.", "same you, new weather.", "your smile, now with roots.", "you look like a good idea.", "hello, other you.", "you, but more so."], "merge": ["merge.", "resistance is futile.", "one plus one is one.", "one, but plural.", "all the edges agree.", "two hums, one chord.", "the seam sings.", "half {a}, half {b}.", "{a} + {b}, in tune.", "{a}, now also {b}."], "culture": ["grown, not made.", "it rose like bread.", "cells, singing in rows.", "the dish is a garden.", "grown slow, grown sweet.", "warm agar, good manners.", "the kind kind of culture.", "it grew while you blinked.", "{a} raised on {b}.", "{a}, sown in {b}."], "graft": ["it shall be ok.", "a branch says yes.", "two kinds, one bloom.", "kin across the fence.", "grafted and glad.", "new fruit on an old tree.", "different, and it took.", "{a}, rooted in {b}.", "{a} took to {b}.", "{a}, budded on {b}."], "haunt": ["it's all ok.", "it stays for tea.", "the old song stays.", "light, through and through.", "someone left the light on.", "kept, like a pressed flower.", "echoes, but sweeter.", "{a}, visiting {b}.", "{a}, still in {b}.", "a hum of {a} in {b}."], "near": ["two is a good number.", "a pair, in step.", "with. just with.", "a table set for two.", "your hand, and one more.", "a duet, not a solo.", "twice as bright.", "both hands on the glass.", "a seesaw needs two.", "in pairs, like socks."], "nearer": ["not me. not you.", "two letters, both warm.", "the smallest company.", "a pronoun for two.", "you and i, one word.", "first person, plural.", "what a duet calls itself.", "me, but with company.", "i, times two.", "the word that holds hands."], "last": ["the plural of i.", "me + you = __.", "how two people say i.", "the opposite of they.", "say yes in french.", "the heart of between.", "hidden in the answer.", "me, turned upside down.", "everyone, in two letters.", "two letters. you know it."], "eye": ["you can't hide.", "no need to hide.", "there you are.", "seen, and adored.", "found you. you glow.", "the mirror waves back.", "the glass smiles first.", "look who came to play."]};
+const FINDS = {"first": ["a new kind of alive.", "out of the glass, a guest.", "the glass clears. hello.", "first light, first life.", "life, in a new key.", "hold still. something grows.", "still water, sudden bloom.", "{a}, meet {b}.", "{a} + {b} = new.", "{a}, dressed as {b}.", "{a}, dreaming {b}."], "you": ["you, in a softer font.", "you, but in bloom.", "you, in another language.", "same you, new weather.", "your smile, now with roots.", "you look like a good idea.", "hello, other you.", "you, but more so."], "merge": ["one plus one is one.", "one, but plural.", "all the edges agree.", "two hums, one chord.", "the seam sings.", "half {a}, half {b}.", "{a} + {b}, in tune.", "{a}, now also {b}."], "culture": ["grown, not made.", "it rose like bread.", "cells, singing in rows.", "the dish is a garden.", "grown slow, grown sweet.", "warm agar, good manners.", "the kind kind of culture.", "it grew while you blinked.", "{a} raised on {b}.", "{a}, sown in {b}."], "graft": ["a branch says yes.", "two kinds, one bloom.", "kin across the fence.", "grafted and glad.", "new fruit on an old tree.", "different, and it took.", "{a}, rooted in {b}.", "{a} took to {b}.", "{a}, budded on {b}."], "haunt": ["it stays for tea.", "the old song stays.", "light, through and through.", "someone left the light on.", "kept, like a pressed flower.", "echoes, but sweeter.", "{a}, visiting {b}.", "{a}, still in {b}.", "a hum of {a} in {b}."], "near": ["two is a good number.", "a pair, in step.", "with. just with.", "a table set for two.", "your hand, and one more.", "a duet, not a solo.", "twice as bright.", "both hands on the glass.", "a seesaw needs two.", "in pairs, like socks."], "nearer": ["not me. not you.", "two letters, both warm.", "the smallest company.", "a pronoun for two.", "you and i, one word.", "first person, plural.", "what a duet calls itself.", "me, but with company.", "i, times two.", "the word that holds hands."], "last": ["the plural of i.", "me + you = __.", "how two people say i.", "the opposite of they.", "say yes in french.", "the heart of between.", "hidden in the answer.", "me, turned upside down.", "everyone, in two letters.", "two letters. you know it."], "eye": ["you can't hide.", "no need to hide.", "there you are.", "seen, and adored.", "found you. you glow.", "the mirror waves back.", "the glass smiles first.", "look who came to play."]};
 function wordsOf(m, i){                        // the same recipe always says the same line, so a sent universe reads the same for everyone
   if (!m) return OUTLINE[i] ? OUTLINE[i][1] : '';
   const line = m.line ?? i, ord = m.ord ?? 0, h = hashI(((m.a ?? m.sign ?? 0)*977 + (m.p ?? 0)*131 + (m.s|0)*31 + ord*7 + (line|0)*3) >>> 0);
@@ -1019,6 +995,8 @@ const HOUR_EN = Object.fromEntries(HOURS.map((h) => [h[2], h[3]]));
 const meaningOf = (name) => { const t = String(name).toLowerCase().split(/[ _]/), n = NOUN_EN[t[0]], v = PART_EN[t[1]], h = t[2] ? HOUR_EN[t[2]] : '';
   return n && v ? `${n} that ${v}${h ? ', ' + h : ''}.` : ''; };
 // the name's meaning, as comment lines: one line, or (over 40 characters) split once after its comma. The same on every surface.
+// `you in us` is not only said: it is a door into the macroverse, opened on you
+const inUs = (k, name) => k === 'you in us' ? `<a class="us" data-go="macroverse" href="macroverse.html?u=${encodeURIComponent(name)}">you in us</a>` : k;
 const meanLines = (name) => { const m = meaningOf(name); if (!m) return []; const t = '# ' + m, i = t.indexOf(', ');
   return t.length <= 40 || i < 0 ? [t] : [t.slice(0, i + 1), '# ' + t.slice(i + 2)]; };
 // a line is one line: too wide for its box, it is set smaller (never under 11px), never wrapped
@@ -1094,11 +1072,6 @@ weEl.addEventListener('input', () => {
     setTimeout(() => { weEl.value = 'we'; weEl.dispatchEvent(new Event('input')); }, 900);
   }
   else { me.tries++; weEl.classList.add('no'); setTimeout(() => { weEl.classList.remove('no'); weEl.value = ''; }, 500); }
-});
-document.getElementById('reset').addEventListener('click', (ev) => {       // twice, to be sure
-  if (ev.target.dataset.sure) return;
-  ev.preventDefault(); ev.target.dataset.sure = '1'; ev.target.textContent = 'reset · sure?';
-  setTimeout(() => { delete ev.target.dataset.sure; ev.target.textContent = 'reset'; }, 4000);
 });
 
 // ---- every place found keeps turning the water there, slowly; neighbours turn against each other
@@ -1176,7 +1149,7 @@ function reveal(i, fromPause){
   read[i] = true; lastRead = i;
   mem[i] = snapNow(fromPause); mem[i].ord = read.filter(Boolean).length-1;
   save(); act({ t:'find', i });
-  if (read.every(Boolean)) { document.body.classList.add('whole'); me.done = Date.now(); }
+  if (read.every(Boolean)) { document.body.classList.add('whole'); me.done = Date.now(); reading = reading || readYou(); keepSky(); }   // kept at once: home in the macroverse
 }
 // the program's lines, in the order the forms of life were grown. The newest arrives as script and resolves, like every line.
 const linesEl = document.getElementById('lines');
@@ -1259,7 +1232,7 @@ function restore(){
   } catch (e) {}
 }
 // ---- the reveal: a line arrives in the script and resolves, letter by letter, over one breath
-const SCRIPT = '┤╟╫┼╪╬├┬┴╥╨╒╓╕╖╘╙╛╜╞╡';
+const SCRIPT = '·';
 function cipher(text, k, salt){
   const n = Math.floor(text.length*k);
   let out = text.slice(0, n);
@@ -1274,7 +1247,7 @@ let shown = '', linger = 0, wiped = 0;
 // the two numbers that make the culture what it is: f, how fast the food is poured back in, and k, how fast what lives is taken away.
 // It starts in the middle, where spots, stripes and holes meet, so any push shows. How you play pushes it: holding still joins the cells
 // into a net, moving hands grow wandering loops, scrubbing breaks it into foam, wiping it makes it divide, holding with others sets it
-// into a lattice. By the end it is a culture no one else has. Put a hand on the culture and the numbers surface; drag them and push it yourself.
+// into a lattice. By the end it is a culture no one else has. Put a hand on the culture and the numbers surface.
 const CULT0 = { f:0.031, k:0.060 };
 const PUSH = [['held', 40, 0.008, -0.002], ['stir', 4, 0.017, 0.003], ['scrubs', 24, -0.013, -0.007], ['wiped', 5, 0.012, 0.006], ['together', 2, -0.002, 0.003]];
 const cult = { f:CULT0.f, k:CULT0.k }, man = { f:0, k:0 };
@@ -1284,21 +1257,7 @@ function cultTarget(){
   return { f: Math.max(0.012, Math.min(0.070, f)), k: Math.max(0.048, Math.min(0.070, k)) };
 }
 const bio = cult;                                          // what the dials show
-for (const el of document.querySelectorAll('.knob')) {
-  let x0 = 0, v0 = 0;
-  el.addEventListener('pointerdown', (ev) => { ev.preventDefault(); ev.stopPropagation(); x0 = ev.clientX; v0 = man[el.dataset.k]; el.dragging = true; try { el.setPointerCapture(ev.pointerId); } catch (e) {} });
-  for (const t of ['pointerup', 'pointercancel']) el.addEventListener(t, () => { el.dragging = false; });
-  el.addEventListener('pointermove', (ev) => {
-    if (!el.dragging) return;
-    const k = el.dataset.k; man[k] = Math.max(-0.03, Math.min(0.03, v0 + (ev.clientX-x0)*0.00004)); me.knobs = true; save();
-  });
-  el.addEventListener('keydown', (ev) => {
-    const d = ev.key === 'ArrowRight' || ev.key === 'ArrowUp' ? 0.0002 : ev.key === 'ArrowLeft' || ev.key === 'ArrowDown' ? -0.0002 : 0;
-    if (!d) return; ev.preventDefault();
-    const k = el.dataset.k; man[k] = Math.max(-0.03, Math.min(0.03, man[k]+d)); me.knobs = true;
-  });
-}
-let knobShown = '', knobCss = '', barShown = '', liveShown = '', drift = { f:0, k:0, t:0, pf:0, pk:0 };
+let knobShown = '', knobCss = '', liveShown = '', drift = { f:0, k:0, t:0, pf:0, pk:0 };
 const lvHold = document.getElementById('lvHold'), lvSec = document.getElementById('lvSec'), lvWarm = document.getElementById('lvWarm');
 function liveTick(now){                                    // the program runs: what is happening now is written into it
   const live = held ? `${heldSecs.toFixed(1)}|${(pause.done ? 1 : focus).toFixed(2)}` : '0.0|.00';
@@ -1309,14 +1268,12 @@ function liveTick(now){                                    // the program runs: 
     document.getElementById('arf').textContent = ar(df); document.getElementById('ark').textContent = ar(dk);
   }
 }
-const barEl = document.getElementById('bar');
-function barTick(){                                        // seven stars to find, one by one; the eye, lit once it has seen you
-  const n = read.filter(Boolean).length, key = n + (seen ? 'e' : '');
-  if (key === barShown) return; barShown = key;
-  barEl.querySelectorAll('i').forEach((el, j) => el.classList.toggle('on', j < n));
-  barEl.querySelector('.eye').classList.toggle('on', !!seen);
-  barEl.setAttribute('aria-valuenow', n);
-  if (!weOk) { const ph = n >= LINES ? 'we' : n >= 5 ? 'w_' : '__'; if (weEl.placeholder !== ph) { weEl.placeholder = ph; weEl.classList.toggle('hint', ph !== '__'); } }   // the riddle's blank fills in as the sky does
+let riddleShown = '';
+function riddleTick(){                                     // the riddle's blank fills in as the sky does
+  if (weOk) return;
+  const n = read.filter(Boolean).length, ph = n >= LINES ? 'we' : n >= 5 ? 'w_' : '__';
+  if (ph === riddleShown) return; riddleShown = ph;
+  weEl.placeholder = ph; weEl.classList.toggle('hint', ph !== '__');
 }
 function cultTick(dt){                                     // the culture drifts toward where this play has pushed it, slowly
   const t = cultTarget(), e = 1-Math.exp(-dt/6);
@@ -1329,9 +1286,8 @@ const bioEl = document.getElementById('bio');
 bioEl.addEventListener('pointerenter', () => { bioHover = true; });
 bioEl.addEventListener('pointerleave', () => { bioHover = false; bioUntil = performance.now()+2500; });
 
-const keepLink = (label = 'keep') => MODE === 'web' ? `<a class="keep" href="#keep">${label}</a>` : '';
 function announce(i, now){
-  shown = spLine(i) + poemLine(codeOf(i), lineOf(i)) + keepLink();
+  shown = spLine(i) + `<code>${codeOf(i)}</code>`;
   say.innerHTML = shown; say.classList.remove('quiet'); fitAll(say); linger = now+5200;
 }
 let shownSync = '';
@@ -1350,7 +1306,7 @@ function noonTick(now){
   noon = t >= 718 && t < 726 ? 'now' : t >= 690 && t < 718 ? 'soon' : '';
 }
 let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, toldYou = 0, toldSent = false, introOff = 0, reading = null, shareSaid = '';
-let lastEcho = -1, ghostAt = 0;
+let lastEcho = -1;
 const saidOnce = {};                                       // what has been said on this device; said once, never again
 if (KEEP) try { Object.assign(saidOnce, JSON.parse(localStorage.getItem('veritas.told') || '{}')); } catch (e) {}
 function once(key){ if (saidOnce[key]) return false; saidOnce[key] = 1; if (KEEP) try { localStorage.setItem('veritas.told', JSON.stringify(saidOnce)); } catch (e) {} return true; }
@@ -1360,33 +1316,27 @@ function tell(now){
   if (MODE === 'sink') return;                                     // the sink speaks with water only
   if (recall && recall.peek) {                                     // a line or a star, pointed at: its picture is back, with its name and its words
     const m = recall.snap;
-    sayIt(`<span class="sp">${m.sp}</span>` + poemLine(captionOf(m), recall.sent ? wordsOf(m, m.line) : lineOf(recall.line)) + (recall.sent ? '' : keepLink())); return;
+    sayIt(`<span class="sp">${m.sp}</span>` + (recall.sent ? poemLine(captionOf(m), wordsOf(m, m.line)) : `<code>${codeOf(recall.line)}</code>`)); return;
   }
-  if (silence && !held) {                                          // the end: what your name means, your name, the reading. Then: send it, or birth another.
+  if (silence && !held && now >= linger) {                       // (a reply from the eye stays its moment)                                          // the end: what your name means, your name, the reading. Then: send it, or birth another.
     const r = reading || (reading = readYou());
     if (!document.body.classList.contains('end')) document.body.classList.add('end');
-    const on = MODE === 'web' ? `<a class="keep" data-act="again" href="#again">begin again</a><a class="keep ic" data-act="share" href="#share" aria-label="your reading" title="your reading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a>` : '';
+    const on = MODE === 'web' ? `<a class="keep" data-act="again" href="#again">begin again</a><a class="keep ic" data-act="share" href="#share" aria-label="your reading" title="your reading"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="3" width="13" height="18" rx="1"/><circle cx="12" cy="9.5" r="3.6"/><path d="M8.5 16h7M8.5 18.5h4.5"/></svg></a>` : '';
     const many = document.body.classList.contains('tall') ? 1 : 3, ps = r.pairs || (r.horo || [r.vanitas]).map((t) => [t, '']);
     sayIt(meanLines(r.sky).map((l) => `<span class="c">${l}</span>`).join('') + `<code class="nm">you = "${r.sky}"</code>`
-      + ps.slice(0, many).map(([c, k]) => commentHTML(c) + (k ? `<code>${k}</code>` : '')).join('') + on);
+      + ps.slice(0, many).map(([c, k]) => commentHTML(c) + (k ? `<code>${inUs(k, r.sky)}</code>` : '')).join('') + on);
     return;
   }
-  // Nothing here is a tutorial. The piece shows what to do first (the breathing word, the ghost of a hand, the empty ring, a line that
+  // Nothing here is a tutorial. The piece shows what to do first (the breathing word, the pool under the hand, the glint, a line that
   // pulses); a line of help is said only if that did not do it, and only once on this device. The rest are news, also said once.
   if (sent && !toldSent && !held && intro <= 0) {                  // arriving with someone's sky: just whose it is
     toldSent = true; whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sent = youniverse("${sent.name}")`, k, salt), cipher(sent.own ? 'one of your youniverses.' : 'someone sent you their youniverse.', k, salt)) };
-  }
-  if (toldTurn === 1 && !held && now >= linger) {                  // the title turned: why, once
-    toldTurn = 2; if (once('turn')) whisper = { t0: now, html: (k, salt) => poemLine(cipher('sink == sync  # False', k, salt), cipher('enough of us held still. the clocks let go.', k, salt)) };
   }
   if (period !== lastSign) {                                        // a new still: now and then, a line, unprompted
     lastSign = period;
     const found = read.filter(Boolean).length;
     if (CAN_SEE && !seen && !held && intro <= 0 && found >= 2 && !saidOnce.you && once('you')) {   // the pulsing line and the empty ring did not do it
       whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = see(you)', k, salt), cipher('it can grow you too.', k, salt)) };
-    }
-    else if (!held && intro <= 0 && found >= 1 && !saidOnce.sink && once('sink')) {     // news: where the real one is
-      whisper = { t0: now, html: (k, salt) => poemLine(cipher(`sink.where()  # ${SINK.place}, ${SINK.when}`, k, salt), cipher(`the real one is meant for ${SINK.place}.`, k, salt)) };
     }
     else if (!held && intro <= 0 && found >= 3 && !saidOnce.mirror && once('mirror')) {  // news: it has been watching how you play
       whisper = { t0: now, html: (k, salt) => poemLine(cipher('mirror.learn(you)', k, salt), cipher('the glass is learning your hand.', k, salt)) };
@@ -1414,9 +1364,9 @@ function tell(now){
     if (i < 0) html = poemLine('return we', POINT);                 // everything has been read; the hold is still worth something to everyone
     else {                                                          // the line writes itself as the glass clears: the words, then the code of what you are finding
       const k = pause.done ? 1 : Math.min(0.9, 0.10 + 0.50*focus + 0.30*pause.kept/READ_SECONDS);
-      html = pause.done || focus > 0.45 ? poemLine(cipher(pause.done ? codeOf(i) : `hold(${heldSecs.toFixed(1)}).` + captionOf(pause), pause.done ? 1 : focus, salt), cipher(lineOf(i), k, salt))
-           : `<span class="c"># ${cipher(lineOf(i), k, salt)}</span><code>${cipher(`seek(warm=${amt(focus)})`, Math.max(0.25, focus), salt)}</code>`;
-      if (pause.done) html = spLine(i) + html + keepLink();
+      html = pause.done ? spLine(i) + `<code>${codeOf(i)}</code>`                                 // found: its name and the machine's line; the comment lives in the def
+           : focus > 0.45 ? poemLine(`hold(${heldSecs.toFixed(1)}).` + captionOf(pause), cipher(lineOf(i), k, salt))
+           : `<span class="c"># ${cipher(lineOf(i), k, salt)}</span><code>seek(warm=${amt(focus)})</code>`;   // the code plain; only the words arrive with warmth
     }
     linger = pause.done ? now+5200 : 0;
   }
@@ -1473,8 +1423,8 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // the beginning, then the opening: from nothing, a flash, and the sphere opens in a ring of gold (1.6 s); the culture grows out of its rim;
 // the name writes itself, vani+as, and turns to veri+as and back; then the black hole beats and breathes gold, and a hidden star glints
 const INTRO = 8; let prerolling = false, intro = INTRO, birthT = REDUCED ? 99 : 0, introFlip = REDUCED ? 2 : 0;
-if (!REDUCED) document.body.classList.add('unborn', 'mute');
-let idle = 0, ghost = { on:false, t:0 };
+if (REDUCED) document.body.classList.remove('unborn', 'mute');   // the markup is born unborn and mute, so the first paint has nothing to fade
+let idle = 0;
 let recall = null;                    // at the end, the basin turns back through the stills that were held
 const stir = { x:0.5, y:0.5, vx:0, vy:0, px:null, py:null };
 const pause = { a:0, blend:[0,0,0], drive:[1,0,0,0], p:0, A:[1,0,0,0], B:[1,0,0,0], flip:[1,1], seed:0, spot:[0,0], line:-1, kept:0, done:false, byKey:false };
@@ -1522,7 +1472,7 @@ function kuraUpload(){
   gl.bindTexture(gl.TEXTURE_2D, kura.tex);
   gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, KX, KY, gl.RGBA, gl.UNSIGNED_BYTE, px);
 }
-let titleER = false, flipping = 0, glitchAt = 0, toldTurn = 0;
+let titleER = false, flipping = 0;
 const midEl = document.getElementById('mid');
 function flipTo(t, now){ flipping = now+950; midEl.style.opacity = '0'; setTimeout(() => { midEl.textContent = t; midEl.style.opacity = '1'; }, 480); }
 function titleTick(now){
@@ -1530,16 +1480,8 @@ function titleTick(now){
   if (!titleER && kura.r < 0.45) {
     titleER = true; flipTo('er', now); flash = 1; document.body.classList.add('veritas'); if (held) me.flipped = true;
     if (MODE === 'web' && !log.some((e) => e.t === 'turn')) act({ t:'turn' });
-    if (!toldTurn && MODE !== 'sink') toldTurn = 1;                       // said once, when the hand is free to read it
   }
   else if (titleER && kura.r > 0.80) { titleER = false; flipTo('an', now); document.body.classList.remove('veritas'); }
-  else if (now-glitchAt > 110) {          // as the beam loosens, the title tries to turn: it flickers toward the other word, more the looser it gets
-    glitchAt = now;
-    const loose = titleER ? Math.max(0, Math.min(1, (kura.r-0.45)/0.35)) : Math.min(1, kura.S/(0.8*kura.Sstar));
-    const keep = titleER ? 'er' : 'an', other = titleER ? 'an' : 'er';
-    const t = Math.random() < 0.5*loose*loose ? (Math.random() < 0.6 ? other : cipher(other, 0.5, Math.floor(now/90))) : keep;
-    if (midEl.textContent !== t) midEl.textContent = t;
-  }
 }
 
 // ---- we: a hold travels, as an anonymous event, over public Nostr relays. No server, no accounts, nothing stored, no picture.
@@ -1620,7 +1562,7 @@ function rings(others){
 let faceTex = null, faceCv = null, facePour = 0, asked = false, seeing = false, meet = 0, selfOn = 0, vacant = 0;
 const ask = document.getElementById('ask');
 const youEl = document.getElementById('you');
-const CAN_SEE = MODE === 'web' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+const CAN_SEE = MODE === 'web' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);   // the eye can open on the web (the testers' 'only with ?see' is Kat's call)
 let youShown = '';
 const youPc = document.getElementById('youPc');
 function youLine(){
@@ -1654,7 +1596,8 @@ function grade(cx){                 // the loop's own grade (code/morph_v45_sr.p
 async function see(ev){
   if (ev) ev.preventDefault();
   if (seeing) return;
-  if (!CAN_SEE) { told('<b>it cannot see you here</b> &middot; needs https', 4000); return; }
+  const blind = () => { shown = poemLine('see(you) is None', 'no eyes here. that is all right.'); say.innerHTML = shown; say.classList.remove('quiet'); fitAll(say); linger = performance.now()+5000; };
+  if (!CAN_SEE) { blind(); return; }
   seeing = true; told('<b>looking</b>');
   let stream = null;
   try {
@@ -1670,7 +1613,7 @@ async function see(ev){
     took(cv);
   } catch (e) {
     if (stream) stream.getTracks().forEach(t => t.stop());
-    told('<b>it did not see you</b>', 4000);
+    blind();
   }
   seeing = false;
 }
@@ -1767,7 +1710,9 @@ function render(){
   const u = use(P.display); bind(u.uDye, dye.read.tex);
   const CM = cardMode;                         // the card's one frame: clear glass, no hand, nothing drained
   gl.uniform1f(u.uLoss, loss); gl.uniform1f(u.uEnd, CM ? 0 : end); gl.uniform1f(u.uJelly, CM ? 0 : jelly.x);
-  gl.uniform1f(u.uCursorOn, CM ? 0 : (hand.on ? 1 : 0));   // the pupil turns to your hand; at the end, the spotlight
+  const curOn = hand.on ? Math.max(0, Math.min(1, 1 - (performance.now()-lastMoveT-3000)/1500)) : 0;   // a parked mouse leaves no ring
+  gl.uniform1f(u.uCursorOn, CM ? 0 : held ? 1 : curOn);   // the pupil turns to your hand; at the end, the spotlight
+  gl.uniform1f(u.uCard, CM ? 1 : 0);
   gl.uniform1f(u.uWaltz, 0.5+0.5*Math.sin(2*Math.PI*beats/6));
   gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   const rs = (recall && recall.snap) || cardSnap;
@@ -1778,7 +1723,7 @@ function render(){
   gl.uniform2fv(u['uSent[0]'], sentFlat); gl.uniform1f(u.uSentN, CM || !sent || lift > 0.2 ? 0 : sent.stars.length);
   gl.uniform1f(u.uHiSent, !CM && recall && recall.sent ? recall.k : -1);
   gl.uniform1f(u.uSelfOn, CM ? 0 : selfOn); gl.uniform1f(u.uVacant, CM ? 0 : vacant); gl.uniform1f(u.uSeen, faceTex ? 1 : 0);
-  gl.uniform1f(u.uGlint, !CM && held && faceTex && !pause.done && !pause.byKey ? 1 : 0);
+  gl.uniform1f(u.uGlint, !CM && held && !pause.done && !pause.byKey ? (faceTex ? 1 : Math.min(1, Math.max(0, heldSecs-2.5)/3)) : 0);   // after two breaths, the place glints
   gl.uniform1f(u.uHiStar, !CM && recall && !recall.sent && mem[recall.line] ? (mem[recall.line].ord ?? -1) : -1);
   bind(u.uRD, rdA.tex); bind(u.uKura, kura.tex);
   const sp = rs || pause;
@@ -1798,7 +1743,7 @@ function render(){
   gl.uniform1f(u.uTriN, up ? triN : 0); gl.uniform1f(u.uFold, CM || !up ? 0 : lift*foldVis);
   gl.uniform3fv(u['uTriC[0]'], triC); gl.uniform3fv(u['uStarC[0]'], starC); gl.uniform3fv(u.uCultT, cultTint);
   { const it = INTRO-intro, e = CM || REDUCED ? 0 : Math.max(0, Math.min(1, (it-1.4)/0.8))*Math.min(1, intro/1.6); gl.uniform1f(u.uIntro, e); gl.uniform1f(u.uIntroT, it-1.4); }
-  { const bt = Math.max(0, Math.min(1, (birthT-0.15)/1.5)); gl.uniform1f(u.uBirth, CM ? 1 : 1-Math.pow(1-bt, 3)); }   // fast, then slow: a boom
+  { const bt = Math.max(0, Math.min(1, (birthT-0.15)/1.8)); gl.uniform1f(u.uBirth, CM ? 1 : bt*bt*(3-2*bt)); gl.uniform1f(u.uLaceT, CM ? 1 : Math.min(1, birthT/6)); }   // the point swells into the glass; the lace grows after it
   gl.uniform2f(u.uLure, CM ? 0 : lureOn, lureNear); gl.uniform2f(u.uLureAt, lureAt[0], lureAt[1]);
   gl.uniform3f(u.uRipple, ripple.x, ripple.y, CM ? 0 : Math.pow(Math.max(0, 1-(performance.now()-ripple.t)/900), 1.5));
   gl.uniform1fv(u['uStarM[0]'], starM);
@@ -1820,16 +1765,8 @@ function render(){
   gl.uniform2f(p.uRes, canvas.width, canvas.height); gl.uniform1f(p.uTime, simTime);
   gl.uniform1f(p.uHold, CM ? 0 : holdAmt); gl.uniform1f(p.uFocus, focus);
   gl.uniform1f(p.uArc, CM || !held ? 0 : pause.done ? 1 : Math.min(1, pause.kept/READ_SECONDS));
-  {  // the ghost hand: two seconds to arrive, then it closes over one heartbeat, then it fades
-    const t = ghost.t, e = Math.min(1, t/3), ease = e*e*(3-2*e);
-    const from = [view.cx+0.55*view.S, view.cy+0.45*view.S], to = [view.cx+pause.spot[0]*view.S, view.cy-pause.spot[1]*view.S];
-    const gx = from[0]+(to[0]-from[0])*ease, gy = from[1]+(to[1]-from[1])*ease;
-    gl.uniform2f(p.uGhost, gx*view.dpr, (view.h-gy)*view.dpr);
-    gl.uniform1f(p.uGhostOn, !CM && ghost.on ? Math.min(1, t)*Math.min(1, (7-t)) : 0);
-    gl.uniform1f(p.uGhostArc, Math.max(0, Math.min(1, (t-3)/READ_SECONDS)));
-  }
   gl.uniform3fv(p['uRing[0]'], ringData); gl.uniform1f(p.uRingN, CM ? 0 : ringN); gl.uniform1f(p.uDirt, scrub.energy);
-  gl.uniform1f(p.uDpr, view.dpr); gl.uniform1f(p.uCursorOn, CM ? 0 : (hand.on ? 1 : 0));
+  gl.uniform1f(p.uDpr, view.dpr); gl.uniform1f(p.uCursorOn, CM ? 0 : held ? 1 : curOn);
   gl.uniform1f(p.uS, view.S*view.dpr); gl.uniform2f(p.uCenter, view.cx*view.dpr, (view.h-view.cy)*view.dpr);
   gl.uniform2f(p.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   draw(null);
@@ -1838,7 +1775,7 @@ function render(){
 // ---- one composition. Wide: the disc is cropped by the left edge and the words stand to its right.
 // Tall: the disc is cropped by the top and the words stand under it. A wall or a sink: the disc, centred.
 const RING = 0.470/0.395;
-let cardFrame = false, tight = 0, tightAt = 0, colW = 0;
+let cardFrame = false, tight = 0, tightAt = 0, colW = 0, wh0 = 0;   // wh0: a phone's column, measured once, so the dish holds still
 function resize(){
   const { w, h, dpr } = layoutWords();
   const pw = Math.max(2, Math.round(w*dpr)), ph = Math.max(2, Math.round(h*dpr));
@@ -1854,6 +1791,7 @@ function layoutWords(){
   const tall = MODE === 'web' && !cardFrame && !(w > 1.3*h);
   if (!cardFrame && document.body.classList.contains('tall') !== tall) document.body.classList.toggle('tall', tall);
   const ww = Math.min(tall ? 343 : 340, w-32);              // 16px gutters on a phone: the measure the one-line rule needs
+  words.style.minHeight = '';                               // measure the column at its natural height
   if (!cardFrame && MODE === 'web' && performance.now() - tightAt > 500) {   // fit (wide screens; a tall one shrinks the basin instead): if the column
     tightAt = performance.now();                                              // runs off the bottom, fold the oldest lines away, a step at a time
     const r0 = words.getBoundingClientRect(), over = tall ? -999 : r0.bottom - (h - 10);
@@ -1864,6 +1802,7 @@ function layoutWords(){
     }
   }
   const wh = words.offsetHeight;
+  if (tall && !wh0 && !document.body.classList.contains('mute')) wh0 = wh;
   let Rb, cx, cy, wx, wy, lead;
   if (MODE !== 'web' || cardFrame) {                      // a wall, a sink, or the one frame a card is taken from: the disc, centred
     Rb = 0.45*Math.min(w, h); cx = w/2; cy = h/2;
@@ -1874,12 +1813,18 @@ function layoutWords(){
     cx = Math.min(0.40*w, w-ww-40-RING*Rb-36);
     wx = cx+RING*Rb+36; wy = Math.max(0.12*h, cy-0.62*Rb-wh/2);
     lead = [wx-14, wy+13];
+  } else if (held && view.S && view.w === w && view.h === h) {   // a phone, under a held thumb: the dish does not move; any change waits for the release
+    Rb = view.S*0.395; cx = view.cx; cy = view.cy;
+    wx = Math.max(16, Math.min(w-ww-16, cx-0.35*Rb)); wy = cy+RING*Rb+52;
+    lead = [wx-14, wy+13];
   } else {
-    Rb = Math.min(0.6*w, (h-wh-70)/(RING+0.92));          // on a phone the disc may run off both sides; better than an empty foot
+    Rb = Math.min(0.6*w, (h-Math.max(wh, wh0)-70)/(RING+0.92));   // on a phone the disc may run off both sides; better than an empty foot
     cx = 0.46*w; cy = 0.92*Rb;
     wx = Math.max(16, Math.min(w-ww-16, cx-0.35*Rb)); wy = cy+RING*Rb+52;
     lead = [wx-14, wy+13];
   }
+  const minH = tall ? wh0 : Math.round(h - wy - 16);        // the column keeps its height: a phone's first measure, a desktop's to the foot
+  words.style.minHeight = minH ? minH + 'px' : '';
   words.style.width = ww+'px';
   if (ww !== colW) { colW = ww; words.style.setProperty('--col', ww+'px'); fitAll(say); }   // the type scale follows the measure
   words.style.transform = `translate(${Math.round(wx)}px,${Math.round(wy)}px)`;
@@ -1888,7 +1833,7 @@ function layoutWords(){
   if (!cardFrame) { const turn = Math.atan2(lead[0]-cx, cy-lead[1]); ROT[0] = Math.cos(turn); ROT[1] = Math.sin(turn); }   // a card keeps the basin turned as you saw it
   let dpr = Math.min(window.devicePixelRatio || 1, SMALL ? 1.5 : 2);
   if (w*h*dpr*dpr > 3.6e6) dpr = Math.sqrt(3.6e6/(w*h));
-  const box = MODE === 'sink' ? [-1e4, -1e4, -1e4+1, -1e4+1] : [wx-10, wy-6, wx+ww, wy+wh+6];
+  const box = MODE === 'sink' ? [-1e4, -1e4, -1e4+1, -1e4+1] : [wx-10, wy-6, wx+ww, wy+Math.max(wh, minH)+6];
   Object.assign(view, { w, h, cx, cy, S:Rb/0.395, dpr, box, lead });
   words.style.visibility = 'visible';
   return { w, h, dpr };
@@ -1919,7 +1864,7 @@ function tick(now){
       flash = 1; announce(WIPE_LINE, now);
     }
   }
-  cultTick(dt); barTick(); liveTick(now);
+  cultTick(dt); riddleTick(); liveTick(now);
   if (!held && dt > 0) step(dt);
   // seek: somewhere in each still there is a place where the glass goes clear. Hold, and move until you find it.
   let want = 0;
@@ -1927,6 +1872,10 @@ function tick(now){
     heldSecs = (now-holdStart)/1000;
     const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S;
     { const hp = holdPoint(); holdPath += Math.hypot(hp.x-lastHP.x, hp.y-lastHP.y); lastHP = hp; }
+    if (!pause.done && !pause.byKey && heldSecs > 2.5) {          // patience pays: held still long enough, the hidden place comes to the hand
+      const still = 1 - Math.min(1, handSpeed/0.25), k = (1 - Math.exp(-dt/4.5))*still*Math.min(1, (heldSecs-2.5)/2.5);
+      pause.spot[0] += (qx - pause.spot[0])*k; pause.spot[1] += (qy - pause.spot[1])*k;
+    }
     want = pause.byKey ? 1 : ss(faceTex ? 0.42 : 0.32, 0.055, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));   // seen, it clears from further off
     if (!pause.done) {
       pause.kept = focus > 0.85 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
@@ -1970,7 +1919,7 @@ function tick(now){
   vacant += ((CAN_SEE && !seen && read.some(Boolean) ? 1 : 0)-vacant)*(1-Math.exp(-dt/1.5));   // until then, a place kept for you
   if (recall && recall.peek && now > peekUntil) recall = null;
   { const hi = !recall ? '' : recall.sent ? 's' + recall.k : 'i' + recall.line; if (hi !== hiLine) { hiLine = hi; for (const el of linesEl.children) el.classList.toggle('on', el.dataset.k === hi); } }
-  const showStill = held || ghost.on || meet > 0 || !!recall;
+  const showStill = held || meet > 0 || !!recall;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
   if (meet > 0 || recall) focus = 1;
   jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;   // the glass as a spring
@@ -1982,7 +1931,6 @@ function tick(now){
     const near = Math.max(hand.on ? ss(0.22, 0.05, Math.hypot(hq[0]-lureAt[0], hq[1]-lureAt[1])) : 0, tq ? ss(0.22, 0.05, Math.hypot(tq[0]-lureAt[0], tq[1]-lureAt[1])) : 0);
     lureNear += (near - lureNear)*(1-Math.exp(-dt/0.25));
   }
-  if (ghost.on) { ghost.t += dt; if (ghost.t > 7 || hand.pressing || held) ghost.on = false; }   // a press takes over from it
   depth += ((held ? 1-Math.exp(-heldSecs/9) : 0)-depth)*(1-Math.exp(-dt/0.5));
   whole += ((read.every(Boolean) ? 1 : 0)-whole)*(1-Math.exp(-dt/2.5));
   if (whole > 0.5 && endDir > 0) end = Math.min(1, end + dt/25);          // and then the drain takes the rest
@@ -2101,7 +2049,7 @@ canvas.addEventListener('pointermove', (ev) => {
       }
     }
   }
-  stir.x = x; stir.y = y; stir.px = x; stir.py = y;
+  stir.x = x; stir.y = y; stir.px = x; stir.py = y; lastMoveT = performance.now();
   const qx = (hand.x-view.cx)/view.S, qy = (view.cy-hand.y)/view.S, rr = Math.hypot(qx, qy)-BASIN_R;
   if (!held && !hand.pressing && MODE === 'web' && !(recall && !recall.peek)) {
     let best = null, bd = 0.034;
@@ -2521,7 +2469,6 @@ function readYou(){
   if (f.together) cand.company = [pick(HORO.company, 47), `us = [you, *others[:${f.together}]]`];
   else if (sent && !sent.own) cand.company = [pick(HORO.sent, 53), 'weverse = [you, friend.youniverse]'];
   else if (skies.length) cand.company = [pick(HORO.returning, 59), 'youniverses.append(you)'];
-  if (ctx.davos > 0) cand.davos = [pick(HORO.davos, 61), 'davos = next(future)'];
   { // the day's sky, the same for everyone who played that day: a planet turning, going back, changing sign; a new or full moon; an eclipse
     const keyOf = (e) => e.planet ? `${e.kind}.${e.planet}` : e.kind, e = skyDay(t0).find((x) => HORO.today && HORO.today[keyOf(x)]);
     const day = Math.floor((t0 - new Date(t0).getTimezoneOffset()*60000)/86400000), ls = e && HORO.today[keyOf(e)];
@@ -2537,8 +2484,8 @@ function readYou(){
     + 0.13*Math.min(1, ((f.stir || 0) + 0.5*(f.scrubs || 0) + 0.5*(f.taps || 0))/14) + 0.09*Math.min(1, (f.hull || 0)/0.3) + (f.you ? 0.2 : 0) + (f.we ? 0.08 : 0)
     + (f.knobs ? 0.04 : 0) + (f.together ? 0.05 : 0) + (f.noon ? 0.04 : 0) + 0.05*Math.min(1, skies.length/5) + 0.16*((hashI(seed + 71) % 1000)/1000 - 0.5)));
   const n = 3 + Math.min(2, Math.floor(depth*3));             // three to five: a light play reads short, a deep one a little longer
-  const PRIORITY = ['trait0', 'sun', 'seen', 'today', 'forecast', 'moon', 'trait1', 'rising', 'company', 'hour', 'unseen', 'season', 'trait2', 'davos'];
-  const ORDER = ['sun', 'trait0', 'moon', 'rising', 'seen', 'unseen', 'trait1', 'hour', 'season', 'company', 'trait2', 'davos', 'today', 'forecast'];
+  const PRIORITY = ['trait0', 'sun', 'seen', 'today', 'forecast', 'moon', 'trait1', 'rising', 'company', 'hour', 'unseen', 'season', 'trait2'];
+  const ORDER = ['sun', 'trait0', 'moon', 'rising', 'seen', 'unseen', 'trait1', 'hour', 'season', 'company', 'trait2', 'today', 'forecast'];
   const keep = new Set(PRIORITY.filter((k) => cand[k]).slice(0, n));
   const pairs = ORDER.filter((k) => keep.has(k)).map((k) => cand[k]);
   for (const [c] of pairs) horo.push(c);
@@ -2627,46 +2574,15 @@ function keepSky(){
   try { localStorage.setItem('veritas.skies', JSON.stringify(skies)); } catch (e) {}
   document.body.classList.add('skies');
 }
-const shelf = document.getElementById('shelf');
-function glyph(code){                                    // a sky, drawn small: its stars joined in the order they were found, in the glass's ring
-  const d = decodeSky(code); if (!d) return '';
-  const X = (v) => (50 + v*110).toFixed(1), Y = (v) => (50 - v*110).toFixed(1);
-  const P3 = d.stars.map((m, k) => project(m.spot, zOf(k, m), 0.5, -0.28));
-  const fs = facets(d.stars.map((m, k) => rot3(m.spot, zOf(k, m), 0.5, -0.28))).sort((a, b2) => (b2.v[1][2] + b2.v[2][2]) - (a.v[1][2] + a.v[2][2]));
-  const folds = fs.map((f3) => `<path class="fold" style="fill:rgb(${f3.c.map((x) => Math.round(255*Math.pow(Math.min(1, 0.02 + x*f3.l), 1/1.6))).join(',')})" d="M${f3.v.map((v) => X(v[0]) + ' ' + Y(v[1])).join('L')}Z"/>`).join('');
-  const line = P3.map((q3, i) => (i ? 'L' : 'M') + X(q3[0]) + ' ' + Y(q3[1])).join('');
-  const dots = P3.map((q3) => `<circle class="st" cx="${X(q3[0])}" cy="${Y(q3[1])}" r="${(1.7*q3[2]*q3[2]).toFixed(2)}"/>`).join('');
-  return `<svg viewBox="0 0 100 100" role="button" tabindex="0" aria-label="${d.name}: show it in the glass" data-c="${code}"><circle class="rim" cx="50" cy="50" r="44"/>${folds}<path d="${line}"/>${dots}</svg>`;
-}
-function openShelf(){
-  document.getElementById('shelfHead').textContent = 'youniverses';
-  document.getElementById('shelfGrid').innerHTML = skies.slice().reverse().map((k) =>
-    `<figure>${glyph(k.c)}<figcaption title="${k.n.split(' ').map((w) => GLOSS[w] ? w.toLowerCase() + ': ' + GLOSS[w] : w).join(' / ')}">${k.n}<small>${k.d.split('-').reverse().join('.')}</small><a href="${PUBLIC}?sky=${k.c}" class="send">copy the link</a> <a href="macroverse.html?u=${encodeURIComponent(k.n)}">macroverse</a></figcaption></figure>`).join('');
-  shelf.classList.add('on'); shelf.querySelector('.x').focus();
-}
-const closeShelf = () => shelf.classList.remove('on');
-document.getElementById('book')?.addEventListener('click', (ev) => { ev.preventDefault(); openShelf(); });   // the book now lives in the macroverse (home)
-shelf.addEventListener('click', (ev) => {
-  if (ev.target === shelf || ev.target.closest('.x')) { closeShelf(); return; }
-  const send = ev.target.closest('a.send');
-  if (send) { ev.preventDefault(); navigator.clipboard?.writeText(send.href).then(() => { send.textContent = 'copied'; }, () => { location.href = send.href; }); return; }
-  const g = ev.target.closest('svg[data-c]');
-  if (g && showSky(g.dataset.c, true)) closeShelf();
-});
-shelf.addEventListener('keydown', (ev) => {
-  if (ev.key === 'Escape') closeShelf();
-  else if (ev.key === 'Enter') { const g = ev.target.closest && ev.target.closest('svg[data-c]'); if (g && showSky(g.dataset.c, true)) closeShelf(); }
-});
-for (const t of ['pointerdown', 'keydown']) shelf.addEventListener(t, (ev) => ev.stopPropagation());   // reading the shelf is not holding the glass
 
 // ---- grow another: a new sky, new stills, new places, new forms of life. What it knows of you stays: the two letters, and your face
 // for as long as this page is open. Every finished sky is kept on this device.
 function growAnother(){
-  keepSky(); lift = 0;
+  keepSky(); lift = 0; end = 0; whole = 0; birthT = 0; flash = 0;   // the point opens into the glass again
   Object.assign(me, freshMe()); me.we = weOk; me.looked = !!faceTex;
   reading = null; playId = ''; shareSaid = ''; log = [];
   read.fill(false); mem = new Array(LINES).fill(null); path.length = 0; lastRead = -1;
-  lastWords = false; silence = false; afterEnd = 0; endDir = -1; recall = null; toldMirror = false; linger = 0; whisper = null;
+  lastWords = false; silence = false; afterEnd = 0; endDir = 1; recall = null; toldMirror = false; linger = 0; whisper = null;
   document.body.classList.remove('whole', 'end');
   sign = Math.floor(Math.random()*N); walkNext = stepWalk(sign);
   writeProgram(); save(); compose();
@@ -2714,7 +2630,7 @@ async function makeCard(only){
     const fs = facets(path.map((pt, k) => rot3(pt, zOf(k, mem[ord[k]]), 0.5, -0.28)));
     fs.sort((a, b2) => (b2.v[1][2] + b2.v[2][2]) - (a.v[1][2] + a.v[2][2]));
     for (const f3 of fs) {
-      const col = `rgba(${f3.c.map((x) => Math.round(255*Math.pow(Math.min(1, 0.02 + x*f3.l), 1/1.6))).join(',')}, 0.62)`;
+      const col = `rgba(${f3.c.map((x) => Math.round(255*Math.pow(Math.min(1, 0.02 + x*f3.l), 1/1.6))).join(',')}, 0.70)`;
       c.fillStyle = col; c.beginPath(); f3.v.forEach((v, j) => j ? c.lineTo(X(v), Y(v)) : c.moveTo(X(v), Y(v))); c.closePath(); c.fill();
     }
   }
@@ -2741,8 +2657,10 @@ async function makeCard(only){
     c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.stroke(); c.restore();
   }
   if (seen && path.length) { c.strokeStyle = 'rgba(194,162,122,0.38)'; c.lineWidth = 1.5; c.beginPath(); for (const p of P3) { c.moveTo(X([0, 0]), Y([0, 0])); c.lineTo(X(p), Y(p)); } c.stroke(); }
+  c.save(); c.shadowColor = 'rgba(3,3,4,.6)'; c.shadowBlur = 4;                                  // gold on an ink shadow: the print reads on the milk
   for (let i = 1; i < P3.length; i++) { const a = P3[i-1], b2 = P3[i], nz = (a[2] + b2[2])/2;     // nearer lines are brighter and thicker
-    c.strokeStyle = `rgba(194,162,122,${Math.min(0.95, 0.7*nz*nz).toFixed(2)})`; c.lineWidth = 2*nz; c.beginPath(); c.moveTo(X(a), Y(a)); c.lineTo(X(b2), Y(b2)); c.stroke(); }
+    c.strokeStyle = `rgba(194,162,122,${Math.min(0.95, 0.7*nz*nz).toFixed(2)})`; c.lineWidth = 3.2*nz; c.beginPath(); c.moveTo(X(a), Y(a)); c.lineTo(X(b2), Y(b2)); c.stroke(); }
+  c.restore();
   P3.forEach((p, i) => {
     const f = me.finds[i], stay = f ? (f.stay || 0) : 0, rr = (6 + Math.min(9, stay*1.4))*p[2];
     const g = c.createRadialGradient(X(p), Y(p), 0, X(p), Y(p), rr*3.4);
@@ -2767,9 +2685,9 @@ async function makeCard(only){
     line(codeOf(li), K, 29, GOLD, y);
   } else line('# ' + POINT, P, 29, BONE, y);
   {                                                        // the foot: the riddle, a comment, over the mark, the page's title turned, in the code's own voice
-    c.font = `400 30px ${mono}`; c.fillStyle = DIM; c.fillText('# macrofluidic × __', X0, Hc-106);   // always __: never spoil the riddle
-    let x = X0;
-    for (const [t, col] of [['v', BONE], ['[', DIM], ['er', GOLD], [']', DIM], ['i', BONE], ['+', GOLD], ['as', BONE]]) { c.fillStyle = col; c.fillText(t, x, Hc-62); x += c.measureText(t).width; }
+    y += 76; c.font = `400 30px ${mono}`; c.fillStyle = DIM; c.fillText('# macrofluidic × __', X0, y);   // always __: never spoil the riddle
+    y += 44; let x = X0;
+    for (const [t, col] of [['v', BONE], ['[', DIM], ['er', GOLD], [']', DIM], ['i', BONE], ['+', GOLD], ['as', BONE]]) { c.fillStyle = col; c.fillText(t, x, y); x += c.measureText(t).width; }
   }
   const [blob, discBlob] = await Promise.all([cv, disc].map((k) => new Promise((res) => k.toBlob(res, 'image/jpeg', 0.9))));
   return blob ? { blob, disc: discBlob, text: r ? [...meanLines(r.sky), `you = "${r.sky}"`, 'return youniverse(me + you)'].join('\n')
@@ -2790,7 +2708,7 @@ async function openSharer(only){
   shImg.alt = r ? `your youniverse, ${r.sky}` : m ? `${m.sp}, a new form of life` : 'veri+as';
   shText.innerHTML = r                                     // the reading, the column's way: what the name means, the name, then every pair
     ? meanLines(r.sky).map((l) => `<p class="mn">${l}</p>`).join('') + `<h2 class="nm">you = "${r.sky}"</h2><div class="ps">`
-      + (r.pairs || []).map(([c2, k2]) => `<p class="pc"># ${c2}</p><p class="cd">${k2}</p>`).join('') + '</div>'
+      + (r.pairs || []).map(([c2, k2]) => `<p class="pc"># ${c2}</p><p class="cd">${inUs(k2, r.sky)}</p>`).join('') + '</div>'
     : m ? `<p class="mn"># ${lineOf(li)}</p><h2 class="nm">life = "${m.sp}"</h2><p class="cd">${codeOf(li)}</p>` : '';
   // where to send it: the link opens this universe, under theirs. The picture goes through the phone's own sheet (stories, messages).
   const E = encodeURIComponent, text = card.text;
@@ -2800,9 +2718,9 @@ async function openSharer(only){
     ['threads', `https://www.threads.com/intent/post?text=${E(text)}&url=${E(link)}`, 'M12.19 24h-.01c-3.58-.02-6.33-1.21-8.18-3.51C2.35 18.44 1.5 15.59 1.47 12.01v-.02c.03-3.58.88-6.43 2.53-8.48C5.85 1.21 8.6.02 12.18 0h.01c2.75.02 5.04.73 6.83 2.1 1.68 1.29 2.86 3.13 3.51 5.47l-2.04.57c-1.1-3.96-3.9-5.98-8.3-6.02-2.91.02-5.11.94-6.54 2.72C4.31 6.5 3.62 8.91 3.59 12c.03 3.09.72 5.5 2.06 7.16 1.43 1.78 3.63 2.7 6.54 2.72 2.62-.02 4.36-.63 5.8-2.05 1.65-1.61 1.62-3.59 1.09-4.8-.31-.71-.87-1.3-1.63-1.75-.19 1.35-.62 2.45-1.28 3.27-.89 1.1-2.14 1.7-3.73 1.79-1.2.07-2.36-.22-3.26-.8-1.06-.69-1.69-1.74-1.75-2.96-.07-1.19.41-2.29 1.33-3.08.88-.76 2.12-1.21 3.58-1.29a13.85 13.85 0 0 1 3.02.14c-.13-.74-.38-1.33-.75-1.76-.51-.59-1.31-.88-2.36-.89h-.03c-.84 0-1.99.23-2.72 1.32L7.73 7.85c.98-1.45 2.57-2.26 4.48-2.26h.04c3.19.02 5.1 1.98 5.29 5.39.11.05.22.09.32.14 1.49.7 2.58 1.76 3.15 3.07.8 1.82.87 4.79-1.55 7.16-1.85 1.81-4.09 2.63-7.28 2.65zm1-11.69c-.24 0-.49.01-.74.02-1.84.1-2.98.95-2.92 2.14.07 1.26 1.45 1.84 2.78 1.77 1.22-.07 2.82-.54 3.09-3.71a10.5 10.5 0 0 0-2.22-.22z'],
     ['linkedin', `https://www.linkedin.com/sharing/share-offsite/?url=${E(link)}`, 'M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z'],
   ].map(([n, u, d]) => `<a class="ic" href="${u}" target="_blank" rel="noopener" data-go="${n}" aria-label="post on ${n}" title="post on ${n}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`).join('');
-  const mac = document.getElementById('shMacro');
-  mac.href = r ? `macroverse.html?u=${E(r.sky)}` : 'macroverse.html'; mac.style.display = r ? '' : 'none';
-  document.getElementById('shShare').style.display = navigator.canShare && navigator.canShare({ files:[shareCard.file] }) ? '' : 'none';
+  const can = !!(navigator.canShare && navigator.canShare({ files:[shareCard.file] }));   // the phone's own sheet, or else save and copy
+  document.getElementById('shShare').style.display = can ? '' : 'none';
+  for (const id of ['shSave', 'shCopy']) document.getElementById(id).style.display = can ? 'none' : '';
   sharer.classList.add('on'); sharer.scrollTop = 0; fitAll(shText); sharer.querySelector('.x').focus();   // fit only once it is laid out
 }
 addEventListener('resize', () => { if (sharer.classList.contains('on')) fitAll(shText); });
@@ -2815,7 +2733,7 @@ const shareSky = () => openSharer();
 const closeSharer = () => sharer.classList.remove('on');
 sharer.addEventListener('click', async (ev) => {
   if (ev.target === sharer || ev.target.closest('.x')) { closeSharer(); return; }
-  const a = ev.target.closest('a'); if (!a || !shareCard || a.dataset.go || a.id === 'shMacro') return;   // out to the world: let the link go
+  const a = ev.target.closest('a'); if (!a || !shareCard || a.dataset.go) return;   // out to the world: let the link go
   ev.preventDefault();
   if (a.classList.contains('done')) return;
   if (a.id === 'shCopy') { try { await navigator.clipboard.writeText(shareCard.link); didIt(a, 'link copied'); } catch (e) { window.prompt('', shareCard.link); } }

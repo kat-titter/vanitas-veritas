@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>macroverse</title>
-<meta name="description" content="Every youniverse grown in veri+as, in one space, each near the ones played most like it.">
+<meta name="description" content="Every youniverse grown in vanitas_veritas, in one space, each near the ones played most like it.">
 <meta property="og:title" content="macroverse">
-<meta property="og:description" content="Every youniverse grown in veri+as, in one space, each near the ones played most like it.">
+<meta property="og:description" content="Every youniverse grown in vanitas_veritas, in one space, each near the ones played most like it.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#030304">
@@ -32,27 +32,35 @@
   header { position:fixed; left:24px; top:20px; z-index:3; padding:2px 4px; background:var(--veil); box-shadow:0 0 36px 18px var(--veil); pointer-events:none; }
   #piece { pointer-events:auto; font-size:13px; letter-spacing:.32em; color:var(--bone); text-decoration:none; }
   #piece i { font-style:normal; color:var(--gold); }
+  #piece .br { color:var(--dim); }
   #piece:hover, #piece:focus-visible { color:var(--gold); }
   header code { display:block; margin-top:2px; font:inherit; font-size:11px; line-height:1.6; color:var(--gold); white-space:nowrap; }
+  /* no youniverse on this device yet: the door in, written as what is true */
+  #none { display:none; pointer-events:auto; text-decoration:none; }
+  #none code { color:var(--dim); }
+  #none:hover code, #none:focus-visible code { color:var(--bone); }
+  body.none #none { display:block; }
   /* home: your own youniverses, lit where they sit in everyone's; weverse: you and the ones sent to you */
   nav { position:fixed; right:18px; top:14px; z-index:3; display:flex; gap:2px; }
   .ic { display:inline-grid; place-items:center; width:40px; height:40px; margin:0; padding:0; border:0; border-radius:50%; background:var(--veil);
     color:var(--dim); cursor:pointer; text-decoration:none; }
   .ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
   .ic:hover, .ic:focus-visible { color:var(--bone); }
-  .ic[aria-pressed="true"] { color:var(--gold); box-shadow:inset 0 0 0 1px rgba(194,162,122,.55); }
+  .ic[aria-pressed="true"] { color:var(--gold); }
   /* your youniverses, named where they are */
   #labs { position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
   .lab { position:absolute; left:0; top:0; margin:0; padding:0 5px; border:0; border-radius:0; background:var(--veil); box-shadow:0 0 6px 2px var(--veil);
     color:var(--gold); font-size:11px; line-height:18px; white-space:nowrap; cursor:pointer; pointer-events:auto; will-change:transform; transition:opacity .3s; }
+  .lab.fr { color:var(--bone); }
   .lab.off { opacity:0; pointer-events:none; }
   .lab:focus-visible { opacity:1; }
   .lab:hover, .lab.on { color:var(--bone); }
   #tip { position:fixed; left:0; top:0; z-index:5; padding:0 5px; background:var(--veil); box-shadow:0 0 6px 2px var(--veil); color:var(--bone);
     font-size:11px; line-height:18px; white-space:nowrap; pointer-events:none; }
   /* one youniverse, open: what it means, its name, its neighbours, and the way back in. Read like code. */
-  #card { position:fixed; left:24px; bottom:24px; z-index:4; width:min(380px, calc(100vw - 48px)); max-height:calc(100vh - 128px); overflow:auto;
+  #card { position:fixed; left:8px; bottom:24px; z-index:4; width:min(380px, calc(100vw - 48px)); max-height:calc(100vh - 128px); overflow:auto;
     padding:16px 20px 10px; background:var(--sheet); box-shadow:0 0 48px 20px var(--sheet); overscroll-behavior:contain; text-align:left; }
+  #card:focus { outline:none; }
   #card .x { position:absolute; top:2px; right:4px; width:36px; height:36px; padding:0; background:none; border:0; color:var(--dim); font:400 20px/1 var(--mono); cursor:pointer; }
   #card .x:hover, #card .x:focus-visible { color:var(--bone); }
   #card p { margin:0; padding-right:26px; white-space:pre-wrap; overflow-wrap:anywhere; }
@@ -65,9 +73,8 @@
   #cOpen { margin:6px 0 0 -10px; color:var(--gold); background:none; }
   #cOpen:hover, #cOpen:focus-visible { color:var(--bone); }
   @media (max-width:640px) {
-    header { left:16px; top:14px; padding:2px 0; }
-    header code { font-size:10.5px; }
-    nav { right:12px; top:8px; gap:0; }
+    header { left:16px; top:12px; padding:2px 0; }
+    nav { right:12px; top:2px; gap:0; }                    /* above the code line, which runs under the icons on a narrow phone */
     #card { left:0; right:0; bottom:0; width:auto; max-height:46vh; padding:14px 16px calc(8px + env(safe-area-inset-bottom));
       box-shadow:0 -12px 24px 4px var(--sheet); border-top:1px solid var(--rim); }
     #card .x { top:4px; right:6px; }
@@ -76,24 +83,24 @@
 </style>
 </head>
 <body>
-<canvas id="sky" role="img" aria-label="the macroverse: every youniverse grown in veri+as, in one space, each near the ones played most like it"></canvas>
+<canvas id="sky" role="img" aria-label="the macroverse: every youniverse grown in vanitas_veritas, in one space, each near the ones played most like it"></canvas>
 <canvas id="fx" aria-hidden="true"></canvas>
-<header><a id="piece" href="veritas3.html">veri<i>+</i>as</a><code>macroverse = [youniverse(you) for you in us]</code></header>
+<header><a id="piece" href="veritas3.html">v<span class="br">[</span><i>er</i><span class="br">]</span>i<i>+</i>as</a><code>macroverse = [youniverse(you) for you in us]</code><a id="none" href="veritas3.html"><code>you = None</code></a></header>
 <nav>
-  <button id="weBtn" class="ic" type="button" aria-pressed="false" aria-label="weverse: you and your friends" title="weverse" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14" r="1.9" fill="currentColor" stroke="none"/><circle cx="13.4" cy="12.2" r="1.9" fill="currentColor" stroke="none"/></svg></button>
-  <button id="homeBtn" class="ic" type="button" aria-pressed="false" aria-label="home: your youniverses" title="home" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="13.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14.5" r="2" fill="currentColor" stroke="none"/></svg></button>
+  <button id="weBtn" class="ic" type="button" aria-pressed="false" aria-label="weverse: you and your friends" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14" r="1.9" fill="currentColor" stroke="none"/><circle cx="13.4" cy="12.2" r="1.9" fill="currentColor" stroke="none"/></svg></button>
+  <button id="homeBtn" class="ic" type="button" aria-pressed="false" aria-label="home: your youniverses" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="13.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14.5" r="2" fill="currentColor" stroke="none"/></svg></button>
 </nav>
 <div id="labs"></div>
 <div id="tip" hidden></div>
-<aside id="card" aria-label="a youniverse" hidden>
+<aside id="card" aria-label="a youniverse" tabindex="-1" hidden>
   <button class="x" type="button" aria-label="close">&times;</button>
   <p id="cMean"></p>
   <p id="cName"></p>
   <p id="cNear"></p>
-  <a id="cOpen" class="ic" href="veritas3.html" aria-label="open it" title="open it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5h6v6M19.5 4.5 11 13M17.5 14v5.5h-13v-13H10"/></svg></a>
+  <a id="cOpen" class="ic" href="veritas3.html" aria-label="open it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 4.5h6v6M19.5 4.5 11 13M17.5 14v5.5h-13v-13H10"/></svg></a>
 </aside>
 <script>
-// ---- the macroverse. Every finished play of veri+as is one youniverse. Each one is tied to the few plays most like it, measured
+// ---- the macroverse. Every finished play of vanitas_veritas is one youniverse. Each one is tied to the few plays most like it, measured
 // the way the mirror measures you, and the ties pull them into clusters and filaments, the way galaxies gather. Nothing here
 // sorts anyone into a type: whatever shape there is appears after the fact, from the plays alone.
 // Far off, a youniverse is a point of light. Near, it is its fingerprint: its seven stars, flat, joined in the order found.
@@ -102,6 +109,7 @@
 (() => {
 'use strict';
 const params = new URLSearchParams(location.search);
+const T_LOAD = performance.now();
 const DEMO = Math.max(0, Math.min(3000, parseInt(params.get('demo') || '0', 10) || 0));   // ?demo=N: a made-up macroverse to look at
 const TESTS = params.has('tests');                                                       // test plays stay out unless asked for
 const WANT = (params.get('u') || '').toLowerCase().replace(/[^a-z_]/g, '');              // ?u=name: the piece sends you to one
@@ -141,9 +149,8 @@ const EN_PART = { Nascens:'is being born', Manens:'remains', Fugiens:'flees', Mo
   Convertens:'turns around' };
 const NOUN_EN = Object.assign(Object.fromEntries(Object.entries(EN_NOUN).map(([k, v]) => [k.toLowerCase(), v])), {"persona": "the mask", "reticulum": "the little net", "cachinnus": "the loud laugh", "sopor": "the deep sleep", "phantasma": "the phantom", "corona": "the crown", "anulus": "the ring", "nebula": "the mist", "favus": "the honeycomb", "imago": "the likeness", "cranium": "the skull", "guttus": "the narrow flask", "lumen": "the eye's light", "vitrum": "the glass", "rictus": "the gape", "scintilla": "the spark", "basium": "the kiss", "macula": "the spot", "globus": "the globe", "ocellus": "the little eye", "corolla": "the garland", "medulla": "the marrow", "caligo": "the gloom", "cera": "the wax", "unda": "the wave", "nimbus": "the halo", "candor": "the whiteness", "cortex": "the rind", "unio": "the pearl", "favilla": "the ember", "caput": "the head", "foramen": "the opening"});
 const PART_EN = Object.assign(Object.fromEntries(Object.entries(EN_PART).map(([k, v]) => [k.toLowerCase(), v])), {"perdurans": "endures", "retinens": "holds on", "desinens": "leaves off", "fruens": "savours", "habitans": "dwells", "volitans": "flits on", "dimittens": "lets go", "collineans": "aims true", "vagans": "wanders", "perveniens": "arrives at last", "contemplans": "looks long", "opperiens": "bides its time", "inveniens": "finds", "inaurans": "gilds", "undans": "surges", "commovens": "stirs", "quiescens": "keeps still", "temptans": "tests by touch", "comitans": "keeps company", "circumdans": "encircles", "stans": "stands its ground", "revisens": "revisits", "remeans": "comes home", "lustrans": "looks all around", "spectans": "faces one way", "varians": "varies", "sequens": "follows", "intuens": "gazes", "percipiens": "takes it in", "apparens": "shows itself", "solvens": "solves", "ludens": "plays", "occurrens": "goes to meet", "revelans": "unveils"});
-const HOUR_EN = Object.fromEntries(HOURS.map((h) => [h[2], h[3]]));
-const meaningOf = (name) => { const t = String(name).toLowerCase().split(/[ _]/), n = NOUN_EN[t[0]], v = PART_EN[t[1]], h = t[2] ? HOUR_EN[t[2]] : '';
-  return n && v ? `${n} that ${v}${h ? ', ' + h : ''}.` : ''; };
+const meaningOf = (name) => { const t = String(name).toLowerCase().split(/[ _]/), n = NOUN_EN[t[0]], v = PART_EN[t[1]];
+  return n && v ? `${n} that ${v}.` : ''; };
 
 // ---- what each measure is, and where it usually sits (the piece's own guesses: base and scale)
 const SAL = [
@@ -418,11 +425,13 @@ function tick(){
 
 // ---- arrivals. A youniverse is born beside the one most like it, flashes, and sends out a thin ring
 const queue = []; let queueSorted = true;
+let lastAdmit = -1e9, heard = false;   // when the last one arrived; whether any relay has answered yet
 const rings = [];
 let now = performance.now();
 let glStatDirty = true, glLinksDirty = true, famDirty = true;
 function admit(item){
   if (U.length >= CAP) return -1;
+  lastAdmit = performance.now();
   const i = U.length, depth = depthOf(item.f);
   const u = Object.assign({ name: '', f: null, path: null, seeds: null, sp: null, c: '', own: false, friend: false, d: '', rec: false, cul: null, hole: '', parent: '' }, item,
     { vec: vectorOf(item.f, item.path), knn: [], depth, look: lookOf(item.key, depth), born: now, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, fp: 0 });
@@ -436,8 +445,8 @@ function admit(item){
   if (!REDUCED && rings.length < 48) rings.push({ i, t0: now });
   if (item.key) byKey.set(item.key, i);
   if (u.name && !byName.has(u.name)) byName.set(u.name, i);
-  if (u.own) { ownIdx.push(i); makeLabel(i); homeBtn.hidden = false; famDirty = true; }
-  if (u.friend) { friendIdx.push(i); weBtn.hidden = false; }
+  if (u.own) { ownIdx.push(i); document.body.classList.remove('none'); makeLabel(i); homeBtn.hidden = false; famDirty = true; }
+  if (u.friend) { friendIdx.push(i); makeLabel(i); weBtn.hidden = false; }
   glStatDirty = true;
   if (WANT && sel < 0 && u.name === WANT) select(i, 'url');
   return i;
@@ -515,6 +524,7 @@ function listen(){
           if (d[1] !== 'macroverse' || rl.pages === 0) { rl.got++; if (at < rl.oldest) rl.oldest = at; }
           take(d[2]);
         } else if (d[0] === 'EOSE') {
+          heard = true;
           // a relay hands over a page at a time: when one comes back full, ask for the page before it
           if (d[1] === 'mv-back') ws.send(JSON.stringify(['CLOSE', 'mv-back']));
           if (rl.got >= 200 && rl.pages < 40 && Number.isFinite(rl.oldest)) {
@@ -729,17 +739,21 @@ function aim(dt){
   const ep = 1 - Math.exp(-dt/(REDUCED ? 0.08 : 0.4));
   cam.cx += (pcx - cam.cx)*ep; cam.cy += (pcy - cam.cy)*ep;
   // the whole space turns, slowly, when no one is holding it and nothing is open
-  const idle = !REDUCED && !ptrs.size && sel < 0 && !folds.size && now - lastHands > 3500;
+  const idle = !REDUCED && !ptrs.size && sel < 0 && !folds.size && hov < 0 && now - lastHands > 3500;   // the turn holds still while you aim
   autoAmt += ((idle ? 1 : 0) - autoAmt)*(1 - Math.exp(-dt/(idle ? 2.5 : 0.35)));
   cam.yaw += 0.045*autoAmt*dt;
   if (cam.mode === 'free') return;
   let tgt = null, dist = cam.dist;
   if (cam.mode === 'all') { if (!U.length) return; tgt = scene.c; dist = fitDist(scene.r); }
   else if (cam.mode === 'home' || cam.mode === 'we') {
-    const idx = cam.mode === 'we' ? ownIdx.concat(friendIdx) : ownIdx.slice();
-    if (!idx.length) return;
-    if (idx.length <= 2) for (const i of idx.slice()) for (const e of U[i].knn) idx.push(e.j);
-    const s = sphereOf(idx); tgt = s.c; dist = fitDist(Math.max(s.r, glyphR*6));
+    // centred on yours; far enough back that your nearest neighbours are in the frame too
+    const own = cam.mode === 'we' ? ownIdx.concat(friendIdx) : ownIdx.slice(); if (!own.length) return;
+    const idx = own.slice(); if (idx.length <= 2) for (const i of own) for (const e of U[i].knn) idx.push(e.j);
+    const so = sphereOf(own); let rr = glyphR*6; for (const i of idx) rr = Math.max(rr, Math.hypot(U[i].x - so.c[0], U[i].y - so.c[1], U[i].z - so.c[2]));
+    tgt = so.c; dist = fitDist(rr);
+    let m3 = Infinity;                                     // yours side by side, never one on the other: near enough that, full size, their rings clear
+    for (let a = 0; a < own.length; a++) for (let b = a + 1; b < own.length; b++) { const A = U[own[a]], B = U[own[b]]; m3 = Math.min(m3, Math.hypot(A.x - B.x, A.y - B.y, A.z - B.z)); }
+    if (m3 < Infinity) dist = Math.min(dist, Math.max(glyphR*3, fitDist(so.r + glyphR*2), m3*FOC/(2.6*RCAP())));
   } else if (cam.mode === 'node' && sel >= 0) { const u = U[sel]; tgt = [u.x, u.y, u.z]; dist = glyphR*1.6*FOC/openSize(); }
   if (!tgt) return;
   const e = 1 - Math.exp(-dt/(REDUCED ? 0.1 : cam.mode === 'node' ? 0.42 : 0.9));
@@ -1091,6 +1105,8 @@ function drawHole(kind, x, y, rs, t, A){
 // here, small, for the open one only: x the way round, y outward from the rim, where it is seeded.
 const GS = { NA: 400, NR: 24, u: null, v: null, u2: null, v2: null, owner: -1, f: 0, k: 0, steps: 0, cv: null, img: null, lut: null, fade: null, RS: 0, shown: 0 };
 function gsInit(i){
+  const wantNA = PHONE ? 400 : 640, wantNR = 24;                  // longer round on a desktop, where the ring is drawn bigger; as deep as the phone's, so its cells stay round
+  if (GS.NA !== wantNA || GS.NR !== wantNR) { GS.NA = wantNA; GS.NR = wantNR; GS.u = null; GS.fm = null; GS.RS = 0; }
   const u = U[i], cul = u.cul || CULT0, N = GS.NA*GS.NR, r = rngOf(hashStr(u.key) ^ 0xc0ffee);
   if (!GS.u) { GS.u = new Float32Array(N); GS.v = new Float32Array(N); GS.u2 = new Float32Array(N); GS.v2 = new Float32Array(N); }
   GS.u.fill(1); GS.v.fill(0);
@@ -1133,7 +1149,7 @@ function gsStep(n){
     }
   }
 }
-const RING_IN = 1.2, RING_OUT = 1.5;                      // the ring, in basin radii: just outside the glass
+const RING_IN = 1.16, RING_OUT = 1.42;                     // the ring, in basin radii: just outside the glass, wide enough to be lace, not a cord
 function gsPaint(Rpx){
   const RS = clamp(Math.round(Rpx*2*RING_OUT*DPR/40)*40, 160, PHONE ? 360 : 480);
   if (GS.RS !== RS) {                                     // where in the culture each pixel of the ring looks: angle round, and outward
@@ -1145,7 +1161,7 @@ function gsPaint(Rpx){
       const dx = px + 0.5 - RS/2, dy = py + 0.5 - RS/2, rr = Math.hypot(dx, dy), j = py*RS + px;
       if (rr < Ri || rr > Ro) continue;
       GS.lx[j] = (Math.atan2(dy, dx) + Math.PI)/TAU*GS.NA; GS.ly[j] = clamp((rr - Ri)/(Ro - Ri)*GS.NR - 0.5, 0, GS.NR - 1.001);
-      GS.fade[j] = smooth(Ri, Ri + 1.5, rr)*smooth(Ro, Ro - 0.25*(Ro - Ri), rr);
+      GS.fade[j] = smooth(Ri, Ri + 1.5, rr)*smooth(Ro, Ro - (Ro - Ri)/3, rr);          // and it thins out over its outer third, into the dark
     }
   }
   const d = GS.img.data, v = GS.v, lx = GS.lx, ly = GS.ly, fade = GS.fade, c = GS.rgb, N = RS*RS, NA = GS.NA;
@@ -1154,8 +1170,10 @@ function gsPaint(Rpx){
     if (X < 0) { d[o + 3] = 0; continue; }
     const x0 = Math.floor(X) % NA, x1 = (x0 + 1) % NA, fx = X - Math.floor(X), Y = ly[j], y0 = Math.floor(Y), fy = Y - y0, r0 = y0*NA, r1 = (y0 + 1)*NA;
     const vv = (v[r0 + x0]*(1 - fx) + v[r0 + x1]*fx)*(1 - fy) + (v[r1 + x0]*(1 - fx) + v[r1 + x1]*fx)*fy;
-    const a = smooth(0.05, 0.3, vv)*fade[j];
-    d[o] = c[0] + (255 - c[0])*vv*0.3; d[o + 1] = c[1] + (250 - c[1])*vv*0.3; d[o + 2] = c[2] + (238 - c[2])*vv*0.3; d[o + 3] = 255*a*0.55;
+    // drawn as threads, the way the piece's shader draws its lace: two level lines of v, not the body of the stain
+    const th = 1 - Math.min(1, Math.abs(vv - 0.20)/0.045), th2 = 1 - Math.min(1, Math.abs(vv - 0.31)/0.045);
+    const a = 0.9*Math.max(th, 0.6*th2)*fade[j];                                     // threads only, on bare ground
+    d[o] = c[0] + (255 - c[0])*th*0.35; d[o + 1] = c[1] + (250 - c[1])*th*0.35; d[o + 2] = c[2] + (238 - c[2])*th*0.35; d[o + 3] = 255*a*0.8;
   }
   GS.g.putImageData(GS.img, 0, 0);
 }
@@ -1190,12 +1208,14 @@ function stepPrints(dt){
     if (SV[i] && SZ[i] > glyphR*1.4 && SX[i] > -60 && SX[i] < W + 60 && SY[i] > -60 && SY[i] < H + 60) {
       const R = glyphR*SK[i];
       if (u.own || (u.friend && cam.mode === 'we') || nbr.has(i) || i === hov) want = 1;
-      else if (sel < 0 && R > minR) { want = smooth(minR, minR + 8, R)*smooth(cam.dist*0.25, cam.dist*0.45, SZ[i]); if (want > 0) near.push(i); }   // right by you, it passes
+      else if (sel < 0 && R > minR && cam.mode !== 'home' && cam.mode !== 'we') { want = smooth(minR, minR + 8, R)*smooth(cam.dist*0.25, cam.dist*0.45, SZ[i]); if (want > 0) near.push(i); }   // right by you, it passes; at home only yours are lit
     }
     if (folds.has(i)) want = 0;
     u.fpW = want;
   }
   if (near.length > maxN) { near.sort((a, b) => SK[b] - SK[a]); for (let k = maxN; k < near.length; k++) U[near[k]].fpW = 0; }
+  if (near.length) { const lit = ownIdx.concat(friendIdx).filter((j) => SV[j] && U[j].fp > 0.3);     // a stranger by yours stays a point of light
+    for (const i of near) if (U[i].fpW > 0) for (const j of lit) if (j !== i && Math.hypot(SX[i] - SX[j], SY[i] - SY[j]) < 1.12*(printSize(i) + printSize(j))) { U[i].fpW = 0; break; } }
   for (let i = 0; i < n; i++) { const u = U[i]; u.fp += (u.fpW - u.fp)*(REDUCED ? 1 : e); if (u.fp < 0.002) u.fp = 0; }
 }
 
@@ -1206,7 +1226,19 @@ function printSize(i){
   const forced = U[i].fpW >= 1; let r = Math.min(glyphR*SK[i], RCAP()*(forced ? 1 : 1.25));
   if (forced) r = Math.max(r, 10);
   if (sel >= 0 && nbr.has(i)) r = Math.min(r, openSize()*0.5);
+  if (U[i].own || U[i].friend) r = Math.min(r, Math.max(6, 0.42*litGap(i)));   // two lit prints never sit on each other: their rings (at 1.12 r) stay apart
   return r;
+}
+function litGap(i){                       // how far, on screen, to the nearest other lit print
+  let g = 1e9;
+  for (const L of [ownIdx, friendIdx]) for (const j of L) if (j !== i && SV[j] && U[j].fp > 0.3 && !folds.has(j)) g = Math.min(g, Math.hypot(SX[i] - SX[j], SY[i] - SY[j]));
+  return g;
+}
+function clearOfOpen(i, R){               // a print under the open one's culture fades, so the ring and the print never cross
+  if (sel < 0 || i === sel || !SV[sel] || !SV[i]) return 1;
+  const f = folds.get(sel); if (!f) return 1;
+  const Ro = foldR(sel, f.p)*RING_OUT*1.08*smooth(0, 0.45, f.p), d = Math.hypot(SX[i] - SX[sel], SY[i] - SY[sel]);
+  return smooth(Ro + 0.5*R*1.12, Ro + R*1.12 + 2, d);
 }
 
 // ---- drawing the few, over the many
@@ -1229,9 +1261,9 @@ function drawOver(dt, t){
   // fingerprints, the furthest first
   const fp = [];
   for (let i = 0; i < n; i++) if (U[i].fp > 0.01 && SV[i]) fp.push(i);
-  fp.sort((a, b) => SZ[b] - SZ[a]);
+  fp.sort((a, b) => (U[a].own || U[a].friend) - (U[b].own || U[b].friend) || SZ[b] - SZ[a]);     // and yours and your friends' over everyone's
   for (const i of fp) {
-    const u = U[i], R = printSize(i), A = u.fp*Math.max(0.3, fogOf(SZ[i]))*litOf(u);
+    const u = U[i], R = printSize(i), A = u.fp*Math.max(0.3, fogOf(SZ[i]))*litOf(u)*clearOfOpen(i, R);
     if (R < 4) continue;
     drawSky(u, SX[i], SY[i], R, A, 0, 0, 0, u.own ? GOLD : u.friend ? BONE : null);
   }
@@ -1272,22 +1304,27 @@ const rectOf = (el, m) => { if (el.hidden) return null; const r = el.getBounding
 const meets = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 function makeLabel(i){
   const u = U[i], b = document.createElement('button');
-  b.type = 'button'; b.className = 'lab off'; b.textContent = u.name || nameOf(u);
+  b.type = 'button'; b.className = 'lab off' + (u.friend ? ' fr' : ''); b.textContent = u.name || nameOf(u);
   b.addEventListener('click', () => select(i, 'hop'));
-  b.addEventListener('focus', () => { if (sel !== i) select(i, 'key'); });
+  b.addEventListener('focus', () => { if (sel !== i) { select(i, 'key'); card.focus({ preventScroll: true }); } });   // its name hides once open: the card holds the focus
   labs.appendChild(b); u.lab = b; u.lw = b.offsetWidth; u.lh = b.offsetHeight; u.side = 0;
 }
 const printR = (i) => printSize(i)*(U[i].fp > 0.3 ? 1 : 0.2);
 function layLabels(){
-  if (!ownIdx.length) return;
+  if (!ownIdx.length && !friendIdx.length) return;
   const block = [rectOf(head, 10), rectOf(nav, 6), rectOf(card, 14), rectOf(tip, 2)].filter(Boolean), placed = [];
   for (const [i, f] of folds) if (SV[i]) { const R = foldR(i, f.p)*RING_OUT*f.p; block.push({ x: SX[i] - R, y: SY[i] - R, w: 2*R, h: 2*R }); }
   if (sel >= 0) for (const k of U[sel].knn) { const j = k.j, R = printR(j) + 4; block.push({ x: SX[j] - R, y: SY[j] - R, w: 2*R, h: 2*R }); }
-  const order = ownIdx.slice().sort((a, b) => (b === sel) - (a === sel) || b - a);     // the open one first, then the newest
+  for (let j = 0; j < U.length; j++) if (SV[j] && U[j].fp > 0.3) { const R = printR(j) + 4; block.push({ x: SX[j] - R, y: SY[j] - R, w: 2*R, h: 2*R }); }   // a name never sits on a fingerprint (its own candidates start outside its ring)
+  // the open one first, then yours, newest first; in the weverse yours and your friends' take turns, yours leading
+  const desc = (L) => L.slice().sort((a, b) => b - a), order = [];
+  if (cam.mode === 'we') { const o = desc(ownIdx), f = desc(friendIdx); for (let k = 0; k < Math.max(o.length, f.length); k++) { if (k < o.length) order.push(o[k]); if (k < f.length) order.push(f[k]); } }
+  else order.push(...desc(ownIdx), ...desc(friendIdx));
+  if (sel >= 0) { const k = order.indexOf(sel); if (k > 0) { order.splice(k, 1); order.unshift(sel); } }
   for (const i of order) {
     const u = U[i], b = u.lab, w = u.lw || b.offsetWidth, h = u.lh || b.offsetHeight, sx = SX[i], sy = SY[i], g = Math.max(9, printR(i)*1.15 + 5);
     let spot = null;
-    if (SV[i] && !folds.has(i) && sx > -20 && sx < W + 20 && sy > -20 && sy < H + 20 && litOf(u) > 0.5) {
+    if (SV[i] && !folds.has(i) && (u.own || u.fp > 0.3) && sx > -20 && sx < W + 20 && sy > -20 && sy < H + 20 && litOf(u) > 0.5 && clearOfOpen(i, printR(i)) > 0.5) {
       const cands = [[sx + g, sy - h/2], [sx - g - w, sy - h/2], [sx - w/2, sy - g - h], [sx - w/2, sy + g]];
       for (let c = 0; c < 4; c++) {
         const side = (u.side + c) % 4, [x, y] = cands[side], r = { x, y, w, h };
@@ -1297,13 +1334,14 @@ function layLabels(){
       }
     }
     b.classList.toggle('on', i === sel);
+    const ti = spot ? 0 : -1; if (b.tabIndex !== ti) b.tabIndex = ti;     // only a name you can see takes focus
     if (spot) { placed.push(spot); b.style.transform = `translate(${spot.x.toFixed(1)}px,${spot.y.toFixed(1)}px)`; b.classList.remove('off'); }
     else if (!b.classList.contains('off')) { b.classList.add('off'); b.style.transform = 'translate(-999px,-999px)'; }
   }
 }
 
 // ---- one youniverse, open: its meaning as a comment, its name assigned as code, its neighbours as a list, and a way back in
-let sel = -1, selSig = '';
+let sel = -1, nearWait = false, prevMode = 'all', wantDone = !WANT;
 let charW = 0;
 function wrapMeaning(u){
   const m = u ? meaningOf(u.name || '') : '';
@@ -1316,8 +1354,9 @@ function wrapMeaning(u){
   cMean.replaceChildren(...lines.map((l) => { const s = document.createElement('span'); s.textContent = '# ' + l; return s; }));
 }
 const nameNode = (nm) => { const f = document.createDocumentFragment(); nm.split('_').forEach((w, k) => { if (k) { f.append('_'); f.append(document.createElement('wbr')); } f.append(w); }); return f; };
+// the macroverse has settled: nothing waiting, nothing new for a moment, and a relay has answered (or none will)
+const settled = () => !demoDue.length && !queue.length && performance.now() - lastAdmit > 1500 && (DEMO > 0 || heard || performance.now() - T_LOAD > 8000);
 function fillNear(u){
-  selSig = u.knn.map((e) => e.j).join(',');
   cNear.replaceChildren(); cNear.hidden = !u.knn.length;
   if (!u.knn.length) return;
   cNear.append('neighbours = [\n');
@@ -1332,7 +1371,7 @@ function fillCard(i){
   const u = U[i], who = u.own ? 'you' : u.friend ? 'friend' : 'someone', s = document.createElement('span');
   s.className = 's'; s.append('"', nameNode(nameOf(u)), '"');
   cName.replaceChildren(who + ' = ', s);
-  fillNear(u);
+  nearWait = !settled(); if (nearWait) { cNear.replaceChildren(); cNear.hidden = true; } else fillNear(u);
   cOpen.hidden = !u.c; if (u.c) cOpen.href = 'veritas3.html?sky=' + encodeURIComponent(u.c);
   card.hidden = false;
   wrapMeaning(u);
@@ -1346,6 +1385,8 @@ function setU(name){
 }
 function select(i, how){
   if (i < 0 || i >= U.length || i === sel) return;
+  if (cam.mode !== 'node') prevMode = cam.mode;           // closing it goes back there
+  if (how === 'url') { wantDone = true; if (ownIdx.length) prevMode = 'home'; }   // sent to one: closing it, you are home
   sel = i; fillCard(i); hideTip(); U[i].fp = 0;
   if (!folds.has(i)) folds.set(i, { p: 0, t0: now, yaw0: cam.yaw, pitch0: cam.pitch });
   else { const f = folds.get(i); f.yaw0 = cam.yaw; f.pitch0 = cam.pitch; }
@@ -1356,7 +1397,7 @@ function select(i, how){
 function deselect(){
   if (sel < 0) return;
   sel = -1; card.hidden = true; setU('');
-  if (cam.mode === 'node') setMode('free');
+  if (cam.mode === 'node') setMode(prevMode === 'home' || prevMode === 'we' ? prevMode : 'free');
   if (document.activeElement && (labs.contains(document.activeElement) || card.contains(document.activeElement))) document.activeElement.blur();
 }
 
@@ -1372,7 +1413,8 @@ function pick(x, y, rad){
     if (folds.has(i)) r = Math.max(r, foldR(i, folds.get(i).p)*0.95);
     else if (U[i].fp > 0.3) r = Math.max(r, printR(i)*0.85);
     if (d > r) continue;
-    const s = d/r + SZ[i]/(cam.dist*40);                   // nearest the hand, and among equals the nearer one
+    let s = d/r + SZ[i]/(cam.dist*40);                     // nearest the hand, and among equals the nearer one
+    if (U[i].own || U[i].friend || U[i].fp > 0.3) s -= 0.25;   // a named or printed one wins over a point of light beside it
     if (s < bs) { bs = s; best = i; }
   }
   return best;
@@ -1382,7 +1424,7 @@ function hover(x, y){
   const i = pick(x, y, 9);
   hov = i;
   cv.classList.toggle('hot', i >= 0);
-  if (i < 0 || i === sel || (U[i].own && U[i].lab && !U[i].lab.classList.contains('off'))) { tip.hidden = true; return; }
+  if (i < 0 || i === sel || (U[i].lab && !U[i].lab.classList.contains('off'))) { tip.hidden = true; return; }   // already named on screen
   tip.textContent = nameOf(U[i]); tip.hidden = false;
   const w = tip.offsetWidth, h = tip.offsetHeight, g = printR(i) + 10;
   tip.style.transform = `translate(${clamp(x + 14, 4, W - w - 4)}px,${clamp(y - h - Math.max(10, g*0.6), 4, H - h - 4)}px)`;
@@ -1397,7 +1439,7 @@ cv.addEventListener('pointerdown', (e) => {
 });
 cv.addEventListener('pointermove', (e) => {
   const p = ptrs.get(e.pointerId);
-  if (!p) { if (e.pointerType === 'mouse') hover(e.clientX, e.clientY); return; }
+  if (!p) { if (e.pointerType === 'mouse') { hover(e.clientX, e.clientY); lastHands = now; } return; }
   const dx = e.clientX - p.x, dy = e.clientY - p.y;
   if (ptrs.size === 1 && !dragging && tap0 && Math.hypot(e.clientX - tap0.x, e.clientY - tap0.y) < 6) return;
   p.x = e.clientX; p.y = e.clientY; lastHands = now;
@@ -1433,11 +1475,11 @@ addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === '+' || e.key === '=') { free(); dolly(cam.cx, cam.cy, 0.8); }
   else if (e.key === '-' || e.key === '_') { free(); dolly(cam.cx, cam.cy, 1.25); }
-  else if (/^Arrow/.test(e.key) && ownIdx.length && !(document.activeElement && card.contains(document.activeElement))) {   // step through yours, in the order you grew them
+  else if (/^Arrow/.test(e.key) && ownIdx.length && !(document.activeElement && document.activeElement !== card && card.contains(document.activeElement))) {   // step through yours, in the order you grew them
     e.preventDefault();
     const at = ownIdx.indexOf(sel), step = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1;
     const j = ownIdx[at < 0 ? (step > 0 ? 0 : ownIdx.length - 1) : (at + step + ownIdx.length) % ownIdx.length];
-    select(j, 'key'); U[j].lab.focus({ preventScroll: true });
+    select(j, 'key'); card.focus({ preventScroll: true });
   }
 });
 card.querySelector('.x').addEventListener('click', deselect);
@@ -1469,7 +1511,8 @@ function frame(ts){
   drawOver(dt, ts/1000);
   stats.sim += w2 - w1; stats.paint += performance.now() - w2;
   layLabels();
-  if (sel >= 0 && U[sel].knn.map((e) => e.j).join(',') !== selSig) fillNear(U[sel]);   // new neighbours arrived
+  if (!wantDone && sel < 0 && settled()) { wantDone = true; setU(''); if (ownIdx.length && cam.mode === 'all') setMode('home'); }   // a link to one that never came: home, if you are here
+  if (nearWait && settled()) { nearWait = false; if (sel >= 0) fillNear(U[sel]); }   // opened while they were still arriving: the list comes once, then holds still
   stats.frames++; stats.work += performance.now() - w0;
   requestAnimationFrame(frame);
 }
@@ -1477,13 +1520,14 @@ initGL();
 resize();
 for (const e of readLocal('veritas.skies').slice(-60).map((e, k) => [e, k]).sort((a, b) => String(a[0] && a[0].d).localeCompare(String(b[0] && b[0].d)) || a[1] - b[1]).map((p) => p[0])) keepLocal(e, 'own');
 for (const e of readLocal('veritas.friends').slice(-60)) keepLocal(e, 'friend');
+document.body.classList.toggle('none', !ownIdx.length);
 if (DEMO) makeDemo(DEMO); else listen();
-if (HOME && ownIdx.length && !WANT) setMode('home');
+if (ownIdx.length && !WANT) setMode('home');              // it opens where you are, when you are here
 requestAnimationFrame(frame);
 window.__macroverse = { U, cam, stats, P, select, deselect, setMode, get sel(){ return sel; }, get links(){ return linkList.length; }, get alpha(){ return alpha; },
   get queue(){ return queue.length; }, get glyphR(){ return glyphR; }, get gl(){ return !!gl; }, get folds(){ return [...folds].map(([i, f]) => [i, f.p]); },
   get scene(){ return scene; }, get gs(){ return { owner: GS.owner, steps: GS.steps, f: GS.f, k: GS.k }; },
-  at: (i) => [SX[i], SY[i], SZ[i], SV[i]], pin(p){ pinP = p; }, fps(){ const d = stats.dts.slice(-120); return d.length ? 1000/(d.reduce((a, b) => a + b, 0)/d.length) : 0; } };
+  at: (i) => [SX[i], SY[i], SZ[i], SV[i]], pr: (i) => printSize(i), pin(p){ pinP = p; }, fps(){ const d = stats.dts.slice(-120); return d.length ? 1000/(d.reduce((a, b) => a + b, 0)/d.length) : 0; } };
 })();
 </script>
 </body>
