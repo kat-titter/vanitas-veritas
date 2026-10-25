@@ -30,6 +30,7 @@ C = '--committed' in args
 pages = {'index.html': read('veritas3.html', C), 'blackpaper.html': read('blackpaper.html', C), 'pitch.html': read('pitch.html', C)}
 if '--no-macroverse' not in args and (HERE / 'macroverse.html').exists():
     pages['macroverse.html'] = read('macroverse.html', C)
+if (HERE / 'sink.html').exists(): pages['sink.html'] = read('sink.html', C)     # the sink, redesigned
 
 NEW = 'https://kat-titter.github.io/vanitas_veritas_verse/'
 def preview(html, name):                      # the picture a shared link unfurls with, on every page
@@ -56,6 +57,7 @@ A sink you cannot wash your hands in. Hold still, find the stars, grow your youn
 - the piece: https://kat-titter.github.io/vanitas_veritas_verse/
 - the macroverse, every youniverse at once: https://kat-titter.github.io/vanitas_veritas_verse/macroverse.html
 - the black paper: https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html
+- the sink: https://kat-titter.github.io/vanitas_veritas_verse/sink.html
 
 By Kat Titterton (macrofluidic). These are built pages; the sources live in https://github.com/kat-titter/vanitas-veritas.
 """)

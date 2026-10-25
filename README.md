@@ -2,11 +2,14 @@
 
 we need a new biology. A sink you can't wash your hands in: AI-made vanitas
 pictures drain and come back as copies of copies. Hold still, and it clears.
-Hold together, and it is true.
+Hold together, and it is true. One work in two places: the basin game, live on
+the web, and a real sink (proposed) that runs the same page where the drain
+should be.
 
-- [veri+as iii](https://kat-titter.github.io/vanitas-veritas/davos_2027/)
-- [the black paper](https://kat-titter.github.io/vanitas-veritas/davos_2027/blackpaper.html)
-- [the macroverse](https://kat-titter.github.io/vanitas-veritas/davos_2027/macroverse.html) (being built)
+- [the piece](https://kat-titter.github.io/vanitas_veritas_verse/)
+- [the macroverse](https://kat-titter.github.io/vanitas_veritas_verse/macroverse.html)
+- [the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html)
+- [the sink](https://kat-titter.github.io/vanitas_veritas_verse/sink.html) (proposed)
 
 Kat Titterton (macrofluidic)
 
@@ -32,19 +35,24 @@ primer, then a poem, in Python. At the end your youniverse is read back to
 you, kept on your device and sendable as a link that carries no picture. The
 camera is optional: one frame, which never leaves the device.
 
-The macroverse, everyone's youniverses on one live map, is being built.
+The macroverse is everyone's youniverses on one live map.
 
 **The study.** Each play on the published page leaves one anonymous record on
 public Nostr relays (NIP-78), with no picture and no face. `?nostudy` or Global
 Privacy Control keeps a play out. `node davos_2027/study/plays.mjs` reads the
 records. Details are in
-[black paper §04](https://kat-titter.github.io/vanitas-veritas/davos_2027/blackpaper.html#keeps).
+[the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html#keeps).
 
 **Versions.** i and ii (`veritas.html`, `veritas2.html`) are kept as they were.
 iii is live. `proposal.html` is archived in favour of the black paper.
 
-**Proposed.** A real sink, designed but not built, for Davos in the week of
-18 to 22 January 2027. Nothing is confirmed.
+**The sink (proposed).** The same page in a real basin: a monolith of stone
+with the basin as its screen, under fluted glass. Holding the faucet lever is
+the hold; it never runs water. Through the relays, a hold at either place would
+be felt at both. A first sink is proposed for San Francisco, then wherever an
+open call takes it; nothing is built or confirmed. The design is in
+[the sink](https://kat-titter.github.io/vanitas_veritas_verse/sink.html). The 2026 sink for
+tiat's open call (`documents/`) is kept as an archive.
 
 ---
 
@@ -85,8 +93,8 @@ rather than accidental.
 minutes at a time, getting lost in.
 
 #### Art-directed feeling (the words that drove the final look)
-liquid · gooey · clear (not hazy) · endless · lost · *slooow building bubble you
-worry might pop* · luxury · simultaneously clean and dirty.
+liquid, gooey, clear (not hazy), endless, lost, *slooow building bubble you
+worry might pop*, luxury, simultaneously clean and dirty.
 
 ### 3. Source material
 
@@ -150,17 +158,17 @@ the cheap decode+grade stage.
 flowchart TD
     A["8 source veritas frames"] -->|"VAE encode"| B["source latents"]
     B -->|"apply loop order + blend pairs"| C["blended latents"]
-    C -->|"img2img · LCM few-step<br/>low strength at sources (discernible)<br/>high strength between (gooey)"| D[("32 dreamed anchors<br/>cached to disk")]
-    D -->|"Catmull-Rom latent spline<br/>+ VAE decode · 190 frames/gap"| E["6080 decoded frames @640×480"]
-    E -->|"colour grade: palette lock + contrast<br/>gloss · deep blacks"| F["graded frames"]
+    C -->|"img2img, LCM few-step<br/>low strength at sources (discernible)<br/>high strength between (gooey)"| D[("32 dreamed anchors<br/>cached to disk")]
+    D -->|"Catmull-Rom latent spline<br/>+ VAE decode, 190 frames/gap"| E["6080 decoded frames @640×480"]
+    E -->|"colour grade: palette lock + contrast<br/>gloss, deep blacks"| F["graded frames"]
     F -->|"Real-ESRGAN 4×"| H["upscaled frames @2560×1920"]
     H -->|"finish: grain + vignette (full-res)"| I["finished frames"]
-    I -->|"ffmpeg H.264"| G["seamless 2560×1920 loop · 8:27"]
+    I -->|"ffmpeg H.264"| G["seamless 2560×1920 loop, 8:27"]
 
-    subgraph EXPENSIVE [" runs once · cached "]
+    subgraph EXPENSIVE [" runs once, cached "]
       C; D
     end
-    subgraph CHEAP [" re-tunable cheaply · length / grade / super-res "]
+    subgraph CHEAP [" re-tunable cheaply: length, grade, super-res "]
       E; F; H; I; G
     end
 ```
@@ -278,12 +286,12 @@ The piece went through a deliberate, feedback-driven iteration:
 
 ```
 vanitas-veritas/
-├── README.md · README.html        this document
+├── README.md, README.html         this document
 ├── LICENSE
 ├── index.html                     the loop's landing page (Submission, Web, Build Guide)
 ├── davos_2027/                    veri+as iii (live), i and ii, the black paper, the pitch,
-│                                  the macroverse (being built), the study reader
-├── documents/                     the submission doc bundle (Submission · Build Guide · Web, self-contained HTML + assets)
+│                                  the macroverse, the sink doc, the study reader
+├── documents/                     the 2026 tiat submission bundle, kept as an archive (Submission, Build Guide, Web; self-contained HTML + assets)
 ├── code/                          the loop's pipeline
 ├── video/                         the final render + basin loop
 ├── research/                      vanitas paper, references, ref images
@@ -303,14 +311,15 @@ and the cached anchors stay local. They are not in the public repo.
 | `davos_2027/veritas3.src.html` | its source; `davos_2027/build.py` inlines the loop's 32 anchors to make `veritas3.html` |
 | `davos_2027/blackpaper.html` | the black paper |
 | `davos_2027/pitch.html` | the pitch kit |
-| `davos_2027/macroverse.html` | the macroverse (being built) |
+| `davos_2027/sink.html` | the sink, redesigned (proposed) |
+| `davos_2027/macroverse.html` | the macroverse |
 | `davos_2027/study/plays.mjs` | reads the study records |
-| `davos_2027/veritas.html` · `veritas2.html` | i and ii, kept as they were |
+| `davos_2027/veritas.html`, `veritas2.html` | i and ii, kept as they were |
 | `davos_2027/proposal.html` | the first proposal (archived) |
 | `index.html` | the loop's landing page |
-| `documents/Vanitas Veritas - Submission.dc.html` | **the submission** doc (self-contained HTML) |
-| `documents/Vanitas Veritas - Build Guide.dc.html` | install / build guide |
-| `documents/Vanitas Veritas - Web.dc.html` | web presentation doc |
+| `documents/Vanitas Veritas - Submission.dc.html` | the 2026 tiat submission (archive; self-contained HTML) |
+| `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (archive; the sink is now `davos_2027/sink.html`) |
+| `documents/Vanitas Veritas - Web.dc.html` | the 2026 web doc (archive) |
 | `documents/assets/` | images/video the docs embed |
 | `video/veritas_loop_v45_4k.mp4` | **the final render**, 2560×1920, 8:27 (local only) |
 | `video/veritas_final_v44.mp4` | the earlier 1920×1440 cut (local only) |
@@ -328,7 +337,7 @@ and the cached anchors stay local. They are not in the public repo.
 | `code/order_preview.py` | **fast loop-order iteration**: VAE-only morph proxy (~1 min/candidate) |
 | `code/harmonize.py` | **palette/warmth/contrast harmonizer**: unifies the veritas frames + self-portraits |
 | `source/harmonized/` | full-res harmonized versions of the whole set (local only) |
-| `source/IMG_6975.jpeg` · `source/…wash_your_hands…png` | the **self-portraits**, real + mirror (local only) |
+| `source/IMG_6975.jpeg`, `source/…wash_your_hands…png` | the **self-portraits**, real + mirror (local only) |
 | `code/dream_test.py` | the 3×3 style grid-search harness |
 | `code/liquify.py` | the rejected displacement experiment (kept for history) |
 | `code/dream_styles_grid.png` | the grid-search result image |
