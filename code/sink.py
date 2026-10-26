@@ -74,13 +74,16 @@ def prompts(state):
              and any(x in c for x in ('skull', 'soap bubble')) and any(x in c for x in CORE[:4] + ['skull'])]
     orders = list(itertools.permutations(range(3)))
     N = len(trios)*len(orders)*len(MOODS)*len(LIGHT)
-    def stride(life):                                   # a step coprime to N: i -> (a*i + b) % N visits every index once
-        r = random.Random(life); a = r.randrange(N//3, N) | 1
+    def stride(r):                                      # a step coprime to N: i -> (a*i + b) % N visits every index once
+        a = r.randrange(N//3, N) | 1
         while math.gcd(a, N) != 1: a += 2
         return a, r.randrange(N)
-    a, b = stride(state.get('life', 7))
+    if 'stride' not in state:                           # each life draws its own walk from the machine's entropy, kept so a restart
+        state['stride'] = stride(random.Random(state.get('life', 7)) if state.get('i') else random.SystemRandom())   # never repeats a prompt
+    a, b = state['stride']
     while True:
-        if state['i'] and state['i'] % N == 0: state['life'] = state.get('life', 7) + 1; a, b = stride(state['life'])
+        if state['i'] and state['i'] % N == 0:
+            state['life'] = state.get('life', 7) + 1; state['stride'] = stride(random.SystemRandom()); a, b = state['stride']
         x = (a*(state['i'] % N) + b) % N; state['i'] += 1
         x, li = divmod(x, len(LIGHT)); x, mi = divmod(x, len(MOODS)); ti, oi = divmod(x, len(orders))
         c = [trios[ti][j] for j in orders[oi]]; m = MOODS[mi] + (' ' + LIGHT[li] if LIGHT[li] else '')
@@ -286,7 +289,7 @@ def main():
     for f in next((fs for fs in (sorted(glob.glob(g)) for g in TASTE) if fs), []):
         data = open(f, 'rb').read(); add_taste(Image.open(io.BytesIO(data)), hashlib.sha1(data).hexdigest())
     print(f'taste: {len(taste)} of her images', flush=True)
-    feed = Feed(); words_of = prompts(feed.state); rng = random.Random(feed.state.get('i', 0))
+    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
     if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
         for rp, u in list(feed.state.get('mj_used', {}).items())[-32:]:
             try:
@@ -315,7 +318,7 @@ def main():
         far = not (min(x[0] for x in looks) - 8 <= l <= max(x[0] for x in looks) + 8 and min(x[1] for x in looks) <= w <= max(x[1] for x in looks))
         drift[0] = drift[0] + 1 if far else 0; return l, w
 
-    def seed_of(k): return 1000003*feed.state.get('life', 7) + k      # a noise of its own for every dream (one shared noise imprints one picture on all)
+    def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
     def dream_lat(init, E, s, steps, seed):         # img2img in latent space: no encode on the way in, no decode on the way out
         g = torch.Generator(device=dev).manual_seed(seed)
         z = pipe(prompt_embeds=E, negative_prompt_embeds=NE, image=init, strength=s, num_inference_steps=steps,
@@ -347,7 +350,7 @@ def main():
             init = slerp(rng.uniform(0.5, 0.7) if drift[0] >= 3 else rng.uniform(0.35, 0.6), K.z, hers)
         E = torch.lerp(embed(prompt)[0], embed(prompt2)[0], mix)
         words = f"{words} ~ {words2.replace('vanitas ', '', 1)}"
-        return Knot(z=dream_lat(init, E, s, STEPS, seed_of(k)), words=words, E=E, pull=pull, seed=seed_of(k), key=True, mj=False, prompt=prompt)
+        sd = seed_of(k); return Knot(z=dream_lat(init, E, s, STEPS, sd), words=words, E=E, pull=pull, seed=sd, key=True, mj=False, prompt=prompt)
     def detour(A, B, target=None):
         """The bend of the way from A to B: their middle, pulled toward a third of her images (or the face at the sink)."""
         j = None
