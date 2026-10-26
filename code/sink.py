@@ -39,6 +39,7 @@ INBOX = os.path.join(ROOT, 'source', 'mj_inbox')
 TASTE = [os.path.join(ROOT, 'source', 'moodboard', '*.webp'), os.path.join(ROOT, 'source', 'veritas', '*.png')]  # the first that has any
 SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin may fetch: never the key, never state.json
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
+OREF_W, OREF_S = 0.6, (0.5, 0.6)                      # a face at the sink as omni reference: how much it steers its dream, and how freely that dream redraws
 DREAM_S = (.34, .44)                                   # how hard a dream pulls toward its words: the subject just surfaces, barely clear (uncanny)
 WORDS_MIX = (.08, .25)                                 # each dream's words lie between two prompts, the second a trace: a continuum, the first still names it
 WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.40, .46, .40), 8   # waypoints: where on the way; how hard; steps
@@ -310,10 +311,17 @@ def main():
                                                           safety_checker=None, requires_safety_checker=False)
     pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
     pipe.load_lora_weights('latent-consistency/lcm-lora-sdv1-5', weight_name='pytorch_lora_weights.safetensors'); pipe.fuse_lora(); pipe.unload_lora_weights()
+    try:                                            # a face at the sink steers its dream the way Midjourney's --oref does (IP-Adapter, face model)
+        pipe.load_ip_adapter('h94/IP-Adapter', subfolder='models', weight_name='ip-adapter-plus-face_sd15.safetensors'); OREF = True
+    except Exception as e: OREF = False; print(f'omni reference off ({str(e)[:80]}); a face is blended in instead', flush=True)
     if dev != 'cpu': pipe.unet.to(torch.float16); pipe.text_encoder.to(torch.float16)   # half the time for a dream; the VAE stays fp32 (fp16 decodes go black)
+    if OREF and dev != 'cpu': pipe.image_encoder.to(torch.float16)
     pipe = pipe.to(dev)
     pipe.set_progress_bar_config(disable=True)     # no attention slicing: in fp16 on the Mac's GPU it turns a dream to NaN
     V = Vae(pipe.vae, dev); dec = V.dec
+    def ip_of(im):                                  # a face's reference, as the dream's attention sees it; computed once per face
+        return pipe.prepare_ip_adapter_image_embeds(im, None, dev, 1, GUID > 1)
+    NOIP = ip_of(Image.new('RGB', (224, 224), (128, 128, 128))) if OREF else None   # no face: the adapter is there, weighted 0
 
     def fill(im):                                   # crop to 4:3, never stretch
         im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
@@ -357,7 +365,7 @@ def main():
     def take_face():
         if FACES:
             data = FACES.pop()
-            try: pending[:] = [enc(face_of(data))]; print('a face at the sink: it is the next dream', flush=True)
+            try: f = face_of(data); pending[:] = [(enc(f), ip_of(f) if OREF else None)]; print('a face at the sink: it is the next dream', flush=True)
             except Exception as e: print(f'a face at the sink could not be used ({e})', flush=True)
         return pending[0] if pending else None
     drift = [0]                                     # dreams in a row whose light or warmth left the range of her images
@@ -367,10 +375,12 @@ def main():
         drift[0] = drift[0] + 1 if far else 0; return l, w
 
     def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
-    def dream_lat(init, E, s, steps, seed):         # img2img in latent space: no encode on the way in, no decode on the way out
+    def dream_lat(init, E, s, steps, seed, ip=None, w=0.):   # img2img in latent space: no encode on the way in, no decode on the way out
         g = torch.Generator(device=dev).manual_seed(seed)
+        more = {}
+        if OREF: pipe.set_ip_adapter_scale(w if ip is not None else 0.); more = {'ip_adapter_image_embeds': ip if ip is not None else NOIP}
         z = pipe(prompt_embeds=E, negative_prompt_embeds=NE, image=init, strength=s, num_inference_steps=steps,
-                 guidance_scale=GUID, generator=g, output_type='latent').images.float()
+                 guidance_scale=GUID, generator=g, output_type='latent', **more).images.float()
         if dev == 'mps': torch.mps.empty_cache()
         if not torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
         return z
@@ -388,16 +398,20 @@ def main():
         with feed.lock: words, prompt = next(words_of); words2, prompt2 = next(words_of)
         mix = rng.uniform(*WORDS_MIX)                # between two prompts, at a weight of its own: the words never repeat
         pull, s = None, rng.uniform(*DREAM_S)
+        ip = None
         if ref is not None:                         # someone at the sink: their face is the reference for this dream, once
-            pending.clear()
-            if 'a face' not in prompt: prompt = prompt.replace('vanitas, ', 'vanitas, a face, eyes closed, ', 1)
-            words += ' --oref you'; init = slerp(rng.uniform(0.5, 0.65), K.z, ref); s = rng.uniform(0.52, 0.62)
+            pending.clear(); words += ' --oref you'
+            if OREF:                                # the face steers a dream of its own, grown from the last one toward one of hers: a vanitas of them, not their photo
+                ip, pull = ref[1], rng.randrange(len(taste)); init = slerp(rng.uniform(0.35, 0.6), K.z, taste[pull]); s = rng.uniform(*OREF_S)
+            else:
+                if 'a face' not in prompt: prompt = prompt.replace('vanitas, ', 'vanitas, a face, eyes closed, ', 1)
+                init = slerp(rng.uniform(0.5, 0.65), K.z, ref[0]); s = rng.uniform(0.52, 0.62)
         else:                                       # the last dream, pulled back toward one of hers; harder if the light has drifted
             pull = rng.randrange(len(taste))
             init = slerp(rng.uniform(0.5, 0.7) if drift[0] >= 3 else rng.uniform(0.35, 0.6), K.z, taste[pull])   # one of hers: a blend of two blurs
         E = torch.lerp(embed(prompt)[0], embed(prompt2)[0], mix)
         words = f"{words} ~ {words2.replace('vanitas ', '', 1)}"
-        sd = seed_of(k); return Knot(z=dream_lat(init, E, s, STEPS, sd), words=words, E=E, pull=pull, seed=sd, key=True, mj=False, prompt=prompt)
+        sd = seed_of(k); return Knot(z=dream_lat(init, E, s, STEPS, sd, ip, OREF_W), words=words, E=E, pull=pull, seed=sd, key=True, mj=False, prompt=prompt, ip=ip)
     def detour(A, B, target=None):
         """The bend of the way from A to B: their middle, pulled toward a third of her images (or the face at the sink)."""
         j = None
@@ -407,7 +421,9 @@ def main():
     def waypoint(A, B, det, n):
         """A place on the way, dreamed: from the bent curve at WP_F[n], with the words halfway between and the noise of the dream ahead."""
         f = WP_F[n]; init = slerp(f, slerp(f, A.z, det), slerp(f, det, B.z))
-        z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed)
+        ia, ib = getattr(A, 'ip', None), getattr(B, 'ip', None)    # a face fades in on the way to its dream, and out on the way from it
+        ip, w = (ib, OREF_W*f) if ib is not None else (ia, OREF_W*(1 - f)) if ia is not None else (None, 0.)
+        z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed, ip, w)
         return Knot(z=z, words=B.words, key=False, mj=False)
     k = feed.state['i']; pull0 = rng.randrange(len(taste))
     K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
@@ -464,9 +480,9 @@ def main():
             det = detour(K, B)[0]
             for n in range(3):
                 wait_tap()
-                if n == 1 and FACES:                    # someone at the sink just now: the face surfaces on the way, then gets its dream
+                if n == 1 and FACES and not OREF:       # without the omni reference, the face's picture surfaces on the way, then gets its dream
                     ref = take_face()
-                    if ref is not None: det = detour(K, B, ref)[0]
+                    if ref is not None: det = detour(K, B, ref[0])[0]
                 t0 = time.time(); knots.append(waypoint(K, B, det, n)); busy += time.time() - t0
                 if n == 2: knots.append(B)
                 while len(knots) > seg + 2:             # a stretch is drawn once the knot after its end exists

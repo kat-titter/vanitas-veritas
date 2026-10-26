@@ -3,7 +3,7 @@
 #   bash code/setup_sink.sh          install, then dream two test frames (about 25 min the first time, mostly downloads)
 #   bash code/setup_sink.sh --test   only the test
 # Downloads (first run): Python packages about 2.5 GB, Stable Diffusion 1.5 about 4 GB, LCM-LoRA 135 MB, Real-ESRGAN 64 MB,
-# cloudflared about 20 MB.
+# IP-Adapter's face model and image encoder about 2.6 GB (a face at the sink as omni reference), cloudflared about 20 MB.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT=$(pwd); VENV="$ROOT/.venv"; PY="$VENV/bin/python"
