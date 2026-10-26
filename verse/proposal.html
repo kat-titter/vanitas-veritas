@@ -81,7 +81,7 @@
       vanitas and veritas are one swap of letters apart, as sink and sync are one sound apart: one water.</li>
   </ul>
   <div class="tw"><table>
-    <tr><td>the spring</td><td>a GPU dreaming without end: <code>code/spring.py</code>, on Kat's Mac for now.</td></tr>
+    <tr><td>the spring</td><td>a GPU dreaming without end: <code>code/sink.py</code>, on Kat's Mac for now.</td></tr>
     <tr><td>the water</td><td>its frames, from the tap to the drain.</td></tr>
     <tr><td>veritas</td><td>the same basin, on the web. Built.</td></tr>
     <tr><td>vanitas</td><td>the sink, in stone. Proposed.</td></tr>
@@ -100,13 +100,13 @@
   <h2><i>01b</i> &nbsp;built, in progress, proposed</h2>
   <h3 class="st">built</h3>
   <ul>
-    <li><b>The spring.</b> <code>code/spring.py</code>: Stable Diffusion 1.5 with LCM-LoRA<sup class="ref"><a href="#r5">5</a></sup><sup class="ref"><a href="#r6">6</a></sup>, graded with the palette lock the sources were graded with.
+    <li><b>The spring.</b> <code>code/sink.py</code>: Stable Diffusion 1.5 with LCM-LoRA<sup class="ref"><a href="#r5">5</a></sup><sup class="ref"><a href="#r6">6</a></sup>, graded with the palette lock the sources were graded with.
       A dream takes about four seconds on an M5 laptop; the laptop's Neural Engine enlarges every frame four times with Real-ESRGAN while the GPU dreams on. It keeps its last sixty frames and how far through its prompts it has dreamed.</li>
     <li><b>veritas.</b> One page that pours whatever the spring dreamed last, through a stable-fluids solver<sup class="ref"><a href="#r7">7</a></sup>, and closes the tap when nothing new has come for twenty seconds.</li>
     <li><b>One water.</b> A touch in any basin travels as an anonymous, ephemeral event over public Nostr relays and moves the water in every other basin: a push, a grip, a thin ring of light; gold if the hand is on vanitas. Nothing is stored.</li>
     <li><b>vanitas, in software.</b> veritas in its vanitas mode: touching the water never opens the camera; holding its own eye on the glass for two seconds does, for under a second, and sends one frame of a face to the spring, with a key, as the reference for the next dream,
       the open-model version of Midjourney's omni reference. The line of code then ends <code>--oref you</code>. The frame is used once in memory and never written down.
-      The space bar is the lever: down, the spring rests and every basin drains; up, it floods back.</li>
+      The space bar is the lever: down, generation stops, no data flows, and every basin drains; up, it floods back.</li>
   </ul>
   <h3 class="st">in progress</h3>
   <ul>
@@ -222,7 +222,7 @@ sink == sync</pre>
     <li><b>The plug:</b> the space bar closes the drain and the dream pools; when it opens, everything goes.</li>
     <li><b>The tap:</b> veritas asks the spring for its newest frame every second or so. When nothing new has come for twenty seconds, the tap closes, what is left runs to the drain,
       and the line reads <code>water = None</code>. Without WebGL2 the page shows an empty basin.</li>
-    <li><b>The spring:</b> <code>code/spring.py</code>, Stable Diffusion 1.5 with LCM-LoRA at 640&times;480, ten steps, guidance 1.5, ten walk frames between two dreams.
+    <li><b>The spring:</b> <code>code/sink.py</code>, Stable Diffusion 1.5 with LCM-LoRA at 640&times;480, ten steps, guidance 1.5, ten walk frames between two dreams.
       Frames land in <code>spring_feed/</code>, outside git, beside one small file that says what is newest.</li>
     <li><b>One water:</b> ephemeral Nostr events (kind 20777, tag <code>veritas-basin</code>) over three public relays, carrying where a hand is, whether it grips, and whether it is on vanitas.
       <code>?solo</code> keeps a basin to itself.</li>

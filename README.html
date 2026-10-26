@@ -135,8 +135,8 @@ await mermaid.run({ querySelector:'pre.mermaid' });
 <li><strong>Little shown</strong>: the spring serves only the page, the newest-frame note and the frames, never its key or its state.</li>
 </ul>
 <h2>4. Run it</h2>
-<pre><code class="language-bash">caffeinate -i python3 code/spring.py            # veritas at http://127.0.0.1:8770/
-caffeinate -i python3 code/spring.py --public   # and to everyone, through a Cloudflare quick tunnel
+<pre><code class="language-bash">caffeinate -i python3 code/sink.py            # veritas at http://127.0.0.1:8770/
+caffeinate -i python3 code/sink.py --public   # and to everyone, through a Cloudflare quick tunnel
 </code></pre>
 <p>Needs Python 3 with <code>torch diffusers transformers peft spandrel coremltools opencv-python pillow</code>, the Real-ESRGAN weights in <code>code/models/</code>, and the moodboard in <code>source/moodboard/</code> (both local only). <code>--public</code> needs <code>cloudflared</code>; its address changes each run. Midjourney pictures saved by hand to <code>source/mj_inbox/</code> become the next dream.</p>
 <h2>5. Files</h2>
@@ -149,7 +149,7 @@ caffeinate -i python3 code/spring.py --public   # and to everyone, through a Clo
 </thead>
 <tbody>
 <tr>
-<td><a href="code/spring.py"><code>code/spring.py</code></a></td>
+<td><a href="code/sink.py"><code>code/sink.py</code></a></td>
 <td>the spring: dreams, walks, upscales, pours, serves veritas</td>
 </tr>
 <tr>

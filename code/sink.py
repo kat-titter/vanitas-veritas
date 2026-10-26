@@ -16,9 +16,9 @@
 # metadata, before the first --parameter. The spring only reads that folder (Midjourney allows no automation, so nothing here
 # calls it): it never moves, renames or deletes a file there, and spring_feed/state.json remembers which ones it has used.
 #
-#   caffeinate -i python3 code/spring.py        dream forever; veritas, the web basin, is at http://127.0.0.1:8770/
-#   python3 code/spring.py --sheet 8            eight dreams on one contact sheet and one walk, timed, then stop
-#   python3 code/spring.py --dry                serve veritas with no GPU: the water off
+#   caffeinate -i python3 code/sink.py        dream forever; veritas, the web basin, is at http://127.0.0.1:8770/
+#   python3 code/sink.py --sheet 8            eight dreams on one contact sheet and one walk, timed, then stop
+#   python3 code/sink.py --dry                serve veritas with no GPU: the water off
 #   --public                                    and open it to everyone: a Cloudflare quick tunnel from this Mac (no account;
 #                                               the address is printed, and changes each time); needs cloudflared
 #   --lan                                       let the sink on the same network drink (binds 0.0.0.0)
@@ -181,7 +181,7 @@ class Feed:
         os.replace(tmp, os.path.join(FEED, name))
 
 FACES = []                                          # at most one face waiting, in memory only
-TAP = {'on': True}                                  # the sink's lever: down, the spring rests and every basin drains
+TAP = {'on': True}                                  # the sink's lever: down, generation stops, no data flows, and every basin drains
 def face_key():
     os.makedirs(FEED, exist_ok=True); f = os.path.join(FEED, 'key')
     if not os.path.exists(f): open(f, 'w').write(secrets.token_urlsafe(18))

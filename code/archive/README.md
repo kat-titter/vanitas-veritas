@@ -1,7 +1,7 @@
 # code/archive
 
 Earlier experiments, kept as they were for the record. They are not maintained and are not meant to run from here (their paths
-assume `code/`). What runs today is one level up: `spring.py` (the live water), `morph_v44.py` and `morph_v45_sr.py` (the loop's
+assume `code/`). What runs today is one level up: `sink.py` (the live water), `morph_v44.py` and `morph_v45_sr.py` (the loop's
 render), `order_preview.py` (loop-order previews), with `latent.py`, `upscale.py` and `harmonize.py` shared between them.
 
 | file | what it was | replaced by |

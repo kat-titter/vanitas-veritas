@@ -31,7 +31,7 @@ moves the water in both. The two names are one swap of letters apart, as
 
 ## The spring and veritas
 
-`code/spring.py` is the spring: Stable Diffusion 1.5 with LCM-LoRA on a GPU,
+`code/sink.py` is the spring: Stable Diffusion 1.5 with LCM-LoRA on a GPU,
 for now Kat's Mac. It writes a new prompt in the grammar of the Midjourney
 recipe `vanitas [flower, skull, soap bubble]`, never repeating for 1.3 million prompts, about five years, and dreams it pulled back toward Kat's vanitas moodboard
 (`source/moodboard/`). On the way to the next dream it dreams three more places
@@ -51,8 +51,8 @@ the plug. When the spring stops, the tap closes and the basin drains
 event over public Nostr relays and moves the water in every other basin.
 
 ```bash
-caffeinate -i python3 code/spring.py            # then open http://127.0.0.1:8770/
-caffeinate -i python3 code/spring.py --public   # and to everyone: a quick tunnel from this Mac, address printed
+caffeinate -i python3 code/sink.py            # then open http://127.0.0.1:8770/
+caffeinate -i python3 code/sink.py --public   # and to everyone: a quick tunnel from this Mac, address printed
 ```
 
 veritas and the spring are built and run together on Kat's Mac, and veritas is
@@ -66,7 +66,7 @@ ribbed glass that answers a touch. A small camera where a tap would stand,
 woken only when someone holds its eye on the glass for two seconds (touching
 the water never wakes it), gives one frame of a face to the next dream, used
 once and never written down.
-The lever is the tap: down, the spring rests and the water runs out in vanitas
+The lever is the tap: down, generation stops, no data flows, and the water runs out in vanitas
 and in every veritas. A QR code cut into the basalt opens veritas. vanitas is
 proposed first for San Francisco; nothing physical is built or confirmed, though
 its mode in veritas is built. The design is
@@ -328,7 +328,7 @@ vanitas-veritas/
 
 | Path | Role |
 |---|---|
-| `code/spring.py` | **the spring**: dreams without end and serves veritas at http://127.0.0.1:8770/ (`--public` opens a tunnel) |
+| `code/sink.py` | **the spring**: dreams without end and serves veritas at http://127.0.0.1:8770/ (`--public` opens a tunnel) |
 | `code/latent.py` | the latent toolkit the spring and the render share: slerp, Catmull-Rom, the VAE's way in and out |
 | `code/upscale.py` | Real-ESRGAN 4×: on the Neural Engine for the spring (its own process), on the GPU for the render |
 | `source/moodboard/` | the spring's taste: eight pictures from Kat's vanitas moodboard (local only) |
@@ -371,7 +371,7 @@ pip install --user torch diffusers transformers accelerate safetensors \
                    peft spandrel coremltools imageio imageio-ffmpeg scipy pillow opencv-python
 python3 code/morph_v44.py --fresh   # dream anchors + render (omit --fresh to reuse cache)
 python3 code/morph_v45_sr.py        # the final render: cached anchors, Real-ESRGAN 4×, 2560×1920
-caffeinate -i python3 code/spring.py   # the spring, dreaming without end; veritas at http://127.0.0.1:8770/
+caffeinate -i python3 code/sink.py   # the spring, dreaming without end; veritas at http://127.0.0.1:8770/
 ```
 
 The loop needs the eight source frames in `source/veritas/`; the spring leans

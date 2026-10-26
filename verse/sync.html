@@ -49,7 +49,7 @@
 <script>
 (() => {
 'use strict';
-// veritas (sync.html): the web basin, one water with vanitas, the sink (sink == sync). The water is a machine dreaming: a spring (code/spring.py, on a GPU) writes a new prompt, dreams it, and walks the
+// veritas (sync.html): the web basin, one water with vanitas, the sink (sink == sync). The water is a machine dreaming: a spring (code/sink.py, on a GPU) writes a new prompt, dreams it, and walks the
 // latent space to the next, frame by frame; every frame pours in at the tap and runs to the drain. No GPU, no water, no dream.
 // Reach in, and the water under your hand goes where your hand goes, for a moment; then it slips through your fingers, down the drain.
 const canvas = document.getElementById('c'), title = document.getElementById('title');
@@ -532,7 +532,7 @@ canvas.addEventListener('pointerup', (ev) => { reach(false); if (ev.pointerType 
 canvas.addEventListener('pointercancel', () => { reach(false); hand.on = false; });
 canvas.addEventListener('pointerleave', () => { if (!hand.down) hand.on = false; });
 canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
-// the space bar: on the web, the plug; at the sink, the lever, which is the tap: down, the spring rests and every basin drains
+// the space bar: on the web, the plug; at the sink, the lever, which is the tap: down, generation stops, no data flows, and every basin drains
 let lever = false;
 function tap(on){
   lever = !on; live.tap = on;

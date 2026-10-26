@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # The latent toolkit the dream scripts share: the curves a walk follows through Stable Diffusion's latent space, and the VAE's
-# way in and out. Used by spring.py (the live water) and by morph_v44.py and morph_v45_sr.py (the loop's render).
+# way in and out. Used by sink.py (the live water) and by morph_v44.py and morph_v45_sr.py (the loop's render).
 import numpy as np, torch
 from PIL import Image
 

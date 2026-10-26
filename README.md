@@ -39,8 +39,8 @@ Everything runs on one Apple M5 laptop with 16 GB. Each choice was measured ther
 ## 4. Run it
 
 ```bash
-caffeinate -i python3 code/spring.py            # veritas at http://127.0.0.1:8770/
-caffeinate -i python3 code/spring.py --public   # and to everyone, through a Cloudflare quick tunnel
+caffeinate -i python3 code/sink.py            # veritas at http://127.0.0.1:8770/
+caffeinate -i python3 code/sink.py --public   # and to everyone, through a Cloudflare quick tunnel
 ```
 
 Needs Python 3 with `torch diffusers transformers peft spandrel coremltools opencv-python pillow`, the Real-ESRGAN weights in `code/models/`, and the moodboard in `source/moodboard/` (both local only). `--public` needs `cloudflared`; its address changes each run. Midjourney pictures saved by hand to `source/mj_inbox/` become the next dream.
@@ -49,7 +49,7 @@ Needs Python 3 with `torch diffusers transformers peft spandrel coremltools open
 
 | path | what it is |
 |---|---|
-| [`code/spring.py`](code/spring.py) | the spring: dreams, walks, upscales, pours, serves veritas |
+| [`code/sink.py`](code/sink.py) | the spring: dreams, walks, upscales, pours, serves veritas |
 | [`code/latent.py`](code/latent.py) | slerp, Catmull-Rom and the VAE's way in and out, shared with the loop |
 | [`code/upscale.py`](code/upscale.py) | Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop |
 | [`code/harmonize.py`](code/harmonize.py) | the palette lock: cool silver, gold only where the picture was warm |

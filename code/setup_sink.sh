@@ -31,5 +31,5 @@ if [ "${1:-}" != "--test" ]; then
 fi
 
 say "5/5  test: two dreams (the models download now if this is the first run)"
-"$PY" code/spring.py --sheet 2 --out "$ROOT/spring_feed/test"
+"$PY" code/sink.py --sheet 2 --out "$ROOT/spring_feed/test"
 echo; echo "Done. The contact sheet is spring_feed/test/sheet.jpg. Next: bash code/sink.sh install"
