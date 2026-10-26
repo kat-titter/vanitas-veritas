@@ -480,7 +480,7 @@ function others(){                                    // replay each other hand 
 // ---- the hand, the plug, the water
 const hand = { x:0, y:0, on:false, u:0.5, v:0.5, vx:0, vy:0, t:0, down:false, t0:0 };
 const stir = { x:0.5, y:0.5, vx:0, vy:0 };
-let drainAmt = 0, water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
+let faceAmt = 0, drainAmt = 0, water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
 const toSim = (x, y) => [0.5 + (x-view.cx)/view.S, 0.5 + (view.cy-y)/view.S];
 function moveTo(ev){
   const [u, v] = toSim(ev.clientX, ev.clientY), t = performance.now(), dt = Math.max(0.008, (t-hand.t)/1000);
@@ -571,7 +571,8 @@ function step(dt){
   for (let i = 0; i < PI_N; i++) { unit = 0; bind(u.uP, prs.read.tex); bind(u.uDiv, dvg.tex); draw(prs.write); prs.swap(); }
   u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(vel.write); vel.swap();
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uImgA, live.A); bind(u.uImgB, live.B);
-  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.05 + 0.3*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2))); gl.uniform1f(u.uTapPour, 0.5*water);
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); faceAmt += ((live.prompt.includes('--oref you') ? 1 : 0) - faceAmt)*(1 - Math.exp(-dt/2));   // a face in the dream: the water re-forms it fast, so the likeness stays clean
+  gl.uniform1f(u.uPour, water*(0.05 + 0.3*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2) + 0.8*faceAmt)); gl.uniform1f(u.uTapPour, 0.5*water);
   gl.uniform1f(u.uFade, 0.015 + 0.01*(1-water) + 0.18*(1-water)*(1-left)); gl.uniform1f(u.uDrainR, 1.6 + 7*drainAmt); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
   draw(dye.write); dye.swap();
   flood *= Math.exp(-dt/2.5); gulp *= Math.exp(-dt/1.5);

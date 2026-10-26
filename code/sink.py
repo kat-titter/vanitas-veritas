@@ -39,7 +39,7 @@ INBOX = os.path.join(ROOT, 'source', 'mj_inbox')
 TASTE = [os.path.join(ROOT, 'source', 'moodboard', '*.webp'), os.path.join(ROOT, 'source', 'veritas', '*.png')]  # the first that has any
 SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin may fetch: never the key, never state.json
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
-OREF_W, OREF_S = 0.7, (0.5, 0.6)                      # a face at the sink as omni reference: how much it steers its dream, and how freely that dream redraws
+OREF_W, OREF_S = 0.7, (0.68, 0.72)                      # a face at the sink as omni reference: how much it steers its dream, and how freely that dream redraws
 FACE_TTL, SEG_F = 6, 6                                # a face lasts while frames keep coming (one every 2 s); its walks run in shorter stretches
 DREAM_S = (.34, .44)                                   # how hard a dream pulls toward its words: the subject just surfaces, barely clear (uncanny)
 WORDS_MIX = (.08, .25)                                 # each dream's words lie between two prompts, the second a trace: a continuum, the first still names it
@@ -68,6 +68,9 @@ STYLE = ('silver gelatin photograph, hard light, crisp point cloud of white dots
          'vertical glitch streaks, deep black background, high contrast, film grain')
 NEG = ('text, watermark, signature, frame, border, grid, colorful, pastel, cartoon, illustration, painting, blurry, soft glow, haze, '
        'fog, blue tint, sepia, washed out, low contrast, deformed hands, extra fingers, gold ball')
+STATUE = ('a smooth white marble statue of a face, eyes closed, serene, a fine mesh of depth points across the head, polished stone, '
+          'clean edges')                               # a face at the sink, dreamed as a statue: their likeness, made smooth and still
+NEG_FACE = ', rough, noisy, blotchy, smeared, broken edges, deformed, ugly'
 GLASS = {'soap bubble': 'clear glass soap bubble'}       # her bubbles are clear glass with a few sparks; the model makes gold balls
 
 def prompts(state):
@@ -330,6 +333,7 @@ def main():
     @torch.no_grad()
     def embed(prompt): return pipe.encode_prompt(prompt, dev, 1, True, NEG)
     E0, NE = embed(sd_prompt('vanitas'))            # the negative is the same for every dream
+    EF, NEF = pipe.encode_prompt(STATUE + ', ' + STYLE, dev, 1, True, NEG + NEG_FACE)   # and a face's own words, kept clean
     def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
         x = np.asarray(im.convert('RGB'), np.float32)
         return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
@@ -382,11 +386,11 @@ def main():
         drift[0] = drift[0] + 1 if far else 0; return l, w
 
     def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
-    def dream_lat(init, E, s, steps, seed, ip=None, w=0.):   # img2img in latent space: no encode on the way in, no decode on the way out
+    def dream_lat(init, E, s, steps, seed, ip=None, w=0., ne=None):   # img2img in latent space: no encode on the way in, no decode on the way out
         g = torch.Generator(device=dev).manual_seed(seed)
         more = {}
         if OREF: pipe.set_ip_adapter_scale(w if ip is not None else 0.); more = {'ip_adapter_image_embeds': ip if ip is not None else NOIP}
-        z = pipe(prompt_embeds=E, negative_prompt_embeds=NE, image=init, strength=s, num_inference_steps=steps,
+        z = pipe(prompt_embeds=E, negative_prompt_embeds=NE if ne is None else ne, image=init, strength=s, num_inference_steps=steps,
                  guidance_scale=GUID, generator=g, output_type='latent', **more).images.float()
         if dev == 'mps': torch.mps.empty_cache()
         if not torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
@@ -418,7 +422,8 @@ def main():
             init = slerp(rng.uniform(0.5, 0.7) if drift[0] >= 3 else rng.uniform(0.35, 0.6), K.z, taste[pull])   # one of hers: a blend of two blurs
         E = torch.lerp(embed(prompt)[0], embed(prompt2)[0], mix)
         words = f"{words} ~ {words2.replace('vanitas ', '', 1)}"
-        sd = seed_of(k); return Knot(z=dream_lat(init, E, s, STEPS, sd, ip, OREF_W), words=words, E=E, pull=pull, seed=sd, key=True, mj=False, prompt=prompt, ip=ip)
+        if ip is not None: E, words = EF, 'vanitas [your face, in marble, eyes closed] --oref you'   # the words say what the water dreams
+        sd = seed_of(k); return Knot(z=dream_lat(init, E, s, STEPS, sd, ip, OREF_W, NEF if ip is not None else None), words=words, E=E, pull=pull, seed=sd, key=True, mj=False, prompt=prompt, ip=ip)
     def detour(A, B, target=None):
         """The bend of the way from A to B: their middle, pulled toward a third of her images (or the face at the sink)."""
         j = None
@@ -430,7 +435,7 @@ def main():
         f = WP_F[n]; init = slerp(f, slerp(f, A.z, det), slerp(f, det, B.z))
         ia, ib = getattr(A, 'ip', None), getattr(B, 'ip', None)    # a face fades in on the way to its dream, and out on the way from it
         ip, w = (ib, OREF_W) if ib is not None else (ia, OREF_W*(1 - f)) if ia is not None else (None, 0.)   # toward a face: at once; away: fading
-        z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed, ip, w)
+        z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed, ip, w, NEF if ip is not None else None)
         return Knot(z=z, words=B.words, key=False, mj=False)
     k = feed.state['i']; pull0 = rng.randrange(len(taste))
     K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
