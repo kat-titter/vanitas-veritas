@@ -25,10 +25,9 @@
 #                                               (SPRING_POINTER=0: don't)
 #   --lan                                       let the sink on the same network drink (binds 0.0.0.0)
 #   --inbox DIR                                 take Midjourney images from DIR instead of source/mj_inbox/
-# At vanitas, veritas runs with ?sink&camera&key=<spring_feed/key>. Touching the water never opens the camera: it has its own place on
-# the glass, held for two seconds, and then looks once, for under a second. That one frame comes here as the omni reference for the next
-# dream (the open-model way to do Midjourney's --oref): the face is found, made silver, used once, and never written to disk; the dream
-# made from it goes to every basin.
+# At vanitas, veritas runs with ?sink&camera&key=<spring_feed/key>. The camera in the print sends a frame every 2 s; when it holds a face,
+# that face is the omni reference for the dreams (IP-Adapter, the open-model way to do Midjourney's --oref): the walk cuts to a dream of them
+# at once, and keeps dreaming them while they stay. Faces are found, made silver, used in memory, never written to disk.
 import argparse, glob, hashlib, html, http.server, io, itertools, json, math, os, queue, random, re, secrets, sys, threading, time
 from types import SimpleNamespace as Knot              # a place on the path: a latent, and the words shown on the way to it
 class Cut(Exception): pass                              # the walk turns where it is: someone came to the sink, or left
@@ -41,7 +40,7 @@ TASTE = [os.path.join(ROOT, 'source', 'moodboard', '*.webp'), os.path.join(ROOT,
 SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin may fetch: never the key, never state.json
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
 OREF_W, OREF_S = 0.7, (0.5, 0.6)                      # a face at the sink as omni reference: how much it steers its dream, and how freely that dream redraws
-FACE_TTL, SEG_F = 12, 6                               # a face lasts while frames keep coming (one every 5 s); its walks run in shorter stretches, so it surfaces fast
+FACE_TTL, SEG_F = 6, 6                                # a face lasts while frames keep coming (one every 2 s); its walks run in shorter stretches
 DREAM_S = (.34, .44)                                   # how hard a dream pulls toward its words: the subject just surfaces, barely clear (uncanny)
 WORDS_MIX = (.08, .25)                                 # each dream's words lie between two prompts, the second a trace: a continuum, the first still names it
 WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.40, .46, .40), 8   # waypoints: where on the way; how hard; steps
@@ -361,7 +360,7 @@ def main():
             im = im.crop((int(l), int(t), int(l + bw), int(t + bh)))
         else: return None                           # nobody in front of the sink
         return fill(im).convert('L').convert('RGB')  # silver: skin would turn the whole frame gold
-    pending = []                                    # the face in front of the sink, encoded, in memory only
+    pending, enc_at = [], [0.]                      # the face in front of the sink, encoded, in memory only; when it was last encoded
     def take_face():                                # the newest frame from the sink's camera: is someone there? The face lasts while they stay
         if FACES and time.time() - FACE_SEEN['sent'] < FACE_TTL:   # a frame left over from someone already gone is not looked at
             data = FACES.pop()
@@ -369,8 +368,10 @@ def main():
                 f = face_of(data)
                 if f is None: pending.clear()            # the camera looked and nobody was there
                 else:
-                    if not pending: print('a face at the sink: the water dreams them while they stay', flush=True)
-                    pending[:] = [(enc(f), ip_of(f) if OREF else None)]; FACE_SEEN['at'] = FACE_SEEN['sent']
+                    if not pending: print(time.strftime('%H:%M:%S'), 'a face at the sink: the water dreams them while they stay', flush=True)
+                    if not pending or time.time() - enc_at[0] > 10:   # the same person: their likeness is refreshed every 10 s, not every frame
+                        pending[:] = [(enc(f), ip_of(f) if OREF else None)]; enc_at[0] = time.time()
+                    FACE_SEEN['at'] = FACE_SEEN['sent']
             except Exception as e: print(f'a face at the sink could not be used ({e})', flush=True)
         if pending and time.time() - FACE_SEEN['sent'] >= FACE_TTL: pending.clear()   # the camera stopped looking: they have gone
         return pending[0] if pending else None
@@ -479,14 +480,20 @@ def main():
     feed.every = CAD[1]                             # the first frames take ~18 s to come: a slow first beat keeps the basin from draining
     K = K0; feed.put(harmonize(dec(K.z)), 'vanitas'); print(f'the water is on; Midjourney images from {inbox.path}', flush=True)
     threading.Thread(target=pour, daemon=True).start()
-    knots, seg, first, cycle, measured = [K], 0, True, 0, False   # knots in path order: ... w3, K, w1, w2, w3, K' ...; stretch seg: knots[seg] to [seg+1]
+    knots, seg, first, cycle, measured, jump = [K], 0, True, 0, False, [False]   # knots in path order: ... w3, K, w1, w2, w3, K' ...; stretch seg: knots[seg] to [seg+1]
     while True:
         try:
             wait_tap(); t0 = time.time(); B = keyframe(K, k, inbox); k += 1; t_key = time.time() - t0; busy, made, seen = t_key, 0, None
+            if jump[0]:                                 # someone just came or went: the new dream goes straight into the water, no walk to it
+                jump[0] = False; frames.put((dec(B.z), B.words)); K = B; knots, seg, first = [K], 0, True
+                print(time.strftime('%H:%M:%S'), f'{t_key:.1f}s  {B.words}   poured at once', flush=True); continue
+            jump[0] = False
             det = detour(K, B)[0]
             nseg = SEG_F if getattr(B, 'ip', None) is not None else SEG
             for n in range(3):
                 wait_tap()
+                if OREF and getattr(B, 'ip', None) is None and take_face() is not None:   # someone arrived while the walk was being dreamed
+                    at = knots[min(seg, len(knots) - 1)]; raise Cut(Knot(z=at.z, words=at.words, E=getattr(at, 'E', K.E), pull=None, seed=B.seed, key=True, mj=False, ip=None))
                 if n == 1 and FACES and not OREF:       # without the omni reference, the face's picture surfaces on the way, then gets its dream
                     ref = take_face()
                     if ref is not None: det = detour(K, B, ref[0])[0]
@@ -516,7 +523,7 @@ def main():
             while True:
                 try: frames.get_nowait()
                 except queue.Empty: break
-            K = c.args[0]; knots, seg, first = [K], 0, True; print('the walk turns: ' + ('toward the face at the sink' if K.ip is None else 'away from it: the face at the sink has gone'), flush=True)
+            K = c.args[0]; knots, seg, first = [K], 0, True; jump[0] = True; print(time.strftime('%H:%M:%S'), 'the walk turns: ' + ('toward the face at the sink' if K.ip is None else 'away from it: the face at the sink has gone'), flush=True)
         except Exception as e:                      # one GPU error must not stop the water: start again from the last dream
             print(f'the spring stumbled ({e!r}); on again from the last dream', flush=True)
             if dev == 'mps': torch.mps.empty_cache()

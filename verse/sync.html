@@ -28,16 +28,6 @@
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
   h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }   /* the name is in the tab; the page shows only the water */
   body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
-  /* at vanitas, the camera's own place on the glass: held two seconds it looks once; the water itself never does */
-  #eye { position:fixed; left:50%; bottom:5vh; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center;
-    gap:10px; pointer-events:none; }
-  #eye[hidden] { display:none; }
-  #ring { width:56px; height:56px; border-radius:50%; border:1px solid rgba(228,223,210,.55); pointer-events:auto; touch-action:none; cursor:pointer;
-    background:conic-gradient(rgba(228,223,210,.55) calc(var(--p, 0)*1turn), transparent 0); transition:box-shadow .2s; }
-  #eye.look #ring { box-shadow:0 0 0 3px var(--gold), 0 0 24px var(--gold); }        /* the camera is open */
-  #say { max-width:min(420px, 80vw); text-align:center; color:var(--bone); opacity:0; transition:opacity .25s; pointer-events:none;
-    text-shadow:0 0 3px rgba(3,3,4,.9); }
-  #eye.on #say { opacity:.9; }
   @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } }
 </style>
 </head>
@@ -46,9 +36,6 @@
 <h1 id="title">veritas</h1>
 <div id="dry"></div>
 <pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span></pre>
-<div id="eye" hidden>
-  <div id="ring" role="button" aria-label="hold for two seconds to lend your face while you stay; touch again to stop"></div><div id="say">hold to lend your face while you stay: pictures never saved. the dream may look like you, and everyone watching sees it. touch the eye again to stop.</div>
-</div>
 <script>
 (() => {
 'use strict';
@@ -505,43 +492,26 @@ function moveTo(ev){
   hand.x = ev.clientX; hand.y = ev.clientY; hand.u = u; hand.v = v; hand.t = t; hand.on = true; stir.x = u; stir.y = v;
   if (Math.abs(u-0.5) < BX && Math.abs(v-0.5) < BY && (hand.down || Math.hypot(u-net.lu, v-net.lv) > 0.002)) { net.out.push([+u.toFixed(3), +v.toFixed(3)]); net.lu = u; net.lv = v; }
 }
-// at vanitas (?sink&camera&key=...), and only there: touching the water never opens the camera. It has its own place on the glass, the
-// eye; held for two seconds (the ring fills, and one line says what will happen), the camera opens for under a second and one frame of
-// the face goes to the spring as the reference for the next dream. Let go before the ring is full and nothing is taken. Nowhere else
-// does this page look at anyone.
 const CAMERA = params.has('camera') && params.has('sink');
-const eye = document.getElementById('eye'), ring = document.getElementById('ring'), HOLD = 2000;
-let looking = null, eyeOn = false;                 // the open camera while someone stays; held two seconds to begin
-if (CAMERA && SPRING && navigator.mediaDevices) {
-  eye.hidden = false;
-  let t0 = 0;
-  const fill = () => { if (!eyeOn) return; const p = Math.min(1, (performance.now()-t0)/HOLD); eye.style.setProperty('--p', p);
-    if (p < 1) requestAnimationFrame(fill); else takeFace(); };
-  ring.addEventListener('pointerdown', (ev) => { ev.preventDefault(); try { ring.setPointerCapture(ev.pointerId); } catch (e) {}
-    if (looking) { looking = null; return; }         // touch the eye again: it stops looking at once
-    eyeOn = true; t0 = performance.now(); eye.classList.add('on'); requestAnimationFrame(fill); });
-  const off = () => { eyeOn = false; eye.classList.remove('on'); eye.style.setProperty('--p', 0); };
-  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((k) => ring.addEventListener(k, off));
+// at the sink, the camera in the print sees whoever stands there: a frame every 2 s goes to the spring, which dreams them while they stay. Nothing is kept.
+async function watchSink(){
+  if (!CAMERA || !SPRING || !navigator.mediaDevices) return;
+  for (;;) {
+    let stream = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio:false });
+      const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = stream; await v.play();
+      const c = document.createElement('canvas');
+      for (;;) {
+        c.width = v.videoWidth || 640; c.height = v.videoHeight || 480; c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.8));   // one frame, sent and never kept
+        await fetch(new URL('face', new URL(SPRING, location.href)), { method:'POST', headers:{ 'X-Face-Key': params.get('key') || '' }, body:blob });
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    } catch (e) { if (stream) stream.getTracks().forEach((t) => t.stop()); await new Promise((r) => setTimeout(r, 10000)); }   // no camera yet: try again
+  }
 }
-async function takeFace(){                          // held two seconds: the camera looks every 5 s while a face is there, and stops when it is gone
-  if (!CAMERA || !SPRING || !eyeOn || looking || !navigator.mediaDevices) return;
-  let stream = null;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio:false });
-    looking = stream; eye.classList.add('look');      // the ring glows for as long as the camera is open
-    const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = stream; await v.play();
-    await new Promise((r) => setTimeout(r, 700));
-    const c = document.createElement('canvas'), t0 = performance.now(); let seen = t0;
-    while (looking === stream) {
-      c.width = v.videoWidth || 640; c.height = v.videoHeight || 480; c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-      const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.85));   // one frame, sent and never kept
-      await fetch(new URL('face', new URL(SPRING, location.href)), { method:'POST', headers:{ 'X-Face-Key': params.get('key') || '' }, body:blob });
-      await new Promise((r) => setTimeout(r, 5000));
-      const now = performance.now(); if (live.face) seen = now;
-      if ((now - t0 > 10000 && now - seen > 15000) || now - t0 > 600000) break;   // nobody there for 15 s, or ten minutes: it stops looking
-    }
-  } catch (e) {} finally { if (stream) stream.getTracks().forEach((t) => t.stop()); if (looking === stream) looking = null; eye.classList.remove('look'); }
-}
+watchSink();
 function reach(on){
   if (on === hand.down) return;
   hand.down = on; document.body.classList.toggle('held', on);
