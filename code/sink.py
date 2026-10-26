@@ -37,8 +37,8 @@ INBOX = os.path.join(ROOT, 'source', 'mj_inbox')
 TASTE = [os.path.join(ROOT, 'source', 'moodboard', '*.webp'), os.path.join(ROOT, 'source', 'veritas', '*.png')]  # the first that has any
 SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin may fetch: never the key, never state.json
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
-DREAM_S = (.26, .37)                                   # how hard a dream pulls toward its words: low, so the subject only half-surfaces (uncanny)
-WORDS_MIX = (.15, .45)                                 # each dream's words lie between two prompts, the second at this weight: a continuum, never a list
+DREAM_S = (.34, .44)                                   # how hard a dream pulls toward its words: the subject just surfaces, barely clear (uncanny)
+WORDS_MIX = (.08, .25)                                 # each dream's words lie between two prompts, the second a trace: a continuum, the first still names it
 WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.40, .46, .40), 8   # waypoints: where on the way; how hard; steps
 WP_STR_MJ = (.55, .5, .4)                               # heading to her own Midjourney picture: dream less near it, so it arrives
 SEG = 12                                                # frames from one knot to the next: 48 a dream, about two minutes, so the
@@ -345,9 +345,8 @@ def main():
             if 'a face' not in prompt: prompt = prompt.replace('vanitas, ', 'vanitas, a face, eyes closed, ', 1)
             words += ' --oref you'; init = slerp(rng.uniform(0.5, 0.65), K.z, ref); s = rng.uniform(0.52, 0.62)
         else:                                       # the last dream, pulled back toward one of hers; harder if the light has drifted
-            pull, other = rng.sample(range(len(taste)), 2) if len(taste) > 1 else (0, 0)
-            hers = slerp(rng.uniform(0., 0.5), taste[pull], taste[other])   # a point between two of hers, not one picture
-            init = slerp(rng.uniform(0.5, 0.7) if drift[0] >= 3 else rng.uniform(0.35, 0.6), K.z, hers)
+            pull = rng.randrange(len(taste))
+            init = slerp(rng.uniform(0.5, 0.7) if drift[0] >= 3 else rng.uniform(0.35, 0.6), K.z, taste[pull])   # one of hers: a blend of two blurs
         E = torch.lerp(embed(prompt)[0], embed(prompt2)[0], mix)
         words = f"{words} ~ {words2.replace('vanitas ', '', 1)}"
         sd = seed_of(k); return Knot(z=dream_lat(init, E, s, STEPS, sd), words=words, E=E, pull=pull, seed=sd, key=True, mj=False, prompt=prompt)
