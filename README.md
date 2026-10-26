@@ -2,13 +2,13 @@
 
 **A sink you can't wash your hands in.** Its water is a GPU dreaming vanitas still lifes without end, poured from the tap to the drain: no GPU, no water, no dream. By Katherine Titterton, San Francisco, 2026.
 
-[the tiat doc](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html)&emsp;[how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin)&emsp;[the black paper](verse/blackpaper.html)&emsp;[veritas, at sink==sync](https://kat-titter.github.io/vanitas-veritas/sink==sync/)
+[the doc](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html)&emsp;[how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin)&emsp;[the black paper](verse/blackpaper.html)&emsp;[veritas, at sink==sync](https://kat-titter.github.io/vanitas-veritas/sink==sync/)
 
 ---
 
 ## 1. Two pieces, one water
 
-- **vanitas** is the sink: a stainless-steel sink with a self-portrait above it, designed in 2026 for tiat's *Epistemologies of Slop*, and a stone one, proposed. A touch screen lies in its bowl.
+- **vanitas** is the sink: a freestanding stainless-steel sink with a self-portrait above it, designed and not yet built (first for tiat's *Epistemologies of Slop*, 2026). A touch screen lies in its bowl.
 - **veritas** is the same basin on the web, [`verse/sync.html`](verse/sync.html). A hand in either moves the water in both, over public Nostr relays.
 - **The handle is the water.** Turn it off and the dream fades away.
 
@@ -54,7 +54,7 @@ Needs Python 3 with `torch diffusers transformers peft spandrel coremltools open
 | [`code/upscale.py`](code/upscale.py) | Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop |
 | [`code/harmonize.py`](code/harmonize.py) | the palette lock: cool silver, gold only where the picture was warm |
 | [`verse/sync.html`](verse/sync.html) | veritas: one page, WebGL2, no build step |
-| [`documents/`](documents/) | the tiat doc (print it for the submission) and the build guide |
+| [`documents/`](documents/) | the doc (print it for a submission) and the build guide |
 | [`verse/`](verse/) | the black paper, pitch, proposal, vanitas, and the earlier pieces i, ii, iii |
 | [`code/LOOP.md`](code/LOOP.md) | the loop of 2026 and how it was made (`morph_v44.py`, `morph_v45_sr.py`, `order_preview.py`) |
 

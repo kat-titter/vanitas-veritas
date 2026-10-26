@@ -5,9 +5,9 @@
 A sink you can't wash your hands in. Its water is a GPU dreaming: a new
 vanitas prompt, dreamed and walked into the next, never the same twice,
 pouring from the tap to the drain. Reach in and it slips through your fingers.
-Switch the GPU off: no water, no dream. One work in two places with one water:
-vanitas, the sink (a stone basin, proposed; first designed in 2026 as a
-stainless-steel sink for tiat), and veritas, the same basin on the web.
+Hold the faucet handle: no water, no dream. One work in two places with one water:
+vanitas, the sink (a freestanding stainless-steel sink, designed and not yet
+built; first for tiat's open call, 2026), and veritas, the same basin on the web.
 
 - [the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html)
 - [vanitas](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html) (proposed)
@@ -62,18 +62,18 @@ address changes each time, and sink.py writes it to verse/spring.json, so the
 plain veritas address always finds the water). The earlier web pieces, i, ii and
 iii, are kept as they were.
 
-**vanitas (proposed).** A basalt column with the basin as its screen, under
-ribbed glass that answers a touch. A small camera where a tap would stand,
-woken only when someone holds its eye on the glass for two seconds (touching
-the water never wakes it), gives one frame of a face to the next dream, used
-once and never written down.
-The lever is the tap: down, generation stops, no data flows, and the water runs out in vanitas
-and in every veritas. A QR code cut into the basalt opens veritas. vanitas is
-proposed first for San Francisco; nothing physical is built or confirmed, though
-its mode in veritas is built. The design is
-in `verse/_archive/sink.html`, kept locally and no longer published.
-The 2026 design of vanitas for tiat's open call, a stainless-steel sink under a
-self-portrait, is in `documents/`.
+**vanitas (designed, not yet built).** A freestanding stainless-steel sink with a
+self-portrait above it on one post, glossy aluminium, so your face lands on the
+figure. A 27 in touch screen lies in the bowl in a black frame: it is the water.
+A small camera behind the print, woken only when someone holds its eye on the
+glass for two seconds (touching the water never wakes it), gives one frame of a
+face to the next dream, used once and never written down. The faucet handle is
+the tap: held, generation stops, no data flows, and every basin drains. An old
+MacBook Pro of its own, lid closed under the bowl, runs the spring and the
+screen (`code/setup_sink.sh`, then `code/sink.sh install`). First designed for
+tiat's open call; the doc and build guide are in `documents/`, and its first
+target is CURRENTS 2027, Santa Fe. A later basalt design is set aside, kept in
+`verse/_archive/sink.html`.
 
 ---
 
@@ -312,7 +312,7 @@ vanitas-veritas/
 ├── index.html                     the loop's landing page (Web, Build Guide)
 ├── verse/                         veritas (sync.html), the black paper,
 │                                  the pitch, the proposal; i, ii and iii, kept as they were
-├── documents/                     the tiat docs (Web, which prints as the submission; Build Guide; self-contained HTML + assets)
+├── documents/                     the docs (Web, which prints as a submission; Build Guide; self-contained HTML + assets)
 ├── code/                          the spring, and the loop's pipeline
 ├── spring_feed/                   the spring's frames and the key only vanitas holds (local only)
 ├── video/                         the final render + basin loop
@@ -343,7 +343,7 @@ vanitas-veritas/
 | `index.html` | the loop's landing page |
 | `documents/Vanitas Veritas - Submission.dc.html` | retired: forwards to the Web doc, whose print layout makes the submission sheets |
 | `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (the first design of vanitas; the basalt one is archived locally) |
-| `documents/Vanitas Veritas - Web.dc.html` | the tiat web doc |
+| `documents/Vanitas Veritas - Web.dc.html` | the web doc, which prints as a submission |
 | `documents/assets/` | images/video the docs embed |
 | `video/veritas_loop_v45_4k.mp4` | **the final render**, 2560×1920, 8:27 (local only) |
 | `video/veritas_final_v44.mp4` | the earlier 1920×1440 cut (local only) |
