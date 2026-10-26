@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>vanitas_veritas</title>
-<meta name="description" content="vanitas_veritas by Kat Titterton: a sink you can't wash your hands in, whose water is a GPU dreaming; the spring, veritas on the web, vanitas the proposed sink, the black paper, and the loop it grew from.">
+<meta name="description" content="vanitas_veritas by Katherine Titterton: a sink you can&rsquo;t wash your hands in, whose water is a GPU dreaming.">
 <style>
 :root {
   --bg:#ffffff; --ink:#1a1a1a; --muted:#4d4d4d; --rule:#e4e2dd; --code-bg:#f4f3f0; --link:#7a5a0c; --fig-bg:#fafaf8;
@@ -59,505 +59,130 @@ await mermaid.run({ querySelector:'pre.mermaid' });
 </head>
 <body>
 <h1>vanitas_veritas</h1>
-<p>A sink you can't wash your hands in. Its water is a GPU dreaming: a new
-vanitas prompt, dreamed and walked into the next, never the same twice,
-pouring from the tap to the drain. Reach in and it slips through your fingers.
-Switch the GPU off: no water, no dream. One work in two places with one water:
-vanitas, the sink (a stone basin, proposed; first designed in 2026 as a
-stainless-steel sink for tiat), and veritas, the same basin on the web.</p>
+<p><strong>A sink you can't wash your hands in.</strong> Its water is a GPU dreaming vanitas still lifes without end, poured from the tap to the drain: no GPU, no water, no dream. By Katherine Titterton, San Francisco, 2026.</p>
+<p><a href="https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html">the tiat doc</a>&emsp;<a href="https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin">how the water is made</a>&emsp;<a href="verse/blackpaper.html">the black paper</a>&emsp;<a href="verse/sink.html">vanitas, the sink</a>&emsp;<a href="verse/sync.html">veritas, the page</a></p>
+<hr />
+<h2>1. Two pieces, one water</h2>
 <ul>
-<li><a href="https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html">the black paper</a></li>
-<li><a href="https://kat-titter.github.io/vanitas_veritas_verse/sink.html">vanitas</a> (proposed)</li>
-<li><a href="https://kat-titter.github.io/vanitas_veritas_verse/">the live web piece</a> (iii, the earlier web piece, until veritas is on the web)</li>
+<li><strong>vanitas</strong> is the sink: a stainless-steel sink with a self-portrait above it, designed in 2026 for tiat's <em>Epistemologies of Slop</em>, and a stone one, proposed. A touch screen lies in its bowl.</li>
+<li><strong>veritas</strong> is the same basin on the web, <a href="verse/sync.html"><code>verse/sync.html</code></a>. A hand in either moves the water in both, over public Nostr relays.</li>
+<li><strong>The handle is the water.</strong> Turn it off and the dream fades away.</li>
 </ul>
-<p>Kat Titterton (macrofluidic)</p>
-<hr>
-<h2>Thesis</h2>
-<p>no water, no dream: the water in the basin is a GPU dreaming. While it dreams,
-the tap runs; switch it off and the basin drains.</p>
-<p>you can't wash your hands of it: reach in, and the water under your hand goes
-where your hand goes, then slips through your fingers, down the drain.</p>
-<p>sink == sync: vanitas and veritas hang from one spring, and a hand in either
-moves the water in both. The two names are one swap of letters apart, as
-<code>sink</code> and <code>sync</code> are one sound apart: one water.</p>
-<h2>The spring and veritas</h2>
-<p><code>code/spring.py</code> is the spring: Stable Diffusion 1.5 with LCM-LoRA on a GPU,
-for now Kat's Mac. It writes a new prompt in the grammar of the Midjourney
-recipe <code>vanitas [flower, skull, soap bubble]</code>, never repeating for 1.3 million prompts, about five years, and dreams it pulled back toward Kat's vanitas moodboard
-(<code>source/moodboard/</code>). On the way to the next dream it dreams three more places
-and glides through all of them on one Catmull-Rom path (the walk of the v44
-loop), so forms melt instead of fading. Every frame is enlarged to 2560×1920 by
-Real-ESRGAN on the Mac's Neural Engine while the GPU dreams on, with a 1280×960
-copy for phones: a frame every two to three seconds. A picture Kat makes by hand
-in Midjourney and saves to <code>source/mj_inbox/</code> becomes the next dream, with the
-prompt read from its own metadata (nothing here calls Midjourney). Frames land
-in <code>spring_feed/</code>, outside git, beside the key only vanitas holds.</p>
-<p><code>verse/sync.html</code> is veritas: a 4:3 rectangle with rounded corners, like the
-frames. Press, and the water under your hand moves
-with it, then slips away (<code>grip = 0.55</code> after one second). The space bar is
-the plug. When the spring stops, the tap closes and the basin drains
-(<code>water = None</code>). A touch in any basin travels as an anonymous, ephemeral
-event over public Nostr relays and moves the water in every other basin.</p>
-<pre><code class="language-bash">caffeinate -i python3 code/spring.py            # then open http://127.0.0.1:8770/
-caffeinate -i python3 code/spring.py --public   # and to everyone: a quick tunnel from this Mac, address printed
-</code></pre>
-<p>veritas and the spring are built and run together on Kat's Mac, and veritas is
-public whenever the spring runs with <code>--public</code> (a Cloudflare quick tunnel; the
-address changes each time). The published site shows the earlier piece, iii,
-until the spring has a lasting address. The earlier web pieces, i, ii and iii,
-are kept as they were.</p>
-<p><strong>vanitas (proposed).</strong> A basalt column with the basin as its screen, under
-ribbed glass that answers a touch. A small camera where a tap would stand,
-woken only when someone holds its eye on the glass for two seconds (touching
-the water never wakes it), gives one frame of a face to the next dream, used
-once and never written down.
-The lever is the tap: down, the spring rests and the water runs out in vanitas
-and in every veritas. A QR code cut into the basalt opens veritas. vanitas is
-proposed first for San Francisco; nothing physical is built or confirmed, though
-its mode in veritas is built. The design is
-in <a href="https://kat-titter.github.io/vanitas_veritas_verse/sink.html">sink.html</a>.
-The 2026 design of vanitas for tiat's open call, a stainless-steel sink under a
-self-portrait, is in <code>documents/</code>.</p>
-<hr>
-<h2>The loop (2026)</h2>
-<p>Where the work began. The spring is this loop, opened: it no longer comes
-back. Its eight source frames are the frames the water leans toward.</p>
-<h3>1. The artifact</h3>
-<ul>
-<li><strong>Form:</strong> a single seamless video loop, designed to play on repeat
-  indefinitely (gallery / installation context).</li>
-<li><strong>Final render:</strong> <code>video/veritas_loop_v45_4k.mp4</code>, 8 min 27 s, <strong>2560×1920</strong>
-  (Real-ESRGAN 4× super-res), 12 fps, H.264.
-  <em>(Earlier 1920×1440 cut <code>video/veritas_final_v44.mp4</code>, 2:51, kept as a fallback. Both renders are local only.)</em></li>
-<li><strong>Loop:</strong> mathematically seamless: the last frame eases back into the first,
-  so there is no visible cut or "reset." Watched long enough, the loop point
-  dissolves and it reads as endless.</li>
-<li><strong>Source:</strong> eight AI-generated vanitas frames (<code>source/veritas/</code>), 2544×1904, 4:3.</li>
-</ul>
-<h3>2. Concept</h3>
-<p><strong>Vanitas</strong> is the classical still-life genre of <em>memento mori</em>: skulls, guttering
-candles, and <strong>soap bubbles</strong> as emblems of the fragility and transience of life
-(<em>homo bulla</em>, "man is a bubble"). This piece takes that vocabulary and runs it
-through the dream-logic of a diffusion model: a face becomes a skull becomes a
-swelling bubble that you worry might pop, becomes gold dust, becomes a face
-again. Nothing holds its form; everything is mid-dissolve.</p>
-<p>The title pun, <strong>Vanitas / Veritas</strong> (vanity / truth), frames the loop as a
-meditation: the "truth" underneath the vanity is that all of it is in flux, a
-slow churn of becoming and un-becoming. The aesthetic is deliberately <strong>"slop"</strong>
-(the gooey, melty, half-hallucinated texture native to generative models) but
-treated with restraint and luxury so it reads as intentional and beautiful
-rather than accidental.</p>
-<p><strong>Intended viewing:</strong> ambient and meditative, something you can watch for
-minutes at a time, getting lost in.</p>
-<h4>Art-directed feeling (the words that drove the final look)</h4>
-<p>liquid, gooey, clear (not hazy), endless, lost, <em>slooow building bubble you
-worry might pop</em>, luxury, simultaneously clean and dirty.</p>
-<h3>3. Source material</h3>
-<p>Eight vanitas portraits generated in <strong>Midjourney</strong> (<code>source/veritas/*.png</code>),
-sharing a tight visual language that makes them ideal for morphing: faces and
-skull-profiles dissolving into particles, the white flower/bloom frames, and a
-<em>daisy-skull-bubble</em> frame that holds the whole vanitas trinity (flower + skull +
-bubble) in a single image:</p>
-<ul>
-<li>a central face or skull on a deep black ground;</li>
-<li>the figure dissolving into <strong>beaded particles, soap bubbles, and foam</strong>;</li>
-<li>sprays and flecks of <strong>gold</strong> light;</li>
-<li>a luminous, near-monochrome palette with warm gold accents.</li>
-</ul>
-<p>Because every frame is <em>already</em> a portrait caught mid-dissolution, the
-transitions between them feel native rather than forced; the morph is just
-continuing a dissolution the source images began.</p>
-<h3>4. How it works: dreamed anchors and smooth drift</h3>
-<p>The core engine (<code>code/morph_v44.py</code>) is built around one idea: <strong>decouple what
-the loop looks like from how it moves.</strong></p>
-<p>Naive approaches (re-dreaming every single frame, or warping pixels with a
-displacement field) fail in characteristic ways: independent per-frame
-diffusion makes fine detail <em>boil/flicker</em> (reads as frantic), and periodic
-displacement fields read as literal <em>waves/water</em>. Both were tried and rejected.</p>
-<p>The final architecture instead does this:</p>
-<ol>
-<li>
-<p><strong>Dream a sparse ring of "anchor" frames.</strong> Around the loop, at evenly spaced
-   points, a Stable Diffusion <strong>img2img</strong> pass re-imagines a blended source
-   image into the target style. Anchors <em>at</em> the original source positions are
-   only lightly dreamed (so the source remains <strong>discernible</strong>); anchors
-   <em>between</em> sources are dreamed harder (so they become <strong>gooey, abstract,
-   weird</strong>). This rhythm produces the "sometimes recognizable, sometimes lost"
-   quality. Anchors are encoded to latent space and <strong>cached</strong> to disk
-   (<code>code/anchors_final.pt</code>).</p>
-</li>
-<li>
-<p><strong>Interpolate, don't re-dream.</strong> Between consecutive anchors, the latent
-   vectors are blended along a <strong>Catmull-Rom spline</strong> (a smooth curve that
-   passes <em>through</em> each anchor without stopping or kinking) and simply
-   <strong>decoded</strong>. Decoding is deterministic, so the motion is <strong>glassy-smooth with
-   zero flicker</strong>, and it is cheap (~1 s/frame), which means many slow frames
-   can be packed between anchors. Slowness and length are free.</p>
-</li>
-<li>
-<p><strong>Grade, don't warp.</strong> A light color/finish pass (no geometric distortion at
-   all) gives the final look: a faint dream-softness, a glossy specular bloom
-   (wet luxury sheen), deepened blacks, a <strong>palette lock</strong> (cool monochrome base
-   with goldish-orange accents isolated to the regions that were warm in the
-   source), fine film grain, and a grime vignette. This is where <strong>clear +
-   luxurious + "clean and dirty"</strong> come from.</p>
-</li>
-</ol>
-<p>Because the expensive diffusion only happens on 32 cached anchors, the loop's
-length, slowness, resolution, and grade can all be re-tuned by re-running only
-the cheap decode+grade stage.</p>
-<h4>Pipeline at a glance</h4>
-<figure class="fig"><pre class="mermaid">flowchart TD
-    A[&quot;8 source veritas frames&quot;] --&gt;|&quot;VAE encode&quot;| B[&quot;source latents&quot;]
-    B --&gt;|&quot;apply loop order + blend pairs&quot;| C[&quot;blended latents&quot;]
-    C --&gt;|&quot;img2img, LCM few-step&lt;br/&gt;low strength at sources (discernible)&lt;br/&gt;high strength between (gooey)&quot;| D[(&quot;32 dreamed anchors&lt;br/&gt;cached to disk&quot;)]
-    D --&gt;|&quot;Catmull-Rom latent spline&lt;br/&gt;+ VAE decode, 190 frames/gap&quot;| E[&quot;6080 decoded frames @640×480&quot;]
-    E --&gt;|&quot;colour grade: palette lock + contrast&lt;br/&gt;gloss, deep blacks&quot;| F[&quot;graded frames&quot;]
-    F --&gt;|&quot;Real-ESRGAN 4×&quot;| H[&quot;upscaled frames @2560×1920&quot;]
-    H --&gt;|&quot;finish: grain + vignette (full-res)&quot;| I[&quot;finished frames&quot;]
-    I --&gt;|&quot;ffmpeg H.264&quot;| G[&quot;seamless 2560×1920 loop, 8:27&quot;]
-
-    subgraph EXPENSIVE [&quot; runs once, cached &quot;]
-      C; D
-    end
-    subgraph CHEAP [&quot; re-tunable cheaply: length, grade, super-res &quot;]
-      E; F; H; I; G
-    end
-</pre></figure>
-<h3>5. Process / evolution (the making-of)</h3>
-<p>The piece went through a deliberate, feedback-driven iteration:</p>
-<ol>
-<li><strong>v1: per-frame melt.</strong> Latent SLERP between the 8 frames with a per-frame
-   img2img "re-dream" peaking at each transition midpoint. Beautiful stills, but
-   it (a) <em>paused</em> on each keyframe (an easing artifact) and (b) boiled/flickered.</li>
-<li><strong>Never-still pass.</strong> Replaced the easing with a Catmull-Rom spline through
-   the latents so motion never stops, important because, in the intended
-   installation, the <em>only</em> still moment is a physical pause.</li>
-<li><strong>Liquify experiments.</strong> A post-process displacement field was tried for
-   "liquid", but periodic waves read as <em>ocean/puddle</em>. Rejected. Key
-   correction: the desired texture is <strong>bubbly</strong> (rounded, soap-film, foam), not
-   <strong>wavy</strong>. No displacement warps in the final.</li>
-<li><strong>Grid search on style.</strong> A 3×3 sweep (prompt family × img2img strength)
-   established that strength <strong>~0.6</strong> is the gooey sweet spot; higher (~0.78)
-   resolves into crisp marble busts/skulls (too hard), lower (~0.45) barely
-   departs from the source.</li>
-<li><strong>v3: "Dreamed Anchors."</strong> The architecture above; solved the flicker and
-   the waviness in one move (smoothness now comes from <em>interpolation</em>, not
-   warping).</li>
-<li><strong>v4: final grade + direction.</strong> Tuned to the art-direction words in §2:
-   removed the hazy fog, deepened the blacks for luxury, added gloss + gold +
-   grain + grime ("clean and dirty"), pushed the prompt toward liquid, swelling,
-   about-to-pop bubbles, then slowed and lengthened the loop for the meditative,
-   endless, "lost" feeling.</li>
-<li><strong>v4.4: final tuning.</strong> Slowed further (M=64) and made the transitions <em>more
-   uncanny</em> by densifying and intensifying the dreamed waypoints (D=4, strength
-   to 0.70), leaning into emergent hallucination rather than literal morphing.
-   Added a <strong>palette lock</strong> to preserve the source's signature colour (a cool
-   monochrome base with gold-orange accents) so the diffusion can't drift it.
-   Settled here: the speed reads as "uncanny valley," the palette is intact.</li>
-<li>
-<p><strong>Loop ordering.</strong> One source frame was swapped for a new
-    <em>daisy-skull-bubble</em> image (the literal vanitas trinity: flower + skull +
-    bubble in one). The <strong>order</strong> the eight frames cycle in is its own artistic
-    variable: it sets the loop's flow, arc, and surprise. Two tools made this
-    fast to iterate:</p>
-<ul>
-<li>a <strong>perceptual distance matrix</strong> (downscaled, blurred luminance + a warm/gold
-  map) over the eight frames, with a brute-force search for the smoothest
-  Hamiltonian <em>cycle</em>, an objective measure of how seamless an ordering is;</li>
-<li>a <strong>fast preview harness</strong> (<code>code/order_preview.py</code>) that morphs the <em>real</em>
-  frames via VAE latent spline (no diffusion) at low res: ~1 min per candidate
-  vs ~50 min for a full render, because the gooey look is identical across
-  orderings; only the sequence changes.</li>
-</ul>
-<p>Three philosophies were compared: <em>smoothest</em> (pure minimal-jump), <em>vanitas
-narrative</em> (life → dissolution → death → bloom), and <em>bloom-climax</em> (the three
-flower frames clustered as a crescendo). They were then <strong>combined by
-constrained optimisation</strong>: solve for the smoothest order that is <em>required</em>
-to keep the narrative spine (skull → trinity-pivot → blooms) and the bloom
-cluster. The result has a deliberate dramatic shape (a calm, flowing opening
-that builds to a surprising bloom crescendo, then resets) rather than uniform
-smoothness.</p>
-</li>
-<li>
-<p><strong>Harmonization.</strong> Two <strong>self-portraits</strong> (a photographic "real" selfie and an
-   AI-styled "mirror" one) were brought into the body of work as <strong>stills, not
-   loop frames</strong>. The moving loop stays the <strong>eight veritas frames</strong>; the
-   self-portraits live alongside it as harmonized submission imagery (the artist
-   present at the edges of the work, not inside the dream). A single grade
-   (<code>code/harmonize.py</code>) unifies the whole set (luminance → cool monochrome base,
-   gold-orange re-introduced only where the source was warm, plus a contrast
-   S-curve), so the warm photographic selfie now sits in the same palette and
-   punch as the veritas frames. Full-res harmonized versions live in
-   <code>source/harmonized/</code>, and the render pipeline's grade was aligned to the same
-   constants so the moving loop matches the harmonized stills.</p>
-</li>
-<li>
-<p><strong>Max-quality super-res (final).</strong> The loop was slowed 3× more (M=190 →
-    <strong>6,080 frames, 8:27</strong>) and every frame run through <strong>Real-ESRGAN 4×</strong>
-    (<code>code/morph_v45_sr.py</code>, spandrel + <code>RealESRGAN_x4plus</code>, fp16) for a native
-    <strong>2560×1920</strong> output, far cleaner than a lanczos upscale. The colour grade
-    is applied <em>before</em> super-res and the <strong>grain + vignette are re-added after</strong>,
-    at full resolution, so the "clean and dirty" texture survives the upscale
-    instead of being smoothed away. The expensive anchors are reused from cache;
-    only the decode + super-res stage re-runs (~6 hr overnight render).</p>
-</li>
-</ol>
-<h3>6. Style notes</h3>
-<ul>
-<li><strong>Palette:</strong> a strict, locked profile: a <strong>cool silver monochrome base</strong> over
-  deep velvety black, with <strong>goldish-orange accents</strong> isolated only to the regions
-  that were warm in the source (the gold sprays and flecks). The diffusion cannot
-  drift the colour; the white forms stay cool-white, the gold stays gold. Jewel-like,
-  opulent, restrained.</li>
-<li><strong>Texture:</strong> "clean and dirty": crisp, glossy, well-defined forms wearing a
-  layer of fine grain and a grimy edge vignette. Pristine and decaying at once,
-  which is itself a vanitas idea.</li>
-<li><strong>Motion:</strong> very slow, continuous, smooth. Forms swell and ooze and dissolve;
-  bubbles build with a faint tension. No stutter, no waves.</li>
-<li><strong>Legibility:</strong> rhythmically in and out: a face or skull surfaces clearly,
-  then loses itself in gooey abstraction, then re-forms.</li>
-</ul>
-<h3>7. Technical specifications (for caption / colophon)</h3>
-<div class="tw"><table>
+<h2>2. How the water is made</h2>
+<table>
 <thead>
 <tr>
 <th></th>
-<th></th>
+<th>step</th>
+<th>what runs</th>
+<th>time</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Models (open-source)</strong></td>
-<td>Stable Diffusion v1.5 + LCM-LoRA (<code>latent-consistency/lcm-lora-sdv1-5</code>); Real-ESRGAN x4plus (super-res)</td>
+<td>01</td>
+<td>historical style</td>
+<td>six vanitas paintings, the references for the style</td>
+<td></td>
 </tr>
 <tr>
-<td><strong>Frameworks</strong></td>
-<td>🤗 Diffusers, PyTorch (MPS), spandrel, scipy/PIL/NumPy, ffmpeg</td>
+<td>02</td>
+<td>Midjourney style</td>
+<td>the self-portrait as style reference, a profile, an eight-picture moodboard; by hand, never automated</td>
+<td>once</td>
 </tr>
 <tr>
-<td><strong>Hardware</strong></td>
-<td>Apple M5, 16 GB, fully local (no cloud compute)</td>
+<td>03</td>
+<td>the prompt</td>
+<td>a grammar, not a language model: 1.3 million prompts, about five years before any repeat</td>
+<td>instant</td>
 </tr>
 <tr>
-<td><strong>Sampler</strong></td>
-<td>LCMScheduler, 8 steps, guidance 1.5, fp32</td>
+<td>04</td>
+<td>the dream</td>
+<td>Stable Diffusion 1.5 + LCM-LoRA, image to image from the last dream, pulled toward a moodboard picture; fp16 on the GPU</td>
+<td>about 4 s</td>
 </tr>
 <tr>
-<td><strong>Diffusion working resolution</strong></td>
-<td>640×480 (super-res to 2560×1920)</td>
+<td>05</td>
+<td>the walk</td>
+<td>three dreamed waypoints and one Catmull-Rom path; 48 frames from dream to dream</td>
+<td>about 2 min</td>
 </tr>
 <tr>
-<td><strong>img2img strength</strong></td>
-<td>0.42 at source anchors (discernible) → 0.70 between (gooey/uncanny)</td>
+<td>06</td>
+<td>upscaling</td>
+<td>Real-ESRGAN x4plus as Core ML on the Neural Engine, 640 × 480 to 2560 × 1920</td>
+<td>0.76 s</td>
 </tr>
 <tr>
-<td><strong>Loop order</strong></td>
-<td><code>0 → 1 → 4 → 3 → 2 → 7 → 6 → 5</code> (constrained-optimal: smoothest order keeping the narrative spine + bloom cluster)</td>
-</tr>
-<tr>
-<td><strong>Loop structure</strong></td>
-<td>8 sources × 4 anchors = 32 dreamed anchors; Catmull-Rom interpolation; 190 decoded frames per anchor gap = 6,080 frames</td>
-</tr>
-<tr>
-<td><strong>Interpolation</strong></td>
-<td>spherical/Catmull-Rom blend in VAE latent space</td>
-</tr>
-<tr>
-<td><strong>Finish</strong></td>
-<td>colour grade (palette lock + contrast S-curve, gloss, deep blacks) → <strong>Real-ESRGAN 4×</strong> → grain + grime vignette (re-added at full res)</td>
-</tr>
-<tr>
-<td><strong>Output</strong></td>
-<td><strong>2560×1920</strong>, 12 fps, 8 min 27 s, H.264 (seamless loop)</td>
-</tr>
-<tr>
-<td><strong>Seed</strong></td>
-<td>7 (reproducible)</td>
+<td>07</td>
+<td>the water</td>
+<td>stable fluids in WebGL2 in the viewer's browser; the frame is the dye</td>
+<td>a frame every 2.5 s</td>
 </tr>
 </tbody>
-</table></div>
-<hr>
-<h2>Folder layout</h2>
-<pre><code>vanitas-veritas/
-├── README.md, README.html         this document
-├── LICENSE
-├── index.html                     the loop's landing page (Submission, Web, Build Guide)
-├── verse/                         veritas (sync.html), the doc for vanitas (sink.html), the black paper,
-│                                  the pitch, the proposal; i, ii and iii, kept as they were
-├── documents/                     the tiat submission bundle (Submission, Build Guide, Web; self-contained HTML + assets)
-├── code/                          the spring, and the loop's pipeline
-├── spring_feed/                   the spring's frames and the key only vanitas holds (local only)
-├── video/                         the final render + basin loop
-├── research/                      vanitas paper, references, ref images
-├── source/                        source artwork (veritas frames + harmonized + self-portraits)
-├── _order_tests/                  fast loop-order preview clips
-└── _archive/                      superseded versions, frames, logs (kept, not deleted)
+</table>
+<h2>3. Kept small, kept running</h2>
+<p>Everything runs on one Apple M5 laptop with 16 GB. Each choice was measured there.</p>
+<ul>
+<li><strong>2.3 GB of GPU memory</strong>: the model in half precision; only the decoder in full, which keeps colours clean.</li>
+<li><strong>Memory handed back</strong> after every dream and stretch: the process went from 10 GB to 5.8 GB.</li>
+<li><strong>The upscaler in its own process</strong>, on the Neural Engine: Core ML holds Python's lock, so it cannot share one with the dreaming.</li>
+<li><strong>No black frames</strong>: attention slicing turns fp16 dreams to NaN on Apple GPUs, so it is off, and an empty dream raises instead of pouring.</li>
+<li><strong>It keeps flowing</strong>: a GPU error restarts from the last dream; a stalled upscaler gives a plainly enlarged frame and restarts; six frames wait in a queue poured every 2.5 s.</li>
+<li><strong>Little kept</strong>: the last 60 frames on disk; prompts walked by a stride, never stored; the place in them survives a restart.</li>
+<li><strong>Little shown</strong>: the spring serves only the page, the newest-frame note and the frames, never its key or its state.</li>
+</ul>
+<h2>4. Run it</h2>
+<pre><code class="language-bash">caffeinate -i python3 code/spring.py            # veritas at http://127.0.0.1:8770/
+caffeinate -i python3 code/spring.py --public   # and to everyone, through a Cloudflare quick tunnel
 </code></pre>
-<p><code>video/</code>, <code>source/</code>, <code>research/</code>, <code>_order_tests/</code>, <code>_archive/</code>, <code>code/models/</code>,
-<code>spring_feed/</code> and the cached anchors stay local. They are not in the public repo.</p>
-<h3>Key files</h3>
-<div class="tw"><table>
+<p>Needs Python 3 with <code>torch diffusers transformers peft spandrel coremltools opencv-python pillow</code>, the Real-ESRGAN weights in <code>code/models/</code>, and the moodboard in <code>source/moodboard/</code> (both local only). <code>--public</code> needs <code>cloudflared</code>; its address changes each run. Midjourney pictures saved by hand to <code>source/mj_inbox/</code> become the next dream.</p>
+<h2>5. Files</h2>
+<table>
 <thead>
 <tr>
-<th>Path</th>
-<th>Role</th>
+<th>path</th>
+<th>what it is</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>code/spring.py</code></td>
-<td><strong>the spring</strong>: dreams without end and serves veritas at http://127.0.0.1:8770/ (<code>--public</code> opens a tunnel)</td>
+<td><a href="code/spring.py"><code>code/spring.py</code></a></td>
+<td>the spring: dreams, walks, upscales, pours, serves veritas</td>
 </tr>
 <tr>
-<td><code>code/latent.py</code></td>
-<td>the latent toolkit the spring and the render share: slerp, Catmull-Rom, the VAE&rsquo;s way in and out</td>
+<td><a href="code/latent.py"><code>code/latent.py</code></a></td>
+<td>slerp, Catmull-Rom and the VAE's way in and out, shared with the loop</td>
 </tr>
 <tr>
-<td><code>code/upscale.py</code></td>
-<td>Real-ESRGAN 4×: on the Neural Engine for the spring (its own process), on the GPU for the render</td>
+<td><a href="code/upscale.py"><code>code/upscale.py</code></a></td>
+<td>Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop</td>
 </tr>
 <tr>
-<td><code>source/moodboard/</code></td>
-<td>the spring&rsquo;s taste: eight pictures from Kat&rsquo;s vanitas moodboard (local only)</td>
+<td><a href="code/harmonize.py"><code>code/harmonize.py</code></a></td>
+<td>the palette lock: cool silver, gold only where the picture was warm</td>
 </tr>
 <tr>
-<td><code>source/mj_inbox/</code></td>
-<td>Midjourney pictures Kat saves by hand; each becomes the next dream once (local only)</td>
+<td><a href="verse/sync.html"><code>verse/sync.html</code></a></td>
+<td>veritas: one page, WebGL2, no build step</td>
 </tr>
 <tr>
-<td><code>verse/sync.html</code></td>
-<td><strong>veritas</strong>, the basin on the web; inside vanitas, <code>sync.html?spring=&lt;feed&gt;&amp;sink&amp;camera&amp;key=&lt;spring_feed/key&gt;</code></td>
+<td><a href="documents/"><code>documents/</code></a></td>
+<td>the tiat submission, web doc and build guide</td>
 </tr>
 <tr>
-<td><code>spring_feed/</code></td>
-<td>the spring's last sixty frames, <code>now.json</code>, and <code>key</code>, which only vanitas holds (local only)</td>
+<td><a href="verse/"><code>verse/</code></a></td>
+<td>the black paper, pitch, proposal, vanitas, and the earlier pieces i, ii, iii</td>
 </tr>
 <tr>
-<td><code>verse/blackpaper.html</code></td>
-<td>the black paper</td>
-</tr>
-<tr>
-<td><code>verse/pitch.html</code></td>
-<td>the pitch kit</td>
-</tr>
-<tr>
-<td><code>verse/sink.html</code></td>
-<td>the doc for vanitas, redesigned (proposed)</td>
-</tr>
-<tr>
-<td><code>verse/proposal.html</code></td>
-<td>the first proposal, 29 September, updated</td>
-</tr>
-<tr>
-<td><code>verse/veritas.html</code>, <code>veritas2.html</code>, <code>veritas3.html</code></td>
-<td>i, ii and iii, kept as they were; iii is on the site until the spring has a lasting address</td>
-</tr>
-<tr>
-<td><code>index.html</code></td>
-<td>the loop's landing page</td>
-</tr>
-<tr>
-<td><code>documents/Vanitas Veritas - Submission.dc.html</code></td>
-<td>the tiat submission (self-contained HTML)</td>
-</tr>
-<tr>
-<td><code>documents/Vanitas Veritas - Build Guide.dc.html</code></td>
-<td>the 2026 electronics guide (the first design of vanitas; the basalt one is <code>verse/sink.html</code>)</td>
-</tr>
-<tr>
-<td><code>documents/Vanitas Veritas - Web.dc.html</code></td>
-<td>the tiat web doc</td>
-</tr>
-<tr>
-<td><code>documents/assets/</code></td>
-<td>images/video the docs embed</td>
-</tr>
-<tr>
-<td><code>video/veritas_loop_v45_4k.mp4</code></td>
-<td><strong>the final render</strong>, 2560×1920, 8:27 (local only)</td>
-</tr>
-<tr>
-<td><code>video/veritas_final_v44.mp4</code></td>
-<td>the earlier 1920×1440 cut (local only)</td>
-</tr>
-<tr>
-<td><code>video/Vanitas_Veritas_basin_loop.mp4</code></td>
-<td>the basin loop variant (local only)</td>
-</tr>
-<tr>
-<td><code>source/veritas/</code></td>
-<td>8 source vanitas frames, Midjourney (local only)</td>
-</tr>
-<tr>
-<td><code>research/Vanitas_research_paper.pdf</code></td>
-<td>art-historical paper on the vanitas tradition (local only)</td>
-</tr>
-<tr>
-<td><code>research/vanitas_references/</code></td>
-<td>public-domain reference plates (local only)</td>
-</tr>
-<tr>
-<td><code>code/morph_v45_sr.py</code></td>
-<td><strong>the final render</strong>: reuses anchors, decodes slow loop, Real-ESRGAN 4× → 2560×1920</td>
-</tr>
-<tr>
-<td><code>code/morph_v44.py</code></td>
-<td>the dreamed-anchors engine (dreams and caches the anchors; 1920×1440 path)</td>
-</tr>
-<tr>
-<td><code>code/anchors_final.pt</code></td>
-<td>cached dreamed anchor latents, the expensive, reusable part (local only)</td>
-</tr>
-<tr>
-<td><code>code/models/RealESRGAN_x4plus.pth</code></td>
-<td>super-res weights, open-source; <code>upscale.py</code> builds the Neural Engine copy beside it (local only)</td>
-</tr>
-<tr>
-<td><code>code/archive/</code></td>
-<td>earlier experiments kept for the record: morph_loop, morph_v3, preview_recipe, dream_test and its grid, liquify</td>
-</tr>
-<tr>
-<td><code>code/order_preview.py</code></td>
-<td><strong>fast loop-order iteration</strong>: VAE-only morph proxy (~1 min/candidate)</td>
-</tr>
-<tr>
-<td><code>code/harmonize.py</code></td>
-<td><strong>palette/warmth/contrast harmonizer</strong>: unifies the veritas frames + self-portraits</td>
-</tr>
-<tr>
-<td><code>source/harmonized/</code></td>
-<td>full-res harmonized versions of the whole set (local only)</td>
-</tr>
-<tr>
-<td><code>source/IMG_6975.jpeg</code>, <code>source/…wash_your_hands…png</code></td>
-<td>the <strong>self-portraits</strong>, real + mirror (local only)</td>
-</tr>
-<tr>
-<td><code>_archive/</code></td>
-<td>old renders (v1 to v4.4), frame dumps, logs, superseded checkpoints (local only)</td>
+<td><a href="code/LOOP.md"><code>code/LOOP.md</code></a></td>
+<td>the loop of 2026 and how it was made (<code>morph_v44.py</code>, <code>morph_v45_sr.py</code>, <code>order_preview.py</code>)</td>
 </tr>
 </tbody>
-</table></div>
-<hr>
-<h2>Reproducing it</h2>
-<pre><code class="language-bash">pip install --user torch diffusers transformers accelerate safetensors \
-                   peft spandrel coremltools imageio imageio-ffmpeg scipy pillow opencv-python
-python3 code/morph_v44.py --fresh   # dream anchors + render (omit --fresh to reuse cache)
-python3 code/morph_v45_sr.py        # the final render: cached anchors, Real-ESRGAN 4×, 2560×1920
-caffeinate -i python3 code/spring.py   # the spring, dreaming without end; veritas at http://127.0.0.1:8770/
-</code></pre>
-<p>The loop needs the eight source frames in <code>source/veritas/</code>; the spring leans
-toward <code>source/moodboard/</code> and falls back to them. <code>--public</code> needs
-<code>cloudflared</code> on the path or in <code>~/.local/bin/</code>. The
-final render needs the cached anchors and the Real-ESRGAN weights in
-<code>code/models/</code>. None of these are in the public repo.</p>
-<p>Tunable knobs at the top of <code>morph_v44.py</code>: <code>D</code> (anchor density / uniqueness),
-<code>M</code> (frames per gap → loop length &amp; slowness), <code>LOW_STR</code>/<code>HIGH_STR</code>
-(discernible↔gooey), <code>SUBSET</code> (render a 2-frame test instead of all 8), the
-prompt, and the grade constants: <code>GLOSS_W</code>, <code>BLACK_GAMMA</code>, and the palette lock
-(<code>COOL</code>, <code>GOLD_TONE</code>, <code>WARM_SCALE</code>), <code>GRAIN</code>, <code>VIG_STR</code>.</p>
-<h2>License</h2>
-<p>Code in this repository (<code>code/</code>, build scripts and page source) is MIT licensed; see <a href="LICENSE"><code>LICENSE</code></a>. The artwork, source images, video and writing are © 2026 Katherine Titterton, all rights reserved. Model weights belong to their authors under their own licenses.</p>
+</table>
+<h2>6. Colophon</h2>
+<p>Stable Diffusion 1.5 with LCM-LoRA, Real-ESRGAN, stable fluids (Stam, 1999); Midjourney for the style, by hand. Built with Claude and Claude Code. Code under the <a href="LICENSE">MIT License</a>; the images are the artist's.</p>
 </body>
 </html>
