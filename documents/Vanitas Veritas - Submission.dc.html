@@ -119,10 +119,6 @@
         <!-- floor -->
         <div style="position:absolute; left:206px; top:468px; width:380px; height:1px; background:rgba(236,231,221,.18);"></div>
         <div style="position:absolute; left:292px; top:478px; font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:430; letter-spacing:.04em; color:#8A8378;">freestanding &middot; no wall &middot; footprint &asymp; 30 &times; 25 in &middot; one outlet</div>
-
-
-          <!-- the prompt being dreamed, beside the mirror -->
-          <div data-promptline data-text="water = dream(&quot;vanitas [skull, smoke from a snuffed candle, soap bubble], scattering into dust&quot;)" aria-live="polite" style="position:absolute; left:494px; top:78px; width:196px; font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace; font-size:10.5px; line-height:1.55; color:#E2A461;"></div>
         <!-- vanitas: the sink itself -->
           <div style="position:absolute; left:500px; top:330px; width:38px; height:1px; background:rgba(236,231,221,.28);"></div>
           <div style="position:absolute; left:494px; top:327px; width:6px; height:6px; border-radius:50%; background:#D2914F;"></div>
@@ -164,7 +160,7 @@
 
       <div data-hold role="button" tabindex="0" title="Hold to turn the water off" style="position:relative; align-self:center; margin-top:12px; width:23px; height:32px; cursor:pointer; touch-action:none;"><div style="position:absolute; left:7px; top:7px; width:9px; height:21px; background:#D2914F; border-radius:4px;"></div><div style="position:absolute; left:2px; top:2px; width:19px; height:9px; background:#D2914F; border-radius:5px;"></div></div>
       <div style="margin-top:6px; align-self:center; width:498px; max-width:100%; aspect-ratio:4/3; position:relative; overflow:hidden; background:#000; border:1px solid rgba(236,231,221,.14); border-radius:12px; box-shadow:0 14px 40px rgba(0,0,0,.5);">
-        <img data-basin data-live="doc" src="assets/veritas_basin.webp" alt="veritas recorded as it runs: its title, the basin with the water, and the line of code naming the dream" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"><iframe data-liveframe="doc" data-basin title="veritas, live" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;; border:0; display:none; background:#000;"></iframe>
+        <img data-basin data-live="doc" src="assets/veritas_basin.webp" alt="veritas recorded as it runs: its title, the basin with the water, and the line of code naming the dream" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"><iframe data-liveframe="doc" data-basin title="veritas, live" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;; border:0; display:none; background:#000;"></iframe><div data-promptline data-text="" aria-live="polite" style="position:absolute; left:0; right:0; bottom:0; padding:14px 12px 8px; text-align:center; font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace; font-size:clamp(9px,1.6vw,13px); line-height:1.5; color:#E4DFD2; background:linear-gradient(0deg, rgba(3,3,4,.75), rgba(3,3,4,0)); pointer-events:none; z-index:2;"></div>
       </div>
       <div style="margin-top:18px; font-family:'Space Grotesk',sans-serif; font-size:8.5px; font-weight:520; letter-spacing:.16em; text-transform:uppercase; color:#8A8378;">My vanitas moodboard: the eight pictures the water leans toward</div>
       <div style="margin-top:9px; display:flex; align-items:center; gap:5px;">
@@ -456,7 +452,7 @@ class Component extends DCLogic {
 })();
 </script>
 <script>
-// the prompt beside the mirror: what the spring is dreaming now when it answers, the recorded prompts otherwise (an attribute, so the page's renderer is never disturbed)
+// the prompt in veritas: what the spring is dreaming now when it answers, the recorded prompts otherwise (an attribute, so the page's renderer is never disturbed)
 (() => {
   const caps = ["water = dream(\"vanitas [skull, smoke from a snuffed candle, soap bubble], scattering into dust\")", "water = dream(\"vanitas [flower, skull, hands under running water], half erased\")", "water = dream(\"vanitas [a moth, daisy, soap bubble], reflected in glass\")", "water = dream(\"vanitas [a face, eyes closed, soap bubble, flower in bloom], blooming\")", "water = dream(\"vanitas [flower in bloom, skull, peony], scattering into dust\")", "water = dream(\"vanitas [soap bubble, flower, hands under running water], reflected in glass\")", "water = dream(\"vanitas [a face, eyes closed, flower, skull], about to burst\")", "water = dream(\"vanitas [a face in profile, skull, an hourglass], melting slowly\")"];
   let k = 0, base = null;
