@@ -26,7 +26,7 @@
 
 ## 3. Kept small, kept running
 
-Everything runs on one Apple M5 laptop with 16 GB. Each choice was measured there.
+Everything is built to run on one Mac mini with 16 GB, its own, under the sink's bowl. Each choice was measured on an Apple M5 with 16 GB.
 
 - **2.3 GB of GPU memory**: the model in half precision; only the decoder in full, which keeps colours clean.
 - **Memory handed back** after every dream and stretch: the process went from 10 GB to 5.8 GB.

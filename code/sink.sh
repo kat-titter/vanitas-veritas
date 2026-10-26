@@ -1,6 +1,7 @@
 #!/bin/bash
-# sink.sh: run vanitas on its own computer, for good. The spring and the screen start at login and come back if they stop.
-#   bash code/sink.sh install     start now and at every login (needs Google Chrome in /Applications)
+# sink.sh: run vanitas on its own Mac mini, for good. The spring and the screen start at login and come back if they stop.
+#   bash code/sink.sh install     start now and at every login (needs Google Chrome in /Applications; asks for the
+#                                 password once, to keep the Mac awake and start it again after a power cut)
 #   bash code/sink.sh status      is it running? the last lines the spring wrote
 #   bash code/sink.sh restart     stop and start both
 #   bash code/sink.sh remove      stop, and no longer start at login
@@ -30,10 +31,12 @@ case "${1:-}" in
     mkdir -p spring_feed; [ -s spring_feed/key ] || "$PY" -c "import secrets; print(secrets.token_urlsafe(18))" > spring_feed/key
     KEY=$(tr -d '[:space:]' < spring_feed/key)   # the same key the spring reads: only this screen may send the camera's frame
     URL="http://127.0.0.1:8770/sync.html?spring=feed/&sink&camera&key=$KEY"
+    sudo pmset -a sleep 0 disksleep 0 autorestart 1   # never sleep; power back on by itself when the power returns
     plist $SPRING /usr/bin/caffeinate -dims "$PY" code/sink.py --public
     plist $SCREEN /bin/bash -c "until curl -sf http://127.0.0.1:8770/feed/now.json >/dev/null || curl -sf http://127.0.0.1:8770/ >/dev/null; do sleep 2; done; exec \"$CHROME\" --kiosk --noerrdialogs --disable-session-crashed-bubble --disable-infobars --no-first-run --autoplay-policy=no-user-gesture-required --use-fake-ui-for-media-stream --user-data-dir=\"$HOME/.vanitas-chrome\" \"$URL\""
     for l in $SPRING $SCREEN; do launchctl bootout gui/$(id -u)/$l 2>/dev/null || true; launchctl bootstrap gui/$(id -u) "$LA/$l.plist"; done
-    echo "Installed. The screen opens when the spring answers (about a minute). Logs: $LOG" ;;
+    echo "Installed. The screen opens when the spring answers (about a minute). Logs: $LOG"
+    echo "Last step, by hand: System Settings > Users & Groups > Automatically log in as this user (FileVault must be off)." ;;
   status)
     for l in $SPRING $SCREEN; do launchctl print gui/$(id -u)/$l 2>/dev/null | grep -E '^\s*(state|pid) =' | sed "s/^/$l: /" || echo "$l: not installed"; done
     tail -n 5 "$LOG/$SPRING.log" 2>/dev/null || true ;;

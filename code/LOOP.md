@@ -32,7 +32,7 @@ moves the water in both. The two names are one swap of letters apart, as
 ## The spring and veritas
 
 `code/sink.py` is the spring: Stable Diffusion 1.5 with LCM-LoRA on a GPU,
-for now Kat's Mac. It writes a new prompt in the grammar of the Midjourney
+the sink's own Mac mini. It writes a new prompt in the grammar of the Midjourney
 recipe `vanitas [flower, skull, soap bubble]`, never repeating for 1.3 million prompts, about five years, and dreams it pulled back toward Kat's vanitas moodboard
 (`source/moodboard/`). On the way to the next dream it dreams three more places
 and glides through all of them on one Catmull-Rom path (the walk of the v44
@@ -55,7 +55,8 @@ caffeinate -i python3 code/sink.py            # then open http://127.0.0.1:8770/
 caffeinate -i python3 code/sink.py --public   # and to everyone: a quick tunnel from this Mac, address printed
 ```
 
-veritas and the spring are built and run together on Kat's Mac, and veritas is
+veritas and the spring are built and tested on Kat's Mac and made to run on a
+Mac mini of their own (`bash code/setup_sink.sh`, then `bash code/sink.sh install`), and veritas is
 public whenever the spring runs with `--public` (a Cloudflare quick tunnel; the
 address changes each time, and sink.py writes it to verse/spring.json, so the
 plain veritas address always finds the water). The earlier web pieces, i, ii and
@@ -289,7 +290,7 @@ The piece went through a deliberate, feedback-driven iteration:
 |---|---|
 | **Models (open-source)** | Stable Diffusion v1.5 + LCM-LoRA (`latent-consistency/lcm-lora-sdv1-5`); Real-ESRGAN x4plus (super-res) |
 | **Frameworks** | 🤗 Diffusers, PyTorch (MPS), spandrel, scipy/PIL/NumPy, ffmpeg |
-| **Hardware** | Apple M5, 16 GB, fully local (no cloud compute) |
+| **Hardware** | a Mac mini of its own, 16 GB, fully local (no cloud compute); measured on an Apple M5 |
 | **Sampler** | LCMScheduler, 8 steps, guidance 1.5, fp32 |
 | **Diffusion working resolution** | 640×480 (super-res to 2560×1920) |
 | **img2img strength** | 0.42 at source anchors (discernible) → 0.70 between (gooey/uncanny) |

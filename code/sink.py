@@ -21,7 +21,8 @@
 #   python3 code/sink.py --dry                serve veritas with no GPU: the water off
 #   --public                                    and open it to everyone: a Cloudflare quick tunnel from this Mac (no account;
 #                                               the address is printed, and changes each time); needs cloudflared. Each new
-#                                               address is written to verse/spring.json through gh (SPRING_POINTER=0: don't)
+#                                               address is written to verse/spring.json with spring_feed/github_token, or gh
+#                                               (SPRING_POINTER=0: don't)
 #   --lan                                       let the sink on the same network drink (binds 0.0.0.0)
 #   --inbox DIR                                 take Midjourney images from DIR instead of source/mj_inbox/
 # At vanitas, veritas runs with ?sink&camera&key=<spring_feed/key>. Touching the water never opens the camera: it has its own place on
@@ -223,13 +224,20 @@ def serve(port, lan):
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     print(f'veritas: http://127.0.0.1:{port}/', flush=True)
 
+def tool(name):
+    """A command-line tool, found even when launchd starts the spring with a bare PATH."""
+    import shutil
+    for d in ('', '/opt/homebrew/bin', '/usr/local/bin', os.path.expanduser('~/.local/bin'), os.path.expanduser('~/bin')):
+        exe = shutil.which(name, path=d or None)
+        if exe: return exe
+
 def tunnel(port):
     """A Cloudflare quick tunnel from this Mac: veritas, public, for as long as the spring runs. Frames are not cached at the
     edge on a quick tunnel, so every viewer drinks from this Mac's upload."""
-    import atexit, shutil, signal, subprocess
-    exe = shutil.which('cloudflared') or os.path.expanduser('~/.local/bin/cloudflared')
+    import atexit, signal, subprocess
+    exe = tool('cloudflared')
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))   # a plain kill still closes the tunnel on the way out
-    if not os.path.exists(exe): print('public: cloudflared not found, so veritas stays on this Mac', flush=True); return
+    if not exe: print('public: cloudflared not found, so veritas stays on this Mac', flush=True); return
     pr = subprocess.Popen([exe, 'tunnel', '--no-autoupdate', '--url', f'http://127.0.0.1:{port}'], stdout=subprocess.DEVNULL,
                           stderr=subprocess.PIPE, text=True)
     atexit.register(pr.terminate)
@@ -242,19 +250,35 @@ def tunnel(port):
     threading.Thread(target=read, daemon=True).start()
 
 def point(feed):
-    """Tell the public basin where the spring is now: verse/spring.json on the site, written through the GitHub API with this Mac's
-    gh login, so the plain veritas address finds the water after every restart. Without gh, the address stays in the log."""
-    import base64, shutil, subprocess
-    gh = shutil.which('gh')
-    if not gh or os.environ.get('SPRING_POINTER') == '0': return
+    """Tell the public basin where the spring is now: verse/spring.json on the site, written through the GitHub API, so the plain
+    veritas address finds the water after every restart. On the sink's Mac mini the key is spring_feed/github_token, a fine-grained
+    token that may only write this repository's contents; without it, a gh login; without either, the address stays in the log."""
+    import base64, subprocess, urllib.request
+    if os.environ.get('SPRING_POINTER') == '0': return
     api, body = 'repos/kat-titter/vanitas-veritas/contents/verse/spring.json', json.dumps({'feed': feed}) + '\n'
+    tok_file = os.path.join(FEED, 'github_token')
+    tok = open(tok_file).read().strip() if os.path.exists(tok_file) else ''
+    gh = None if tok else tool('gh')
+    if not tok and not gh: return
+    def call(method, data=None):
+        if tok:
+            rq = urllib.request.Request('https://api.github.com/' + api, method=method, data=data and json.dumps(data).encode(),
+                                        headers={'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json'})
+            try:
+                with urllib.request.urlopen(rq, timeout=30) as r: return json.load(r)
+            except urllib.error.HTTPError as e:
+                if e.code == 404 and method == 'GET': return {}
+                raise RuntimeError(f'GitHub {e.code}')
+        args = [gh, 'api', '-X', method, api] + [x for k, v in (data or {}).items() for x in ('-f', f'{k}={v}')]
+        r = subprocess.run(args, capture_output=True, text=True, timeout=30)
+        if r.returncode and method != 'GET': raise RuntimeError(r.stderr.strip()[:120])
+        return json.loads(r.stdout or '{}') if r.returncode == 0 else {}
     try:
-        cur = subprocess.run([gh, 'api', api, '--jq', '.sha + " " + .content'], capture_output=True, text=True, timeout=30).stdout.split(' ', 1)
-        sha = cur[0].strip() if cur and cur[0] else ''
-        if len(cur) > 1 and base64.b64decode(cur[1].strip() or b'').decode(errors='ignore') == body: print('public basin already points here', flush=True); return
-        r = subprocess.run([gh, 'api', '-X', 'PUT', api, '-f', 'message=spring: where the water is now', '-f', 'content=' + base64.b64encode(body.encode()).decode()]
-                           + (['-f', f'sha={sha}'] if sha else []), capture_output=True, text=True, timeout=30)
-        print('public basin points here' if r.returncode == 0 else f'public basin: could not point here ({r.stderr.strip()[:120]})', flush=True)
+        cur = call('GET')
+        if base64.b64decode(cur.get('content', '')).decode(errors='ignore') == body: print('public basin already points here', flush=True); return
+        put = {'message': 'spring: where the water is now', 'content': base64.b64encode(body.encode()).decode()}
+        if cur.get('sha'): put['sha'] = cur['sha']
+        call('PUT', put); print('public basin points here', flush=True)
     except Exception as e: print(f'public basin: could not point here ({e})', flush=True)
 
 def main():
