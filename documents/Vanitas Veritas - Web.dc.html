@@ -413,7 +413,7 @@ class Component extends DCLogic {
     };
     const stopBubbles = () => { clearInterval(bubbleInt); };
     const drain = (b, on) => {                       // the handle is the water: off, no water, and the dream fades away; on, it comes back
-      b.style.transition = 'opacity 3.6s cubic-bezier(.45,0,.2,1)'; b.style.opacity = on ? '.04' : '1';
+      b.style.transition = 'opacity 7s cubic-bezier(.45,0,.2,1)'; b.style.opacity = on ? '.04' : '1';
     };
     const setHeld = (on) => {
       if (held === on) return;

@@ -550,10 +550,10 @@ addEventListener('blur', () => { reach(false); if (plug) { plug = false; gulp = 
 const Q0 = 0.005, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
 function step(dt){
   const now = performance.now(), fresh = live.tap && live.have && (IMG || now-live.lastNew < STALE());
-  water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 5)));
+  water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 10)));   // off: the pour slows over about ten seconds
   if (fresh && !lastWaterOn) flood = 1;              // it floods back
   lastWaterOn = fresh;
-  left = water > 0.5 ? 1 : left*Math.exp(-dt/22);     // the water off: what is left runs out
+  left = water > 0.5 ? 1 : left*Math.exp(-dt/45);     // the water off: what is left runs out, slowly
   drainAmt = (1 - water)*left;                         // no water: what is left swirls down the drain, then the basin is black
   if (water < 0.2 && now-dripAt > 3600 + 2400*Math.sin(simTime)) { dripAt = now; drip = 0; }
   drip += dt;
@@ -581,7 +581,7 @@ function step(dt){
   u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(vel.write); vel.swap();
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uImgA, live.A); bind(u.uImgB, live.B);
   gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.05 + 0.3*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2))); gl.uniform1f(u.uTapPour, 0.5*water);
-  gl.uniform1f(u.uFade, 0.015 + 0.02*(1-water) + 0.4*(1-water)*(1-left)); gl.uniform1f(u.uDrainR, 1.6 + 7*drainAmt); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
+  gl.uniform1f(u.uFade, 0.015 + 0.01*(1-water) + 0.18*(1-water)*(1-left)); gl.uniform1f(u.uDrainR, 1.6 + 7*drainAmt); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
   draw(dye.write); dye.swap();
   flood *= Math.exp(-dt/2.5); gulp *= Math.exp(-dt/1.5);
   simTime += dt;
@@ -614,7 +614,7 @@ function blow(){
     if (!b.pop) {                                                       // carried: a slow turn round the drain, a slower pull into it
       const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004 + 0.06*drainAmt, pull = 0.0015 + 0.03*drainAmt;   // draining: round and into the drain
       const nx = b.x - (b.y*w + b.x/d*pull)*dt, ny = b.y + (b.x*w - b.y/d*pull)*dt; b.x = nx; b.y = ny;
-      if (a >= 1 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.8)) popBub(b, t); }   // no water, no bubbles: they pop as it drains
+      if (a >= 1 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.25)) popBub(b, t); }   // no water, no bubbles: they pop as it drains
     if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
   bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = Math.min(1, age/b.life);
     const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds

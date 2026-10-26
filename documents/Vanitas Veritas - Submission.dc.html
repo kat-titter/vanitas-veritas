@@ -464,7 +464,7 @@ class Component extends DCLogic {
     // hold the handle (or the chip): the GPU's switch. Held, the water runs out; let go, it floods back
     let held = false;
     const drain = (b, on) => {                       // the handle is the water: off, no water, and the dream fades away; on, it comes back
-      b.style.transition = 'opacity 3.6s cubic-bezier(.45,0,.2,1)'; b.style.opacity = on ? '.04' : '1';
+      b.style.transition = 'opacity 7s cubic-bezier(.45,0,.2,1)'; b.style.opacity = on ? '.04' : '1';
     };
     const setHeld = (on) => {
       held = on;
@@ -482,7 +482,7 @@ class Component extends DCLogic {
 
     // the basin, as it runs: recordings of veritas (animated WebPs); held, they drain (setHeld)
     const basins = () => [...document.querySelectorAll('[data-basin], [data-basinframe]')];
-    basins().forEach(im => { im.style.transition = 'opacity 3.6s cubic-bezier(.45,0,.2,1)'; });
+    basins().forEach(im => { im.style.transition = 'opacity 7s cubic-bezier(.45,0,.2,1)'; });
   }
   componentWillUnmount() { clearInterval(this._basinTimer); }
 }
