@@ -236,7 +236,7 @@ void main(){
 display: `
 uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
-uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip;
+uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass;
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
 uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
@@ -249,7 +249,7 @@ void main(){
   if (sd < 0.004) {
     vec2 hq = q-(uCursor-uCenter)/uS;
     float pool = smoothstep(0.045+0.05*uGrip, 0.012, length(hq))*uCursorOn*uHold;   // under the hand, the glass lies flat
-    float L = 1.-pool*smoothstep(0., -0.08, sd);
+    float L = (1.-pool*smoothstep(0., -0.08, sd))*uGlass;   // uGlass 0: the water without its ribbed glass and wet light
     float fx = q.x*NR, fi = floor(fx), s = fx-fi, tooth = hash1(fi);
     vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.24*L), q.y+(tooth-0.5)*0.003*L);   // ribbed glass: the dream reads through it
     { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
@@ -407,7 +407,7 @@ async function poll(){
   } catch (e) { return false; }
 }
 let pollWait = 1200;                                   // a spring that does not answer is asked less often
-const IMG = params.get('img'), BUBBLES = params.get('bubbles') !== '0';   // ?img=<picture>: pour one picture, no spring (the documents use it to show the water's layers); ?bubbles=0: none
+const IMG = params.get('img'), BUBBLES = params.get('bubbles') !== '0', GLASS = params.get('glass') === '0' ? 0 : 1;   // ?glass=0: no glass (the documents show the layers one by one)   // ?img=<picture>: pour one picture, no spring (the documents use it to show the water's layers); ?bubbles=0: none
 if (IMG) { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { upload(im); live.prompt = ''; }; im.src = new URL(IMG, location.href).href; }
 else (function tick(){ poll().then((ok) => { pollWait = ok ? 1200 : Math.min(15000, pollWait*1.6); setTimeout(tick, pollWait); }); })();
 
@@ -628,7 +628,7 @@ function render(){
   gl.uniform2f(u.uCenter, view.cx*d, (view.h-view.cy)*d); gl.uniform2f(u.uRes, pw, ph); gl.uniform1f(u.uS, view.S*d);
   gl.uniform2f(u.uCursor, hand.x*d, (view.h-hand.y)*d); gl.uniform1f(u.uCursorOn, hand.on ? 1 : 0);
   gl.uniform2f(u.uTapQ, TAP[0]-0.5, TAP[1]-0.5); gl.uniform1f(u.uTime, simTime);
-  gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uGrip, grip); gl.uniform1f(u.uWater, water); gl.uniform1f(u.uPlug, plugAmt); gl.uniform1f(u.uDrip, drip);
+  gl.uniform1f(u.uGlass, GLASS); gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uGrip, grip); gl.uniform1f(u.uWater, water); gl.uniform1f(u.uPlug, plugAmt); gl.uniform1f(u.uDrip, drip);
   gl.uniform4fv(u['uRQ[0]'], RQ); gl.uniform1f(u.uRN, rn);
   draw(null);
 }
