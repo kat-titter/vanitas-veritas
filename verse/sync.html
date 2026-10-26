@@ -20,8 +20,8 @@
   #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
   body.nogpu #dry { display:block; }
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
-  body.doc h1 { display:none; }                                    /* in a document: the basin edge to edge, the prompt inside it */
-  body.doc #code { left:5%; right:5%; bottom:4%; max-width:none; text-align:center; font-size:clamp(5px, 1.9vw, 14px); line-height:1.5; }
+  body.doc h1 { display:none; }                                    /* in a document: the basin edge to edge */
+  body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
   /* at vanitas, the camera's own place on the glass: held two seconds it looks once; the water itself never does */
   #eye { position:fixed; left:50%; bottom:5vh; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center;
     gap:10px; pointer-events:none; }
