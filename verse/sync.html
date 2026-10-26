@@ -245,7 +245,12 @@ void main(){
     float rimL = 0., film = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
     for (int i = 0; i < 7; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
       vec2 dq = ql-bb.xy; float t = length(dq)/bb.z;
-      if (t < 1.) { ql = bb.xy + dq*mix(0.45, 1., t*t); film = max(film, bb.w*(1.-t*t)); }
+      if (bb.w < 0.) {                                                            // popping: the skin tears into droplets thrown outward
+        float an = atan(dq.y, dq.x), k = -bb.w;
+        float drops = pow(max(0., sin(an*13. + bb.x*91.) * sin(an*7. - bb.y*57.)), 3.);
+        rimL += 2.2*k*drops*smoothstep(0.07, 0., abs(t-1.)) + 0.6*k*k*smoothstep(0.03, 0., abs(t-0.55));
+        continue; }
+      if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.45, bb.w), 1., t*t); film = max(film, bb.w*(1.-t*t)); }
       rimL += bb.w*(smoothstep(0.05, 0., abs(t-0.96)) + 0.35*smoothstep(0.25, 0., abs(t-0.82))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a thin rim, and a soft catch-light on its upper left
     vec2 p = C+ql;
     vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);
@@ -497,7 +502,7 @@ function reach(on){
   send(true);
 }
 canvas.addEventListener('pointermove', moveTo);
-canvas.addEventListener('pointerdown', (ev) => { moveTo(ev); try { canvas.setPointerCapture(ev.pointerId); } catch (e) {} reach(true); });
+canvas.addEventListener('pointerdown', (ev) => { moveTo(ev); popAt(hand.u, hand.v); try { canvas.setPointerCapture(ev.pointerId); } catch (e) {} reach(true); });
 canvas.addEventListener('pointerup', (ev) => { reach(false); if (ev.pointerType !== 'mouse') hand.on = false; });
 canvas.addEventListener('pointercancel', () => { reach(false); hand.on = false; });
 canvas.addEventListener('pointerleave', () => { if (!hand.down) hand.on = false; });
@@ -551,16 +556,34 @@ function step(dt){
   simTime += dt;
 }
 
-// soap bubbles: born one every few seconds, swell over half a minute (they bloom), hold, then pop; never more than seven
-const BUB = new Float32Array(28), bubs = []; let nextBub = 0;
+// soap bubbles: they come up from the basin (small, faint, then sharp as they reach the surface), bloom over half a minute
+// while the swirl carries them toward the drain, then pop: at the end of their life, at the drain, as the water drains, or under a finger.
+// Only while the water runs; never more than seven.
+const BUB = new Float32Array(28), bubs = []; let nextBub = 0, lastBub = 0;
+const POP = 0.45;
+function popBub(b, t){ if (b.pop) return; b.pop = t;
+  const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
+  stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.08*b.x/dl; stir.vy += 0.08*b.y/dl; }
+function popAt(u, v){ const t = performance.now()/1000; let hit = false;
+  bubs.forEach((b) => { if (!b.pop && Math.hypot(u-0.5-b.x, v-0.5-b.y) < b.r*1.1) { popBub(b, t); hit = true; } }); return hit; }
 function blow(){
-  const t = performance.now()/1000;
-  if (t > nextBub && bubs.length < 7) { bubs.push({ x:(Math.random()*2-1)*BX*0.75, y:(Math.random()*2-1)*BY*0.75, R:0.05 + Math.random()*0.09, born:t, life:30 + Math.random()*30 });
+  const t = performance.now()/1000, dt = Math.min(0.1, t - (lastBub || t)); lastBub = t;
+  if (t > nextBub && bubs.length < 7 && water > 0.5) { const R = 0.05 + Math.random()*0.09;
+    bubs.push({ x:(Math.random()*2-1)*(BX-R)*0.85, y:(Math.random()*2-1)*(BY-R)*0.85, R, r:0, born:t, life:30 + Math.random()*30, pop:0 });
     nextBub = t + 5 + Math.random()*6; }
-  for (let i = bubs.length - 1; i >= 0; i--) if (t - bubs[i].born > bubs[i].life) bubs.splice(i, 1);
   BUB.fill(0);
-  bubs.forEach((b, i) => { const a = (t - b.born)/b.life, grow = 1 - Math.pow(1 - Math.min(1, a/0.6), 3), pop = a > 0.94 ? (1 - a)/0.06 : 1;
-    BUB.set([b.x, b.y, b.R*grow*(a > 0.94 ? 1 + (a - 0.94)*2 : 1), Math.min(1, a*6)*pop], i*4); });
+  for (let i = bubs.length - 1; i >= 0; i--) { const b = bubs[i], age = t - b.born, a = age/b.life;
+    if (!b.pop) {                                                       // carried: a slow turn round the drain, a slower pull into it
+      const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004, pull = 0.0015;
+      const nx = b.x - (b.y*w + b.x/d*pull)*dt, ny = b.y + (b.x*w - b.y/d*pull)*dt; b.x = nx; b.y = ny;
+      if (a >= 1 || d < 0.045 || (water < 0.3 && Math.random() < dt*0.8)) popBub(b, t); }   // no water, no bubbles: they pop as it drains
+    if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
+  bubs.forEach((b, i) => { const age = t - b.born, a = Math.min(1, age/b.life);
+    const rise = Math.min(1, age/7), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
+    const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
+    b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
+    if (b.pop) { const k = Math.min(1, (t - b.pop)/POP); BUB.set([b.x, b.y, b.r*(1 + 0.7*Math.sqrt(k)), -(1 - k)], i*4); }
+    else BUB.set([b.x, b.y, b.r, 0.08 + 0.92*up], i*4); });
 }
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
