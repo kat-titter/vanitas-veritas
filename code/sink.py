@@ -235,9 +235,10 @@ def tunnel(port):
                           stderr=subprocess.PIPE, text=True)
     atexit.register(pr.terminate)
     def read():
-        for line in pr.stderr:
+        last = None
+        for line in pr.stderr:                              # cloudflared repeats its address on every reconnect: point once per address
             m = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
-            if m: print(f'veritas, public: {m.group(0)}/', flush=True); point(m.group(0) + '/feed/')
+            if m and m.group(0) != last: last = m.group(0); print(f'veritas, public: {last}/', flush=True); point(last + '/feed/')
     threading.Thread(target=read, daemon=True).start()
 
 def point(feed):
@@ -248,7 +249,9 @@ def point(feed):
     if not gh or os.environ.get('SPRING_POINTER') == '0': return
     api, body = 'repos/kat-titter/vanitas-veritas/contents/verse/spring.json', json.dumps({'feed': feed}) + '\n'
     try:
-        sha = subprocess.run([gh, 'api', api, '--jq', '.sha'], capture_output=True, text=True, timeout=30).stdout.strip()
+        cur = subprocess.run([gh, 'api', api, '--jq', '.sha + " " + .content'], capture_output=True, text=True, timeout=30).stdout.split(' ', 1)
+        sha = cur[0].strip() if cur and cur[0] else ''
+        if len(cur) > 1 and base64.b64decode(cur[1].replace('\\n', '').strip() or b'').decode(errors='ignore') == body: print('public basin already points here', flush=True); return
         r = subprocess.run([gh, 'api', '-X', 'PUT', api, '-f', 'message=spring: where the water is now', '-f', 'content=' + base64.b64encode(body.encode()).decode()]
                            + (['-f', f'sha={sha}'] if sha else []), capture_output=True, text=True, timeout=30)
         print('public basin points here' if r.returncode == 0 else f'public basin: could not point here ({r.stderr.strip()[:120]})', flush=True)
