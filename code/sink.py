@@ -251,7 +251,7 @@ def tunnel(port):
 
 def point(feed):
     """Tell the public basin where the spring is now: verse/spring.json on the site, written through the GitHub API, so the plain
-    veritas address finds the water after every restart. On the sink's Mac mini the key is spring_feed/github_token, a fine-grained
+    veritas address finds the water after every restart. On the sink's MacBook Pro the key is spring_feed/github_token, a fine-grained
     token that may only write this repository's contents; without it, a gh login; without either, the address stays in the log."""
     import base64, subprocess, urllib.request
     if os.environ.get('SPRING_POINTER') == '0': return

@@ -1,5 +1,5 @@
 #!/bin/bash
-# sink.sh: run vanitas on its own Mac mini, for good. The spring and the screen start at login and come back if they stop.
+# sink.sh: run vanitas on its own MacBook Pro (lid closed, plugged in), for good. The spring and the screen start at login and come back if they stop.
 #   bash code/sink.sh install     start now and at every login (needs Google Chrome in /Applications; asks for the
 #                                 password once, to keep the Mac awake and start it again after a power cut)
 #   bash code/sink.sh status      is it running? the last lines the spring wrote

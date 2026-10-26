@@ -1,5 +1,5 @@
 #!/bin/bash
-# setup_sink.sh: everything the sink's Mac mini needs, once. Safe to run again: it skips what is already there.
+# setup_sink.sh: everything the sink's MacBook Pro needs, once. Safe to run again: it skips what is already there.
 #   bash code/setup_sink.sh          install, then dream two test frames (about 25 min the first time, mostly downloads)
 #   bash code/setup_sink.sh --test   only the test
 # Downloads (first run): Python packages about 2.5 GB, Stable Diffusion 1.5 about 4 GB, LCM-LoRA 135 MB, Real-ESRGAN 64 MB,
