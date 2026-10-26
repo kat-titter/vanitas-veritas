@@ -12,7 +12,7 @@ The water itself, live: [**veritas**](https://kat-titter.github.io/veritas/).
 
 ## Two pieces, one water
 
-- **vanitas** is the sink: a freestanding stainless-steel sink with a self-portrait above it, designed and not yet built (first for tiat's *Epistemologies of Slop*, 2026). A touch screen lies in its bowl; an old MacBook Pro under it dreams the water.
+- **vanitas** is the sink: a freestanding stainless-steel sink with a self-portrait above it, designed and not yet built (first for tiat's *Epistemologies of Slop*, 2026). Real water lies over a screen in its bowl, and the tap runs; an old MacBook Pro under it dreams the picture.
 - **veritas** is the same basin on the web, [`verse/sync.html`](verse/sync.html). A hand in either moves the water in both, over public Nostr relays.
 - **The faucet handle is the tap.** Hold it and generation stops, and every basin drains.
 
