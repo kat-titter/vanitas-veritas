@@ -212,7 +212,7 @@ void main(){
 // Under a gripping hand it stops re-forming: what you hold is the moment you reached in.
 dye: `
 uniform sampler2D uVel, uDye, uImgA, uImgB;
-uniform float uDt, uMix, uPour, uTapPour, uFade;
+uniform float uDt, uMix, uPour, uTapPour, uFade, uDrainR;
 uniform vec2 uTap; uniform vec4 uGrab;
 vec3 img(vec2 p){
   vec2 g = (p-C)/(2.*B) + 0.5;                            // the whole frame, edge to edge
@@ -223,7 +223,7 @@ void main(){
   vec4 d = texture(uDye, p);
   float r = length(vUv-C);
   d.rgb *= exp(-uFade*uDt);
-  d.rgb *= mix(1., exp(-5.*uDt), smoothstep(RD*1.6, RD*0.5, r));          // and down it goes
+  d.rgb *= mix(1., exp(-5.*uDt), smoothstep(RD*uDrainR, RD*0.5, r));      // and down it goes: when the water stops, the drain widens its pull
   vec2 g = vUv-uGrab.xy; float held = uGrab.z*exp(-dot(g,g)/(uGrab.w*uGrab.w));
   vec2 a = vUv-uTap; float fresh = exp(-dot(a,a)/(SF*SF*5.));
   float rate = uPour + uTapPour*fresh;
@@ -471,7 +471,7 @@ function others(){                                    // replay each other hand 
 // ---- the hand, the plug, the water
 const hand = { x:0, y:0, on:false, u:0.5, v:0.5, vx:0, vy:0, t:0, down:false, t0:0 };
 const stir = { x:0.5, y:0.5, vx:0, vy:0 };
-let water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
+let drainAmt = 0, water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
 const toSim = (x, y) => [0.5 + (x-view.cx)/view.S, 0.5 + (view.cy-y)/view.S];
 function moveTo(ev){
   const [u, v] = toSim(ev.clientX, ev.clientY), t = performance.now(), dt = Math.max(0.008, (t-hand.t)/1000);
@@ -549,11 +549,12 @@ function step(dt){
   if (fresh && !lastWaterOn) flood = 1;              // it floods back
   lastWaterOn = fresh;
   left = water > 0.5 ? 1 : left*Math.exp(-dt/22);     // the water off: what is left runs out
+  drainAmt = (1 - water)*left;                         // no water: what is left swirls down the drain, then the basin is black
   if (water < 0.2 && now-dripAt > 3600 + 2400*Math.sin(simTime)) { dripAt = now; drip = 0; }
   drip += dt;
   const dripQ = drip < 0.12 ? 0.35*Q0*left : 0;
   const Q = Q0*water*(1 + 1.6*flood) + dripQ;
-  const Qd = Q0*Math.max(water, 0.6*left)*(plug ? 0.12 : 1)*(1 + 2.5*gulp);
+  const Qd = Q0*Math.max(water, 0.6*left)*(plug ? 0.12 : 1)*(1 + 2.5*gulp + 4*drainAmt);
   grip = hand.down ? Math.exp(-(now-hand.t0)/1700) : Math.max(0, grip-dt*3);
   live.mix = Math.min(1, live.mix + dt/live.every);
   const tap = [TAP[0] + 0.004*Math.sin(simTime*0.7), TAP[1] + 0.003*Math.sin(simTime*0.9+1)];
@@ -561,7 +562,7 @@ function step(dt){
   let u = use(P.curl); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(curl);
   u = use(P.force); bind(u.uVel, vel.read.tex); bind(u.uCurl, curl.tex);
   gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uConf, 0.01); gl.uniform1f(u.uTime, simTime);
-  gl.uniform1f(u.uSwirl, 0.0006*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, 0.15*water*(1 + flood));
+  gl.uniform1f(u.uSwirl, 0.0006*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp + 5*drainAmt)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, 0.15*water*(1 + flood));
   gl.uniform2f(u.uStirPos, stir.x, stir.y); gl.uniform2f(u.uStirVel, stir.vx, stir.vy); gl.uniform2f(u.uTap, tap[0], tap[1]);
   gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06); gl.uniform2f(u.uGrabVel, hand.vx, hand.vy);
   others(); gl.uniform4fv(u['uRH[0]'], RH); gl.uniform1fv(u['uRG[0]'], RG); gl.uniform1f(u.uRN, rn);
@@ -575,7 +576,7 @@ function step(dt){
   u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(vel.write); vel.swap();
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uImgA, live.A); bind(u.uImgB, live.B);
   gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.05 + 0.3*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2))); gl.uniform1f(u.uTapPour, 0.5*water);
-  gl.uniform1f(u.uFade, 0.015 + 0.10*(1-water)); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
+  gl.uniform1f(u.uFade, 0.015 + 0.02*(1-water) + 0.4*(1-water)*(1-left)); gl.uniform1f(u.uDrainR, 1.6 + 7*drainAmt); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
   draw(dye.write); dye.swap();
   flood *= Math.exp(-dt/2.5); gulp *= Math.exp(-dt/1.5);
   simTime += dt;
@@ -606,9 +607,9 @@ function blow(){
   BUB.fill(0); BS.fill(0);
   for (let i = bubs.length - 1; i >= 0; i--) { const b = bubs[i], age = t - b.born, a = age/b.life;
     if (!b.pop) {                                                       // carried: a slow turn round the drain, a slower pull into it
-      const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004, pull = 0.0015;
+      const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004 + 0.06*drainAmt, pull = 0.0015 + 0.03*drainAmt;   // draining: round and into the drain
       const nx = b.x - (b.y*w + b.x/d*pull)*dt, ny = b.y + (b.x*w - b.y/d*pull)*dt; b.x = nx; b.y = ny;
-      if (a >= 1 || d < 0.045 || (water < 0.3 && Math.random() < dt*0.8)) popBub(b, t); }   // no water, no bubbles: they pop as it drains
+      if (a >= 1 || d < 0.045 || (water < 0.3 && left < 0.25 && Math.random() < dt*0.8)) popBub(b, t); }   // no water, no bubbles: they pop as it drains
     if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
   bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = Math.min(1, age/b.life);
     const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
