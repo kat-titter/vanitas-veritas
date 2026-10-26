@@ -54,7 +54,7 @@ Needs Python 3 with `torch diffusers transformers peft spandrel coremltools open
 | [`code/upscale.py`](code/upscale.py) | Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop |
 | [`code/harmonize.py`](code/harmonize.py) | the palette lock: cool silver, gold only where the picture was warm |
 | [`verse/sync.html`](verse/sync.html) | veritas: one page, WebGL2, no build step |
-| [`documents/`](documents/) | the tiat submission, web doc and build guide |
+| [`documents/`](documents/) | the tiat doc (print it for the submission) and the build guide |
 | [`verse/`](verse/) | the black paper, pitch, proposal, vanitas, and the earlier pieces i, ii, iii |
 | [`code/LOOP.md`](code/LOOP.md) | the loop of 2026 and how it was made (`morph_v44.py`, `morph_v45_sr.py`, `order_preview.py`) |
 

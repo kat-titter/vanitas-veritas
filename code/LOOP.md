@@ -309,10 +309,10 @@ The piece went through a deliberate, feedback-driven iteration:
 vanitas-veritas/
 ├── README.md, README.html         this document
 ├── LICENSE
-├── index.html                     the loop's landing page (Submission, Web, Build Guide)
+├── index.html                     the loop's landing page (Web, Build Guide)
 ├── verse/                         veritas (sync.html), the black paper,
 │                                  the pitch, the proposal; i, ii and iii, kept as they were
-├── documents/                     the tiat submission bundle (Submission, Build Guide, Web; self-contained HTML + assets)
+├── documents/                     the tiat docs (Web, which prints as the submission; Build Guide; self-contained HTML + assets)
 ├── code/                          the spring, and the loop's pipeline
 ├── spring_feed/                   the spring's frames and the key only vanitas holds (local only)
 ├── video/                         the final render + basin loop
@@ -341,7 +341,7 @@ vanitas-veritas/
 | `verse/proposal.html` | the first proposal, 29 September, updated |
 | `verse/_archive/` (local, gitignored) | i, ii and iii, retired 2026-10-26 |
 | `index.html` | the loop's landing page |
-| `documents/Vanitas Veritas - Submission.dc.html` | the tiat submission (self-contained HTML) |
+| `documents/Vanitas Veritas - Submission.dc.html` | retired: forwards to the Web doc, whose print layout makes the submission sheets |
 | `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (the first design of vanitas; the basalt one is archived locally) |
 | `documents/Vanitas Veritas - Web.dc.html` | the tiat web doc |
 | `documents/assets/` | images/video the docs embed |
