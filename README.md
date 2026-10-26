@@ -2,7 +2,7 @@
 
 **A sink you can't wash your hands in.** Its water is a GPU dreaming vanitas still lifes without end, poured from the tap to the drain: no GPU, no water, no dream. By Katherine Titterton, San Francisco, 2026.
 
-[the tiat doc](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html)&emsp;[how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin)&emsp;[the black paper](verse/blackpaper.html)&emsp;[vanitas, the sink](verse/sink.html)&emsp;[veritas, at sink==sync](https://kat-titter.github.io/vanitas-veritas/sink==sync/)
+[the tiat doc](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html)&emsp;[how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin)&emsp;[the black paper](verse/blackpaper.html)&emsp;[veritas, at sink==sync](https://kat-titter.github.io/vanitas-veritas/sink==sync/)
 
 ---
 

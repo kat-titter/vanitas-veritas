@@ -10,7 +10,7 @@ vanitas, the sink (a stone basin, proposed; first designed in 2026 as a
 stainless-steel sink for tiat), and veritas, the same basin on the web.
 
 - [the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html)
-- [vanitas](https://kat-titter.github.io/vanitas_veritas_verse/sink.html) (proposed)
+- [vanitas](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html) (proposed)
 - [veritas, live](https://kat-titter.github.io/vanitas-veritas/verse/sync.html) (finds the spring through verse/spring.json)
 
 Kat Titterton (macrofluidic)
@@ -71,7 +71,7 @@ The lever is the tap: down, generation stops, no data flows, and the water runs 
 and in every veritas. A QR code cut into the basalt opens veritas. vanitas is
 proposed first for San Francisco; nothing physical is built or confirmed, though
 its mode in veritas is built. The design is
-in [sink.html](https://kat-titter.github.io/vanitas_veritas_verse/sink.html).
+in `verse/_archive/sink.html`, kept locally and no longer published.
 The 2026 design of vanitas for tiat's open call, a stainless-steel sink under a
 self-portrait, is in `documents/`.
 
@@ -310,7 +310,7 @@ vanitas-veritas/
 ├── README.md, README.html         this document
 ├── LICENSE
 ├── index.html                     the loop's landing page (Submission, Web, Build Guide)
-├── verse/                         veritas (sync.html), the doc for vanitas (sink.html), the black paper,
+├── verse/                         veritas (sync.html), the black paper,
 │                                  the pitch, the proposal; i, ii and iii, kept as they were
 ├── documents/                     the tiat submission bundle (Submission, Build Guide, Web; self-contained HTML + assets)
 ├── code/                          the spring, and the loop's pipeline
@@ -338,12 +338,11 @@ vanitas-veritas/
 | `spring_feed/` | the spring's last sixty frames, `now.json`, and `key`, which only vanitas holds (local only) |
 | `verse/blackpaper.html` | the black paper |
 | `verse/pitch.html` | the pitch kit |
-| `verse/sink.html` | the doc for vanitas, redesigned (proposed) |
 | `verse/proposal.html` | the first proposal, 29 September, updated |
 | `verse/_archive/` (local, gitignored) | i, ii and iii, retired 2026-10-26 |
 | `index.html` | the loop's landing page |
 | `documents/Vanitas Veritas - Submission.dc.html` | the tiat submission (self-contained HTML) |
-| `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (the first design of vanitas; the basalt one is `verse/sink.html`) |
+| `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (the first design of vanitas; the basalt one is archived locally) |
 | `documents/Vanitas Veritas - Web.dc.html` | the tiat web doc |
 | `documents/assets/` | images/video the docs embed |
 | `video/veritas_loop_v45_4k.mp4` | **the final render**, 2560×1920, 8:27 (local only) |

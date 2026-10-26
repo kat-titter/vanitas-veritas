@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Publish the pages to their own address, kat-titter.github.io/vanitas_veritas_verse/: veritas (sync.html) as index.html
-# and at its own name, with the doc for vanitas (sink.html), the black paper and the pitch beside it. The earlier web pieces
-# (i, ii, iii and the macroverse) are retired: kept locally in verse/_archive/, never published; any left there are removed.
+# and at its own name, with the black paper and the pitch beside it. The earlier web pieces (i, ii, iii, the macroverse and
+# the basalt sink page) are retired: kept locally in verse/_archive/, never published; any left there are removed.
 #   python3 verse/deploy_verse.py                 every page as it is on disk
 #   python3 verse/deploy_verse.py --committed     every page as last committed here (while the working tree is being edited;
 #                                                 it reads HEAD:verse/, so it works only once the move to verse/ is committed)
@@ -24,9 +24,8 @@ def rehome(html):
 
 C = '--committed' in args
 pages = {'index.html': read('sync.html', C), 'blackpaper.html': read('blackpaper.html', C), 'pitch.html': read('pitch.html', C)}
-for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html']:    # retired pieces: never left on the site
+for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html', 'sink.html']:    # retired pieces: never left on the site
     if (DEST / old).exists(): (DEST / old).unlink()
-if (HERE / 'sink.html').exists(): pages['sink.html'] = read('sink.html', C)     # vanitas, the sink, redesigned
 if (HERE / 'sync.html').exists(): pages['sync.html'] = read('sync.html', C)     # veritas: one water with vanitas
 
 NEW = 'https://kat-titter.github.io/vanitas_veritas_verse/'
@@ -53,7 +52,7 @@ A sink you cannot wash your hands in. The water is a machine dreaming: reach in,
 It stands in two places with one water: vanitas, the sink, proposed, and veritas, the same basin on the web.
 
 - veritas: https://kat-titter.github.io/vanitas_veritas_verse/
-- vanitas (proposed): https://kat-titter.github.io/vanitas_veritas_verse/sink.html
+- vanitas (proposed): https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html
 - the black paper: https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html
 
 By Kat Titterton (macrofluidic). These are built pages; the sources live in https://github.com/kat-titter/vanitas-veritas.

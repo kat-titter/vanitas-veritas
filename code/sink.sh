@@ -8,7 +8,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT=$(pwd); PY="$ROOT/.venv/bin/python"; LA="$HOME/Library/LaunchAgents"; LOG="$HOME/Library/Logs/vanitas"
-SPRING=me.macrofluidic.vanitas.spring; SCREEN=me.macrofluidic.vanitas.screen
+SPRING=vanitas.veritas.spring; SCREEN=vanitas.veritas.screen
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 mkdir -p "$LA" "$LOG"
 
