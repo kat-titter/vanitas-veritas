@@ -419,7 +419,7 @@ async function poll(){
     live.every = Math.max(0.6, Math.min(8, +j.every || 2));
     { const p = String(j.prompt || '').slice(0, 160), now = performance.now();
       if (p !== live.prompt) { if (turn.at) turn.len = Math.max(30e3, Math.min(400e3, now - turn.at)); turn.at = live.prompt ? now : 0; live.prompt = p; }
-      if (Array.isArray(j.turn) && j.turn[1] > 0) { turn.len = j.turn[1]*live.every*1000; turn.at = now - (j.turn[0] - 1)*live.every*1000; } }   // the spring says how far through the turn it is
+      if (Array.isArray(j.turn) && j.turn[1] >= 8) { turn.len = j.turn[1]*live.every*1000; turn.at = now - (j.turn[0] - 1)*live.every*1000; } }   // the spring says how far through the turn it is
     const file = !BIG && j.small ? j.small : j.frame;                // 2560 x 1920 for big screens, 1280 x 960 otherwise
     const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) upload(im); };   // a slow old frame never lands after a newer one
     im.src = new URL(file, base).href;
