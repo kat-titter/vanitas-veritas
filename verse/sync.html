@@ -58,9 +58,9 @@ const waterEl = document.getElementById('water'), gripEl = document.getElementBy
 const params = new URLSearchParams(location.search);
 if (params.has('sink')) document.body.classList.add('sink');
 if (params.has('doc')) document.body.classList.add('doc');
-const SPRING_HOME = '';                           // the spring's public address, once it has one; until then, on the web, the water is off
+const SPRING_HOME = '', POINTER_HOME = 'https://kat-titter.github.io/vanitas-veritas/verse/spring.json';                           // the spring's public address, once it has one; until then, on the web, the water is off
 let SPRING = params.has('spring') ? (params.get('spring') || 'feed/') : SPRING_HOME;
-if (!SPRING && !params.get('img')) fetch('https://kat-titter.github.io/vanitas-veritas/verse/spring.json', { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed) SPRING = j.feed; }).catch(() => {});   // on either public address: where the spring is now (one pointer, which sink.py rewrites)
+if (!SPRING && !params.get('img')) fetch(POINTER_HOME, { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed) SPRING = j.feed; }).catch(() => {});   // on either public address: where the spring is now (one pointer, which sink.py rewrites)
 const SMALL = Math.min(innerWidth, innerHeight) < 600 || matchMedia('(pointer: coarse)').matches;
 const SIM = 256, PI_N = SMALL ? 24 : 36, BX = 0.46, BY = 0.345;   // the basin: a rectangle, 4:3 like the dreams
 let DYE = 1024, BIG = false;                       // the water's own resolution, set from the basin's size on screen
@@ -391,13 +391,21 @@ function upload(im){
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   live.mix = 0; live.have = true; live.lastNew = performance.now();
 }
+// on the public site, a spring that stops answering may have moved (a restart opens a new tunnel): ask the pointer again
+let lastAnswer = performance.now(), lastAsk = 0;
+function repoint(){
+  if (!location.hostname.endsWith('github.io') || params.get('img')) return;   // the sink keeps its own spring
+  const now = performance.now(); if (now - lastAnswer < 15000 || now - lastAsk < 15000) return;
+  lastAsk = now;
+  fetch(POINTER_HOME, { cache:'no-store' }).then((r) => r.json()).then((j) => { if (j && j.feed && j.feed !== SPRING) { SPRING = j.feed; live.seq = null; } }).catch(() => {});
+}
 async function poll(){
   if (!SPRING || document.hidden) return true;
   try {
     const base = new URL(SPRING, location.href), ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 4000);
     const r = await fetch(new URL('now.json', base), { cache:'no-store', signal:ctl.signal }); clearTimeout(tm);
-    if (!r.ok) return false;
-    const j = await r.json();
+    if (!r.ok) { repoint(); return false; }
+    const j = await r.json(); lastAnswer = performance.now();
     if (!(SRC === 'sink' && lever)) live.tap = j.tap !== false;            // the sink's lever, wherever it is
     if (j.seq === live.seq) return true;
     const first = live.seq === null; live.seq = j.seq;
@@ -407,7 +415,7 @@ async function poll(){
     const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) upload(im); };   // a slow old frame never lands after a newer one
     im.src = new URL(file, base).href;
     return true;
-  } catch (e) { return false; }
+  } catch (e) { repoint(); return false; }
 }
 let pollWait = 1200;                                   // a spring that does not answer is asked less often
 const IMG = params.get('img'), BUBBLES = params.get('bubbles') !== '0', GLASS = params.get('glass') === '0' ? 0 : 1;   // ?glass=0: no glass (the documents show the layers one by one)   // ?img=<picture>: pour one picture, no spring (the documents use it to show the water's layers); ?bubbles=0: none

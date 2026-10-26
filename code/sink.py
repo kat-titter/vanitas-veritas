@@ -351,8 +351,8 @@ def main():
     def take_face():
         if FACES:
             data = FACES.pop()
-            try: pending[:] = [enc(face_of(data))]
-            except Exception: pass
+            try: pending[:] = [enc(face_of(data))]; print('a face at the sink: it is the next dream', flush=True)
+            except Exception as e: print(f'a face at the sink could not be used ({e})', flush=True)
         return pending[0] if pending else None
     drift = [0]                                     # dreams in a row whose light or warmth left the range of her images
     def watch(im):                                  # too dark, too bright, too gold or no copper at all: pull harder toward hers
