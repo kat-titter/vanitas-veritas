@@ -257,18 +257,20 @@ void main(){
       vec2 dq = ql-bb.xy; float an = atan(dq.y, dq.x), sd_ = uBs[i];
       float wob = 1. + 0.14*sin(2.*an + sd_*6.3 + uTime*0.55) + 0.08*sin(3.*an + sd_*17. - uTime*0.4) + 0.05*sin(5.*an + sd_*29. + uTime*0.9);   // never round: a glob that wobbles
       float t = length(dq)/(bb.z*wob);
-      if (bb.w < 0.) {                                                            // popping, slowly: the skin tears, droplets spill and slow, and it all melts back into the water
-        float k = -bb.w, gone = 1. - k, ease = 1. - (1. - gone)*(1. - gone);
-        if (t < 1.) ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t);       // the dome sinks back into the picture
-        float tear = smoothstep(0.15, 0.95, 0.5 + 0.5*sin(an*3. + sd_*40. + gone*2.)*sin(an*5. - sd_*23.));
-        men += k*0.6*smoothstep(0.35, 0., abs(t - 1.1 - 0.15*ease));               // the ring of the surface, spreading and flattening
-        rimL += 0.9*k*tear*smoothstep(0.12 + 0.1*ease, 0., abs(t - 1. - 0.25*ease)); // shreds of the old skin, sliding outward
-        for (int j = 0; j < 3; j++) {                                             // droplets in 16 sectors: some fly, most fall short, all slow and blur as they melt
-          float n = 16., sec = floor((an + 3.14159)*n/6.28318), h = fract(sin(sec*12.99 + sd_*78.23 + float(j)*31.7)*43758.5);
-          if (h < 0.4) continue;
-          float ca = (sec + 0.5 + (h - 0.7)*0.6)/n*6.28318 - 3.14159, rr = (0.95 + (0.9*h*h + 0.25*float(j))*ease)*bb.z;
-          float dd = length(dq - vec2(cos(ca), sin(ca))*rr), sz = bb.z*(0.03 + 0.07*fract(h*7.3))*(0.6 + 0.9*ease);
-          rimL += 1.2*k*smoothstep(sz, sz*0.2, dd); }
+      if (bb.w < 0.) {                                                            // popping as goo: the skin sags, oozes out in a few thick strands, and melts back into the water
+        float k = -bb.w, gone = 1. - k, ease = gone*gone*(3. - 2.*gone);          // slow to start, slow to finish
+        if (t < 1.) ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t);       // the dome slumps back into the picture
+        float tear = smoothstep(0.1, 0.9, 0.5 + 0.5*sin(an*3. + sd_*40. + gone*1.2)*sin(an*2. - sd_*23.));
+        men += k*0.55*smoothstep(0.4, 0., abs(t - 1.1 - 0.08*ease));               // the ring of the surface, relaxing
+        rimL += 0.6*k*tear*smoothstep(0.2 + 0.18*ease, 0., abs(t - 1. - 0.1*ease)); // the old skin, soft and sagging, barely moving
+        for (int j = 0; j < 2; j++) {                                             // strands in 10 sectors: a few ooze out a little way, thick at the root, and soften as they melt
+          float n = 10., sec = floor((an + 3.14159)*n/6.28318), h = fract(sin(sec*12.99 + sd_*78.23 + float(j)*31.7)*43758.5);
+          if (h < 0.55) continue;
+          vec2 dir = vec2(cos((sec + 0.5 + (h - 0.75)*0.5)/n*6.28318 - 3.14159), sin((sec + 0.5 + (h - 0.75)*0.5)/n*6.28318 - 3.14159));
+          vec2 a0 = dir*bb.z*0.9, a1 = dir*(0.95 + (0.3*h + 0.1*float(j))*ease)*bb.z;
+          vec2 pa = dq - a0, ba = a1 - a0; float hh = clamp(dot(pa, ba)/max(dot(ba, ba), 1e-8), 0., 1.);
+          float dd = length(pa - ba*hh), sz = bb.z*(0.05 + 0.06*fract(h*7.3))*mix(1., 0.55, hh)*(0.8 + 0.7*ease);
+          rimL += 0.8*k*smoothstep(sz*1.3, 0., dd); }
         continue; }
       if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.38, bb.w), 1., t*t*t); film = max(film, bb.w*(1.-t*t)); }   // a dome of the dream itself, swollen
       else if (t < 1.3) ql -= dq/max(length(dq), 1e-4)*bb.z*0.05*bb.w*(1.3-t);                                   // the surface pulled up round it
@@ -587,10 +589,10 @@ function step(dt){
 // Only while the water runs; never more than sixteen.
 const NB = 16, BUB = new Float32Array(NB*4), BS = new Float32Array(NB), bubs = []; let nextBub = 0, lastBub = 0;
 const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.random()*2-1)*BY*0.6, a:Math.random()*6.283 }));   // a cauldron: bubbles keep coming up where it is hottest
-const POP = 1.6;                                      // a slow pop: about a second and a half to melt back
+const POP = 3.2;                                      // a gooey pop: about three seconds to melt back
 function popBub(b, t){ if (b.pop) return; b.pop = t;
   const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
-  stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.12*b.x/dl + 0.05*(Math.random() - 0.5); stir.vy += 0.12*b.y/dl + 0.05*(Math.random() - 0.5); }
+  stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.03*b.x/dl + 0.012*(Math.random() - 0.5); stir.vy += 0.03*b.y/dl + 0.012*(Math.random() - 0.5); }
 function popAt(u, v){ const t = performance.now()/1000; let hit = false;
   bubs.forEach((b) => { if (!b.pop && Math.hypot(u-0.5-b.x, v-0.5-b.y) < b.r*1.1) { popBub(b, t); hit = true; } }); return hit; }
 function blow(){
@@ -615,7 +617,7 @@ function blow(){
     const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
     const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
     b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
-    if (b.pop) { const k = Math.min(1, (t - b.pop)/POP); BUB.set([b.x, b.y, b.r*(1 + 0.35*Math.sqrt(k)), -Math.pow(1 - k, 0.8)], i*4); }
+    if (b.pop) { const k = Math.min(1, (t - b.pop)/POP), m = k*k*(3 - 2*k); BUB.set([b.x, b.y, b.r*(1 + 0.18*m), -(1 - m)], i*4); }
     else BUB.set([b.x, b.y, b.r, 0.08 + 0.92*up], i*4); });
 }
 function render(){
