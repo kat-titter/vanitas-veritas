@@ -227,7 +227,7 @@ uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
 uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip;
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
-uniform vec4 uBub[7];                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
+uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
 const float NR = 72.;      // flutes per basin unit
 void main(){
@@ -243,12 +243,19 @@ void main(){
     vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.24*L), q.y+(tooth-0.5)*0.003*L);   // ribbed glass: the dream reads through it
     { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
     float rimL = 0., film = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
-    for (int i = 0; i < 7; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
-      vec2 dq = ql-bb.xy; float t = length(dq)/bb.z;
-      if (bb.w < 0.) {                                                            // popping: the skin tears into droplets thrown outward
-        float an = atan(dq.y, dq.x), k = -bb.w;
-        float drops = pow(max(0., sin(an*13. + bb.x*91.) * sin(an*7. - bb.y*57.)), 3.);
-        rimL += 2.2*k*drops*smoothstep(0.07, 0., abs(t-1.)) + 0.6*k*k*smoothstep(0.03, 0., abs(t-0.55));
+    for (int i = 0; i < 16; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
+      vec2 dq = ql-bb.xy; float an = atan(dq.y, dq.x), sd_ = uBs[i];
+      float wob = 1. + 0.14*sin(2.*an + sd_*6.3 + uTime*0.55) + 0.08*sin(3.*an + sd_*17. - uTime*0.4) + 0.05*sin(5.*an + sd_*29. + uTime*0.9);   // never round: a glob that wobbles
+      float t = length(dq)/(bb.z*wob);
+      if (bb.w < 0.) {                                                            // popping: the skin tears; uneven droplets fly, some far, some not at all
+        float k = -bb.w, tear = smoothstep(0.1, 0.9, 0.5 + 0.5*sin(an*3. + sd_*40.)*sin(an*5. - sd_*23.));
+        rimL += 1.4*k*tear*smoothstep(0.09, 0., abs(t-1.));                       // shreds of the old skin
+        for (int j = 0; j < 3; j++) {                                             // droplets in 16 sectors, three rings of chance
+          float n = 16., sec = floor((an + 3.14159)*n/6.28318), h = fract(sin(sec*12.99 + sd_*78.23 + float(j)*31.7)*43758.5);
+          if (h < 0.45) continue;
+          float ca = (sec + 0.5 + (h - 0.7)*0.6)/n*6.28318 - 3.14159, rr = (0.9 + (1.2*h + 0.3*float(j))*(1. - k))*bb.z;
+          float dd = length(dq - vec2(cos(ca), sin(ca))*rr), sz = bb.z*(0.025 + 0.06*fract(h*7.3))*(0.4 + 0.6*k);
+          rimL += 1.6*k*smoothstep(sz, sz*0.3, dd); }
         continue; }
       if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.45, bb.w), 1., t*t); film = max(film, bb.w*(1.-t*t)); }
       rimL += bb.w*(smoothstep(0.05, 0., abs(t-0.96)) + 0.35*smoothstep(0.25, 0., abs(t-0.82))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a thin rim, and a soft catch-light on its upper left
@@ -556,10 +563,11 @@ function step(dt){
   simTime += dt;
 }
 
-// soap bubbles: they come up from the basin (small, faint, then sharp as they reach the surface), bloom over half a minute
+// soap bubbles, a cauldron's worth: they come up from the basin (small, faint, then sharp as they reach the surface), bloom over half a minute
 // while the swirl carries them toward the drain, then pop: at the end of their life, at the drain, as the water drains, or under a finger.
-// Only while the water runs; never more than seven.
-const BUB = new Float32Array(28), bubs = []; let nextBub = 0, lastBub = 0;
+// Only while the water runs; never more than sixteen.
+const NB = 16, BUB = new Float32Array(NB*4), BS = new Float32Array(NB), bubs = []; let nextBub = 0, lastBub = 0;
+const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.random()*2-1)*BY*0.6, a:Math.random()*6.283 }));   // a cauldron: bubbles keep coming up where it is hottest
 const POP = 0.45;
 function popBub(b, t){ if (b.pop) return; b.pop = t;
   const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
@@ -568,18 +576,24 @@ function popAt(u, v){ const t = performance.now()/1000; let hit = false;
   bubs.forEach((b) => { if (!b.pop && Math.hypot(u-0.5-b.x, v-0.5-b.y) < b.r*1.1) { popBub(b, t); hit = true; } }); return hit; }
 function blow(){
   const t = performance.now()/1000, dt = Math.min(0.1, t - (lastBub || t)); lastBub = t;
-  if (t > nextBub && bubs.length < 7 && water > 0.5) { const R = 0.05 + Math.random()*0.09;
-    bubs.push({ x:(Math.random()*2-1)*(BX-R)*0.85, y:(Math.random()*2-1)*(BY-R)*0.85, R, r:0, born:t, life:30 + Math.random()*30, pop:0 });
-    nextBub = t + 5 + Math.random()*6; }
-  BUB.fill(0);
+  vents.forEach((v) => { v.a += (Math.random() - 0.5)*dt; v.x = Math.max(-BX*0.7, Math.min(BX*0.7, v.x + Math.cos(v.a)*0.004*dt)); v.y = Math.max(-BY*0.7, Math.min(BY*0.7, v.y + Math.sin(v.a)*0.004*dt)); });
+  if (t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a big slow one; often a glob of two or three
+    const R = 0.015 + 0.14*Math.pow(Math.random(), 2.2), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
+    const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
+    const life = 5 + 70*R + Math.random()*10, n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;
+    bubs.push({ x, y, R, r:0, born:t, life, pop:0, seed:Math.random() });
+    for (let k = 0; k < n && bubs.length < NB; k++) { const r2 = R*(0.3 + 0.5*Math.random()), a2 = Math.random()*6.283;
+      bubs.push({ x:x + Math.cos(a2)*(R + r2)*0.8, y:y + Math.sin(a2)*(R + r2)*0.8, R:r2, r:0, born:t + Math.random()*1.5, life:life*(0.5 + 0.5*Math.random()), pop:0, seed:Math.random() }); }
+    nextBub = t + 0.3 + Math.random()*0.9; }
+  BUB.fill(0); BS.fill(0);
   for (let i = bubs.length - 1; i >= 0; i--) { const b = bubs[i], age = t - b.born, a = age/b.life;
     if (!b.pop) {                                                       // carried: a slow turn round the drain, a slower pull into it
       const d = Math.hypot(b.x, b.y) || 1, w = 0.012*water + 0.004, pull = 0.0015;
       const nx = b.x - (b.y*w + b.x/d*pull)*dt, ny = b.y + (b.x*w - b.y/d*pull)*dt; b.x = nx; b.y = ny;
       if (a >= 1 || d < 0.045 || (water < 0.3 && Math.random() < dt*0.8)) popBub(b, t); }   // no water, no bubbles: they pop as it drains
     if (b.pop && t - b.pop > POP) { bubs.splice(i, 1); continue; } }
-  bubs.forEach((b, i) => { const age = t - b.born, a = Math.min(1, age/b.life);
-    const rise = Math.min(1, age/7), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
+  bubs.forEach((b, i) => { BS[i] = b.seed; const age = Math.max(0, t - b.born), a = Math.min(1, age/b.life);
+    const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
     const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
     b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
     if (b.pop) { const k = Math.min(1, (t - b.pop)/POP); BUB.set([b.x, b.y, b.r*(1 + 0.7*Math.sqrt(k)), -(1 - k)], i*4); }
@@ -588,7 +602,7 @@ function blow(){
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
   if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; }
-  blow(); const d = view.dpr, u = use(P.display); bind(u.uDye, dye.read.tex); gl.uniform4fv(u['uBub[0]'], BUB);
+  blow(); const d = view.dpr, u = use(P.display); bind(u.uDye, dye.read.tex); gl.uniform4fv(u['uBub[0]'], BUB); gl.uniform1fv(u['uBs[0]'], BS);
   gl.uniform2f(u.uCenter, view.cx*d, (view.h-view.cy)*d); gl.uniform2f(u.uRes, pw, ph); gl.uniform1f(u.uS, view.S*d);
   gl.uniform2f(u.uCursor, hand.x*d, (view.h-hand.y)*d); gl.uniform1f(u.uCursorOn, hand.on ? 1 : 0);
   gl.uniform2f(u.uTapQ, TAP[0]-0.5, TAP[1]-0.5); gl.uniform1f(u.uTime, simTime);
