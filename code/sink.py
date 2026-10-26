@@ -31,6 +31,7 @@
 # made from it goes to every basin.
 import argparse, glob, hashlib, html, http.server, io, itertools, json, math, os, queue, random, re, secrets, sys, threading, time
 from types import SimpleNamespace as Knot              # a place on the path: a latent, and the words shown on the way to it
+class Cut(Exception): pass                              # the walk turns where it is: someone came to the sink, or left
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 FEED = os.path.join(ROOT, 'spring_feed')
@@ -39,7 +40,8 @@ INBOX = os.path.join(ROOT, 'source', 'mj_inbox')
 TASTE = [os.path.join(ROOT, 'source', 'moodboard', '*.webp'), os.path.join(ROOT, 'source', 'veritas', '*.png')]  # the first that has any
 SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin may fetch: never the key, never state.json
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
-OREF_W, OREF_S = 0.6, (0.5, 0.6)                      # a face at the sink as omni reference: how much it steers its dream, and how freely that dream redraws
+OREF_W, OREF_S = 0.7, (0.5, 0.6)                      # a face at the sink as omni reference: how much it steers its dream, and how freely that dream redraws
+FACE_TTL, SEG_F = 12, 6                               # a face lasts while frames keep coming (one every 5 s); its walks run in shorter stretches, so it surfaces fast
 DREAM_S = (.34, .44)                                   # how hard a dream pulls toward its words: the subject just surfaces, barely clear (uncanny)
 WORDS_MIX = (.08, .25)                                 # each dream's words lie between two prompts, the second a trace: a continuum, the first still names it
 WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.40, .46, .40), 8   # waypoints: where on the way; how hard; steps
@@ -156,7 +158,6 @@ class Inbox:
 class Feed:
     def __init__(self, keep=60):
         os.makedirs(FEED, exist_ok=True); self.keep, self.seq, self.last, self.every, self.up = keep, 0, None, 2.0, None
-        self.run = ['', 0, 0]                         # the words on show, frames poured under them, and how many the last words had
         self.lock = threading.Lock()                    # the dreaming thread changes the state while the pouring thread saves it
         try: self.state = json.load(open(os.path.join(FEED, 'state.json')))
         except Exception: self.state = {'i': 0, 'life': 7}
@@ -171,10 +172,7 @@ class Feed:
         seq, big, small, words = rec; now = time.time()
         if self.last: self.every = 0.8*self.every + 0.2*(now - self.last)
         self.last = now
-        if words != self.run[0]: self.run = [words, 0, self.run[1] or self.run[2]]   # new words: the turn starts again
-        self.run[1] += 1
-        self.last_now = {'t': now, 'seq': seq, 'frame': big, 'small': small, 'prompt': words, 'every': round(self.every, 2),
-                         'turn': [self.run[1], self.run[2]]}   # frames under these words, and the last words' count: how far through a turn
+        self.last_now = {'t': now, 'seq': seq, 'frame': big, 'small': small, 'prompt': words, 'every': round(self.every, 2), 'face': time.time() - FACE_SEEN['at'] < FACE_TTL + 20}   # someone at the sink, by the newest frame that held a face
         self.write('now.json', dict(self.last_now, tap=True))
         with self.lock: self.state['seq'] = seq; s = json.dumps(self.state)
         self.write('state.json', s)
@@ -190,6 +188,7 @@ class Feed:
         os.replace(tmp, os.path.join(FEED, name))
 
 FACES = []                                          # at most one face waiting, in memory only
+FACE_SEEN = {'at': 0., 'sent': 0.}                  # when a frame from the sink's camera last came, and when one last held a face
 TAP = {'on': True}                                  # the sink's lever: down, generation stops, no data flows, and every basin drains
 def face_key():
     os.makedirs(FEED, exist_ok=True); f = os.path.join(FEED, 'key')
@@ -205,7 +204,7 @@ def serve(port, lan):
             if path not in ('/feed/face', '/feed/tap') or not secrets.compare_digest(self.headers.get('X-Face-Key', ''), key) or not 0 < n < 3_000_000:
                 self.send_response(403); self.end_headers(); return
             data = self.rfile.read(n)
-            if path == '/feed/face': FACES[:] = [data]
+            if path == '/feed/face': FACES[:] = [data]; FACE_SEEN['sent'] = time.time()
             else: TAP['on'] = data.strip() != b'off'
             self.send_response(204); self.end_headers()
         def do_OPTIONS(self):
@@ -360,13 +359,20 @@ def main():
             W0, H0 = im.size; bw = min(hh*4/3, W0, H0*4/3); bh = bw*3/4   # 4:3, inside the picture: past its edge would be black
             l, t = min(max(cx - bw/2, 0), W0 - bw), min(max(cy - bh/2, 0), H0 - bh)
             im = im.crop((int(l), int(t), int(l + bw), int(t + bh)))
+        else: return None                           # nobody in front of the sink
         return fill(im).convert('L').convert('RGB')  # silver: skin would turn the whole frame gold
-    pending = []                                    # a face from the sink, encoded, waiting for its dream; in memory only
-    def take_face():
-        if FACES:
+    pending = []                                    # the face in front of the sink, encoded, in memory only
+    def take_face():                                # the newest frame from the sink's camera: is someone there? The face lasts while they stay
+        if FACES and time.time() - FACE_SEEN['sent'] < FACE_TTL:   # a frame left over from someone already gone is not looked at
             data = FACES.pop()
-            try: f = face_of(data); pending[:] = [(enc(f), ip_of(f) if OREF else None)]; print('a face at the sink: it is the next dream', flush=True)
+            try:
+                f = face_of(data)
+                if f is None: pending.clear()            # the camera looked and nobody was there
+                else:
+                    if not pending: print('a face at the sink: the water dreams them while they stay', flush=True)
+                    pending[:] = [(enc(f), ip_of(f) if OREF else None)]; FACE_SEEN['at'] = FACE_SEEN['sent']
             except Exception as e: print(f'a face at the sink could not be used ({e})', flush=True)
+        if pending and time.time() - FACE_SEEN['sent'] >= FACE_TTL: pending.clear()   # the camera stopped looking: they have gone
         return pending[0] if pending else None
     drift = [0]                                     # dreams in a row whose light or warmth left the range of her images
     def watch(im):                                  # too dark, too bright, too gold or no copper at all: pull harder toward hers
@@ -400,7 +406,7 @@ def main():
         pull, s = None, rng.uniform(*DREAM_S)
         ip = None
         if ref is not None:                         # someone at the sink: their face is the reference for this dream, once
-            pending.clear(); words += ' --oref you'
+            words += ' --oref you'
             if OREF:                                # the face steers a dream of its own, grown from the last one toward one of hers: a vanitas of them, not their photo
                 ip, pull = ref[1], rng.randrange(len(taste)); init = slerp(rng.uniform(0.35, 0.6), K.z, taste[pull]); s = rng.uniform(*OREF_S)
             else:
@@ -422,7 +428,7 @@ def main():
         """A place on the way, dreamed: from the bent curve at WP_F[n], with the words halfway between and the noise of the dream ahead."""
         f = WP_F[n]; init = slerp(f, slerp(f, A.z, det), slerp(f, det, B.z))
         ia, ib = getattr(A, 'ip', None), getattr(B, 'ip', None)    # a face fades in on the way to its dream, and out on the way from it
-        ip, w = (ib, OREF_W*f) if ib is not None else (ia, OREF_W*(1 - f)) if ia is not None else (None, 0.)
+        ip, w = (ib, OREF_W) if ib is not None else (ia, OREF_W*(1 - f)) if ia is not None else (None, 0.)   # toward a face: at once; away: fading
         z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed, ip, w)
         return Knot(z=z, words=B.words, key=False, mj=False)
     k = feed.state['i']; pull0 = rng.randrange(len(taste))
@@ -478,6 +484,7 @@ def main():
         try:
             wait_tap(); t0 = time.time(); B = keyframe(K, k, inbox); k += 1; t_key = time.time() - t0; busy, made, seen = t_key, 0, None
             det = detour(K, B)[0]
+            nseg = SEG_F if getattr(B, 'ip', None) is not None else SEG
             for n in range(3):
                 wait_tap()
                 if n == 1 and FACES and not OREF:       # without the omni reference, the face's picture surfaces on the way, then gets its dream
@@ -487,9 +494,12 @@ def main():
                 if n == 2: knots.append(B)
                 while len(knots) > seg + 2:             # a stretch is drawn once the knot after its end exists
                     win = [knots[max(seg - 1, 0)]] + knots[seg:seg + 3]
-                    for i in range(SEG):
+                    for i in range(nseg):
                         if first and i == 0: continue   # the first still was poured at once
-                        wait_tap(); t0 = time.time(); im = dec(catmull(i/SEG, *[x.z for x in win])); busy += time.time() - t0
+                        if OREF and (getattr(B, 'ip', None) is None) == (take_face() is not None):   # someone arrived, or left: turn from here
+                            z = catmull(i/nseg, *[x.z for x in win]); raise Cut(Knot(z=z, words=win[2].words.replace(' --oref you', ''), E=getattr(win[2], 'E', B.E), pull=None,
+                                                    seed=B.seed, key=True, mj=False, ip=getattr(B, 'ip', None)))
+                        wait_tap(); t0 = time.time(); im = dec(catmull(i/nseg, *[x.z for x in win])); busy += time.time() - t0
                         if i == 0 and win[1].key and not win[1].mj: seen = watch(im)
                         frames.put((im, (win[2] if i else win[1]).words)); made += 1
                     seg += 1; first = False
@@ -502,6 +512,11 @@ def main():
             if dev == 'mps': lw += f'   GPU memory {torch.mps.driver_allocated_memory()/2**30:.1f} GB'
             print(f'{t_key:.1f}s  {B.words}   {busy/max(made, 1):.2f}s a frame, pouring every {cadence():.2f}s{lw}', flush=True)
             K = B
+        except Cut as c:                            # a face came or went: the walk turns where it is, and what was queued is let go
+            while True:
+                try: frames.get_nowait()
+                except queue.Empty: break
+            K = c.args[0]; knots, seg, first = [K], 0, True; print('the walk turns: ' + ('toward the face at the sink' if K.ip is None else 'away from it: the face at the sink has gone'), flush=True)
         except Exception as e:                      # one GPU error must not stop the water: start again from the last dream
             print(f'the spring stumbled ({e!r}); on again from the last dream', flush=True)
             if dev == 'mps': torch.mps.empty_cache()
