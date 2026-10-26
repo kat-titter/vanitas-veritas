@@ -237,8 +237,22 @@ def tunnel(port):
     def read():
         for line in pr.stderr:
             m = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
-            if m: print(f'veritas, public: {m.group(0)}/', flush=True)
+            if m: print(f'veritas, public: {m.group(0)}/', flush=True); point(m.group(0) + '/feed/')
     threading.Thread(target=read, daemon=True).start()
+
+def point(feed):
+    """Tell the public basin where the spring is now: verse/spring.json on the site, written through the GitHub API with this Mac's
+    gh login, so the plain veritas address finds the water after every restart. Without gh, the address stays in the log."""
+    import base64, shutil, subprocess
+    gh = shutil.which('gh')
+    if not gh or os.environ.get('SPRING_POINTER') == '0': return
+    api, body = 'repos/kat-titter/vanitas-veritas/contents/verse/spring.json', json.dumps({'feed': feed}) + '\n'
+    try:
+        sha = subprocess.run([gh, 'api', api, '--jq', '.sha'], capture_output=True, text=True, timeout=30).stdout.strip()
+        r = subprocess.run([gh, 'api', '-X', 'PUT', api, '-f', 'message=spring: where the water is now', '-f', 'content=' + base64.b64encode(body.encode()).decode()]
+                           + (['-f', f'sha={sha}'] if sha else []), capture_output=True, text=True, timeout=30)
+        print('public basin points here' if r.returncode == 0 else f'public basin: could not point here ({r.stderr.strip()[:120]})', flush=True)
+    except Exception as e: print(f'public basin: could not point here ({e})', flush=True)
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--sheet', type=int, default=0)
