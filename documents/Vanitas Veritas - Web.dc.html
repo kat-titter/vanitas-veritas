@@ -366,20 +366,15 @@ class Component extends DCLogic {
       bubbleInt = setInterval(burst, 300);
     };
     const stopBubbles = () => { clearInterval(bubbleInt); };
-    const drain = (b, on) => {                       // live: tell veritas its tap is closed, so its own water runs to the drain; recorded: it swirls down
-      if (b.tagName === 'IFRAME') { try { b.contentWindow.postMessage({ veritas: 'dry', on }, '*'); } catch (e) {} return; }
-      if (b.hasAttribute('data-promptline')) { b.style.transition = 'opacity 2s ease'; b.style.opacity = on ? '0' : '1'; return; }
-      b.style.transformOrigin = '50% 50%';
-      b.style.transition = on ? 'transform 4.5s cubic-bezier(.55,0,.85,.35), filter 4.5s ease-in, opacity 4.5s ease-in'
-                              : 'transform 2.4s cubic-bezier(.2,.7,.3,1), filter 2.4s ease-out, opacity 2.4s ease-out';
-      b.style.transform = on ? 'rotate(220deg) scale(.03)' : 'none'; b.style.filter = on ? 'blur(6px) brightness(.6)' : 'none'; b.style.opacity = on ? '0' : '1';
+    const drain = (b, on) => {                       // the handle is the water: off, no water, and the dream fades away; on, it comes back
+      b.style.transition = 'opacity 3.6s cubic-bezier(.45,0,.2,1)'; b.style.opacity = on ? '.04' : '1';
     };
     const setHeld = (on) => {
       if (held === on) return;
       held = on;
       $('video').forEach((v) => { try { on ? v.pause() : v.play(); } catch (e) {} });
       $('[data-hold]').forEach((b) => { b.style.filter = on ? 'brightness(1.25)' : 'none'; });
-      $('[data-basinframe], [data-zoombig] > *').forEach((b) => drain(b, on));   // no water, no dream: down the drain, and it floods back
+      $('[data-basinframe], [data-zoombig] > *').forEach((b) => drain(b, on));   // no water, no dream
       notes.forEach((n) => { n.style.color = on ? '#E2A461' : '#8A8378'; });
       if (rootEl) rootEl.style.filter = on ? 'saturate(0.55) brightness(0.9)' : '';
       if (hud) { hud.style.opacity = on ? '1' : '0'; hud.style.transform = 'translateX(-50%) translateY(' + (on ? '0' : '14px') + ')'; }

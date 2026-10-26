@@ -434,8 +434,6 @@ function others(){                                    // replay each other hand 
 // ---- the hand, the plug, the water
 const hand = { x:0, y:0, on:false, u:0.5, v:0.5, vx:0, vy:0, t:0, down:false, t0:0 };
 const stir = { x:0.5, y:0.5, vx:0, vy:0 };
-let shut = false;                                    // a page that embeds veritas has closed its tap (a handle held)
-addEventListener('message', (e) => { if (e.data && e.data.veritas === 'dry') { shut = !!e.data.on; if (shut) gulp = Math.max(gulp, 1); } });
 let water = 0, left = 0, flood = 0, gulp = 0, grip = 0, holdAmt = 0, plug = false, plugAmt = 0, drip = 99, dripAt = 0, simTime = 0, lastWaterOn = false;
 const toSim = (x, y) => [0.5 + (x-view.cx)/view.S, 0.5 + (view.cy-y)/view.S];
 function moveTo(ev){
@@ -509,11 +507,11 @@ addEventListener('blur', () => { reach(false); if (plug) { plug = false; gulp = 
 
 const Q0 = 0.012, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
 function step(dt){
-  const now = performance.now(), fresh = live.tap && live.have && now-live.lastNew < STALE() && !shut;
+  const now = performance.now(), fresh = live.tap && live.have && now-live.lastNew < STALE();
   water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 5)));
   if (fresh && !lastWaterOn) flood = 1;              // it floods back
   lastWaterOn = fresh;
-  left = water > 0.5 ? 1 : left*Math.exp(-dt/(shut ? 5 : 22));   // the water off: what is left runs out (fast while a handle is held)
+  left = water > 0.5 ? 1 : left*Math.exp(-dt/22);     // the water off: what is left runs out
   if (water < 0.2 && now-dripAt > 3600 + 2400*Math.sin(simTime)) { dripAt = now; drip = 0; }
   drip += dt;
   const dripQ = drip < 0.12 ? 0.35*Q0*left : 0;
