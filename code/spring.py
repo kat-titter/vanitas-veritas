@@ -27,7 +27,7 @@
 # the glass, held for two seconds, and then looks once, for under a second. That one frame comes here as the omni reference for the next
 # dream (the open-model way to do Midjourney's --oref): the face is found, made silver, used once, and never written to disk; the dream
 # made from it goes to every basin.
-import argparse, glob, hashlib, html, http.server, io, itertools, json, os, queue, random, re, secrets, sys, threading, time
+import argparse, glob, hashlib, html, http.server, io, itertools, json, math, os, queue, random, re, secrets, sys, threading, time
 from types import SimpleNamespace as Knot              # a place on the path: a latent, and the words shown on the way to it
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
@@ -45,9 +45,19 @@ QMAX, PREROLL, CAD = 6, 3, (2.5, 3.5)                   # frames held for an eve
 MJ_EXT = ('.png', '.jpg', '.jpeg', '.webp')
 
 CORE = ['flower', 'flower in bloom', 'peony', 'daisy', 'skull', 'soap bubble', 'a face, eyes closed', 'a face in profile']   # hers
-NOTES = ['pearls', 'a moth', 'an hourglass', 'a glass bottle', 'smoke from a snuffed candle', 'hands under running water']  # at most one
+NOTES = ['pearls', 'a moth', 'an hourglass', 'a glass bottle', 'smoke from a snuffed candle', 'hands under running water',   # at most one
+         'a pocket watch', 'a cracked egg', 'a wilting tulip', 'an oyster shell', 'a butterfly', 'a feather', 'a glass of water',
+         'a hand mirror', 'a seashell', 'a peeled lemon', 'falling petals', 'a dragonfly', 'melting ice', 'a bee', 'a lit candle',
+         'a broken string of pearls', 'spilled wine', 'a snail', 'a burnt match', 'a key', 'a cut pomegranate', 'a sparrow',
+         'a wristwatch', 'a fallen petal', 'a cracked mirror', 'a coin', 'a dried rose', 'a glass marble', 'a silk ribbon', 'a wasp nest']
 MOODS = ['dissolving into light', 'blooming', 'about to burst', 'half erased', 'in a long exposure', 'melting slowly',
-         'scattering into dust', 'reflected in glass']
+         'scattering into dust', 'reflected in glass', 'drifting apart', 'holding still', 'breathing in', 'caught in a current',
+         'fading at the edges', 'rising like steam', 'under water', 'just before waking', 'unravelling', 'turning to glass',
+         'coming into focus', 'in slow motion', 'frozen mid-air', 'cracking open', 'pooling', 'overflowing', 'surfacing',
+         'losing its color', 'asleep', 'weightless']
+LIGHT = ['', 'in moonlight', 'at first light', 'in a single shaft of light', 'backlit', 'in the dark', 'by candlelight',
+         'in cold light', 'in silver light', 'through rain', 'in a mirror', 'at dusk', 'in the last light',
+         'lit from below', 'in lamplight', 'in a long shadow', 'through frosted glass', 'by a window']        # often none
 STYLE = ('silver gelatin photograph, hard light, crisp point cloud of white dots, a few tiny copper sparks, '
          'vertical glitch streaks, deep black background, high contrast, film grain')
 NEG = ('text, watermark, signature, frame, border, grid, colorful, pastel, cartoon, illustration, painting, blurry, soft glow, haze, '
@@ -55,16 +65,29 @@ NEG = ('text, watermark, signature, frame, border, grid, colorful, pastel, carto
 GLASS = {'soap bubble': 'clear glass soap bubble'}       # her bubbles are clear glass with a few sparks; the model makes gold balls
 
 def prompts(state):
-    """Every (three subjects, mood) in one fixed shuffled order; the place in it survives a restart."""
+    """Functionally endless prompts: three subjects (hers, at most one other vanitas object), in an order, a mood and sometimes a
+    light. The space is walked by a stride that visits every prompt once, in a scrambled order, without storing it; the place in
+    it survives a restart. At a dream every two minutes it would take years to come round (len_prompts() says how many)."""
     trios = [c for c in itertools.combinations(CORE + NOTES, 3) if sum(x in NOTES for x in c) <= 1
              and any(x in c for x in ('skull', 'soap bubble')) and any(x in c for x in CORE[:4] + ['skull'])]
-    allp = [(c, m) for c in trios for m in MOODS]
-    random.Random(state.get('life', 7)).shuffle(allp)
+    orders = list(itertools.permutations(range(3)))
+    N = len(trios)*len(orders)*len(MOODS)*len(LIGHT)
+    def stride(life):                                   # a step coprime to N: i -> (a*i + b) % N visits every index once
+        r = random.Random(life); a = r.randrange(N//3, N) | 1
+        while math.gcd(a, N) != 1: a += 2
+        return a, r.randrange(N)
+    a, b = stride(state.get('life', 7))
     while True:
-        i = state['i'] % len(allp); state['i'] += 1
-        if state['i'] % len(allp) == 0: state['life'] = state.get('life', 7) + 1; random.Random(state['life']).shuffle(allp)
-        (c, m) = allp[i]; c = list(c); random.Random(state['i']).shuffle(c)
-        yield f"vanitas [{', '.join(c)}], {m}", f"vanitas, {', '.join(GLASS.get(x, x) for x in c)}, {m}, {STYLE}"
+        if state['i'] and state['i'] % N == 0: state['life'] = state.get('life', 7) + 1; a, b = stride(state['life'])
+        x = (a*(state['i'] % N) + b) % N; state['i'] += 1
+        x, li = divmod(x, len(LIGHT)); x, mi = divmod(x, len(MOODS)); ti, oi = divmod(x, len(orders))
+        c = [trios[ti][j] for j in orders[oi]]; m = MOODS[mi] + (' ' + LIGHT[li] if LIGHT[li] else '')
+        yield f"vanitas [{', '.join(c)}], {m}", f"vanitas, {', '.join(GLASS.get(y, y) for y in c)}, {m}, {STYLE}"
+
+def len_prompts():
+    trios = [c for c in itertools.combinations(CORE + NOTES, 3) if sum(x in NOTES for x in c) <= 1
+             and any(x in c for x in ('skull', 'soap bubble')) and any(x in c for x in CORE[:4] + ['skull'])]
+    return len(trios)*6*len(MOODS)*len(LIGHT)
 
 def mj_words(im):
     """The words of a Midjourney image, from its own metadata: the prompt before the first --parameter, or 'vanitas'."""
