@@ -404,7 +404,8 @@ async function poll(){
     if (first && Date.now()/1000 - j.t > STALE()/1000) return true;     // a spring that stopped long ago: no water yet
     live.every = Math.max(0.6, Math.min(8, +j.every || 2)); live.prompt = String(j.prompt || '').slice(0, 160);
     const file = !BIG && j.small ? j.small : j.frame;                // 2560 x 1920 for big screens, 1280 x 960 otherwise
-    const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) upload(im); };   // a slow old frame never lands after a newer one im.src = new URL(file, base).href;
+    const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) upload(im); };   // a slow old frame never lands after a newer one
+    im.src = new URL(file, base).href;
     return true;
   } catch (e) { return false; }
 }
