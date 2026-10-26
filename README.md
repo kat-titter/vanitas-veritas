@@ -1,32 +1,24 @@
 # vanitas_veritas
 
-**A sink you can't wash your hands in.** Its water is a GPU dreaming vanitas still lifes without end, poured from the tap to the drain: no GPU, no water, no dream. By Katherine Titterton, San Francisco, 2026.
+**No water, no dream.** A sink you can't wash your hands in: its water is a GPU dreaming vanitas still lifes without end, poured from the tap to the drain. By Katherine Titterton, San Francisco, 2026.
 
-[the doc](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html)&emsp;[how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin)&emsp;[the black paper](verse/blackpaper.html)&emsp;[veritas, at sink==sync](https://kat-titter.github.io/vanitas-veritas/sink==sync/)
+Three documents, each linking the others:
 
----
+- [**the doc**](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html): the piece, [how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin), the price; print it for a submission
+- [**the build guide**](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Build%20Guide.dc.html): parts, wiring, setup and upkeep
+- [**the black paper**](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html): the thesis, where it goes, and texts and a rider for hosts and juries
 
-## 1. Two pieces, one water
+The water itself, live: [**veritas**](https://kat-titter.github.io/vanitas_veritas_verse/).
 
-- **vanitas** is the sink: a freestanding stainless-steel sink with a self-portrait above it, designed and not yet built (first for tiat's *Epistemologies of Slop*, 2026). A touch screen lies in its bowl.
+## Two pieces, one water
+
+- **vanitas** is the sink: a freestanding stainless-steel sink with a self-portrait above it, designed and not yet built (first for tiat's *Epistemologies of Slop*, 2026). A touch screen lies in its bowl; an old MacBook Pro under it dreams the water.
 - **veritas** is the same basin on the web, [`verse/sync.html`](verse/sync.html). A hand in either moves the water in both, over public Nostr relays.
-- **The handle is the water.** Turn it off and the dream fades away.
+- **The faucet handle is the tap.** Hold it and generation stops, and every basin drains.
 
-## 2. How the water is made
+## Kept small, kept running
 
-| | step | what runs | time |
-|---|---|---|---|
-| 01 | historical style | six vanitas paintings, the references for the style | |
-| 02 | Midjourney style | the self-portrait as style reference, a profile, an eight-picture moodboard; by hand, never automated | once |
-| 03 | the prompt | a grammar, not a language model: 1.3 million prompts, about five years before any repeat | instant |
-| 04 | the dream | Stable Diffusion 1.5 + LCM-LoRA, image to image from the last dream, pulled toward a moodboard picture; fp16 on the GPU | about 4 s |
-| 05 | the walk | three dreamed waypoints and one Catmull-Rom path; 48 frames from dream to dream | about 2 min |
-| 06 | upscaling | Real-ESRGAN x4plus as Core ML on the Neural Engine, 640 × 480 to 2560 × 1920 | 0.76 s |
-| 07 | the water | stable fluids in WebGL2 in the viewer's browser; the frame is the dye | a frame every 2.5 to 3.5 s |
-
-## 3. Kept small, kept running
-
-Everything is built to run on Kat's old MacBook Pro, its own, lid closed under the sink's bowl. Each choice was measured on an Apple M5 with 16 GB.
+Each choice was measured on an Apple M5 with 16 GB.
 
 - **2.3 GB of GPU memory**: the model in half precision; only the decoder in full, which keeps colours clean.
 - **Memory handed back** after every dream and stretch: the process went from 10 GB to 5.8 GB.
@@ -36,28 +28,37 @@ Everything is built to run on Kat's old MacBook Pro, its own, lid closed under t
 - **Little kept**: the last 60 frames on disk; prompts walked by a stride, never stored; the place in them survives a restart.
 - **Little shown**: the spring serves only the page, the newest-frame note and the frames, never its key or its state.
 
-## 4. Run it
+## Run it
+
+On any Apple-silicon Mac:
 
 ```bash
 caffeinate -i python3 code/sink.py            # veritas at http://127.0.0.1:8770/
 caffeinate -i python3 code/sink.py --public   # and to everyone, through a Cloudflare quick tunnel
 ```
 
-Needs Python 3 with `torch diffusers transformers peft spandrel coremltools opencv-python pillow`, the Real-ESRGAN weights in `code/models/`, and the moodboard in `source/moodboard/` (both local only). `--public` needs `cloudflared`; its address changes each run. Midjourney pictures saved by hand to `source/mj_inbox/` become the next dream.
+On the sink's own MacBook Pro, for good (the build guide walks through it):
 
-## 5. Files
+```bash
+bash code/setup_sink.sh     # packages, models, cloudflared, two test dreams
+bash code/sink.sh install   # the spring and the full-screen page, at every login
+```
+
+The moodboard lives in `source/moodboard/` and the Real-ESRGAN weights in `code/models/` (both local only). `--public` writes each new tunnel address to `verse/spring.json`, so the plain veritas address finds the water. Midjourney pictures saved by hand to `source/mj_inbox/` become the next dream.
+
+## Files
 
 | path | what it is |
 |---|---|
 | [`code/sink.py`](code/sink.py) | the spring: dreams, walks, upscales, pours, serves veritas |
-| [`code/latent.py`](code/latent.py) | slerp, Catmull-Rom and the VAE's way in and out, shared with the loop |
 | [`code/upscale.py`](code/upscale.py) | Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop |
-| [`code/harmonize.py`](code/harmonize.py) | the palette lock: cool silver, gold only where the picture was warm |
+| [`code/latent.py`](code/latent.py), [`code/harmonize.py`](code/harmonize.py) | slerp, Catmull-Rom and the VAE's way in and out; the palette lock |
+| [`code/setup_sink.sh`](code/setup_sink.sh), [`code/sink.sh`](code/sink.sh) | the sink's computer: install once, then run for good |
+| [`code/morph_v44.py`](code/morph_v44.py), [`code/morph_v45_sr.py`](code/morph_v45_sr.py), [`code/order_preview.py`](code/order_preview.py) | the 2026 loop the spring grew from (rendered with the `render-loop` skill in `.claude/skills/`) |
 | [`verse/sync.html`](verse/sync.html) | veritas: one page, WebGL2, no build step |
-| [`documents/`](documents/) | the doc (print it for a submission) and the build guide |
-| [`verse/`](verse/) | the black paper, pitch, proposal, vanitas, and the earlier pieces i, ii, iii |
-| [`code/LOOP.md`](code/LOOP.md) | the loop of 2026 and how it was made (`morph_v44.py`, `morph_v45_sr.py`, `order_preview.py`) |
+| [`verse/blackpaper.html`](verse/blackpaper.html), [`verse/deploy_verse.py`](verse/deploy_verse.py) | the black paper, and the script that publishes it and veritas at their short address |
+| [`documents/`](documents/) | the doc and the build guide, with their pictures |
 
-## 6. Colophon
+## Colophon
 
 Stable Diffusion 1.5 with LCM-LoRA, Real-ESRGAN, stable fluids (Stam, 1999); Midjourney for the style, by hand. Built with Claude and Claude Code. Code under the [MIT License](LICENSE); the images are the artist's.

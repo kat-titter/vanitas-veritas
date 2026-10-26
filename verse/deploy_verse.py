@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Publish the pages to their own address, kat-titter.github.io/vanitas_veritas_verse/: veritas (sync.html) as index.html
-# and at its own name, with the black paper and the pitch beside it. The earlier web pieces (i, ii, iii, the macroverse and
+# and at its own name, with the black paper beside it. The earlier web pieces (i, ii, iii, the macroverse and
 # the basalt sink page) are retired: kept locally in verse/_archive/, never published; any left there are removed.
 #   python3 verse/deploy_verse.py                 every page as it is on disk
 #   python3 verse/deploy_verse.py --committed     every page as last committed here (while the working tree is being edited;
@@ -23,8 +23,8 @@ def rehome(html):
     return html
 
 C = '--committed' in args
-pages = {'index.html': read('sync.html', C), 'blackpaper.html': read('blackpaper.html', C), 'pitch.html': read('pitch.html', C)}
-for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html', 'sink.html']:    # retired pieces: never left on the site
+pages = {'index.html': read('sync.html', C), 'blackpaper.html': read('blackpaper.html', C)}
+for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html', 'sink.html', 'pitch.html']:    # retired pieces: never left on the site
     if (DEST / old).exists(): (DEST / old).unlink()
 if (HERE / 'sync.html').exists(): pages['sync.html'] = read('sync.html', C)     # veritas: one water with vanitas
 
