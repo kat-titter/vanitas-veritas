@@ -39,8 +39,9 @@ SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin ma
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
 WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.55, .62, .55), 8   # waypoints: where on the way; how hard; steps
 WP_STR_MJ = (.55, .5, .4)                               # heading to her own Midjourney picture: dream less near it, so it arrives
-SEG = 4                                                 # frames from one knot of the path to the next: 16 between two dreams
-QMAX, PREROLL, CAD = 6, 3, (1.8, 3.5)                   # frames held for an even pace; held before the first; seconds a frame
+SEG = 12                                                # frames from one knot to the next: 48 a dream, about two minutes, so the
+                                                        # change is just perceptible (you have to watch closely to see it move)
+QMAX, PREROLL, CAD = 6, 3, (2.5, 3.5)                   # frames held for an even pace; held before the first; seconds a frame
 MJ_EXT = ('.png', '.jpg', '.jpeg', '.webp')
 
 CORE = ['flower', 'flower in bloom', 'peony', 'daisy', 'skull', 'soap bubble', 'a face, eyes closed', 'a face in profile']   # hers

@@ -502,7 +502,7 @@ addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(
 addEventListener('keyup', (e) => { if (e.code === 'Space') { if (SRC === 'sink') tap(true); else { plug = false; gulp = 1; } } });
 addEventListener('blur', () => { reach(false); if (plug) { plug = false; gulp = 1; } });
 
-const Q0 = 0.030, H = 1/SIM;
+const Q0 = 0.012, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
 function step(dt){
   const now = performance.now(), fresh = live.tap && live.have && now-live.lastNew < STALE();
   water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 5)));
@@ -521,7 +521,7 @@ function step(dt){
   let u = use(P.curl); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(curl);
   u = use(P.force); bind(u.uVel, vel.read.tex); bind(u.uCurl, curl.tex);
   gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uConf, 0.025); gl.uniform1f(u.uTime, simTime);
-  gl.uniform1f(u.uSwirl, 0.0036*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, water*(1 + flood));
+  gl.uniform1f(u.uSwirl, 0.0014*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, 0.4*water*(1 + flood));
   gl.uniform2f(u.uStirPos, stir.x, stir.y); gl.uniform2f(u.uStirVel, stir.vx, stir.vy); gl.uniform2f(u.uTap, tap[0], tap[1]);
   gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06); gl.uniform2f(u.uGrabVel, hand.vx, hand.vy);
   others(); gl.uniform4fv(u['uRH[0]'], RH); gl.uniform1fv(u['uRG[0]'], RG); gl.uniform1f(u.uRN, rn);
@@ -534,7 +534,7 @@ function step(dt){
   for (let i = 0; i < PI_N; i++) { unit = 0; bind(u.uP, prs.read.tex); bind(u.uDiv, dvg.tex); draw(prs.write); prs.swap(); }
   u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(vel.write); vel.swap();
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uImgA, live.A); bind(u.uImgB, live.B);
-  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.18 + 1.4*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/26 - 1.2), 2))); gl.uniform1f(u.uTapPour, 2.6*water);
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.08 + 0.6*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2))); gl.uniform1f(u.uTapPour, 1.2*water);
   gl.uniform1f(u.uFade, 0.015 + 0.10*(1-water)); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
   draw(dye.write); dye.swap();
   flood *= Math.exp(-dt/2.5); gulp *= Math.exp(-dt/1.5);
