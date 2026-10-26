@@ -410,11 +410,19 @@ class Component extends DCLogic {
   componentDidMount() {
     // hold the handle (or the chip): the GPU's switch. Held, the water runs out; let go, it floods back
     let held = false;
+    const drain = (b, on) => {                       // live: tell veritas its tap is closed, so its own water runs to the drain; recorded: it swirls down
+      if (b.tagName === 'IFRAME') { try { b.contentWindow.postMessage({ veritas: 'dry', on }, '*'); } catch (e) {} return; }
+      if (b.hasAttribute('data-promptline')) { b.style.transition = 'opacity 2s ease'; b.style.opacity = on ? '0' : '1'; return; }
+      b.style.transformOrigin = '50% 50%';
+      b.style.transition = on ? 'transform 4.5s cubic-bezier(.55,0,.85,.35), filter 4.5s ease-in, opacity 4.5s ease-in'
+                              : 'transform 2.4s cubic-bezier(.2,.7,.3,1), filter 2.4s ease-out, opacity 2.4s ease-out';
+      b.style.transform = on ? 'rotate(220deg) scale(.03)' : 'none'; b.style.filter = on ? 'blur(6px) brightness(.6)' : 'none'; b.style.opacity = on ? '0' : '1';
+    };
     const setHeld = (on) => {
       held = on;
       document.querySelectorAll('[data-hold]').forEach(el => { el.style.filter = on ? 'brightness(1.3)' : ''; });
-      if (on) basins().forEach(im => { im.style.transition = 'opacity 3.6s cubic-bezier(.45,0,.2,1)'; im.style.opacity = '.04'; });   // no water, no dream: a slow drain
-      else basins().forEach(im => { im.style.transition = 'opacity 3.6s cubic-bezier(.45,0,.2,1)'; im.style.opacity = '1'; });
+      basins().forEach(im => drain(im, on));   // no water, no dream: down the drain, and it floods back
+      
     };
     document.querySelectorAll('[data-hold]').forEach(el => {
       el.addEventListener('pointerdown', e => { e.preventDefault(); setHeld(true); });
@@ -441,10 +449,12 @@ class Component extends DCLogic {
       const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 1500);
       const j = await (await fetch(new URL('now.json', base), { cache: 'no-store', signal: ctl.signal })).json(); clearTimeout(tm);
       if (!j.frame || j.tap === false) continue;
-      document.querySelectorAll('iframe[data-liveframe]').forEach((f) => {
+      const apply = () => document.querySelectorAll('iframe[data-liveframe]').forEach((f) => {   // the page renders its sections late: keep checking
+        if (f.dataset.on) return; f.dataset.on = '1';
         f.src = '../verse/sync.html?' + f.dataset.liveframe + '&spring=' + encodeURIComponent(base);
         f.style.display = 'block'; const im = f.previousElementSibling; if (im) im.style.display = 'none';
       });
+      apply(); setInterval(apply, 1000);
       document.querySelectorAll('[data-livelabel]').forEach((el) => { el.lastChild.textContent = el.dataset.livelabel; });
       return;
     } catch (e) {}
