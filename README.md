@@ -32,13 +32,12 @@ One web page, no framework, no server of its own. Hold still and the glass
 clears. Seven hidden stars each grow a named new form of life from two
 pictures, and how you play pushes the culture on the rim. The program is a
 primer, then a poem, in Python. At the end your youniverse is read back to
-you, kept on your device and sendable as a link that carries no picture. The
-camera is optional: one frame, which never leaves the device.
+you, kept on your device and sendable as a link that carries no picture.
 
 The macroverse is everyone's youniverses on one live map.
 
 **The study.** Each play on the published page leaves one anonymous record on
-public Nostr relays (NIP-78), with no picture and no face. `?nostudy` or Global
+public Nostr relays (NIP-78), with no picture. `?nostudy` or Global
 Privacy Control keeps a play out. `node davos_2027/study/plays.mjs` reads the
 records. Details are in
 [the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html#keeps).

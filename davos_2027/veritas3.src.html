@@ -47,7 +47,6 @@
   #lines { font-size:var(--k); line-height:1.45; }
   #prog .pc, #prog .cmt, #prog .ln.cmt2, #prog > span:last-child { font-size:var(--p); }   /* every comment a size up; the riddle is a comment */
   #prog > :not(.pc) + .pc, #lines > .cmt2, #lines > .cmt:first-child { margin-top:var(--pair); }   /* a comment opens a pair */
-  body.tall #youPc { margin-top:0; }                                                      /* phones: the lines above it are hidden */
   #prog > span:last-child { margin-top:var(--head); }                                      /* # macrofluidic × __ stands outside the def */
   body.tall #lines .ln.life:not(.a0) { display:none; }          /* a phone: the newest form of life only */
   #prog .pc { color:var(--bone); white-space:pre; }                 /* the primer: what each opening line means, in words */
@@ -134,7 +133,6 @@
   #say .nm + .c { margin-top:var(--head); }                           /* air after the name */
   body.end #say { margin-top:26px; }                           /* the reading gets room of its own */
   body.end #lines .ln.life, body.end #prog .hd { display:none; } /* at the end the program folds to its bones: the reading is the thing */
-  body.end #you, body.end #youPc { display:none; }               /* the name is shown once, as code, in the reading */
   body.end #prog, body.end #say { text-shadow:0 0 2px var(--ink), 0 0 8px var(--ink); }   /* small lines at the end: a dark halo, not a glow */
   #say .c.gold { color:var(--gold); }
   #say .keep.ic { border-bottom:0; vertical-align:-5px; }
@@ -145,15 +143,6 @@
     text-decoration:none; border-bottom:0; white-space:nowrap; }
   #say.quiet { color:var(--bone); font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-top:1.9em; animation:breath 3.2s ease-in-out infinite; }
   @keyframes breath { 0%, 100% { opacity:.42; } 50% { opacity:.95; } }   /* hold: it breathes at the pace of one held breath */
-  /* the eye: the drain is a button once it has started looking at you */
-  #eye { position:fixed; left:0; top:0; width:44px; height:44px; margin:-22px 0 0 -22px; border-radius:50%; display:none; cursor:pointer; background:none; border:0; padding:0; }
-  #eye.on { display:block; }
-  #eye:focus-visible { outline:1px solid var(--gold); }
-  #ask { position:absolute; left:52px; top:50%; transform:translateY(-50%); margin:0; white-space:nowrap; font:inherit; font-size:11.5px; color:var(--bone);
-    opacity:0; transition:opacity .6s; pointer-events:none; text-shadow:0 0 2px #030304, 0 0 6px #030304, 0 0 14px #030304; }
-  #eye:hover #ask, #eye:focus-visible #ask, #eye.said #ask { opacity:1; }
-  body.tall #ask { left:50%; top:auto; bottom:-8px; transform:translate(-50%, 100%); white-space:normal; width:max-content; max-width:min(300px, calc(100vw - 48px)); text-align:center; }   /* phones: under the eye, never off the edge */
-  #ask b { font-weight:400; color:var(--gold); }
   #err { display:none; color:var(--bone); margin:18px 0 0; }
   #tools { margin:auto 0 0; padding-top:12px; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }   /* the foot of the measure */
   #tools a { color:var(--dim); pointer-events:auto; text-decoration:none; }   /* quiet, and still 6:1 */
@@ -167,7 +156,7 @@
   /* a gallery wall: the basin, centred, and the title */
   body.gallery #words pre, body.gallery #say, body.gallery #tools { display:none; }
   /* a real sink: the basin only */
-  body.sink #words, body.sink #eye, body.sink #lead { display:none !important; }
+  body.sink #words, body.sink #lead { display:none !important; }
   /* no WebGL: one still, the words, a note */
   img.fallback { display:block; width:min(78vw, 66vh); aspect-ratio:1; object-fit:cover; border-radius:50%; margin:6vh auto 0; filter:grayscale(.35) contrast(1.08); }
   body.still { overflow:auto; }
@@ -179,11 +168,10 @@
 <body class="unborn mute">
 <canvas id="c" aria-label="A dark basin seen from above, under fluted glass, ringed with a living culture. Faces, skulls and flowers melt toward the black hole at its centre. Hold still, and the glass goes clear."></canvas>
 <a id="lead" href="blackpaper.html" title="the black paper" aria-label="The black paper"></a>
-<button id="eye" type="button" aria-label="Let it see you: one frame from your camera. It stays on this device and is never sent."><span id="ask"></span></button>
 <section id="sharer" role="dialog" aria-label="Your reading"><button class="x" type="button" aria-label="Close">&times;</button><div class="in"><img id="shImg" alt=""><div id="shText"></div><p class="icons"><span id="shGo"></span><span class="tools"><a href="#" id="shShare" class="ic" aria-label="share the picture" title="share the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 15V3.5M7.5 8 12 3.5 16.5 8M5 12.5V20h14v-7.5"/></svg></a><a href="#" id="shSave" class="ic" aria-label="save the picture" title="save the picture"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></a><a href="#" id="shCopy" class="ic" aria-label="copy the link" title="copy the link"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ln" d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></a></span></p><p id="shSaid" class="sr" aria-live="polite"></p></div></section>
 <main id="words">
   <h1 id="title" aria-label="vanitas, veritas">v<span class="br">[</span><span id="mid">an</span><span class="br">]</span>i<i>+</i>as</h1>
-<pre id="prog" aria-label="The program, running as you play"><span class="pc hd"># what drains away comes back</span><span class="hd">sink = drain(sink)</span><span class="pc" id="youPc"></span><span id="you"></span><span class="pc hd"># every clock keeps one time</span><span class="hd">sink == sync<b id="pS"></b></span><span class="pc"># a youniverse, grown from you</span><span class="def">def youniverse(you):</span><span class="pc">  # what grows here, and how fast</span><span class="lv" id="bio">  culture = grow(f=<b class="knob" data-k="f" aria-label="feed">.0310</b><i class="ar" id="arf"></i>, k=<b class="knob" data-k="k" aria-label="kill">.0600</b><i class="ar" id="ark"></i>) </span><span class="pc">  # the intention: be still, and look</span><span class="lv" id="lvHold">  while held(<b id="lvSec">0.0</b>): seek(warm=<b id="lvWarm">.00</b>)</span><span id="lines"></span><span class="pc" id="retPc">  # and again, together</span><span class="lv" id="ret">  return youniverse(me + you)</span><span># macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
+<pre id="prog" aria-label="The program, running as you play"><span class="pc hd"># what drains away comes back</span><span class="hd">sink = drain(sink)</span><span class="pc hd"># every clock keeps one time</span><span class="hd">sink == sync<b id="pS"></b></span><span class="pc"># a youniverse, grown from you</span><span class="def">def youniverse(you):</span><span class="pc">  # what grows here, and how fast</span><span class="lv" id="bio">  culture = grow(f=<b class="knob" data-k="f" aria-label="feed">.0310</b><i class="ar" id="arf"></i>, k=<b class="knob" data-k="k" aria-label="kill">.0600</b><i class="ar" id="ark"></i>) </span><span class="pc">  # the intention: be still, and look</span><span class="lv" id="lvHold">  while held(<b id="lvSec">0.0</b>): seek(warm=<b id="lvWarm">.00</b>)</span><span id="lines"></span><span class="pc" id="retPc">  # and again, together</span><span class="lv" id="ret">  return youniverse(me + you)</span><span># macrofluidic &times; <input id="we" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="__" aria-label="two letters"></span></pre>
 
   <p id="say" class="quiet" aria-live="polite"></p>
   <div id="err"></div>
@@ -250,7 +238,6 @@ uniform sampler2D uImgP;
 uniform vec4 uPA, uPB;                                 // zoom, offset x, offset y, turn
 uniform vec2 uPFlip; uniform float uPSeed;
 uniform vec3 uBlend;   // how this new form of life is joined, as amounts: grafted (across species), grown from the culture's cells, seamed (two as one)
-uniform float uSelf;   // the partner is the viewer's own face: it takes the middle, and the bone of the other shows through it
 float h2(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
 float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
   return mix(mix(h2(i),h2(i+vec2(1,0)),f.x), mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x), f.y); }
@@ -274,16 +261,7 @@ vec3 still(vec2 p){
   float ms = smoothstep(0.40, 0.60, g.x + 0.14*(n2(g*3.2+uPSeed)-0.5));
   float w0 = max(0., 1.-uBlend.x-uBlend.y-uBlend.z);
   m = (m*w0 + mg*uBlend.x + mc*uBlend.y + ms*uBlend.z)/max(1e-3, w0+uBlend.x+uBlend.y+uBlend.z);
-  float you = 0.;
-  if (uSelf > 0.) {                                    // you, in the middle of it, clearly you: a ghost of the other's bone at the edges only
-    vec2 gb = xf(g, uPB, uPFlip.y);
-    float oval = smoothstep(0.50*uSelf, 0.27*uSelf, length((gb-0.5)*vec2(1.0, 0.80)));
-    float la = dot(a, vec3(0.2126,0.7152,0.0722)), lb = dot(b, vec3(0.2126,0.7152,0.0722));
-    float peek = smoothstep(0.30, 0.80, la-0.9*lb)*(0.18 + 0.20*n2(g*5.3+uPSeed))*(1.-0.7*oval);
-    m = mix(m, max(m*0.5, oval*(1.-0.75*peek)), min(1., uSelf));
-    you = oval*min(1., uSelf);
-  }
-  float mx = (0.30 + 0.12*uBlend.x - 0.20*uBlend.y - 0.14*uBlend.z)*(1.-0.85*you);   // no bright wash over a face: you must know it
+  float mx = 0.30 + 0.12*uBlend.x - 0.20*uBlend.y - 0.14*uBlend.z;
   vec3 c = mix(mix(a,b,m), max(a,b), mx)*(1.-0.08*uBlend.y);
   float memb = (1.-smoothstep(0., 0.045, abs(cell-0.24)))*uBlend.y;
   return c + vec3(0.95,0.91,0.82)*memb*0.18*(0.30 + dot(c, vec3(0.2126,0.7152,0.0722)));
@@ -444,7 +422,7 @@ void main(){
 display: `
 uniform sampler2D uDye, uRD;
 uniform float uTime, uBeats, uS, uHold, uSurge, uCursorOn, uDpr, uHeldSecs, uLoss, uEnd, uJelly, uWaltz;
-uniform float uRead, uWhole, uFlash, uDepth, uFocus, uGaze, uHb, uLaceScale;
+uniform float uRead, uWhole, uFlash, uDepth, uFocus, uHb, uLaceScale;
 uniform sampler2D uKura; uniform float uSyncR;        // the beam: every tile of glass keeps time (cos, sin, stillness); r is how far they keep it together
 uniform vec4 uWords;                                  // the words' box, in pixels
 uniform vec2 uSpot;                                   // where the glass is clear, this hold
@@ -464,8 +442,7 @@ uniform float uStarM[8];                              // each star's own magnitu
 uniform vec2 uLead;                                   // where the line from the tap arrives
 uniform vec2 uTap, uCenter, uRes, uCursor;
 uniform vec2 uSent[8]; uniform float uSentN, uHiSent;    // a sky someone sent you: under yours, in gold; the star of one you point at
-uniform float uSelfOn, uVacant, uSeen, uGlint, uHiStar;   // you: the centre of your sky once it has seen you, or the empty place kept for you;
-                                                          // seen, the clear places are easier to find; the star of a line you point at
+uniform float uGlint, uHiStar;                            // held long enough, the clear place glints; the star of a line you point at
 ${IMG_FN}
 ${STILL_FN}
 float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
@@ -546,7 +523,7 @@ void main(){
     // the glass only goes fully clear when you have found the place: see seek, below
     vec2 hq = q - (uCursor-uCenter)/uS;                                           // basin units from the hand
     float pool = smoothstep(0.09 + 0.28*uFocus, 0.02, length(hq))*uCursorOn;      // under the hand: a clear pool, wider the warmer
-    float win  = smoothstep(mix(0.19, 0.27, uSeen), 0.05, length(q-uSpot))*(1.-uFold);   // the place itself shows through
+    float win  = smoothstep(0.19, 0.05, length(q-uSpot))*(1.-uFold);   // the place itself shows through
     float keep = smoothstep(R, R*0.72, r);                                         // the glass stays glass at the rim
     float clearAll = mix(uFocus*uFocus*keep, 1., uCard);
     float L = 1.-smoothstep(0.,1.,uHold)*max(max(pool*keep*(1.-uFold), win), clearAll);
@@ -615,14 +592,13 @@ void main(){
       float st2 = exp(-lr*lr/0.000030) + 0.35*(exp(-abs(lq.x)/0.0006)*exp(-abs(lq.y)/0.014) + exp(-abs(lq.y)/0.0006)*exp(-abs(lq.x)/0.014));
       b += vec3(1.0,0.86,0.60)*st2*uLure.x*(1.-uHold)*(1.-uIntro)*(0.20*tw + 0.95*uLure.y); }
 
-    // seen, the glass shows you where it is clear: a glint there, on the beat, while you seek
+    // held long enough, the glass shows you where it is clear: a glint there, on the beat, while you seek
     { vec2 gq = q - uSpot; float gs = length(gq), gIn = uGlint*(1.-uFocus);
       float st = (exp(-gs*gs/0.00016) + 0.45*(exp(-abs(gq.x)/0.0007)*exp(-abs(gq.y)/0.022) + exp(-abs(gq.y)/0.0007)*exp(-abs(gq.x)/0.022)))*(0.55 + 0.45*uHb);
       b *= 1. - 0.55*exp(-gs*gs/0.0011)*gIn;                                    // a little ink round it, so it is a point on any picture
       b += vec3(1.0,0.80,0.48)*2.2*st*gIn; }
 
     // the path: every place found is marked, and joined to the last. No two visitors draw the same one.
-    // Once it has seen you, you are the centre: every star is joined to you as well.
     {
       // a finished sky is one folded thing: a facet from the centre to each pair of stars, each lit by its own angle to the light, the
       // undersides darker, the nearest facet in front. It turns, and the light moves across it.
@@ -641,7 +617,7 @@ void main(){
         if(sh >= 0.) b = mix(b, mix(vec3(0.010,0.009,0.010), uTriC[ti], sh), 0.68*uFold);
       }
       // nearer stars are larger and brighter, and so are the nearer ends of lines
-      float dm = 0., dk = 0., ds = 0., dh = 9.; vec3 glowS = vec3(0.);
+      float dm = 0., dk = 0., dh = 9.; vec3 glowS = vec3(0.);
       for(int i=0;i<8;i++){
         if(float(i) >= uPathN) break;
         float g = float(i) == uPathN-1. ? uGrow : 1.;                                  // the newest mark is still arriving
@@ -654,7 +630,6 @@ void main(){
         b *= 1. - 0.35*exp(-rv*rv/(0.00004*sc*sc))*g;                                      // a thin ink halo round each star, so it reads on milk
         glowS += uStarC[i]*star*tw*g*bf;
         if(i>0){ vec2 st = segT(q, uPath[i-1], mix(uPath[i-1], uPath[i], g)); dm = max(dm, clamp(pow(mix(uPathS[i-1], sc, st.y), 2.), 0.35, 1.5)*smoothstep(0.0008+aa*2., 0.0008, st.x)); dk = max(dk, smoothstep(0.0024+aa*2., 0.0024, st.x)*g); }
-        vec2 so = segT(q, vec2(0.), uPath[i]*g); ds = max(ds, clamp(mix(1., sc, so.y), 0.4, 1.5)*smoothstep(0.0005+aa*2., 0.0005, so.x));
         if(float(i) == uHiStar) dh = abs(length(q-uPath[i])-0.017*sc);
       }
       float bright = mix(0.30, 1.0, max(uHold, uWhole));                              // faint while it flows, bright while you are still
@@ -671,18 +646,16 @@ void main(){
       }
       float sent = 0.32*smoothstep(0.0006+aa*2.,0.0006,sl) + 0.6*smoothstep(0.0008+aa*2.,0.0008,sd2) + 0.8*smoothstep(0.0008+aa*2.,0.0008,sh);
       b = mix(b, vec3(0.78,0.58,0.36), min(1., sent)*mix(0.45, 0.9, max(uHold, uWhole)));
-      float spoke = ds*smoothstep(0.05,0.08,length(q))*uSelfOn;
-      b = mix(b, mix(BONE, vec3(0.78,0.58,0.36), 0.55), 0.38*min(1., spoke)*bright);
     }
 
     // the centre: a black hole, seen as an eye. Nothing comes back from its shadow. A hairline of light runs round the edge of it (light
     // that has gone round the hole). Round that, the disk of what is falling in: white-gold near the edge, red further out, brighter on
     // the side turning toward you. When the finished sky lifts and tips, the disk tips with it and its far side is bent up over the
-    // shadow, the way a black hole bends light round itself. It begins dim, lights as the sky fills, and fully once it has seen you.
+    // shadow, the way a black hole bends light round itself. It begins dim, and lights as the sky fills.
     {
       vec2 look = (uCursor-uCenter)/uS;
       vec2 pq = q - normalize(look+1e-4)*min(length(look),1.)*0.008*uCursorOn;   // it turns a little toward your hand, like an eye
-      float rs = RD*(0.82 + 0.25*uGaze + 0.08*uHold)*(1. + 0.65*uWhole)*(1. + 0.05*uHb), rq2 = length(pq);   // it beats; at the end it opens: the centre of the sky
+      float rs = RD*(0.82 + 0.08*uHold)*(1. + 0.65*uWhole)*(1. + 0.05*uHb), rq2 = length(pq);   // it beats; at the end it opens: the centre of the sky
       vec3 N3 = normalize(uDiskN); float nzs = N3.z >= 0. ? max(0.22, N3.z) : min(-0.22, N3.z);
       vec3 P3 = vec3(pq, -(N3.x*pq.x + N3.y*pq.y)/nzs);                         // where this point's line of sight meets the disk
       vec3 e1 = normalize(vec3(1.,0.,0.) - N3*N3.x + vec3(0.,1e-4,0.)), e2 = cross(N3, e1);
@@ -697,7 +670,7 @@ void main(){
       vec2 nd = normalize(N3.xy + vec2(1e-5));
       float arc = exp(-pow((rq2 - rs*1.30)/(rs*0.12), 2.))*(1.-abs(nzs))*pow(abs(dot(pq/max(rq2,1e-5), nd)), 1.2);   // the far side, bent up over the top and under
       vec3 halo = mix(vec3(0.80,0.52,0.24), vec3(1.0,0.94,0.82), 0.65)*arc*uBH*2.2*quiet;
-      float pr = exp(-pow((rq2 - rs*1.05)/(rs*0.04), 2.))*(1. + 0.6*uHb + 0.8*uGaze);   // the photon ring: brighter on the beat, and when it meets your eye
+      float pr = exp(-pow((rq2 - rs*1.05)/(rs*0.04), 2.))*(1. + 0.6*uHb);   // the photon ring: brighter on the beat
       halo += vec3(1.0,0.90,0.72)*pr*(0.25 + 0.75*uBH)*(0.85 + 0.15*cos(atan(pq.y,pq.x) - 0.6 - uTime*0.12));
       float shadow = smoothstep(rs*1.0, rs*0.86, rq2);
       float front = step(P3.z, 0.);                                             // the near half of the disk passes in front of the shadow
@@ -887,14 +860,14 @@ const OUTLINE = [
   ['ok',            'beautiful even. great even.'],
   ['the spotlight', 'the spotlight.'],
 ];
-const EYE_LINE = "you can't hide.";                     // the eighth line belongs to the eye
 const POINT = "you can't wash your hands of it.";       // the point, from the TIAT statement
-const SINK = { place:'davos', when:'18–22.01.2027' };   // where the real sink stands. Set the venue here once it is known.
+const SINK = { place:'', places:['san francisco'] };   // a sink's place: none by default; a kiosk names its own (?sink=<place>), and the web shows only places listed here
+const NOON = { zone:'America/Los_Angeles', line:'at noon in san francisco, we hold.' };   // the shared hour: one zone, one line, changed here
 const LINES = OUTLINE.length;
 const WIPE_LINE = 2;                      // wipe the culture away, it grows back: resistance is futile
 const hashI = (n) => { let x = (n|0)*2654435761 % 4294967296; x ^= x >>> 13; x = (x*1274126177) % 4294967296; return (x ^ (x >>> 16)) >>> 0; };
 let N = FRAMES.length;
-// ---- a new biology: every held picture is a new form of life, made of two stills, or of a still and you. What each still is:
+// ---- a new biology: every held picture is a new form of life, made of two stills. What each still is:
 // build.py takes the 32 anchors the loop was dreamed through, in loop order (Kat's 8 pictures, lightly dreamed, and 3 dreamed
 // between each pair), so neighbours are near each other in the dream. 24 is the older pool, taken evenly round the loop.
 const CLASSES = {
@@ -905,14 +878,14 @@ const CLASSES = {
 };
 const CLASS = CLASSES[N] || null;
 const classOf = (i) => CLASS ? CLASS[((i % CLASS.length)+CLASS.length) % CLASS.length] : 'skull';
-const GENUS = { skull:'Calvaria', face:'Homo', flower:'Bellis', foam:'Bulla', you:'Ipse' };   // ipse: the self
+const GENUS = { skull:'Calvaria', face:'Homo', flower:'Bellis', foam:'Bulla' };
 // epithets that agree with any genus (third declension, present participles), five to a pool
 const EPITHETS = { skull:['mortalis','tacens','manens','memor','quiescens'], face:['vivens','lucens','ridens','videns','spirans'],
   flower:['florens','perennis','vernalis','aperiens','redolens'], foam:['nascens','spumans','fluens','tremens','evanescens'],
   emerge:['emergens','resurgens','oriens','crescens','germinans'], together:['communis','consors','concors','conflans','coniungens'] };
 const blendOf = (m) => m.blend || ({ species:[1,0,0], emerge:[0,1,0], together:[0,0,1] }[m.kind] || [0,0,0]);
-function speciesOf(m, taken){                // genus from the picture (or from you), epithet from what grew into it; no name twice in one run
-  const a = m.face ? 'you' : classOf(m.a ?? m.sign), b = m.face ? classOf(m.a ?? m.sign) : classOf(m.p), [, ce, se] = blendOf(m);
+function speciesOf(m, taken){                // genus from the picture, epithet from what grew into it; no name twice in one run
+  const a = classOf(m.a ?? m.sign), b = classOf(m.p), [, ce, se] = blendOf(m);
   const pool = ce >= 0.45 && ce >= se ? EPITHETS.emerge : se >= 0.45 ? EPITHETS.together : EPITHETS[b !== a ? b : (a === 'skull' ? 'face' : 'skull')];
   const used = new Set(taken || mem.filter(Boolean).map((x) => x.sp));
   for (const pl of [pool, EPITHETS.emerge, EPITHETS.together, EPITHETS.foam, EPITHETS.flower, EPITHETS.face, EPITHETS.skull])   // then the nearest other pools
@@ -922,25 +895,24 @@ function speciesOf(m, taken){                // genus from the picture (or from 
 const spLine = (i) => mem[i] && mem[i].sp ? `<span class="sp">${mem[i].sp}</span>` : '';
 // ---- the mirror: what you do, counted. Read back to you at the end, flattering as a mirror is, and true because it only counts what you did.
 const freshMe = () => ({ first:0, done:0, holds:0, held:0, longest:0, letgo:0, stayed:0, finds:[], stir:0, scrubs:0, wiped:0, taps:0,
-  knobs:false, tries:0, we:false, looked:false, together:0, flipped:false, noon:false, byKey:0, sky:'', part:0, nv:0, ti:-1, partKey:'', meFirst:false, chosenLine:-1 });
+  knobs:false, tries:0, we:false, together:0, flipped:false, noon:false, byKey:0, sky:'', part:0, nv:0, ti:-1, partKey:'', meFirst:false, chosenLine:-1 });
 const me = freshMe();
 let hold0 = { x:0, y:0 }, lastHP = { x:0, y:0 }, holdPath = 0, foundAt = -1, handSpeed = 0, lastMoveT = 0;
 const read = new Array(LINES).fill(false);
 let mem = new Array(LINES).fill(null);    // what each found place remembers: the still that was held there
 let lastRead = -1;
 // FINDS: the banks the hint poem is drawn from (injected; see the HANDOFF). {a} and {b} are the two things that joined, in plain words.
-const FINDS = {"first": ["a new kind of alive.", "out of the glass, a guest.", "the glass clears. hello.", "first light, first life.", "life, in a new key.", "hold still. something grows.", "still water, sudden bloom.", "{a}, meet {b}.", "{a} + {b} = new.", "{a}, dressed as {b}.", "{a}, dreaming {b}."], "you": ["you, in a softer font.", "you, but in bloom.", "you, in another language.", "same you, new weather.", "your smile, now with roots.", "you look like a good idea.", "hello, other you.", "you, but more so."], "merge": ["one plus one is one.", "one, but plural.", "all the edges agree.", "two hums, one chord.", "the seam sings.", "half {a}, half {b}.", "{a} + {b}, in tune.", "{a}, now also {b}."], "culture": ["grown, not made.", "it rose like bread.", "cells, singing in rows.", "the dish is a garden.", "grown slow, grown sweet.", "warm agar, good manners.", "the kind kind of culture.", "it grew while you blinked.", "{a} raised on {b}.", "{a}, sown in {b}."], "graft": ["a branch says yes.", "two kinds, one bloom.", "kin across the fence.", "grafted and glad.", "new fruit on an old tree.", "different, and it took.", "{a}, rooted in {b}.", "{a} took to {b}.", "{a}, budded on {b}."], "haunt": ["it stays for tea.", "the old song stays.", "light, through and through.", "someone left the light on.", "kept, like a pressed flower.", "echoes, but sweeter.", "{a}, visiting {b}.", "{a}, still in {b}.", "a hum of {a} in {b}."], "near": ["two is a good number.", "a pair, in step.", "with. just with.", "a table set for two.", "your hand, and one more.", "a duet, not a solo.", "twice as bright.", "both hands on the glass.", "a seesaw needs two.", "in pairs, like socks."], "nearer": ["not me. not you.", "two letters, both warm.", "the smallest company.", "a pronoun for two.", "you and i, one word.", "first person, plural.", "what a duet calls itself.", "me, but with company.", "i, times two.", "the word that holds hands."], "last": ["the plural of i.", "me + you = __.", "how two people say i.", "the opposite of they.", "say yes in french.", "the heart of between.", "hidden in the answer.", "me, turned upside down.", "everyone, in two letters.", "two letters. you know it."], "eye": ["you can't hide.", "no need to hide.", "there you are.", "seen, and adored.", "found you. you glow.", "the mirror waves back.", "the glass smiles first.", "look who came to play."]};
+const FINDS = {"first": ["a new kind of alive.", "out of the glass, a guest.", "the glass clears. hello.", "first light, first life.", "life, in a new key.", "hold still. something grows.", "still water, sudden bloom.", "{a}, meet {b}.", "{a} + {b} = new.", "{a}, dressed as {b}.", "{a}, dreaming {b}."], "merge": ["one plus one is one.", "one, but plural.", "all the edges agree.", "two hums, one chord.", "the seam sings.", "half {a}, half {b}.", "{a} + {b}, in tune.", "{a}, now also {b}."], "culture": ["grown, not made.", "it rose like bread.", "cells, singing in rows.", "the dish is a garden.", "grown slow, grown sweet.", "warm agar, good manners.", "the kind kind of culture.", "it grew while you blinked.", "{a} raised on {b}.", "{a}, sown in {b}."], "graft": ["a branch says yes.", "two kinds, one bloom.", "kin across the fence.", "grafted and glad.", "new fruit on an old tree.", "different, and it took.", "{a}, rooted in {b}.", "{a} took to {b}.", "{a}, budded on {b}."], "haunt": ["it stays for tea.", "the old song stays.", "light, through and through.", "someone left the light on.", "kept, like a pressed flower.", "echoes, but sweeter.", "{a}, visiting {b}.", "{a}, still in {b}.", "a hum of {a} in {b}."], "near": ["two is a good number.", "a pair, in step.", "with. just with.", "a table set for two.", "your hand, and one more.", "a duet, not a solo.", "twice as bright.", "both hands on the glass.", "a seesaw needs two.", "in pairs, like socks."], "nearer": ["not me. not you.", "two letters, both warm.", "the smallest company.", "a pronoun for two.", "you and i, one word.", "first person, plural.", "what a duet calls itself.", "me, but with company.", "i, times two.", "the word that holds hands."], "last": ["the plural of i.", "me + you = __.", "how two people say i.", "the opposite of they.", "say yes in french.", "the heart of between.", "hidden in the answer.", "me, turned upside down.", "everyone, in two letters.", "two letters. you know it."]};
 function wordsOf(m, i){                        // the same recipe always says the same line, so a sent universe reads the same for everyone
   if (!m) return OUTLINE[i] ? OUTLINE[i][1] : '';
   const line = m.line ?? i, ord = m.ord ?? 0, h = hashI(((m.a ?? m.sign ?? 0)*977 + (m.p ?? 0)*131 + (m.s|0)*31 + ord*7 + (line|0)*3) >>> 0);
   if (OUTLINE[line] && h % 6 === 0) return OUTLINE[line][1];            // now and then, Kat's own line, in its place
   const [verb] = joinOf(m);
-  const bank = ord === 0 ? FINDS.first : ord >= 6 ? FINDS.last : ord === 5 ? FINDS.nearer : ord === 4 ? FINDS.near : m.face ? FINDS.you : FINDS[verb];
+  const bank = ord === 0 ? FINDS.first : ord >= 6 ? FINDS.last : ord === 5 ? FINDS.nearer : ord === 4 ? FINDS.near : FINDS[verb];
   if (!bank || !bank.length) return OUTLINE[line] ? OUTLINE[line][1] : '';
   return bank[(h >>> 3) % bank.length].replace('{a}', nounOf(m.a ?? m.sign)).replace('{b}', nounOf(m.p ?? 0));
 }
 const lineOf = (i) => mem[i] ? wordsOf(mem[i], i) : pause && pause.line === i ? wordsOf({ ...pause, ord: read.filter(Boolean).length, line: i }, i) : (OUTLINE[i] ? OUTLINE[i][1] : '');
-const eyeWords = () => FINDS.eye && FINDS.eye.length ? FINDS.eye[hashI((me.first || 1) % 100003) % FINDS.eye.length] : EYE_LINE;
 const orderOf = () => mem.map((m, i) => m ? [m.ord ?? i, i] : null).filter(Boolean).sort((a, b) => a[0]-b[0]).map((p) => p[1]);
 // ---- the program. Every new form of life writes one line of it, and the line is the caption of its picture: its name, what it is
 // made of, how it was joined, and by how much. The joins are the thesis as verbs: haunt (one life drifting through another, the
@@ -961,7 +933,7 @@ const PARTS = ['Nascens','Manens','Fugiens','Morans','Transiens','Quaerens','Vid
   'Meridians','Convertens',
   // more for each measure's end (drafted, then checked by a Latinist pass: real present participles, nominative singular)
   'Perdurans','Retinens','Desinens','Fruens','Habitans','Volitans','Dimittens','Collineans','Vagans','Perveniens','Contemplans','Opperiens','Inveniens','Inaurans','Undans','Commovens','Quiescens','Temptans','Comitans','Circumdans','Stans','Revisens','Remeans','Lustrans','Spectans','Varians','Sequens','Intuens','Percipiens','Apparens','Solvens','Ludens','Occurrens','Revelans'];
-const PART_MORE = {"longest.hi": ["Perdurans", "Retinens"], "longest.lo": ["Desinens"], "stay.hi": ["Fruens", "Habitans"], "stay.lo": ["Volitans"], "letgo.hi": ["Dimittens"], "direct.hi": ["Collineans"], "direct.lo": ["Vagans", "Perveniens"], "seek.hi": ["Contemplans", "Opperiens"], "seek.lo": ["Inveniens"], "scrubs.hi": ["Inaurans"], "stir.hi": ["Undans", "Commovens"], "stir.lo": ["Quiescens"], "wiped.hi": ["Temptans"], "together.hi": ["Comitans"], "hull.hi": ["Circumdans"], "hull.lo": ["Stans"], "cross.hi": ["Revisens"], "closure.lo": ["Remeans"], "sectors.hi": ["Lustrans"], "sectors.lo": ["Spectans"], "turn.hi": ["Varians"], "turn.lo": ["Sequens"], "minutes.hi": ["Intuens"], "minutes.lo": ["Percipiens"], "you.hi": ["Apparens"], "we.hi": ["Solvens"], "knobs.hi": ["Ludens"], "noon.hi": ["Occurrens"], "flipped.hi": ["Revelans"]};
+const PART_MORE = {"longest.hi": ["Perdurans", "Retinens"], "longest.lo": ["Desinens"], "stay.hi": ["Fruens", "Habitans"], "stay.lo": ["Volitans"], "letgo.hi": ["Dimittens"], "direct.hi": ["Collineans"], "direct.lo": ["Vagans", "Perveniens"], "seek.hi": ["Contemplans", "Opperiens"], "seek.lo": ["Inveniens"], "scrubs.hi": ["Inaurans"], "stir.hi": ["Undans", "Commovens"], "stir.lo": ["Quiescens"], "wiped.hi": ["Temptans"], "together.hi": ["Comitans"], "hull.hi": ["Circumdans"], "hull.lo": ["Stans"], "cross.hi": ["Revisens"], "closure.lo": ["Remeans"], "sectors.hi": ["Lustrans"], "sectors.lo": ["Spectans"], "turn.hi": ["Varians"], "turn.lo": ["Sequens"], "minutes.hi": ["Intuens"], "minutes.lo": ["Percipiens"], "we.hi": ["Solvens"], "knobs.hi": ["Ludens"], "noon.hi": ["Occurrens"], "flipped.hi": ["Revelans"]};
 // a second Latin name for each still, so a sky's noun has two to choose from (checked the same way)
 const LATIN2 = {"mask": "persona", "lattice": "reticulum", "laugh": "cachinnus", "sleeper": "sopor", "dreamer": "phantasma", "gilt": "corona", "goldeye": "anulus", "froth": "nebula", "hive": "favus", "profile": "imago", "skull": "cranium", "vial": "guttus", "waking": "lumen", "bottle": "vitrum", "jaw": "rictus", "burst": "scintilla", "kiss": "basium", "stipple": "macula", "bubble": "globus", "daisy": "ocellus", "bloom": "corolla", "heart": "medulla", "obsidian": "caligo", "melt": "cera", "foam": "unda", "orb": "nimbus", "pale": "candor", "crust": "cortex", "pearl": "unio", "pumice": "favilla", "bone": "caput", "pores": "foramen"};
 // the Romans' names for the parts of the day and night, as the last word of a sky's name: [from hour, to hour, word, gloss]
@@ -1017,13 +989,13 @@ function joinOf(m){                          // the largest amount names the joi
   const [gr, ce, se] = blendOf(m);
   return [['haunt', Math.max(0, 1-gr-ce-se)], ['graft', gr], ['culture', ce], ['merge', se]].reduce((x, y) => y[1] > x[1] ? y : x);
 }
-function captionOf(m){                       // what grew: the join, and the two it joined (you first, if you are in it)
+function captionOf(m){                       // what grew: the join, and the two it joined
   if (!m) return '';
   const [verb] = joinOf(m), still = nounOf(m.a ?? m.sign);
-  return `${verb}(${m.face ? 'you' : still}, ${m.face ? still : nounOf(m.p)})`;
+  return `${verb}(${still}, ${nounOf(m.p)})`;
 }
 // ---- the program is what you do, as you do it: each hold that finds a place writes how long you held and what grew; washing,
-// letting go, letting it see you, holding with others, the title turning: each writes its own line. It ends by returning the mirror.
+// letting go, holding with others, the title turning: each writes its own line. It ends by returning the mirror.
 let log = [];
 const findOf = (i) => [...me.finds].reverse().find((f) => f.i === i);
 function actText(e){
@@ -1045,7 +1017,7 @@ function act(e){
 }
 const poemLine = (code, words) => commentHTML(words) + `<code>${code}</code>`;   // the comment above the line it is about: a person's words, then the machine's
 
-// ---- where it is running: a visitor's browser, a gallery wall, or the screen in a real sink (?sink=davos)
+// ---- where it is running: a visitor's browser, a gallery wall, or the screen in a sink (?sink, or ?sink=<place>)
 const params = new URLSearchParams(location.search);
 const MODE = params.has('sink') ? 'sink' : params.has('gallery') ? 'gallery' : 'web';
 const SINK_NAME = (params.get('sink') || '').toLowerCase().replace(/[^a-z0-9 -]/g, '').slice(0, 24) || SINK.place;
@@ -1054,7 +1026,7 @@ const PI_N = SMALL ? 24 : 36;             // pressure passes
 document.body.classList.add(MODE);
 
 // ---- the two letters: macrofluidic x __
-let weOk = false, seen = false;
+let weOk = false;
 const weEl = document.getElementById('we');
 for (const t of ['keydown', 'keyup', 'pointerdown']) weEl.addEventListener(t, (ev) => ev.stopPropagation());   // typing here is not holding
 weEl.addEventListener('input', () => {
@@ -1134,13 +1106,12 @@ function facets(pts3){                                    // pts3: stars in the 
   return out;
 }
 const pathFlat = (pts) => { const f = new Float32Array(16); pts.forEach((p, i) => { f[2*i] = p[0]; f[2*i+1] = p[1]; }); return f; };
-let growT = 1, gaze = 0, litFrac = 0;
+let growT = 1, litFrac = 0;
 function mark(pt){ if (path.length < LINES) { path.push([pt[0], pt[1]]); growT = 0; } save(); }
 function snapNow(fromPause){
   let q = pause;
-  if (!fromPause) { q = { a: sign, p: (sign + 3 + Math.floor(Math.random()*(N-6))) % N, face: false, s: Math.floor(Math.random()*16), spot: [0, 0] }; Object.assign(q, framing(q)); }
-  const snap = { sign, mix: mixAB, a: fromPause ? pause.a : sign, blend: fromPause ? pause.blend.slice() : [0,0,0], p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, s: q.s|0, self: q.self || 0, spot: (fromPause && q.found ? q.found : q.spot).slice() };
-  if (fromPause && pause.face) snap.face = true;          // you are in this one
+  if (!fromPause) { q = { a: sign, p: (sign + 3 + Math.floor(Math.random()*(N-6))) % N, s: Math.floor(Math.random()*16), spot: [0, 0] }; Object.assign(q, framing(q)); }
+  const snap = { sign, mix: mixAB, a: fromPause ? pause.a : sign, blend: fromPause ? pause.blend.slice() : [0,0,0], p: q.p, A: q.A.slice(), B: q.B.slice(), flip: q.flip.slice(), seed: q.seed, s: q.s|0, spot: (fromPause && q.found ? q.found : q.spot).slice() };
   snap.sp = speciesOf(snap);
   return snap;
 }
@@ -1154,15 +1125,14 @@ function reveal(i, fromPause){
 // the program's lines, in the order the forms of life were grown. The newest arrives as script and resolves, like every line.
 const linesEl = document.getElementById('lines');
 // the program's body, under the lines that are always running (the culture, the hold): one line for each form of life as it grows
-// (point at it and it comes back); after three, the clue (we = me + ?), which becomes we = me + you once it has seen you; at the end, the return.
-function weLine(){ const n = read.filter(Boolean).length; return n < 3 ? null : seen ? ['me, and you', 'we = me + you'] : ['me, and someone', 'we = me + ?']; }
+// (point at it and it comes back); after three, the clue (we = me + ?); at the end, the return.
+function weLine(){ return read.filter(Boolean).length < 3 ? null : ['me, and someone', 'we = me + ?']; }
 const blockOf = (t) => t.replace(/^((?:if|for|while|with)\b[^:]*):\s+/, '$1:\n    ');   // a block opens, and its body sits under it
 function lifeCode(i, k, used){                            // the machine's line for the k-th form of life: its shape follows what happened
   const m = mem[i], f = findOf(i) || {}, c = captionOf(m), [verb] = joinOf(m), secs = Math.max(1, Math.floor(+f.t || 1));
   const shapes = [
     k === 0 && !f.wipe && ['new', `life = [${c}]`],
     f.wipe && ['wipe', `if not culture: life += [regrow(${nounOf(m.a ?? m.sign)})]`],
-    m.face && ['you', `if you: life += [${c}]`],
     verb === 'merge' && ['with', `with us: life += [${c}]`],
     verb === 'culture' && ['for', `for cell in culture: life += [${c}]`],
     verb === 'graft' && ['if', `if held > ${secs}: life += [${c}]`],
@@ -1210,24 +1180,27 @@ let afterEnd = 0, endDir = 1, lastWords = false;
 // what the page keeps, on this machine only. An installation keeps nothing.
 function save(){
   if (!KEEP) return;
-  try { localStorage.setItem('veritas.iii', JSON.stringify({ v:3, read, path, mem, man, we: weOk, seen, me, playId, log })); } catch (e) {}
+  try { localStorage.setItem('veritas.iii', JSON.stringify({ v:3, read, path, mem, man, we: weOk, me, playId, log })); } catch (e) {}
 }
 function restore(){
   if (!KEEP) return;
   try {
     const k = JSON.parse(localStorage.getItem('veritas.iii') || 'null'); if (!k) return;
     if (k.we) { weOk = true; weEl.value = 'we'; document.body.classList.add('we', 'door'); }
-    seen = !!k.seen;
     if (k.me && typeof k.me === 'object') { Object.assign(me, k.me); if (!Array.isArray(me.finds)) me.finds = []; }
     if (typeof k.playId === 'string' && /^[0-9a-f]{16}$/.test(k.playId)) playId = k.playId;
     if (Array.isArray(k.mem)) k.mem.forEach((s, i) => { if (s && s.A && i < LINES) mem[i] = s; });
+    let old = 'looked' in me || 'seen' in k || Array.isArray(k.log) && k.log.some((e) => e && e.t === 'see');
+    for (const s of mem) if (s && (s.face || /^Ipse\b/.test(s.sp || ''))) { delete s.face; delete s.self; s.sp = speciesOf(s, mem.filter((x) => x && x !== s).map((x) => x.sp)); old = true; }   // a save from when it could see you: no face, and no name for one
+    delete me.looked;
     if (Array.isArray(k.read)) k.read.forEach((v, i) => { if (i < LINES && v) { read[i] = true; if (!mem[i]) { mem[i] = snapNow(false); mem[i].ord = i; } } });
     if (Array.isArray(k.path)) path.push(...k.path.slice(0, LINES).filter(p => Array.isArray(p) && p.length === 2));
     if (k.man && Number.isFinite(+k.man.f) && Number.isFinite(+k.man.k)) { man.f = Math.max(-0.03, Math.min(0.03, +k.man.f)); man.k = Math.max(-0.03, Math.min(0.03, +k.man.k)); }
     Object.assign(cult, cultTarget());
     const order = orderOf(); lastRead = order.length ? order[order.length-1] : -1;
-    log = Array.isArray(k.log) ? k.log.filter((e) => e && typeof e.t === 'string').slice(-80) : order.map((i) => ({ t:'find', i }));
+    log = Array.isArray(k.log) ? k.log.filter((e) => e && typeof e.t === 'string' && e.t !== 'see').slice(-80) : order.map((i) => ({ t:'find', i }));
     writeProgram();
+    if (old) save();                      // and it is kept that way
     if (read.every(Boolean)) { document.body.classList.add('whole'); whole = 1; end = 1; afterEnd = 99; lastWords = true; silence = true; reading = readYou(); }   // it already ended here
   } catch (e) {}
 }
@@ -1295,8 +1268,8 @@ function poem(){                              // sink == sync: True while the be
   const sv = kura.r > 0.8 ? 'True' : kura.r < 0.45 ? 'False' : '';
   if (sv !== shownSync) { shownSync = sv; document.getElementById('pS').textContent = sv ? `  # ${sv}` : ''; }
 }
-// ---- noon in Davos: once a day, everyone holds together
-const zoneFmt = (() => { try { return new Intl.DateTimeFormat('en-GB', { timeZone:'Europe/Zurich', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }); } catch (e) { return null; } })();
+// ---- noon, in one place (NOON): once a day, everyone holds together
+const zoneFmt = (() => { try { return new Intl.DateTimeFormat('en-GB', { timeZone:NOON.zone, hour:'2-digit', minute:'2-digit', hourCycle:'h23' }); } catch (e) { return null; } })();
 let noon = '', noonAt = -1e9;
 function noonTick(now){
   if (now-noonAt < 1000) return; noonAt = now;
@@ -1305,7 +1278,7 @@ function noonTick(now){
   const [h, m] = zoneFmt.format(new Date()).split(':').map(Number), t = h*60+m;
   noon = t >= 718 && t < 726 ? 'now' : t >= 690 && t < 718 ? 'soon' : '';
 }
-let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, toldYou = 0, toldSent = false, introOff = 0, reading = null, shareSaid = '';
+let whisper = null, lastSign = -1, begun = false, silence = false, toldSink = false, toldMirror = false, toldSent = false, introOff = 0, reading = null, shareSaid = '';
 let lastEcho = -1;
 const saidOnce = {};                                       // what has been said on this device; said once, never again
 if (KEEP) try { Object.assign(saidOnce, JSON.parse(localStorage.getItem('veritas.told') || '{}')); } catch (e) {}
@@ -1318,7 +1291,7 @@ function tell(now){
     const m = recall.snap;
     sayIt(`<span class="sp">${m.sp}</span>` + (recall.sent ? poemLine(captionOf(m), wordsOf(m, m.line)) : `<code>${codeOf(recall.line)}</code>`)); return;
   }
-  if (silence && !held && now >= linger) {                       // (a reply from the eye stays its moment)                                          // the end: what your name means, your name, the reading. Then: send it, or birth another.
+  if (silence && !held && now >= linger) {                       // the end: what your name means, your name, the reading. Then: send it, or birth another.
     const r = reading || (reading = readYou());
     if (!document.body.classList.contains('end')) document.body.classList.add('end');
     const on = MODE === 'web' ? `<a class="keep" data-act="again" href="#again">begin again</a><a class="keep ic" data-act="share" href="#share" aria-label="your reading" title="your reading"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="3" width="13" height="18" rx="1"/><circle cx="12" cy="9.5" r="3.6"/><path d="M8.5 16h7M8.5 18.5h4.5"/></svg></a>` : '';
@@ -1335,10 +1308,7 @@ function tell(now){
   if (period !== lastSign) {                                        // a new still: now and then, a line, unprompted
     lastSign = period;
     const found = read.filter(Boolean).length;
-    if (CAN_SEE && !seen && !held && intro <= 0 && found >= 2 && !saidOnce.you && once('you')) {   // the pulsing line and the empty ring did not do it
-      whisper = { t0: now, html: (k, salt) => poemLine(cipher('you = see(you)', k, salt), cipher('it can grow you too.', k, salt)) };
-    }
-    else if (!held && intro <= 0 && found >= 3 && !saidOnce.mirror && once('mirror')) {  // news: it has been watching how you play
+    if (!held && intro <= 0 && found >= 3 && !saidOnce.mirror && once('mirror')) {  // news: it has been watching how you play
       whisper = { t0: now, html: (k, salt) => poemLine(cipher('mirror.learn(you)', k, salt), cipher('the glass is learning your hand.', k, salt)) };
     }
     else if (!held && !hand.on && period % 4 === 0 && intro <= 0) {  // seldom, and only to a still hand: one of yours, again
@@ -1372,8 +1342,8 @@ function tell(now){
   }
   else if (now < linger) return;                                     // what was read stays a moment after you let go
   else if (noon === 'now') html = '<span class="c gold"># now. everyone, hold.</span><code>while noon: hold(we)</code>';
-  else if (atSink) html = poemLine('hold(we)', `someone is holding the sink in ${atSink}.`);
-  else if (noon === 'soon') html = poemLine('while not noon: wait()', 'at noon, davos time, we hold.');
+  else if (atSink) html = poemLine('hold(we)', atSink.at ? `someone is holding the sink in ${atSink.at}.` : 'someone is holding the sink.');
+  else if (noon === 'soon') html = poemLine('while not noon: wait()', NOON.line);
   else { html = ''; quiet = true; }
   sayIt(html, quiet);
 }
@@ -1398,7 +1368,7 @@ function draw(t){
 const H = 1/SIM;
 const TAP = [0.5, 0.5+0.27];
 const RETURN_SECONDS = 10;            // how long the loop remembers before it pours
-const LAUNCH = Date.UTC(2026, 8, 29), DAVOS = Date.UTC(2027, 0, 18);
+const LAUNCH = Date.UTC(2026, 8, 29), END = Date.UTC(2027, 0, 18);   // END: the last day of the fade
 const BEAT_SECONDS = 1.6;             // ~38 bpm: a freediver's heart on a breath-hold
 const SIGN_BEATS = 9;                 // each still has nine heartbeats
 const READ_SECONDS = 1.6;             // one heartbeat kept in the clear place
@@ -1413,9 +1383,9 @@ const unrotPt = (x, y) => ({ x: ROT[0]*x+ROT[1]*y, y: -ROT[1]*x+ROT[0]*y });   /
 
 let simTime = 0, last = performance.now(), held = false;
 let headF = 0, beats = 0, sign = 0, mixAB = 0, gph = 0, end = 0;
-// one clock for everyone: 0 on the day it was published, 1 on the first day of Davos (?day=N to look ahead)
+// one clock for everyone: 0 on the day it was published, 1 on the last day (END) (?day=N to look ahead)
 const dayParam = parseFloat(params.get('day'));
-const loss = Math.min(1, Math.max(0, (Number.isFinite(dayParam) ? dayParam*864e5 : Date.now()-LAUNCH)/(DAVOS-LAUNCH)));
+const loss = Math.min(1, Math.max(0, (Number.isFinite(dayParam) ? dayParam*864e5 : Date.now()-LAUNCH)/(END-LAUNCH)));
 let holdAmt = 0, surge = 0, holdStart = 0, heldSecs = 0, flash = 0, depth = 0, whole = 0;
 let hb = 0, laceScale = 1;            // the beat, and how far the lace has breathed out on it: the drawing and the wipe must agree
 const jelly = { x:0, v:0 };           // a spring: pressed in, it overshoots on the way back
@@ -1485,7 +1455,7 @@ function titleTick(now){
 }
 
 // ---- we: a hold travels, as an anonymous event, over public Nostr relays. No server, no accounts, nothing stored, no picture.
-// Only where in the basin a hand is held and for how long. A real sink sends its faucet the same way (?sink=davos).
+// Only where in the basin a hand is held and for how long. A sink sends its faucet the same way (?sink, or ?sink=<place>).
 const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net'];
 const NKIND = 20777, NTAG = 'veritas-sink';           // an ephemeral kind: relays pass it on and keep nothing
 const share = { on:false, status:'off', remote:new Map(), pk:'', sk:null, finalize:null, sockets:[], lastBeat:0 };
@@ -1543,7 +1513,7 @@ function remoteHolds(now){
   }
   return out;
 }
-function sinkHolder(){ for (const r of share.remote.values()) if (r.src.startsWith('sink:')) return r.src.slice(5) || 'a sink'; return ''; }
+function sinkHolder(){ for (const r of share.remote.values()) if (r.src.startsWith('sink:')) { const at = r.src.slice(5); return { at: SINK.places.includes(at) ? at : '' }; } return null; }   // a sink held, and its place only if SINK.places lists it: no outside event names one
 const ringData = new Float32Array(8*3); let ringN = 0;
 function rings(others){
   ringN = 0;
@@ -1556,88 +1526,6 @@ function rings(others){
   }
 }
 
-// ---- you: the viewer's own face, if they allow it. One frame from the camera, which is off again at once. It stays in this page, on
-// this device: never sent, never stored, gone when the page is closed. Once it has seen you, you are the centre of your sky, the
-// clear places are easier to find, and every new form of life you grow has you in it, with the bone of the dream showing through.
-let faceTex = null, faceCv = null, facePour = 0, asked = false, seeing = false, meet = 0, selfOn = 0, vacant = 0;
-const ask = document.getElementById('ask');
-const youEl = document.getElementById('you');
-const CAN_SEE = MODE === 'web' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);   // the eye can open on the web (the testers' 'only with ?see' is Kat's call)
-let youShown = '';
-const youPc = document.getElementById('youPc');
-function youLine(){
-  if (!CAN_SEE && !seen) { youEl.style.display = youPc.style.display = 'none'; return; }
-  const [pc, html] = faceTex ? ['# you, seen. your face stays here', '<span class="g">you</span> = see(<span class="g">you</span>)']
-    : seen ? ['# it has seen you', 'you = see(you)']
-    : ['# we have not seen you yet', 'you = None'];
-  if (html !== youShown) { youShown = html; youEl.innerHTML = html; youPc.textContent = pc; }
-}
-youEl.addEventListener('pointerdown', (ev) => ev.stopPropagation());
-function grade(cx){                 // the loop's own grade (code/morph_v45_sr.py), so a face looks dreamed like the stills: a little soft, a gloss on the
-  // highlights, deep blacks, cool where the light is cool and gold where it is warm (skin is warm: it turns gold, as the stills do), the same S-curve,
-  // dark at the edges, a little grain
-  const W = 512, im = cx.getImageData(0, 0, W, W), d = im.data;
-  const blurred = (data, r) => { const a = document.createElement('canvas'); a.width = a.height = W; const ax = a.getContext('2d'); ax.putImageData(new ImageData(data, W, W), 0, 0);
-    const b = document.createElement('canvas'); b.width = b.height = W; const bx = b.getContext('2d', { willReadFrequently:true }); bx.filter = `blur(${r}px)`; bx.drawImage(a, 0, 0); return bx.getImageData(0, 0, W, W).data; };
-  const soft = blurred(new Uint8ClampedArray(d), 2.2);
-  const hi = new Uint8ClampedArray(d.length);
-  for (let i = 0; i < d.length; i += 4) { for (let j = 0; j < 3; j++) hi[i+j] = Math.max(0, 0.9*d[i+j] + 0.1*soft[i+j] - 205)*4; hi[i+3] = 255; }
-  const bloom = blurred(hi, 6);
-  for (let i = 0, n = 0; i < d.length; i += 4, n++) {
-    const warm = Math.max(0, Math.min(1, (d[i] - d[i+2])/40));
-    let rgb = [0, 1, 2].map((j) => { let x = 0.9*d[i+j] + 0.1*soft[i+j]; const bl = 0.55*bloom[i+j]/4; x = 255 - (255-x)*(255-bl)/255; return Math.min(1, Math.pow(Math.min(1, x/255), 1.18)*1.05)*255; });
-    const lum = 0.299*rgb[0] + 0.587*rgb[1] + 0.114*rgb[2];
-    const C = [0.93, 0.98, 1.09], G = [1.22, 0.80, 0.30];
-    const x = (n % W)/W-0.5, y = Math.floor(n/W)/W-0.5, v = Math.max(0, Math.min(1, 1-0.7*Math.max(0, Math.hypot(x, y)-0.28)/0.22));
-    for (let j = 0; j < 3; j++) { const t = Math.min(1, ((1-warm)*lum*C[j] + warm*lum*G[j])/255); d[i+j] = (255/(1 + Math.exp(-5.2*(t-0.5))))*v + (Math.random()-0.5)*8; }
-  }
-  cx.putImageData(im, 0, 0);
-}
-async function see(ev){
-  if (ev) ev.preventDefault();
-  if (seeing) return;
-  const blind = () => { shown = poemLine('see(you) is None', 'no eyes here. that is all right.'); say.innerHTML = shown; say.classList.remove('quiet'); fitAll(say); linger = performance.now()+5000; };
-  if (!CAN_SEE) { blind(); return; }
-  seeing = true; told('<b>looking</b>');
-  let stream = null;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio:false });
-    const v = document.createElement('video'); v.srcObject = stream; v.muted = true; v.playsInline = true; await v.play();
-    await new Promise(r => setTimeout(r, 1100));                       // long enough to be looking at it
-    const sz = Math.min(v.videoWidth, v.videoHeight);
-    const cv = document.createElement('canvas'); cv.width = cv.height = 512;
-    const cx = cv.getContext('2d', { willReadFrequently:true });
-    cx.translate(512, 0); cx.scale(-1, 1);                            // as in a mirror
-    cx.drawImage(v, (v.videoWidth-sz)/2, (v.videoHeight-sz)/2, sz, sz, 0, 0, 512, 512);
-    stream.getTracks().forEach(t => t.stop()); v.srcObject = null; stream = null;   // the camera is off again here
-    took(cv);
-  } catch (e) {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    blind();
-  }
-  seeing = false;
-}
-function took(cv){
-  const cx = cv.getContext('2d', { willReadFrequently:true });
-  cx.setTransform(1, 0, 0, 1, 0, 0); grade(cx);
-  faceCv = cv;                                                        // for the card: the centre of your sky is your face
-  if (!faceTex) faceTex = texture(gl.LINEAR);
-  gl.bindTexture(gl.TEXTURE_2D, faceTex);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, cv);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-  // meeting: for three breaths the glass goes clear on the two of you, one picture. Then you are poured in with the rest.
-  compose(); meet = 4.5; focus = 1;
-  seen = true; me.looked = true; save(); act({ t:'see' }); writeProgram();
-  document.body.classList.remove('invite'); youLine();
-  shown = poemLine('you = see(you)', eyeWords()); say.innerHTML = shown; say.classList.remove('quiet'); linger = performance.now()+6000;
-  told('<b>it has you</b> &middot; you are the centre now', 7000);
-}
-const eye = document.getElementById('eye');
-eye.addEventListener('click', see);
-let eyeNear = false;
-eye.addEventListener('pointerenter', () => { eyeNear = true; }); eye.addEventListener('pointerleave', () => { eyeNear = false; });
-function told(html, ms){ ask.innerHTML = ''; clearTimeout(told.t); if (ms > 5000) told.t = setTimeout(() => { eye.classList.remove('on'); }, ms); }   // the eye has no words
 
 function step(dt){
   hb = heart(beats);
@@ -1676,14 +1564,12 @@ function step(dt){
   draw(vel.write); vel.swap();
 
   // the still pours in during its first breaths, less each day; what returns is dimmer each pass, and each day
-  const pour = facePour > 0 ? 2.6 : end > 0.02 ? 0 : 2.2*ss(0, 0.04, gph)*(1-ss(0.10, 0.18, gph))*(1-loss);
-  if (facePour > 0) facePour -= dt;
+  const pour = end > 0.02 ? 0 : 2.2*ss(0, 0.04, gph)*(1-ss(0.10, 0.18, gph))*(1-loss);
   const fade = 0.03 + 0.20*loss + 2.5*end;
   const slot = Math.floor(headF) % RET_N;
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uRet, ret.tex);
-  const pA = facePour > 0 ? faceTex : imgTex[sign], pB = facePour > 0 ? faceTex : imgTex[walkNext];
-  bind(u.uImgA, pA); bind(u.uImgB, pB);
-  gl.uniform1f(u.uMix, facePour > 0 ? 0 : mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
+  bind(u.uImgA, imgTex[sign]); bind(u.uImgB, imgTex[walkNext]);
+  gl.uniform1f(u.uMix, mixAB); gl.uniform2f(u.uRot, ROT[0], ROT[1]);
   gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uPour, pour); gl.uniform1f(u.uFade, fade);
   gl.uniform1f(u.uSlot, (slot+1) % RET_N); gl.uniform1f(u.uRetGain, (0.94-0.45*loss)*(1-end));
   gl.uniform2f(u.uTap, tap[0], tap[1]);
@@ -1716,14 +1602,11 @@ function render(){
   gl.uniform1f(u.uWaltz, 0.5+0.5*Math.sin(2*Math.PI*beats/6));
   gl.uniform2f(u.uCursor, hand.x*view.dpr, (view.h-hand.y)*view.dpr);
   const rs = (recall && recall.snap) || cardSnap;
-  const self = rs ? !!(rs.face && faceTex) : !!(pause.face && faceTex);
-  if (rs) { const a = (rs.a ?? rs.sign) % N; bind(u.uImgA, imgTex[a]); bind(u.uImgB, imgTex[a]); bind(u.uImgP, self ? faceTex : imgTex[rs.p % N]); }
-  else { bind(u.uImgA, imgTex[pause.a % N]); bind(u.uImgB, imgTex[pause.a % N]); bind(u.uImgP, self ? faceTex : imgTex[pause.p]); }
-  gl.uniform1f(u.uSelf, self ? ((rs || pause).self || 1) : 0);
+  if (rs) { const a = (rs.a ?? rs.sign) % N; bind(u.uImgA, imgTex[a]); bind(u.uImgB, imgTex[a]); bind(u.uImgP, imgTex[rs.p % N]); }
+  else { bind(u.uImgA, imgTex[pause.a % N]); bind(u.uImgB, imgTex[pause.a % N]); bind(u.uImgP, imgTex[pause.p]); }
   gl.uniform2fv(u['uSent[0]'], sentFlat); gl.uniform1f(u.uSentN, CM || !sent || lift > 0.2 ? 0 : sent.stars.length);
   gl.uniform1f(u.uHiSent, !CM && recall && recall.sent ? recall.k : -1);
-  gl.uniform1f(u.uSelfOn, CM ? 0 : selfOn); gl.uniform1f(u.uVacant, CM ? 0 : vacant); gl.uniform1f(u.uSeen, faceTex ? 1 : 0);
-  gl.uniform1f(u.uGlint, !CM && held && !pause.done && !pause.byKey ? (faceTex ? 1 : Math.min(1, Math.max(0, heldSecs-2.5)/3)) : 0);   // after two breaths, the place glints
+  gl.uniform1f(u.uGlint, !CM && held && !pause.done && !pause.byKey ? Math.min(1, Math.max(0, heldSecs-2.5)/3) : 0);   // after two breaths, the place glints
   gl.uniform1f(u.uHiStar, !CM && recall && !recall.sent && mem[recall.line] ? (mem[recall.line].ord ?? -1) : -1);
   bind(u.uRD, rdA.tex); bind(u.uKura, kura.tex);
   const sp = rs || pause;
@@ -1734,7 +1617,7 @@ function render(){
   gl.uniform1f(u.uHold, CM ? 1 : holdAmt); gl.uniform1f(u.uSurge, surge); gl.uniform1f(u.uHeldSecs, heldSecs);
   gl.uniform1f(u.uWhole, whole); gl.uniform1f(u.uFlash, CM ? 0 : flash); gl.uniform1f(u.uDepth, CM ? 0 : depth);
   gl.uniform1f(u.uFocus, CM ? 1 : focus); gl.uniform2f(u.uSpot, sp.spot[0], sp.spot[1]);
-  gl.uniform1f(u.uGaze, CM ? 0 : gaze); gl.uniform1f(u.uHb, hb); gl.uniform1f(u.uLaceScale, laceScale); gl.uniform1f(u.uDpr, view.dpr);
+  gl.uniform1f(u.uHb, hb); gl.uniform1f(u.uLaceScale, laceScale); gl.uniform1f(u.uDpr, view.dpr);
   gl.uniform1f(u.uSyncR, kura.r);
   const up = lift > 0.001 && proj2.length === path.length;
   gl.uniform2fv(u['uPath[0]'], pathFlat(up ? proj2 : path)); gl.uniform1f(u.uPathN, cardFrame ? 0 : path.length); gl.uniform1f(u.uGrow, growT*growT*(3-2*growT));
@@ -1829,7 +1712,6 @@ function layoutWords(){
   if (ww !== colW) { colW = ww; words.style.setProperty('--col', ww+'px'); fitAll(say); }   // the type scale follows the measure
   words.style.transform = `translate(${Math.round(wx)}px,${Math.round(wy)}px)`;
   document.getElementById('lead').style.transform = `translate(${Math.round(lead[0])}px,${Math.round(lead[1])}px)`;
-  document.getElementById('eye').style.transform = `translate(${Math.round(cx)}px,${Math.round(cy)}px)`;
   if (!cardFrame) { const turn = Math.atan2(lead[0]-cx, cy-lead[1]); ROT[0] = Math.cos(turn); ROT[1] = Math.sin(turn); }   // a card keeps the basin turned as you saw it
   let dpr = Math.min(window.devicePixelRatio || 1, SMALL ? 1.5 : 2);
   if (w*h*dpr*dpr > 3.6e6) dpr = Math.sqrt(3.6e6/(w*h));
@@ -1876,7 +1758,7 @@ function tick(now){
       const still = 1 - Math.min(1, handSpeed/0.25), k = (1 - Math.exp(-dt/4.5))*still*Math.min(1, (heldSecs-2.5)/2.5);
       pause.spot[0] += (qx - pause.spot[0])*k; pause.spot[1] += (qy - pause.spot[1])*k;
     }
-    want = pause.byKey ? 1 : ss(faceTex ? 0.42 : 0.32, 0.055, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));   // seen, it clears from further off
+    want = pause.byKey ? 1 : ss(0.32, 0.055, Math.hypot(qx-pause.spot[0], qy-pause.spot[1]));
     if (!pause.done) {
       pause.kept = focus > 0.85 ? pause.kept+dt : Math.max(0, pause.kept-dt*0.6);
       if (pause.kept >= READ_SECONDS) {
@@ -1912,16 +1794,11 @@ function tick(now){
   if (introFlip === 1 && birthT > 4.2) { introFlip = 2; flipTo('an', now); if (!titleER) document.body.classList.remove('veritas'); }
   if (birthT > 4.4 && document.body.classList.contains('mute')) document.body.classList.remove('mute');
   growT = Math.min(1, growT + dt/2.2);
-  gaze += ((!faceTex ? (asked ? 0.55 : 0) + (eyeNear ? 0.6 : 0) : 0)-gaze)*(1-Math.exp(-dt/(eyeNear ? 0.4 : 1.5)));   // it looks back when you come near its eye
-  if (!asked && !faceTex && CAN_SEE && read.some(Boolean)) { asked = true; eye.classList.add('on'); document.body.classList.add('invite'); youLine(); }
-  if (meet > 0) { meet -= dt; if (meet <= 0) facePour = 1.8; }        // after the meeting, the pour
-  selfOn += ((seen ? 1 : 0)-selfOn)*(1-Math.exp(-dt/1.2));            // you, arriving at the centre of your sky
-  vacant += ((CAN_SEE && !seen && read.some(Boolean) ? 1 : 0)-vacant)*(1-Math.exp(-dt/1.5));   // until then, a place kept for you
   if (recall && recall.peek && now > peekUntil) recall = null;
   { const hi = !recall ? '' : recall.sent ? 's' + recall.k : 'i' + recall.line; if (hi !== hiLine) { hiLine = hi; for (const el of linesEl.children) el.classList.toggle('on', el.dataset.k === hi); } }
-  const showStill = held || meet > 0 || !!recall;
+  const showStill = held || !!recall;
   holdAmt += ((showStill ? 1 : 0)-holdAmt)*(1-Math.exp(-dt/0.8));
-  if (meet > 0 || recall) focus = 1;
+  if (recall) focus = 1;
   jelly.v += ((hand.pressing ? 1 : 0)-jelly.x)*30*dt - jelly.v*6*dt; jelly.x += jelly.v*dt;   // the glass as a spring
   idle = hand.on || held ? 0 : idle+dt;
   { // the next hidden star: where it is, whether a hand (or a tap) is near it
@@ -1958,8 +1835,8 @@ function tick(now){
     fs.slice(0, 8).forEach((f3, t) => { f3.v.forEach((v, j) => { triXY[(t*3+j)*2] = v[0]; triXY[(t*3+j)*2+1] = v[1]; triZ[t*3+j] = v[2]; }); triL[t] = f3.l; triC.set(f3.c, t*3); });
   }
   foldVis += ((recall ? 0.15 : 1) - foldVis)*(1-Math.exp(-dt/0.5));   // a form of life pointed at shows through the fold
-  // the black hole lights as the sky fills and once it has seen you; when the sky is whole it is fully lit, and its disk tips with the sky
-  bhLit += ((whole > 0.5 ? 1 : 0.15 + 0.5*litFrac + 0.3*(seen ? 1 : 0)) - bhLit)*(1-Math.exp(-dt/1.5));
+  // the black hole lights as the sky fills; when the sky is whole it is fully lit, and its disk tips with the sky
+  bhLit += ((whole > 0.5 ? 1 : 0.15 + 0.5*litFrac) - bhLit)*(1-Math.exp(-dt/1.5));
   { const tp = lift*(1.12 + 0.12*Math.sin(turnT*0.1)), ty = lift*0.3*Math.sin(turnT*0.13);
     diskN[0] = Math.sin(ty); diskN[1] = -Math.cos(ty)*Math.sin(tp); diskN[2] = Math.cos(ty)*Math.cos(tp); }
   { // the culture's colour: gold in the middle, toward red the less it is fed, toward white the more
@@ -1988,9 +1865,7 @@ function tick(now){
     probe.push(performance.now()-t0); if (probe.length > 120) probe.shift();
     window.__veritas = { ms:probe, tick, pause, view, read, loss, reveal, kura, share, setHeld, keepCard, scrub, me, readYou, compose, path, features, studyPublish, get playId(){ return playId; }, get STUDY_ON(){ return STUDY_ON; },
       captionOf, peekAt, peekSent, encodeSky, decodeSky, growAnother, shareSky, get sent(){ return sent; }, get skies(){ return skies; }, get shareSaid(){ return shareSaid; },
-      peekAtFor: peekAt, get recall(){ return recall; }, get seen(){ return seen; }, get selfOn(){ return selfOn; }, get N(){ return N; },
-      fakeSee(k){ const im = new Image(); im.onload = () => { const cv = document.createElement('canvas'); cv.width = cv.height = 512; const cx = cv.getContext('2d', { willReadFrequently:true });
-        const sz = Math.min(im.width, im.height); cx.translate(512, 0); cx.scale(-1, 1); cx.drawImage(im, (im.width-sz)/2, (im.height-sz)/2, sz, sz, 0, 0, 512, 512); took(cv); }; im.src = FRAMES[k % FRAMES.length]; },
+      peekAtFor: peekAt, get recall(){ return recall; }, get N(){ return N; },
       get reading(){ return reading; }, get handSpeed(){ return handSpeed; }, set handSpeed(v){ handSpeed = v; },
       get mem(){ return mem; }, get titleER(){ return titleER; }, get noon(){ return noon; }, get shown(){ return shown; },
       get end(){ return end; }, get held(){ return held; }, get holdAmt(){ return holdAmt; }, get whole(){ return whole; }, get simTime(){ return simTime; },
@@ -2007,7 +1882,6 @@ async function autoplay(){
   const move = (q) => canvas.dispatchEvent(new PointerEvent('pointermove', at(q)));
   const tickN = (n) => { for (let i = 0; i < n; i++) { t += 1000/30; tick(t); } };
   tickN(200);
-  if (params.has('seen')) { window.__veritas.fakeSee(5); await new Promise((r) => setTimeout(r, 900)); tickN(20); }
   let hand = [0, -0.2];
   const upTo = Math.min(LINES, parseInt(mode, 10) || LINES);          // autoplay=3 stops after three stars, mid-play
   for (let k = 0; k < upTo && !read.every(Boolean); k++) {
@@ -2082,14 +1956,14 @@ canvas.addEventListener('pointercancel', () => { hand.pressing = false; hand.on 
 canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
 // the still for this hold: a partner from somewhere else in the loop, and a chance framing for each
-// a form of life's crop, turn, mirror and the size of you in it come from its own small seed (and its two stills), so the same
+// a form of life's crop, turn and mirror come from its own small seed (and its two stills), so the same
 // recipe grows the same picture anywhere: that is what lets a sky be sent as a line of text
 const prng = (a) => () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0)/4294967296; };
 function framing(m){
-  const r = prng((((m.s|0)+1)*7919) ^ ((m.a|0)*131) ^ ((m.p|0)*31) ^ (m.face ? 977 : 0)), rnd = (a, b) => a + r()*(b-a);
+  const r = prng((((m.s|0)+1)*7919) ^ ((m.a|0)*131) ^ ((m.p|0)*31)), rnd = (a, b) => a + r()*(b-a);
   const frame = (zMax, turn) => { const z = rnd(1, zMax), k = (1-1/z)/2; return [z, rnd(-k, k), rnd(-k, k), rnd(-turn, turn)]; };
-  const A = frame(1.25, 0.12), B = m.face ? frame(1.08 + 0.3*r(), 0.12) : frame(1.9, 0.6);
-  return { A, B, flip: [1, m.face ? 1 : (r() < 0.5 ? -1 : 1)], seed: rnd(0, 60), self: m.face ? rnd(1.0, 1.3) : 0 };
+  const A = frame(1.25, 0.12), B = frame(1.9, 0.6);
+  return { A, B, flip: [1, r() < 0.5 ? -1 : 1], seed: rnd(0, 60) };
 }
 // a new hidden place: never on a star already found, never under the hand; how far it lies from the last star follows how the hand came:
 // still hands draw close, careful shapes; moving hands draw wide ones; scrubbing hands throw it far. The shape is a portrait.
@@ -2117,8 +1991,6 @@ function pickSpot(drive){
 }
 function compose(forHold = false){
   const rnd = (a, b) => a + Math.random()*(b-a);
-  const youGrown = mem.filter((m) => m && m.face).length;
-  pause.face = !!faceTex && (youGrown === 0 || Math.random() < 0.7);   // once it has seen you, you are in most of what grows, never all, so the pictures stay many
   // how you came to it, as amounts, not types: how still or moving your hand was, how much you scrubbed, whether anyone else is
   // holding. They weight what grows into the picture and how it is joined. No two holds are the same, and nobody is sorted.
   const others = [...share.remote.values()].filter((r) => !r.src.startsWith('sink')).length;
@@ -2130,7 +2002,7 @@ function compose(forHold = false){
     const far = (i) => used.length ? Math.min(...used.map((u) => cd(u, i))) : N;
     const pick = (ok) => { let best = -1, bs = -1; for (let i = 0; i < N; i++) { if (!ok(i)) continue; const v = far(i) + Math.random()*0.9; if (v > bs) { bs = v; best = i; } } return best; };
     pause.a = far(sign) >= 2 ? sign : pick(() => true);                  // start from what is in the basin now, unless it has been kept already
-    let ca = classOf(pause.a), ca2 = ca; const grown = {};
+    const ca = classOf(pause.a), grown = {};
     for (const m of mem) if (m) { const c = classOf(m.p); grown[c] = (grown[c] || 0) + 1; }
     const W = {
       skull:  (ca !== 'skull' ? 1 : 0.12)*(0.35 + st),                   // stillness lets the bone show
@@ -2145,9 +2017,7 @@ function compose(forHold = false){
     else pause.p = -1;
     if (pause.p < 0) pause.p = pick((i) => cd(i, pause.a) >= 2);
     if (pause.p < 0) pause.p = (pause.a + 3 + Math.floor(Math.random()*(N-6))) % N;
-    if (pause.face) { pause.a = pause.p; ca2 = classOf(pause.a); }     // with you in it, the still that joins you is the one your hands chose
     const cb = classOf(pause.p);
-    ca = ca2;
     let gr = Math.min(1, 0.85*mv + (cb === 'flower' ? 0.25 : 0)), ce = Math.min(1, 0.9*sc + (cb === 'foam' ? 0.25 : 0)), se = Math.min(1, wi + (ca === 'face' && cb === 'face' ? 0.35 : 0));
     { // what has joined this run already joins less, and no two joins are quite the same: a consistent hand still grows a varied seven
       const usedJ = [0, 0, 0]; for (const m of mem) if (m) { const bj = blendOf(m); for (let q = 0; q < 3; q++) usedJ[q] += bj[q]; }
@@ -2169,7 +2039,7 @@ function compose(forHold = false){
     if (forHold) comeDrive = pause.drive.slice();
   }
   pause.line = read.indexOf(false); pause.kept = 0; pause.done = false;
-  pause.sp = speciesOf({ a: pause.a, p: pause.p, blend: pause.blend, face: pause.face });
+  pause.sp = speciesOf({ a: pause.a, p: pause.p, blend: pause.blend });
 }
 // the pictures are not played in order. Each still is one step of a random walk through the space the original loop was dreamed in:
 // neighbours on the loop are near each other in that space, so most steps are small; the walk keeps a heading for a while, turns,
@@ -2267,12 +2137,11 @@ function features(){
     stay: r2(mean(F.map((f) => f.stay || 0))), seek: r2(mean(F.map((f) => f.t))),
     direct: r2(mean(F.map((f) => f.key ? 1 : (f.path > 0.02 ? Math.min(1, f.direct/f.path) : 1)))),
     stir: r2(me.stir/0.79), scrubs: me.scrubs, wiped: r2(me.wiped), knobs: me.knobs ? 1 : 0, tries: me.tries, we: me.we ? 1 : 0, mefirst: me.meFirst ? 1 : 0,
-    looked: me.looked ? 1 : 0, together: me.together, flipped: me.flipped ? 1 : 0, noon: me.noon ? 1 : 0, keys: me.byKey,
+    together: me.together, flipped: me.flipped ? 1 : 0, noon: me.noon ? 1 : 0, keys: me.byKey,
     minutes: me.first ? r2(((me.done || Date.now())-me.first)/60000) : 0,
     hull: r2(hull), sectors, turn: r2(turns ? turn/turns : 0), cross,
     closure: n > 2 ? r2(Math.hypot(pts[0][0]-pts[n-1][0], pts[0][1]-pts[n-1][1])/BASIN_R) : 2,
     graft: r2(mean(blends.map((b) => b[0]))), cells: r2(mean(blends.map((b) => b[1]))), seam: r2(mean(blends.map((b) => b[2]))),
-    you: mem.filter((m) => m && m.face).length,
   };
 }
 // what each measure says, at either end. base and scale are guesses until there is a population to compare with.
@@ -2293,7 +2162,6 @@ const SAL = [
   { k:'sectors', w:['Vertens','Intendens'], base:5, scale:1.4,    hi:['you turn toward every direction', 'you leave no side unseen'], lo:['you know which way you face', 'you keep to one horizon'], fact:(f) => `your stars face ${f.sectors} of 8 directions` },
   { k:'turn', w:['Mutans','Constans'], base:1.4, scale:0.5,     hi:['you never go the same way twice', 'you change your mind beautifully'], lo:['you keep a steady line', 'you follow one current'], fact:(f) => `you turn ${Math.round(f.turn*57.3)} degrees at each star` },
   { k:'minutes', w:['Attendens','Cernens'], base:6, scale:4,      hi:['you give a thing your whole attention'], lo:['you see the shape of a thing quickly'], fact:(f) => `${f1(f.minutes)} min from first touch to last` },
-  { k:'you', w:['Patens',null], base:0, scale:4,          hi:['being seen suits you', 'you put yourself into everything you make'], lo:null, fact:(f) => `you are in ${f.you} of ${f.finds} forms of life` },
   { k:'we', w:['Respondens',null], base:0, scale:1.2,         hi:['you answer riddles meant for two'], lo:null, fact:(f) => f.mefirst ? 'you said me, and it turned into we' : f.tries ? `you solved it after ${f.tries} ${f.tries === 1 ? 'guess' : 'guesses'}` : 'you answered the riddle first time' },
   { k:'knobs', w:['Fingens',null], base:0, scale:1.4,      hi:['you change the rules when they bore you'], lo:null, fact:() => 'you turned the culture\'s dials' },
   { k:'noon', w:['Meridians',null], base:0, scale:0.7,       hi:['you keep appointments with strangers'], lo:null, fact:() => 'you held at noon, with everyone' },
@@ -2304,7 +2172,7 @@ const SAL = [
 // sky instead (the hour's old name; the signs of the sun, the moon and the rising), worked out from this device's own clock and time zone;
 // none of it leaves the device.
 // the horoscope's lines: drafted, then checked for length (36 characters at most), tone and truth to what each measure counts
-const HORO = {"traits": {"longest.hi": ["patience, in you, looks like love.", "you outlast the rain.", "yours is the last lamp still lit."], "longest.lo": ["enough tastes sweet to you.", "you leave the feast at its height.", "endings find you graceful."], "stay.hi": ["you stay for the second song.", "you read the credits to the end.", "what you find, you sit beside."], "stay.lo": ["a brief guest, long remembered.", "lightly in, lightly on.", "the echo of you is kind."], "letgo.hi": ["almost is not a home to you.", "you open your hand, and it fills.", "the next clearing has your trust."], "direct.hi": ["you walk as if you were expected.", "the straight path loves you back.", "you see the way before it clears."], "direct.lo": ["you arrive by way of everything.", "your wandering draws the map.", "the margins are where you start."], "seek.hi": ["you give the dark time to speak.", "nothing hurries you into seeing.", "shy things come out for you."], "seek.lo": ["the hidden thing waves at you.", "what is lost tends to find you.", "walls show you their seams."], "scrubs.hi": ["your mistakes keep turning lovely.", "trying to tidy, you make treasure.", "your corrections become ornaments."], "stir.hi": ["even your pauses make waves.", "you leave a pleasant disorder.", "nothing stays flat around you."], "stir.lo": ["one gesture from you is enough.", "your stillness says plenty.", "when you move, things listen."], "wiped.hi": ["your touch asks before it takes.", "the edges of things trust you.", "a surface tells you its whole story."], "together.hi": ["strangers settle when you settle.", "people borrow your calm and keep it.", "the air softens around you."], "hull.hi": ["your circle has space for one more.", "you think in open fields.", "you love with the gate left open."], "hull.lo": ["your world is close and well lit.", "a little garden, deeply tended.", "you know every corner by heart."], "cross.hi": ["old places still have gifts for you.", "you circle back for what you missed.", "the second visit is the real one."], "closure.lo": ["every road you take bends home.", "home is the shape you keep drawing.", "the last step rhymes with the first."], "sectors.hi": ["every window in you stays open.", "you turn toward every voice.", "no side of a thing is dark to you."], "sectors.lo": ["the horizon you chose chose you.", "one direction, wholly loved.", "a single window, and the whole view."], "turn.hi": ["your path writes in cursive.", "surprise is your native tongue.", "you never take a corner twice."], "turn.lo": ["you follow the thread to the end.", "a steady line runs through you.", "your course holds in high wind."], "minutes.hi": ["you look until it looks back.", "time slows down where you linger.", "a thing is changed by your looking."], "minutes.lo": ["the outline is enough for you.", "one glance, and you have it.", "you know a book by its first line."], "you.hi": ["being seen sits lightly on you.", "a little of you stays behind.", "your likeness wanders off happily."], "we.hi": ["you hear the harmony under the tune.", "you are easy to think beside.", "a question for two finds you ready."], "knobs.hi": ["the rules are a draft to you.", "you tune the world till it sings.", "every setting is a suggestion."], "noon.hi": ["you keep time with strangers.", "you are on time for something vast.", "a thousand clocks agree with you."], "flipped.hi": ["you saw the pretty turn true.", "past the gilt, you find the grain.", "the real thing was lovelier."]}, "sun": {"fire.cardinal": ["you say go, and the day goes.", "beginnings run to meet you.", "there is a match in your pocket."], "fire.fixed": ["a hearth burns at your middle.", "people come to you to get warm.", "your warmth keeps its promises."], "fire.mutable": ["your laughter travels ahead of you.", "your warmth likes to wander.", "you set new places glowing."], "earth.cardinal": ["what you start is still standing.", "others lean on what you build.", "the mountain likes your pace."], "earth.fixed": ["the ground is glad you stayed.", "you can wait an orchard into being.", "comfort follows you like a cat."], "earth.mutable": ["you mend what others overlook.", "small things go right in your care.", "you know which seed needs water."], "air.cardinal": ["the first true word is often yours.", "beauty is a door you hold open.", "a crooked day straightens near you."], "air.fixed": ["the future visits you often.", "you keep a thought no one else had.", "your odd ideas age well."], "air.mutable": ["questions perch on your shoulder.", "you carry news between worlds.", "your thoughts travel in flocks."], "water.cardinal": ["anywhere turns into home with you.", "the unsaid reaches you first.", "the tender thing is the brave thing."], "water.fixed": ["you go deep and come up whole.", "secrets are safe at your depth.", "what you feel, you feel all the way."], "water.mutable": ["your dreams spill into waking.", "tenderness takes your shape.", "you drift, and arrive where needed."]}, "moon": {"new.fire": ["a spark you have told no one about.", "a small heat, not yet for show."], "new.earth": ["a seed is busy under the soil.", "underground, a slow yes."], "new.air": ["a thought you have not said yet.", "an idea waits behind your teeth."], "new.water": ["a feeling is forming in the dark.", "deep down, a spring is filling."], "waxing crescent.fire": ["a little courage, gathering.", "the spark has caught; feed it."], "waxing crescent.earth": ["green shoots, still shy of the air.", "one stone a day, and it grows."], "waxing crescent.air": ["a plan is learning to speak.", "words gather like birds on a wire."], "waxing crescent.water": ["something is swimming your way.", "softness, slowly coming in."], "first quarter.fire": ["you are braver than last week.", "a yes is warming in your chest."], "first quarter.earth": ["the stones you set now will hold.", "the work is underway, and sound."], "first quarter.air": ["two thoughts ask you to choose.", "the question is ready for you."], "first quarter.water": ["a feeling asks to be decided.", "your heart has started across."], "waxing gibbous.fire": ["a dare is ripening in you.", "you are one breath from bold."], "waxing gibbous.earth": ["the fruit is heavy, nearly ripe.", "one more turn of the soil."], "waxing gibbous.air": ["the right words are almost here.", "a sentence is ripening in you."], "waxing gibbous.water": ["you feel more than you have said.", "something tender is surfacing."], "full.fire": ["you are lit from every side.", "all of your warmth is showing."], "full.earth": ["the harvest is in, and it is yours.", "your work stands in plain view."], "full.air": ["what you meant is finally plain.", "your words carry farther now."], "full.water": ["brimful of something sweet.", "nothing you feel is hidden now."], "waning gibbous.fire": ["you share the warmth you made.", "others light their candles from you."], "waning gibbous.earth": ["you hand out the bread you baked.", "your plenty wants to travel."], "waning gibbous.air": ["someone needs the thing you know.", "a good idea wants to leave home."], "waning gibbous.water": ["you pour out what you were given.", "your kindness spills over, gently."], "last quarter.fire": ["a small fire is allowed to go out.", "old heat leaves; you are lighter."], "last quarter.earth": ["you clear a shelf for what comes.", "the field rests; so can you."], "last quarter.air": ["an old story is losing its hold.", "an argument in you has gone quiet."], "last quarter.water": ["a tide goes out, and you let it.", "something heavy is floating off."], "waning crescent.fire": ["the embers are enough for now.", "rest by the coals; they keep."], "waning crescent.earth": ["fallow is a kind of growing.", "a slow, well-earned stillness."], "waning crescent.air": ["your mind goes soft and wide.", "thoughts drift off like smoke."], "waning crescent.water": ["a soft shore is coming up.", "a quiet tide rocks you to rest."]}, "rising": {"fire": ["you enter like good news.", "you bring the weather with you.", "first meetings with you get retold.", "a table wakes up around you."], "earth": ["you are trusted on sight.", "shoulders soften near you.", "you feel like solid ground.", "a steadiness comes in with you."], "air": ["a question is your hello.", "you make the small talk large.", "people feel clever talking to you.", "a breeze seems to follow you in."], "water": ["you listen past the words.", "your eyes do most of the talking.", "you get told the real story.", "people feel safe before you speak."]}, "hours": {"noctis": ["the late hour tells you things.", "you think clearest in the dark.", "midnight sits with you kindly."], "gallicinii": ["you were awake before the birds.", "you hear the day before it comes.", "the dark is thinning just for you."], "diluculi": ["the windows are going pale for you.", "out there, the birds are rehearsing.", "nothing has been decided yet."], "mane": ["the kettle is on somewhere in you.", "clear eyes, a clean page.", "your plans have their shoes on."], "meridiei": ["at noon, you cast no shadow.", "plain light has always liked you.", "the bright hour flatters you."], "nonae": ["you keep the slow gold of afternoon.", "time goes honey-thick around you.", "a good hour for doing nothing well."], "vesperi": ["dusk is kind to what you made.", "evening settles on you like a shawl.", "the light goes amber in you."], "concubii": ["late thoughts come and sit with you.", "the day folds, and you unfold.", "dreams wait at the edge of you."]}, "season": {"winter": ["green waits under the frost.", "your quiet is the warm kind.", "the cold makes you clearer."], "spring": ["something green insists in you.", "you open a little more each day.", "the thaw has found you."], "summer": ["everything in you is in leaf.", "ripe, and in no hurry.", "the long days lean toward you."], "autumn": ["a full basket, and both arms free.", "you let the leaves fall well.", "the turning becomes you."]}, "seen": ["your face is in what grew here.", "a new life learned your face.", "you will know your face in it.", "it has your face, a little changed.", "your eyes are in it. look closely."], "unseen": ["your face stays yours, as it should.", "some of you is still a rumor.", "you kept something for yourself."], "company": ["you were not the only quiet one.", "others went quiet at the same time.", "elsewhere, someone paused with you."], "sent": ["you came in on a friend's word.", "you followed a kindness here.", "a friend thought of you."], "returning": ["you came back, and it remembered.", "it saved a place for you.", "this is not your first garden."], "forecasts": {"longest.hi": ["this week, stay one beat longer.", "soon, a good thing asks you to wait."], "longest.lo": ["end one small thing kindly.", "soon, set down what is done."], "stay.hi": ["this week, linger after goodbye.", "let the good part last a while."], "stay.lo": ["this week, pack only what sings.", "soon, a short visit says enough."], "letgo.hi": ["this week, begin again, gladly.", "soon, trade good enough for true."], "direct.hi": ["this week, trust your opening move.", "soon, ask for what you want."], "direct.lo": ["take the scenic way this week.", "soon, get a little lost on purpose."], "seek.hi": ["this week, let a thing come to you.", "give it one more night."], "seek.lo": ["this week, say what you see.", "soon, trust the quick glance."], "scrubs.hi": ["this week, keep the happy accident.", "soon, let a smudge stay."], "stir.hi": ["make a few ripples this week.", "soon, move the furniture."], "stir.lo": ["say one thing, and mean it.", "soon, be still where it counts."], "wiped.hi": ["this week, trace the grain of wood.", "soon, reach for what you admire."], "together.hi": ["this week, share a silence.", "soon, sit a while with a friend."], "hull.hi": ["this week, set an extra cup out.", "soon, invite the unlikely guest."], "hull.lo": ["this week, care for what is near.", "water whatever is nearest."], "cross.hi": ["this week, walk an old road again.", "soon, reread something you loved."], "closure.lo": ["this week, call someone from before.", "soon, an old door opens inward."], "sectors.hi": ["this week, sit on the other side.", "soon, look where you never look."], "sectors.lo": ["pick one thing and stay with it.", "soon, look deeper, not wider."], "turn.hi": ["this week, take a new road home.", "soon, change your mind on purpose."], "turn.lo": ["this week, repeat what works.", "soon, see one plan all the way."], "minutes.hi": ["this week, give one thing an hour.", "soon, read one page twice."], "minutes.lo": ["this week, let the quick yes stand.", "soon, the obvious answer is right."], "you.hi": ["this week, sit for a portrait.", "soon, stand where the light lands."], "we.hi": ["this week, ask someone a riddle.", "soon, finish a thought together."], "knobs.hi": ["try it the other way this week.", "soon, change a habit you inherited."], "noon.hi": ["this week, show up for someone.", "soon, an ordinary hour turns gold."], "flipped.hi": ["this week, look kindly in a mirror.", "soon, keep the honest version."]}, "davos": ["the snow is keeping count.", "somewhere white, a hush is waiting.", "far away, a basin is filling."], "close": ["carry this lightly.", "you were here, and it changed.", "what grew here is yours to keep.", "nothing is finished. keep looking.", "go gently. it is still growing.", "it will look different tomorrow."], "fallback": ["you held still, and something grew.", "a quiet shape, and only yours.", "no one else could have made this."], "today": {"station_direct.mercury": ["the stuck words come unstuck today.", "everyone's message finds its door.", "say it today. it lands."], "station_retrograde.mercury": ["we read it twice, and smile.", "the whole room checks its notes.", "today the drafts stay drafts."], "retrograde.mercury": ["we find the note in the old coat.", "we spell it backwards, for fun.", "everyone calls someone back."], "ingress.mercury": ["new words on every tongue.", "the neighbors swap new words.", "today the gossip is good."], "station_direct.venus": ["love walks back into the room.", "our worth, set in bold.", "today we all look lovely."], "station_retrograde.venus": ["we look again at what we love.", "old sweethearts cross our minds.", "tonight the mirror is generous."], "retrograde.venus": ["the old love song, still ours.", "we fall for the same thing twice.", "we revisit beauty. it stayed."], "ingress.venus": ["the whole street dresses up.", "today a new kind of pretty.", "everyone is worth a second look."], "station_direct.mars": ["every shy hand goes up.", "everyone, go. the road is warm.", "today the brave part is easy."], "station_retrograde.mars": ["we save our fire for later.", "we let the engine idle, warm.", "we stretch before the dance."], "retrograde.mars": ["our old courage, back for seconds.", "round two. we know the steps now.", "we circle back, braver."], "ingress.mars": ["a new bounce in our step.", "today the room wants to move.", "sleeves up, all of us."], "station_direct.jupiter": ["luck turns around and waves at us.", "we all grow an inch today.", "a clover in every pocket."], "station_retrograde.jupiter": ["we count what already grew.", "the luck we have, we polish.", "today we grow roots, not branches."], "ingress.jupiter": ["beanstalks at every door.", "everyone's table gets a leaf.", "more room for all of us."], "station_direct.saturn": ["our slow work begins to show.", "time gives us back what it kept.", "the choir stands up straighter."], "station_retrograde.saturn": ["we check the frame of things.", "our clocks go soft for a while.", "today, patience has a shape."], "ingress.saturn": ["we pour a new floor, together.", "every kitchen gets a new shelf.", "our metronome picks a new tempo."], "station_direct.uranus": ["the surprise party is for all of us.", "every window opens at once.", "the latch lifts on every gate."], "station_retrograde.uranus": ["the wild idea takes a nap.", "today we tinker, not toss.", "freedom, rehearsed at home."], "ingress.uranus": ["the block rewires itself for fun.", "the room gets happily odd.", "everyone gets a spare key."], "station_direct.neptune": ["our dream walks out, dressed.", "what blurred for us comes clear.", "the haze takes a bow and leaves."], "station_retrograde.neptune": ["we sink into the dream on purpose.", "the whole room floats inward.", "tonight we share one dream."], "ingress.neptune": ["everyone's pillow learns a song.", "we melt like sugar in tea.", "the whole town turns watercolor."], "station_direct.pluto": ["what went deep comes up gold.", "our roots come up as flowers.", "every diver surfaces smiling."], "station_retrograde.pluto": ["we go down for the good stuff.", "everyone dives for pearls.", "deep water, warm hands, all of us."], "ingress.pluto": ["all our compost turns to roses.", "we trade the cocoon for wings.", "the deep end opens for all."], "new_moon": ["every clock says once upon a time.", "tonight we plant something.", "the band counts us in."], "full_moon": ["everyone glows a little.", "tonight even the puddles shine.", "all of us, lit up at once."], "solar_eclipse": ["we blink, and then more light.", "the day winks at all of us.", "the whole street looks up."], "lunar_eclipse": ["tonight the glow goes rosy.", "we all go a little strawberry.", "everyone, pink for an hour."]}};
+const HORO = {"traits": {"longest.hi": ["patience, in you, looks like love.", "you outlast the rain.", "yours is the last lamp still lit."], "longest.lo": ["enough tastes sweet to you.", "you leave the feast at its height.", "endings find you graceful."], "stay.hi": ["you stay for the second song.", "you read the credits to the end.", "what you find, you sit beside."], "stay.lo": ["a brief guest, long remembered.", "lightly in, lightly on.", "the echo of you is kind."], "letgo.hi": ["almost is not a home to you.", "you open your hand, and it fills.", "the next clearing has your trust."], "direct.hi": ["you walk as if you were expected.", "the straight path loves you back.", "you see the way before it clears."], "direct.lo": ["you arrive by way of everything.", "your wandering draws the map.", "the margins are where you start."], "seek.hi": ["you give the dark time to speak.", "nothing hurries you into seeing.", "shy things come out for you."], "seek.lo": ["the hidden thing waves at you.", "what is lost tends to find you.", "walls show you their seams."], "scrubs.hi": ["your mistakes keep turning lovely.", "trying to tidy, you make treasure.", "your corrections become ornaments."], "stir.hi": ["even your pauses make waves.", "you leave a pleasant disorder.", "nothing stays flat around you."], "stir.lo": ["one gesture from you is enough.", "your stillness says plenty.", "when you move, things listen."], "wiped.hi": ["your touch asks before it takes.", "the edges of things trust you.", "a surface tells you its whole story."], "together.hi": ["strangers settle when you settle.", "people borrow your calm and keep it.", "the air softens around you."], "hull.hi": ["your circle has space for one more.", "you think in open fields.", "you love with the gate left open."], "hull.lo": ["your world is close and well lit.", "a little garden, deeply tended.", "you know every corner by heart."], "cross.hi": ["old places still have gifts for you.", "you circle back for what you missed.", "the second visit is the real one."], "closure.lo": ["every road you take bends home.", "home is the shape you keep drawing.", "the last step rhymes with the first."], "sectors.hi": ["every window in you stays open.", "you turn toward every voice.", "no side of a thing is dark to you."], "sectors.lo": ["the horizon you chose chose you.", "one direction, wholly loved.", "a single window, and the whole view."], "turn.hi": ["your path writes in cursive.", "surprise is your native tongue.", "you never take a corner twice."], "turn.lo": ["you follow the thread to the end.", "a steady line runs through you.", "your course holds in high wind."], "minutes.hi": ["you look until it looks back.", "time slows down where you linger.", "a thing is changed by your looking."], "minutes.lo": ["the outline is enough for you.", "one glance, and you have it.", "you know a book by its first line."], "we.hi": ["you hear the harmony under the tune.", "you are easy to think beside.", "a question for two finds you ready."], "knobs.hi": ["the rules are a draft to you.", "you tune the world till it sings.", "every setting is a suggestion."], "noon.hi": ["you keep time with strangers.", "you are on time for something vast.", "a thousand clocks agree with you."], "flipped.hi": ["you saw the pretty turn true.", "past the gilt, you find the grain.", "the real thing was lovelier."]}, "sun": {"fire.cardinal": ["you say go, and the day goes.", "beginnings run to meet you.", "there is a match in your pocket."], "fire.fixed": ["a hearth burns at your middle.", "people come to you to get warm.", "your warmth keeps its promises."], "fire.mutable": ["your laughter travels ahead of you.", "your warmth likes to wander.", "you set new places glowing."], "earth.cardinal": ["what you start is still standing.", "others lean on what you build.", "the mountain likes your pace."], "earth.fixed": ["the ground is glad you stayed.", "you can wait an orchard into being.", "comfort follows you like a cat."], "earth.mutable": ["you mend what others overlook.", "small things go right in your care.", "you know which seed needs water."], "air.cardinal": ["the first true word is often yours.", "beauty is a door you hold open.", "a crooked day straightens near you."], "air.fixed": ["the future visits you often.", "you keep a thought no one else had.", "your odd ideas age well."], "air.mutable": ["questions perch on your shoulder.", "you carry news between worlds.", "your thoughts travel in flocks."], "water.cardinal": ["anywhere turns into home with you.", "the unsaid reaches you first.", "the tender thing is the brave thing."], "water.fixed": ["you go deep and come up whole.", "secrets are safe at your depth.", "what you feel, you feel all the way."], "water.mutable": ["your dreams spill into waking.", "tenderness takes your shape.", "you drift, and arrive where needed."]}, "moon": {"new.fire": ["a spark you have told no one about.", "a small heat, not yet for show."], "new.earth": ["a seed is busy under the soil.", "underground, a slow yes."], "new.air": ["a thought you have not said yet.", "an idea waits behind your teeth."], "new.water": ["a feeling is forming in the dark.", "deep down, a spring is filling."], "waxing crescent.fire": ["a little courage, gathering.", "the spark has caught; feed it."], "waxing crescent.earth": ["green shoots, still shy of the air.", "one stone a day, and it grows."], "waxing crescent.air": ["a plan is learning to speak.", "words gather like birds on a wire."], "waxing crescent.water": ["something is swimming your way.", "softness, slowly coming in."], "first quarter.fire": ["you are braver than last week.", "a yes is warming in your chest."], "first quarter.earth": ["the stones you set now will hold.", "the work is underway, and sound."], "first quarter.air": ["two thoughts ask you to choose.", "the question is ready for you."], "first quarter.water": ["a feeling asks to be decided.", "your heart has started across."], "waxing gibbous.fire": ["a dare is ripening in you.", "you are one breath from bold."], "waxing gibbous.earth": ["the fruit is heavy, nearly ripe.", "one more turn of the soil."], "waxing gibbous.air": ["the right words are almost here.", "a sentence is ripening in you."], "waxing gibbous.water": ["you feel more than you have said.", "something tender is surfacing."], "full.fire": ["you are lit from every side.", "all of your warmth is showing."], "full.earth": ["the harvest is in, and it is yours.", "your work stands in plain view."], "full.air": ["what you meant is finally plain.", "your words carry farther now."], "full.water": ["brimful of something sweet.", "nothing you feel is hidden now."], "waning gibbous.fire": ["you share the warmth you made.", "others light their candles from you."], "waning gibbous.earth": ["you hand out the bread you baked.", "your plenty wants to travel."], "waning gibbous.air": ["someone needs the thing you know.", "a good idea wants to leave home."], "waning gibbous.water": ["you pour out what you were given.", "your kindness spills over, gently."], "last quarter.fire": ["a small fire is allowed to go out.", "old heat leaves; you are lighter."], "last quarter.earth": ["you clear a shelf for what comes.", "the field rests; so can you."], "last quarter.air": ["an old story is losing its hold.", "an argument in you has gone quiet."], "last quarter.water": ["a tide goes out, and you let it.", "something heavy is floating off."], "waning crescent.fire": ["the embers are enough for now.", "rest by the coals; they keep."], "waning crescent.earth": ["fallow is a kind of growing.", "a slow, well-earned stillness."], "waning crescent.air": ["your mind goes soft and wide.", "thoughts drift off like smoke."], "waning crescent.water": ["a soft shore is coming up.", "a quiet tide rocks you to rest."]}, "rising": {"fire": ["you enter like good news.", "you bring the weather with you.", "first meetings with you get retold.", "a table wakes up around you."], "earth": ["you are trusted on sight.", "shoulders soften near you.", "you feel like solid ground.", "a steadiness comes in with you."], "air": ["a question is your hello.", "you make the small talk large.", "people feel clever talking to you.", "a breeze seems to follow you in."], "water": ["you listen past the words.", "your eyes do most of the talking.", "you get told the real story.", "people feel safe before you speak."]}, "hours": {"noctis": ["the late hour tells you things.", "you think clearest in the dark.", "midnight sits with you kindly."], "gallicinii": ["you were awake before the birds.", "you hear the day before it comes.", "the dark is thinning just for you."], "diluculi": ["the windows are going pale for you.", "out there, the birds are rehearsing.", "nothing has been decided yet."], "mane": ["the kettle is on somewhere in you.", "clear eyes, a clean page.", "your plans have their shoes on."], "meridiei": ["at noon, you cast no shadow.", "plain light has always liked you.", "the bright hour flatters you."], "nonae": ["you keep the slow gold of afternoon.", "time goes honey-thick around you.", "a good hour for doing nothing well."], "vesperi": ["dusk is kind to what you made.", "evening settles on you like a shawl.", "the light goes amber in you."], "concubii": ["late thoughts come and sit with you.", "the day folds, and you unfold.", "dreams wait at the edge of you."]}, "season": {"winter": ["green waits under the frost.", "your quiet is the warm kind.", "the cold makes you clearer."], "spring": ["something green insists in you.", "you open a little more each day.", "the thaw has found you."], "summer": ["everything in you is in leaf.", "ripe, and in no hurry.", "the long days lean toward you."], "autumn": ["a full basket, and both arms free.", "you let the leaves fall well.", "the turning becomes you."]}, "company": ["you were not the only quiet one.", "others went quiet at the same time.", "elsewhere, someone paused with you."], "sent": ["you came in on a friend's word.", "you followed a kindness here.", "a friend thought of you."], "returning": ["you came back, and it remembered.", "it saved a place for you.", "this is not your first garden."], "forecasts": {"longest.hi": ["this week, stay one beat longer.", "soon, a good thing asks you to wait."], "longest.lo": ["end one small thing kindly.", "soon, set down what is done."], "stay.hi": ["this week, linger after goodbye.", "let the good part last a while."], "stay.lo": ["this week, pack only what sings.", "soon, a short visit says enough."], "letgo.hi": ["this week, begin again, gladly.", "soon, trade good enough for true."], "direct.hi": ["this week, trust your opening move.", "soon, ask for what you want."], "direct.lo": ["take the scenic way this week.", "soon, get a little lost on purpose."], "seek.hi": ["this week, let a thing come to you.", "give it one more night."], "seek.lo": ["this week, say what you see.", "soon, trust the quick glance."], "scrubs.hi": ["this week, keep the happy accident.", "soon, let a smudge stay."], "stir.hi": ["make a few ripples this week.", "soon, move the furniture."], "stir.lo": ["say one thing, and mean it.", "soon, be still where it counts."], "wiped.hi": ["this week, trace the grain of wood.", "soon, reach for what you admire."], "together.hi": ["this week, share a silence.", "soon, sit a while with a friend."], "hull.hi": ["this week, set an extra cup out.", "soon, invite the unlikely guest."], "hull.lo": ["this week, care for what is near.", "water whatever is nearest."], "cross.hi": ["this week, walk an old road again.", "soon, reread something you loved."], "closure.lo": ["this week, call someone from before.", "soon, an old door opens inward."], "sectors.hi": ["this week, sit on the other side.", "soon, look where you never look."], "sectors.lo": ["pick one thing and stay with it.", "soon, look deeper, not wider."], "turn.hi": ["this week, take a new road home.", "soon, change your mind on purpose."], "turn.lo": ["this week, repeat what works.", "soon, see one plan all the way."], "minutes.hi": ["this week, give one thing an hour.", "soon, read one page twice."], "minutes.lo": ["this week, let the quick yes stand.", "soon, the obvious answer is right."], "we.hi": ["this week, ask someone a riddle.", "soon, finish a thought together."], "knobs.hi": ["try it the other way this week.", "soon, change a habit you inherited."], "noon.hi": ["this week, show up for someone.", "soon, an ordinary hour turns gold."], "flipped.hi": ["this week, look kindly in a mirror.", "soon, keep the honest version."]}, "close": ["carry this lightly.", "you were here, and it changed.", "what grew here is yours to keep.", "nothing is finished. keep looking.", "go gently. it is still growing.", "it will look different tomorrow."], "fallback": ["you held still, and something grew.", "a quiet shape, and only yours.", "no one else could have made this."], "today": {"station_direct.mercury": ["the stuck words come unstuck today.", "everyone's message finds its door.", "say it today. it lands."], "station_retrograde.mercury": ["we read it twice, and smile.", "the whole room checks its notes.", "today the drafts stay drafts."], "retrograde.mercury": ["we find the note in the old coat.", "we spell it backwards, for fun.", "everyone calls someone back."], "ingress.mercury": ["new words on every tongue.", "the neighbors swap new words.", "today the gossip is good."], "station_direct.venus": ["love walks back into the room.", "our worth, set in bold.", "today we all look lovely."], "station_retrograde.venus": ["we look again at what we love.", "old sweethearts cross our minds.", "tonight the mirror is generous."], "retrograde.venus": ["the old love song, still ours.", "we fall for the same thing twice.", "we revisit beauty. it stayed."], "ingress.venus": ["the whole street dresses up.", "today a new kind of pretty.", "everyone is worth a second look."], "station_direct.mars": ["every shy hand goes up.", "everyone, go. the road is warm.", "today the brave part is easy."], "station_retrograde.mars": ["we save our fire for later.", "we let the engine idle, warm.", "we stretch before the dance."], "retrograde.mars": ["our old courage, back for seconds.", "round two. we know the steps now.", "we circle back, braver."], "ingress.mars": ["a new bounce in our step.", "today the room wants to move.", "sleeves up, all of us."], "station_direct.jupiter": ["luck turns around and waves at us.", "we all grow an inch today.", "a clover in every pocket."], "station_retrograde.jupiter": ["we count what already grew.", "the luck we have, we polish.", "today we grow roots, not branches."], "ingress.jupiter": ["beanstalks at every door.", "everyone's table gets a leaf.", "more room for all of us."], "station_direct.saturn": ["our slow work begins to show.", "time gives us back what it kept.", "the choir stands up straighter."], "station_retrograde.saturn": ["we check the frame of things.", "our clocks go soft for a while.", "today, patience has a shape."], "ingress.saturn": ["we pour a new floor, together.", "every kitchen gets a new shelf.", "our metronome picks a new tempo."], "station_direct.uranus": ["the surprise party is for all of us.", "every window opens at once.", "the latch lifts on every gate."], "station_retrograde.uranus": ["the wild idea takes a nap.", "today we tinker, not toss.", "freedom, rehearsed at home."], "ingress.uranus": ["the block rewires itself for fun.", "the room gets happily odd.", "everyone gets a spare key."], "station_direct.neptune": ["our dream walks out, dressed.", "what blurred for us comes clear.", "the haze takes a bow and leaves."], "station_retrograde.neptune": ["we sink into the dream on purpose.", "the whole room floats inward.", "tonight we share one dream."], "ingress.neptune": ["everyone's pillow learns a song.", "we melt like sugar in tea.", "the whole town turns watercolor."], "station_direct.pluto": ["what went deep comes up gold.", "our roots come up as flowers.", "every diver surfaces smiling."], "station_retrograde.pluto": ["we go down for the good stuff.", "everyone dives for pearls.", "deep water, warm hands, all of us."], "ingress.pluto": ["all our compost turns to roses.", "we trade the cocoon for wings.", "the deep end opens for all."], "new_moon": ["every clock says once upon a time.", "tonight we plant something.", "the band counts us in."], "full_moon": ["everyone glows a little.", "tonight even the puddles shine.", "all of us, lit up at once."], "solar_eclipse": ["we blink, and then more light.", "the day winks at all of us.", "the whole street looks up."], "lunar_eclipse": ["tonight the glow goes rosy.", "we all go a little strawberry.", "everyone, pink for an hour."]}};
 const MOONS = [[0.03,'new'], [0.22,'waxing crescent'], [0.28,'first quarter'], [0.47,'waxing gibbous'], [0.53,'full'], [0.72,'waning gibbous'], [0.78,'last quarter'], [0.97,'waning crescent'], [1.01,'new']];
 // the sky over the player when they came, worked out on the device from its clock and its time zone (the offset as a longitude, the
 // hemisphere as a latitude): the sun's sign, the moon's sign, and the sign rising in the east. Tropical zodiac, good to a few degrees,
@@ -2314,12 +2182,12 @@ const ZONES = { 'America/Los_Angeles':[34.05,-118.24], 'America/Vancouver':[49.2
   'America/Chicago':[41.88,-87.63], 'America/New_York':[40.71,-74.01], 'America/Toronto':[43.65,-79.38], 'America/Halifax':[44.65,-63.57], 'America/Anchorage':[61.22,-149.9],
   'Pacific/Honolulu':[21.31,-157.86], 'America/Mexico_City':[19.43,-99.13], 'America/Bogota':[4.71,-74.07], 'America/Lima':[-12.05,-77.04], 'America/Santiago':[-33.45,-70.67],
   'America/Sao_Paulo':[-23.55,-46.63], 'America/Argentina/Buenos_Aires':[-34.6,-58.38], 'Europe/London':[51.51,-0.13], 'Europe/Dublin':[53.35,-6.26], 'Europe/Lisbon':[38.72,-9.14],
-  'Europe/Madrid':[40.42,-3.7], 'Europe/Paris':[48.86,2.35], 'Europe/Amsterdam':[52.37,4.9], 'Europe/Berlin':[52.52,13.4], 'Europe/Zurich':[46.8,9.84], 'Europe/Rome':[41.9,12.5],
+  'Europe/Madrid':[40.42,-3.7], 'Europe/Paris':[48.86,2.35], 'Europe/Amsterdam':[52.37,4.9], 'Europe/Berlin':[52.52,13.4], 'Europe/Zurich':[47.37,8.54], 'Europe/Rome':[41.9,12.5],
   'Europe/Stockholm':[59.33,18.07], 'Europe/Istanbul':[41.01,28.98], 'Europe/Moscow':[55.76,37.62], 'Asia/Jerusalem':[31.77,35.21], 'Africa/Cairo':[30.04,31.24],
   'Africa/Lagos':[6.52,3.38], 'Africa/Nairobi':[-1.29,36.82], 'Africa/Johannesburg':[-26.2,28.05], 'Asia/Dubai':[25.2,55.27], 'Asia/Kolkata':[28.61,77.21],
   'Asia/Bangkok':[13.76,100.5], 'Asia/Jakarta':[-6.21,106.85], 'Asia/Singapore':[1.35,103.82], 'Asia/Shanghai':[31.23,121.47], 'Asia/Hong_Kong':[22.32,114.17],
   'Asia/Taipei':[25.03,121.57], 'Asia/Manila':[14.6,120.98], 'Asia/Seoul':[37.57,126.98], 'Asia/Tokyo':[35.68,139.69], 'Australia/Melbourne':[-37.81,144.96],
-  'Australia/Sydney':[-33.87,151.21], 'Pacific/Auckland':[-36.85,174.76] };   // each zone's own city; Zurich's is Davos
+  'Australia/Sydney':[-33.87,151.21], 'Pacific/Auckland':[-36.85,174.76] };   // each zone's own city
 function skyOver(t){
   const d = t/86400000 + 2440587.5 - 2451545.0, rad = Math.PI/180, nm = (x) => ((x % 360) + 360) % 360, sign = (l) => SIGNS[Math.floor(nm(l)/30)];
   const g = nm(357.529 + 0.98560028*d), q = nm(280.459 + 0.98564736*d);
@@ -2395,7 +2263,7 @@ function whenWhere(t){
   const months = ['winter','winter','spring','spring','spring','summer','summer','summer','autumn','autumn','autumn','winter'];
   return { part: h < 4 ? 'the small hours' : h < 7 ? 'the hour before dawn' : h < 11 ? 'the morning' : h < 14 ? 'the middle of the day' : h < 17 ? 'the afternoon' : h < 20 ? 'the evening' : 'the night',
     day: d.toLocaleDateString('en-GB', { weekday:'long' }).toLowerCase(), city: zone.includes('/') ? zone.split('/').pop().replace(/_/g, ' ').toLowerCase() : '',
-    season: months[(d.getMonth() + (SOUTH.test(zone) ? 6 : 0)) % 12], moon: moonOf(t), davos: Math.max(0, Math.ceil((DAVOS - t)/86400000)) };
+    season: months[(d.getMonth() + (SOUTH.test(zone) ? 6 : 0)) % 12], moon: moonOf(t) };
 }
 function readYou(){
   const f = features(), seed = hashI(Math.round(f.longest*100) + f.scrubs*7 + Math.round(f.hull*1000)*13 + f.letgo*31 + (me.first % 100003));
@@ -2431,7 +2299,7 @@ function readYou(){
   // only colours which lines are chosen; the code never says it. The reading is as long as the play was deep.
   const dec = (v) => (+v).toFixed(2).replace(/^0/, ''), one = (v) => (+v).toFixed(1);
   const NAME = { longest:'longest_hold_seconds', stay:'stay_seconds', seek:'seek_seconds', wiped:'wipe_seconds', turn:'turn_degrees', sectors:'directions_of_8',
-    you:'forms_with_you', together:'held_with', letgo:'let_go_times', scrubs:'wash_times', stir:'crossings', cross:'path_crossings', direct:'straight_to_it',
+    together:'held_with', letgo:'let_go_times', scrubs:'wash_times', stir:'crossings', cross:'path_crossings', direct:'straight_to_it',
     hull:'room_held', closure:'end_to_start', minutes:'minutes', knobs:'dials_turned', we:'riddle_answered', noon:'held_at_noon', flipped:'title_turned' };
   const valOf = (k) => ({ longest:one(f.longest), stay:one(f.stay), seek:one(f.seek), wiped:one(f.wiped), minutes:one(f.minutes), direct:dec(f.direct),
     hull:dec(f.hull), closure:dec(f.closure), turn:String(Math.round(f.turn*57.3)), sectors:String(f.sectors), we:f.we ? 'True' : 'False',
@@ -2449,8 +2317,7 @@ function readYou(){
     scrubs:(v) => `gold = [wash() for _ in range(${v})]`, taps:(v) => `beats = [tap] * ${v}`, holds:(v) => `held = holds[:${v}]`,
     letgo:(v) => `del doubts[:${v}]`, minutes:(v) => `attention = ${one(v)} * 60`, closure:(v) => `if dist(first, last) < ${dec(v + 0.05)}: home()`,
     cross:(v) => `meet(*crossings[:${v}])`, wiped:(v) => `with glass: touch(${one(v)})`, together:(v) => `us = [you] + others[:${v}]`,
-    we:() => 'assert answer == "we"', knobs:() => 'rules = rewrite(rules)', noon:() => 'everyone.add(you)', flipped:() => 'title = title.replace("an", "er")',
-    you:(v) => `forms = [see(you)] * ${v}` };
+    we:() => 'assert answer == "we"', knobs:() => 'rules = rewrite(rules)', noon:() => 'everyone.add(you)', flipped:() => 'title = title.replace("an", "er")' };
   const termOf = (k) => (TERM[k] || ((v) => `${k} = ${v}`))(+f[k] || 0);
   const tr = ranked.map((x, i) => [pick(HORO.traits[`${x.d.k}.${x.dir}`] || [], 11 + i), termOf(x.d.k)]).filter(([c]) => c);
   if (!tr.length) tr.push([pick(HORO.close, 5), `stars = path[:${f.finds}]`]);
@@ -2465,7 +2332,6 @@ function readYou(){
   cand.rising = [pick(HORO.rising[el(sk.ai)] || [], 29), count(3)];
   cand.hour = [pick(HORO.hours[hourKey] || [], 31), count(4)];
   cand.season = [pick(HORO.season[ctx.season] || [], 37), count(5)];
-  if (f.you) cand.seen = [pick(HORO.seen, 41), 'see(you) == you'];   // never reassigns you under its name else if (CAN_SEE) cand.unseen = [pick(HORO.unseen, 43), 'face = None'];
   if (f.together) cand.company = [pick(HORO.company, 47), `us = [you, *others[:${f.together}]]`];
   else if (sent && !sent.own) cand.company = [pick(HORO.sent, 53), 'weverse = [you, friend.youniverse]'];
   else if (skies.length) cand.company = [pick(HORO.returning, 59), 'youniverses.append(you)'];
@@ -2478,14 +2344,14 @@ function readYou(){
   cand.forecast = [pick(HORO.forecasts[fk] || HORO.close, 67), 'return you'];   // the script ends where it began
   for (const k of Object.keys(cand)) if (!cand[k] || !cand[k][0]) delete cand[k];
   { const said = new Set(); for (const k of Object.keys(cand)) { if (said.has(cand[k][1])) delete cand[k]; else said.add(cand[k][1]); } }
-  // how deep the play went: time given, coming back after letting go, how much the hands moved, how much room the stars took, being seen,
+  // how deep the play went: time given, coming back after letting go, how much the hands moved, how much room the stars took,
   // the riddle, the dials, company, noon, coming back to make another. A light play reads short; a deep one, long.
   const depth = Math.max(0, Math.min(1, 0.06 + 0.16*Math.min(1, (f.minutes || 0)/6) + 0.12*Math.min(1, ((f.letgo || 0) + Math.max(0, (f.holds || 7) - 7))/5)
-    + 0.13*Math.min(1, ((f.stir || 0) + 0.5*(f.scrubs || 0) + 0.5*(f.taps || 0))/14) + 0.09*Math.min(1, (f.hull || 0)/0.3) + (f.you ? 0.2 : 0) + (f.we ? 0.08 : 0)
+    + 0.13*Math.min(1, ((f.stir || 0) + 0.5*(f.scrubs || 0) + 0.5*(f.taps || 0))/14) + 0.09*Math.min(1, (f.hull || 0)/0.3) + (f.we ? 0.08 : 0)
     + (f.knobs ? 0.04 : 0) + (f.together ? 0.05 : 0) + (f.noon ? 0.04 : 0) + 0.05*Math.min(1, skies.length/5) + 0.16*((hashI(seed + 71) % 1000)/1000 - 0.5)));
   const n = 3 + Math.min(2, Math.floor(depth*3));             // three to five: a light play reads short, a deep one a little longer
-  const PRIORITY = ['trait0', 'sun', 'seen', 'today', 'forecast', 'moon', 'trait1', 'rising', 'company', 'hour', 'unseen', 'season', 'trait2'];
-  const ORDER = ['sun', 'trait0', 'moon', 'rising', 'seen', 'unseen', 'trait1', 'hour', 'season', 'company', 'trait2', 'today', 'forecast'];
+  const PRIORITY = ['trait0', 'sun', 'today', 'forecast', 'moon', 'trait1', 'rising', 'company', 'hour', 'season', 'trait2'];
+  const ORDER = ['sun', 'trait0', 'moon', 'rising', 'trait1', 'hour', 'season', 'company', 'trait2', 'today', 'forecast'];
   const keep = new Set(PRIORITY.filter((k) => cand[k]).slice(0, n));
   const pairs = ORDER.filter((k) => keep.has(k)).map((k) => cand[k]);
   for (const [c] of pairs) horo.push(c);
@@ -2503,7 +2369,7 @@ const STUDY_ON = !params.has('nostudy') && navigator.globalPrivacyControl !== tr
 function studyPublish(stage){
   if (!STUDY_ON || studyOff || !share.on || !share.finalize) return;
   if (!playId) { playId = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, '0')).join(''); save(); }
-  const rec = { v:6, stage, c: stage === 'done' ? encodeSky() : '', cul: [Math.round(cult.f*1e4)/1e4, Math.round(cult.k*1e4)/1e4], test: !!probe, mode: MODE, day: Math.round(loss*111), hour: new Date().getHours(), coarse: SMALL ? 1 : 0, stills: N,
+  const rec = { v:7, stage, c: stage === 'done' ? encodeSky() : '', cul: [Math.round(cult.f*1e4)/1e4, Math.round(cult.k*1e4)/1e4], test: !!probe, mode: MODE, day: Math.round(loss*(END-LAUNCH)/864e5), hour: new Date().getHours(), coarse: SMALL ? 1 : 0, stills: N,
     skies: skies.length, sent: sent ? 1 : 0, sky: stage === 'done' && reading ? reading.sky : '',
     f: features(), path: path.slice(0, LINES).map((p) => [Math.round(p[0]*1000)/1000, Math.round(p[1]*1000)/1000]), sp: mem.filter(Boolean).map((m) => m.sp) };
   try {
@@ -2514,8 +2380,8 @@ function studyPublish(stage){
 }
 
 // ---- a sky, sent as a link: the seven stars and the recipe of each form of life, in 52 characters. No picture, no face, nothing
-// about anyone. Whoever opens it finds the sky in their glass, under their own, and can grow its forms of life again: where the
-// program says "you", it grows them from their own face, if they let it see them. Links always point at the published page.
+// about anyone. Whoever opens it finds the sky in their glass, under their own, and can grow its forms of life again. Links always
+// point at the published page.
 const PUBLIC = /(^|\.)github\.io$/.test(location.hostname) ? location.origin + location.pathname.replace(/[^/]*$/, '') : 'https://kat-titter.github.io/vanitas_veritas_verse/';
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const bitsOf = (v, n) => Math.max(0, Math.min(2**n-1, Math.round(v))).toString(2).padStart(n, '0');
@@ -2525,7 +2391,7 @@ function encodeSky(){
   let bits = bitsOf(2, 3) + bitsOf(ci, 3) + bitsOf(r.part, 6) + bitsOf(me.nv || 0, 1) + bitsOf(Math.max(0, me.ti), 3);
   order.forEach((i, k) => {
     const m = mem[i], pt = path[k] || m.spot, b = blendOf(m);
-    bits += bitsOf((pt[0]+0.4)/0.8*63, 6) + bitsOf((pt[1]+0.4)/0.8*63, 6) + bitsOf(i, 3) + bitsOf(m.a ?? m.sign, 5) + bitsOf(m.p, 5) + (m.face ? '1' : '0')
+    bits += bitsOf((pt[0]+0.4)/0.8*63, 6) + bitsOf((pt[1]+0.4)/0.8*63, 6) + bitsOf(i, 3) + bitsOf(m.a ?? m.sign, 5) + bitsOf(m.p, 5) + '0'   // a retired bit, always 0
           + bitsOf(b[0]*15, 4) + bitsOf(b[1]*15, 4) + bitsOf(b[2]*15, 4) + bitsOf(m.s|0, 4);
   });
   let out = ''; for (let j = 0; j < bits.length; j += 6) out += B64[parseInt(bits.slice(j, j+6).padEnd(6, '0'), 2)];
@@ -2538,11 +2404,11 @@ function decodeSky(str){
   const ver = take(3); if (!(ver === 1 && str.length === 51) && !(ver === 2 && str.length === 52)) return null;
   const ci = take(3), part = take(6), nv = ver === 2 ? take(1) : 0, ti = ver === 2 ? take(3) : -1, stars = [], lines = new Set(), taken = [];
   for (let k = 0; k < LINES; k++) {
-    const x = take(6)/63*0.8-0.4, y = take(6)/63*0.8-0.4, line = take(3), a = take(5), p = take(5), face = take(1) === 1;
+    const x = take(6)/63*0.8-0.4, y = take(6)/63*0.8-0.4, line = take(3), a = take(5), p = take(5); take(1);   // the retired bit
     const blend = [take(4)/15, take(4)/15, take(4)/15], sd = take(4);
     if (line >= LINES || lines.has(line)) return null;
     lines.add(line);
-    const m = { a, sign: a, p, face, blend, s: sd, spot: [x, y], ord: k, line };
+    const m = { a, sign: a, p, blend, s: sd, spot: [x, y], ord: k, line };
     Object.assign(m, framing(m)); m.sp = speciesOf(m, taken); taken.push(m.sp);
     stars.push(m);
   }
@@ -2575,11 +2441,11 @@ function keepSky(){
   document.body.classList.add('skies');
 }
 
-// ---- grow another: a new sky, new stills, new places, new forms of life. What it knows of you stays: the two letters, and your face
-// for as long as this page is open. Every finished sky is kept on this device.
+// ---- grow another: a new sky, new stills, new places, new forms of life. What it knows of you stays: the two letters.
+// Every finished sky is kept on this device.
 function growAnother(){
   keepSky(); lift = 0; end = 0; whole = 0; birthT = 0; flash = 0;   // the point opens into the glass again
-  Object.assign(me, freshMe()); me.we = weOk; me.looked = !!faceTex;
+  Object.assign(me, freshMe()); me.we = weOk;
   reading = null; playId = ''; shareSaid = ''; log = [];
   read.fill(false); mem = new Array(LINES).fill(null); path.length = 0; lastRead = -1;
   lastWords = false; silence = false; afterEnd = 0; endDir = 1; recall = null; toldMirror = false; linger = 0; whisper = null;
@@ -2589,14 +2455,13 @@ function growAnother(){
 }
 
 // k, or "keep": a card to share. After a find (or for any line of the program you point at): that new form of life, its name, its
-// words and its line of code, your stars so far. At the end: the one you stayed with longest, your constellation over it with you at
-// its centre if it has seen you, and the mirror's reading. The riddle stays unanswered.
+// words and its line of code, your stars so far. At the end: the one you stayed with longest, your constellation over it,
+// and the mirror's reading. The riddle stays unanswered.
 let cardMode = false, cardSnap = null;
-function chosenSnap(){                        // the form of life you stayed with longest; if it has seen you, the one with your face it was
+function chosenSnap(){                        // the form of life you stayed with longest
   if (me.chosenLine >= 0 && mem[me.chosenLine]) return mem[me.chosenLine];
   let best = null, bs = -1;
-  const withYou = mem.some((m) => m && m.face);
-  for (const f of me.finds) { const m = mem[f.i]; if (!m || (withYou && !m.face)) continue; const sc = (f.stay || 0) + 0.05*(f.t || 0); if (sc > bs) { bs = sc; best = m; } }
+  for (const f of me.finds) { const m = mem[f.i]; if (!m) continue; const sc = (f.stay || 0) + 0.05*(f.t || 0); if (sc > bs) { bs = sc; best = m; } }
   if (!best) { const o = orderOf(); best = o.length ? mem[o[o.length-1]] : null; }
   return best;
 }
@@ -2622,7 +2487,7 @@ async function makeCard(only){
     c.drawImage(canvas, sx, sy, 2*rpx, 2*rpx, ox, oy, Dm, Dm);
     c.restore();
   } finally { cardFrame = false; cardMode = false; cardSnap = null; resize(); render(); }
-  // your stars: a light at every place you found, brighter the longer you stayed; joined in the order you found them, and each to you.
+  // your stars: a light at every place you found, brighter the longer you stayed; joined in the order you found them.
   // A finished sky is drawn in space, turned a little: nearer stars larger, and the whole of it one folded surface lit from the upper left.
   const kk = (Dm/2)/(BASIN_R*1.08), X = (p) => W/2 + p[0]*kk, Y = (p) => oy + Dm/2 - p[1]*kk;
   const ord = orderOf(), P3 = path.map((pt, k) => r ? project(pt, zOf(k, mem[ord[k]]), 0.5, -0.28) : [pt[0], pt[1], 1]);
@@ -2635,28 +2500,6 @@ async function makeCard(only){
     }
   }
   if (sent && one < 0) { c.strokeStyle = 'rgba(194,162,122,0.30)'; c.lineWidth = 1.5; c.beginPath(); sent.stars.forEach((m, i) => i ? c.lineTo(X(m.spot), Y(m.spot)) : c.moveTo(X(m.spot), Y(m.spot))); c.stroke(); }
-  if (seen) {                                              // you: the black hole of your universe, seen through its lens
-    const cx0 = X([0, 0]), cy0 = Y([0, 0]), R0 = Math.round(0.17*Dm);   // 119
-    const g = c.createRadialGradient(cx0, cy0, 0, cx0, cy0, 1.4*R0);     // dig the hole: ink out to the ring, fading away past it (the glass there is white,
-    g.addColorStop(0, 'rgba(3,3,4,.95)'); g.addColorStop(0.72, 'rgba(3,3,4,.95)'); g.addColorStop(1, 'rgba(3,3,4,0)');   // and would wash a face out)
-    c.fillStyle = g; c.beginPath(); c.arc(cx0, cy0, 1.4*R0, 0, 2*Math.PI); c.fill();
-    if (faceCv) {
-      const F = document.createElement('canvas'); F.width = F.height = 2*R0; const f = F.getContext('2d');
-      f.drawImage(faceCv, 64, 48, 384, 384, 0, 0, 2*R0, 2*R0);
-      const m = f.createRadialGradient(R0, R0, 0, R0, R0, R0);           // a soft fade that is gone before the ring: no edge, no disc
-      m.addColorStop(0, '#000'); m.addColorStop(0.45, '#000'); m.addColorStop(0.7, 'rgba(0,0,0,.6)'); m.addColorStop(0.92, 'rgba(0,0,0,0)');
-      f.globalCompositeOperation = 'destination-in'; f.fillStyle = m; f.fillRect(0, 0, 2*R0, 2*R0);
-      c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = 0.9; c.drawImage(F, cx0-R0, cy0-R0); c.restore();
-    }
-    c.save(); c.beginPath(); c.arc(cx0, cy0, 1.05*R0, 0, 2*Math.PI); c.clip();   // the fluted glass and its grain, over you
-    for (let x = cx0-1.05*R0; x < cx0+1.05*R0; x += 6) { c.fillStyle = 'rgba(3,3,4,.14)'; c.fillRect(x, cy0-1.05*R0, 2, 2.1*R0); c.fillStyle = 'rgba(228,223,210,.05)'; c.fillRect(x+3, cy0-1.05*R0, 1, 2.1*R0); }
-    for (let k = 0; k < 2200; k++) { const a = Math.random()*2*Math.PI, rr = Math.sqrt(Math.random())*1.05*R0, al = (0.04 + 0.06*Math.random()).toFixed(3);
-      c.fillStyle = k % 2 ? `rgba(228,223,210,${al})` : `rgba(3,3,4,${al})`; c.fillRect(cx0 + rr*Math.cos(a), cy0 + rr*Math.sin(a), 1, 1); }
-    c.restore();
-    c.save(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(242,226,196,.75)'; c.shadowBlur = 10; c.shadowColor = 'rgba(194,162,122,.7)';   // the photon ring
-    c.beginPath(); c.arc(cx0, cy0, R0, 0, 2*Math.PI); c.stroke(); c.restore();
-  }
-  if (seen && path.length) { c.strokeStyle = 'rgba(194,162,122,0.38)'; c.lineWidth = 1.5; c.beginPath(); for (const p of P3) { c.moveTo(X([0, 0]), Y([0, 0])); c.lineTo(X(p), Y(p)); } c.stroke(); }
   c.save(); c.shadowColor = 'rgba(3,3,4,.6)'; c.shadowBlur = 4;                                  // gold on an ink shadow: the print reads on the milk
   for (let i = 1; i < P3.length; i++) { const a = P3[i-1], b2 = P3[i], nz = (a[2] + b2[2])/2;     // nearer lines are brighter and thicker
     c.strokeStyle = `rgba(194,162,122,${Math.min(0.95, 0.7*nz*nz).toFixed(2)})`; c.lineWidth = 3.2*nz; c.beginPath(); c.moveTo(X(a), Y(a)); c.lineTo(X(b2), Y(b2)); c.stroke(); }
@@ -2757,7 +2600,6 @@ Promise.all(FRAMES.map((src) => new Promise((ok, no) => { const im = new Image()
     params.delete('reset'); location.replace(location.pathname + (params.toString() ? '?' + params : '')); return;
   }
   restore();                                       // and what you left here last time is still here
-  youLine();
   if (params.has('sky')) showSky(params.get('sky'));   // a sky someone sent
   if (skies.length) document.body.classList.add('skies');
   const preroll = Math.min(600, Math.max(0, parseFloat(params.get('t') ?? '6') || 0));

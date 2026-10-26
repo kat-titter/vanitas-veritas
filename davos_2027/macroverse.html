@@ -35,11 +35,6 @@
   #piece .br { color:var(--dim); }
   #piece:hover, #piece:focus-visible { color:var(--gold); }
   header code { display:block; margin-top:2px; font:inherit; font-size:11px; line-height:1.6; color:var(--gold); white-space:nowrap; }
-  /* no youniverse on this device yet: the door in, written as what is true */
-  #none { display:none; pointer-events:auto; text-decoration:none; }
-  #none code { color:var(--dim); }
-  #none:hover code, #none:focus-visible code { color:var(--bone); }
-  body.none #none { display:block; }
   /* home: your own youniverses, lit where they sit in everyone's; weverse: you and the ones sent to you */
   nav { position:fixed; right:18px; top:14px; z-index:3; display:flex; gap:2px; }
   .ic { display:inline-grid; place-items:center; width:40px; height:40px; margin:0; padding:0; border:0; border-radius:50%; background:var(--veil);
@@ -85,7 +80,7 @@
 <body>
 <canvas id="sky" role="img" aria-label="the macroverse: every youniverse grown in vanitas_veritas, in one space, each near the ones played most like it"></canvas>
 <canvas id="fx" aria-hidden="true"></canvas>
-<header><a id="piece" href="veritas3.html">v<span class="br">[</span><i>er</i><span class="br">]</span>i<i>+</i>as</a><code>macroverse = [youniverse(you) for you in us]</code><a id="none" href="veritas3.html"><code>you = None</code></a></header>
+<header><a id="piece" href="veritas3.html">v<span class="br">[</span><i>er</i><span class="br">]</span>i<i>+</i>as</a><code>macroverse = [youniverse(you) for you in us]</code></header>
 <nav>
   <button id="weBtn" class="ic" type="button" aria-pressed="false" aria-label="weverse: you and your friends" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="13" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14" r="1.9" fill="currentColor" stroke="none"/><circle cx="13.4" cy="12.2" r="1.9" fill="currentColor" stroke="none"/></svg></button>
   <button id="homeBtn" class="ic" type="button" aria-pressed="false" aria-label="home: your youniverses" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="13.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="14.5" r="2" fill="currentColor" stroke="none"/></svg></button>
@@ -134,7 +129,7 @@ const PARTS = ['Nascens','Manens','Fugiens','Morans','Transiens','Quaerens','Vid
   'Meridians','Convertens',
   // more for each measure's end (drafted, then checked by a Latinist pass: real present participles, nominative singular)
   'Perdurans','Retinens','Desinens','Fruens','Habitans','Volitans','Dimittens','Collineans','Vagans','Perveniens','Contemplans','Opperiens','Inveniens','Inaurans','Undans','Commovens','Quiescens','Temptans','Comitans','Circumdans','Stans','Revisens','Remeans','Lustrans','Spectans','Varians','Sequens','Intuens','Percipiens','Apparens','Solvens','Ludens','Occurrens','Revelans'];
-const PART_MORE = {"longest.hi": ["Perdurans", "Retinens"], "longest.lo": ["Desinens"], "stay.hi": ["Fruens", "Habitans"], "stay.lo": ["Volitans"], "letgo.hi": ["Dimittens"], "direct.hi": ["Collineans"], "direct.lo": ["Vagans", "Perveniens"], "seek.hi": ["Contemplans", "Opperiens"], "seek.lo": ["Inveniens"], "scrubs.hi": ["Inaurans"], "stir.hi": ["Undans", "Commovens"], "stir.lo": ["Quiescens"], "wiped.hi": ["Temptans"], "together.hi": ["Comitans"], "hull.hi": ["Circumdans"], "hull.lo": ["Stans"], "cross.hi": ["Revisens"], "closure.lo": ["Remeans"], "sectors.hi": ["Lustrans"], "sectors.lo": ["Spectans"], "turn.hi": ["Varians"], "turn.lo": ["Sequens"], "minutes.hi": ["Intuens"], "minutes.lo": ["Percipiens"], "you.hi": ["Apparens"], "we.hi": ["Solvens"], "knobs.hi": ["Ludens"], "noon.hi": ["Occurrens"], "flipped.hi": ["Revelans"]};
+const PART_MORE = {"longest.hi": ["Perdurans", "Retinens"], "longest.lo": ["Desinens"], "stay.hi": ["Fruens", "Habitans"], "stay.lo": ["Volitans"], "letgo.hi": ["Dimittens"], "direct.hi": ["Collineans"], "direct.lo": ["Vagans", "Perveniens"], "seek.hi": ["Contemplans", "Opperiens"], "seek.lo": ["Inveniens"], "scrubs.hi": ["Inaurans"], "stir.hi": ["Undans", "Commovens"], "stir.lo": ["Quiescens"], "wiped.hi": ["Temptans"], "together.hi": ["Comitans"], "hull.hi": ["Circumdans"], "hull.lo": ["Stans"], "cross.hi": ["Revisens"], "closure.lo": ["Remeans"], "sectors.hi": ["Lustrans"], "sectors.lo": ["Spectans"], "turn.hi": ["Varians"], "turn.lo": ["Sequens"], "minutes.hi": ["Intuens"], "minutes.lo": ["Percipiens"], "we.hi": ["Solvens"], "knobs.hi": ["Ludens"], "noon.hi": ["Occurrens"], "flipped.hi": ["Revelans"]};
 const LATIN2 = {"mask": "persona", "lattice": "reticulum", "laugh": "cachinnus", "sleeper": "sopor", "dreamer": "phantasma", "gilt": "corona", "goldeye": "anulus", "froth": "nebula", "hive": "favus", "profile": "imago", "skull": "cranium", "vial": "guttus", "waking": "lumen", "bottle": "vitrum", "jaw": "rictus", "burst": "scintilla", "kiss": "basium", "stipple": "macula", "bubble": "globus", "daisy": "ocellus", "bloom": "corolla", "heart": "medulla", "obsidian": "caligo", "melt": "cera", "foam": "unda", "orb": "nimbus", "pale": "candor", "crust": "cortex", "pearl": "unio", "pumice": "favilla", "bone": "caput", "pores": "foramen"};
 const HOURS = [[23, 3, "noctis", "by night"], [3, 5, "gallicinii", "at cockcrow"], [5, 7, "diluculi", "at first light"], [7, 11, "mane", "in the morning"], [11, 14, "meridiei", "at midday"], [14, 17, "nonae", "at the ninth hour"], [17, 20, "vesperi", "at evening"], [20, 23, "concubii", "at first sleep"]];
 const EN_NOUN = { Larva:'the mask', Clathrus:'the lattice', Risus:'the laugh', Somnus:'sleep', Somnium:'the dream', Aurum:'gold', Oculus:'the eye', Halitus:'the breath',
@@ -161,7 +156,7 @@ const SAL = [
   { k:'together', w:['Socians',null], base:0, scale:1 }, { k:'hull', w:['Amplectens','Tenens'], base:0.18, scale:0.08 },
   { k:'cross', w:['Rediens',null], base:1, scale:1.5 }, { k:'closure', w:[null,'Revertens'], base:0.6, scale:0.25 },
   { k:'sectors', w:['Vertens','Intendens'], base:5, scale:1.4 }, { k:'turn', w:['Mutans','Constans'], base:1.4, scale:0.5 },
-  { k:'minutes', w:['Attendens','Cernens'], base:6, scale:4 }, { k:'you', w:['Patens',null], base:0, scale:4 },
+  { k:'minutes', w:['Attendens','Cernens'], base:6, scale:4 },
   { k:'we', w:['Respondens',null], base:0, scale:1.2 }, { k:'knobs', w:['Fingens',null], base:0, scale:1.4 },
   { k:'noon', w:['Meridians',null], base:0, scale:0.7 }, { k:'flipped', w:['Convertens',null], base:0, scale:1 },
 ];
@@ -201,12 +196,12 @@ function vectorOf(f, path){
   return v;
 }
 const distOf = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) { const e = a[i]-b[i]; s += e*e; } return Math.sqrt(s); };
-// how far into it the play went: every form of life found, the minutes, being seen, the riddles
+// how far into it the play went: every form of life found, the minutes, the riddles
 function depthOf(f){
   if (!f) return 0.3;
-  const finds = clamp((+f.finds || 0)/LINES, 0, 1), mins = clamp((+f.minutes || 0)/12, 0, 1), you = (+f.you || 0) > 0 ? 1 : 0;
+  const finds = clamp((+f.finds || 0)/LINES, 0, 1), mins = clamp((+f.minutes || 0)/12, 0, 1);
   const more = (+f.we || 0) + (+f.flipped || 0) + (+f.noon || 0) + (+f.knobs || 0) > 0 ? 1 : 0;
-  return clamp(0.35*finds + 0.3*Math.sqrt(mins) + 0.2*you + 0.15*more, 0, 1);
+  return clamp(0.45*finds + 0.35*Math.sqrt(mins) + 0.2*more, 0, 1);
 }
 
 // ---- chance, fixed by a name: the same play is always the same star
@@ -255,14 +250,13 @@ function decode(str){
   let o = 0; const take = (n) => { const v = parseInt(bits.slice(o, o+n), 2); o += n; return v; };
   const ver = take(3); if (!(ver === 1 && str.length === 51) && !(ver === 2 && str.length === 52)) return null;
   const ci = take(3), part = take(6), nv = ver === 2 ? take(1) : 0, ti = ver === 2 ? take(3) : -1, path = [], stills = [], seeds = [];
-  let faces = 0;
   for (let k = 0; k < LINES; k++) {
-    const x = take(6)/63*0.8-0.4, y = take(6)/63*0.8-0.4; take(3); const a = take(5); take(5); faces += take(1); take(12); const s = take(4);
+    const x = take(6)/63*0.8-0.4, y = take(6)/63*0.8-0.4; take(3); const a = take(5); take(5); take(1); take(12); const s = take(4);
     path.push([x, y]); stills.push(a); seeds.push(s);
   }
   const still = NOUNS[stills[Math.min(ci, LINES-1)] % NOUNS.length];
   const noun = (nv && LATIN2[still] ? LATIN2[still] : (LATIN[still] || 'Speculum')).toLowerCase();
-  return { path, seeds, faces, name: [noun, (PARTS[part] || PARTS[0]).toLowerCase()].join('_') };   // names never carry the hour (as in the piece)
+  return { path, seeds, name: [noun, (PARTS[part] || PARTS[0]).toLowerCase()].join('_') };   // names never carry the hour (as in the piece)
 }
 const cleanName = (s) => typeof s === 'string' && /^[a-z]+(_[a-z]+){1,3}$/.test(s.toLowerCase()) ? s.toLowerCase() : '';
 const cleanCode = (s) => typeof s === 'string' && /^[A-Za-z0-9_-]{51,52}$/.test(s) ? s : '';
@@ -550,7 +544,7 @@ function listen(){
 function readLocal(key){ try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function keepLocal(e, kind){
   if (!e || typeof e !== 'object') return;
-  const c = cleanCode(e.c), dec = c ? decode(c) : null, f = cleanF(e.f) || (dec ? { you: dec.faces } : null), path = cleanPath(e.p) || (dec ? dec.path : null);
+  const c = cleanCode(e.c), dec = c ? decode(c) : null, f = cleanF(e.f) || (dec ? {} : null), path = cleanPath(e.p) || (dec ? dec.path : null);
   if (!f && !path) return;
   const name = cleanName(e.n) || (dec ? dec.name : '');
   if (c && localByCode.has(c)) return;
@@ -587,10 +581,10 @@ function makeDemo(n){
   const fakeF = (z) => {
     const f = { finds: LINES };
     SAL.forEach((s, i) => { if (!SHAPE.has(s.k)) f[s.k] = s.base + z[i]*s.scale; });
-    for (const k of ['letgo', 'scrubs', 'together', 'you']) f[k] = Math.max(0, Math.round(f[k]));
+    for (const k of ['letgo', 'scrubs', 'together']) f[k] = Math.max(0, Math.round(f[k]));
     for (const k of ['we', 'knobs', 'noon', 'flipped']) f[k] = f[k] > 0.6 ? 1 : 0;
     for (const k of ['longest', 'stay', 'seek', 'stir', 'wiped', 'minutes']) f[k] = Math.max(0.1, Math.round(f[k]*100)/100);
-    f.you = Math.min(LINES, f.you); f.direct = clamp(Math.round(f.direct*100)/100, 0.05, 1); f.holds = LINES + f.letgo;
+    f.direct = clamp(Math.round(f.direct*100)/100, 0.05, 1); f.holds = LINES + f.letgo;
     return f;
   };
   // the culture each play would have pushed, the way the piece pushes it: holding, stirring, scrubbing, wiping, company
@@ -659,7 +653,7 @@ const labs = document.getElementById('labs'), tip = document.getElementById('tip
 const card = document.getElementById('card'), cName = document.getElementById('cName'), cMean = document.getElementById('cMean'), cNear = document.getElementById('cNear'), cOpen = document.getElementById('cOpen');
 let W = 0, H = 0, DPR = 1, PHONE = false, FOC = 600;
 const FOV = 50*Math.PI/180, NEAR = 0.05, FAR = 1e5;
-// the camera turns round a point it looks at: yaw about the vertical, pitch above or below, and how far off it stands.
+// the view turns round a point it looks at: yaw about the vertical, pitch above or below, and how far off it stands.
 // mode: all, home (yours), we (yours and your friends'), node (one open, flown to), free (where your hands left it)
 const cam = { t: [0, 0, 0], yaw: 0.6, pitch: 0.3, dist: 140, mode: 'all', cx: 0, cy: 0 };
 let E = [0, 0, 0], Rv = [1, 0, 0], Uv = [0, 1, 0], Fv = [0, 0, -1];
@@ -717,7 +711,7 @@ function measureScene(){
   if (nn.length) { nn.sort((a, b) => a - b); glyphTarget = clamp(0.42*nn[nn.length >> 1], 0.4, 40); }
 }
 
-// ---- where the camera wants to be. It eases there, so nothing jumps; your hands take it anywhere, and then it stays.
+// ---- where the view wants to be. It eases there, so nothing jumps; your hands take it anywhere, and then it stays.
 function sphereOf(idx){
   let cx = 0, cy = 0, cz = 0; for (const i of idx) { cx += U[i].x; cy += U[i].y; cz += U[i].z; } cx /= idx.length; cy /= idx.length; cz /= idx.length;
   let r = 0; for (const i of idx) r = Math.max(r, Math.hypot(U[i].x - cx, U[i].y - cy, U[i].z - cz));
@@ -848,7 +842,7 @@ function initGL(){
   cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); gl = null; sprites(); }, { once: true });
   return true;
 }
-// the camera as one matrix: world to clip, with the middle of the picture where cam.cx, cam.cy say
+// the view as one matrix: world to clip, with the middle of the picture where cam.cx, cam.cy say
 const VP = new Float32Array(16), VPD = new Float32Array(16);
 function makeVP(){
   const f2w = 2*FOC/W, f2h = 2*FOC/H, a = -2*(cam.cx - W/2)/W, b = -2*(H/2 - cam.cy)/H, A = -(FAR + NEAR)/(FAR - NEAR), B = -2*FAR*NEAR/(FAR - NEAR);
