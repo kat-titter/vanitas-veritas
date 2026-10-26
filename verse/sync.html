@@ -404,7 +404,9 @@ async function poll(){
   } catch (e) { return false; }
 }
 let pollWait = 1200;                                   // a spring that does not answer is asked less often
-(function tick(){ poll().then((ok) => { pollWait = ok ? 1200 : Math.min(15000, pollWait*1.6); setTimeout(tick, pollWait); }); })();
+const IMG = params.get('img'), BUBBLES = params.get('bubbles') !== '0';   // ?img=<picture>: pour one picture, no spring (the documents use it to show the water's layers); ?bubbles=0: none
+if (IMG) { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { upload(im); live.prompt = ''; }; im.src = new URL(IMG, location.href).href; }
+else (function tick(){ poll().then((ok) => { pollWait = ok ? 1200 : Math.min(15000, pollWait*1.6); setTimeout(tick, pollWait); }); })();
 
 // ---- one water: every basin shares its hands. A touch travels as an anonymous event over public Nostr relays: where a hand is
 // in the water, whether it grips, and whether it is at the sink. No accounts, nothing stored; relays pass it on and keep nothing.
@@ -542,7 +544,7 @@ addEventListener('blur', () => { reach(false); if (plug) { plug = false; gulp = 
 
 const Q0 = 0.005, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
 function step(dt){
-  const now = performance.now(), fresh = live.tap && live.have && now-live.lastNew < STALE();
+  const now = performance.now(), fresh = live.tap && live.have && (IMG || now-live.lastNew < STALE());
   water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 5)));
   if (fresh && !lastWaterOn) flood = 1;              // it floods back
   lastWaterOn = fresh;
@@ -593,7 +595,7 @@ function popAt(u, v){ const t = performance.now()/1000; let hit = false;
 function blow(){
   const t = performance.now()/1000, dt = Math.min(0.1, t - (lastBub || t)); lastBub = t;
   vents.forEach((v) => { v.a += (Math.random() - 0.5)*dt; v.x = Math.max(-BX*0.7, Math.min(BX*0.7, v.x + Math.cos(v.a)*0.004*dt)); v.y = Math.max(-BY*0.7, Math.min(BY*0.7, v.y + Math.sin(v.a)*0.004*dt)); });
-  if (t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a big slow one; often a glob of two or three
+  if (BUBBLES && t > nextBub && bubs.length < NB && water > 0.5) {                    // a simmer: mostly small and quick, now and then a big slow one; often a glob of two or three
     const R = 0.015 + 0.14*Math.pow(Math.random(), 2.2), v = Math.random() < 0.7 ? vents[Math.floor(Math.random()*3)] : null;
     const x = v ? v.x + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BX-R)*0.85, y = v ? v.y + (Math.random() - 0.5)*0.08 : (Math.random()*2-1)*(BY-R)*0.85;
     const life = 5 + 70*R + Math.random()*10, n = Math.random() < 0.5 ? 1 + (Math.random() < 0.5 ? 1 : 0) : 0;
