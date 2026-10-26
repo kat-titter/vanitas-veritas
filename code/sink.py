@@ -155,6 +155,7 @@ class Inbox:
 class Feed:
     def __init__(self, keep=60):
         os.makedirs(FEED, exist_ok=True); self.keep, self.seq, self.last, self.every, self.up = keep, 0, None, 2.0, None
+        self.run = ['', 0, 0]                         # the words on show, frames poured under them, and how many the last words had
         self.lock = threading.Lock()                    # the dreaming thread changes the state while the pouring thread saves it
         try: self.state = json.load(open(os.path.join(FEED, 'state.json')))
         except Exception: self.state = {'i': 0, 'life': 7}
@@ -169,7 +170,10 @@ class Feed:
         seq, big, small, words = rec; now = time.time()
         if self.last: self.every = 0.8*self.every + 0.2*(now - self.last)
         self.last = now
-        self.last_now = {'t': now, 'seq': seq, 'frame': big, 'small': small, 'prompt': words, 'every': round(self.every, 2)}
+        if words != self.run[0]: self.run = [words, 0, self.run[1] or self.run[2]]   # new words: the turn starts again
+        self.run[1] += 1
+        self.last_now = {'t': now, 'seq': seq, 'frame': big, 'small': small, 'prompt': words, 'every': round(self.every, 2),
+                         'turn': [self.run[1], self.run[2]]}   # frames under these words, and the last words' count: how far through a turn
         self.write('now.json', dict(self.last_now, tap=True))
         with self.lock: self.state['seq'] = seq; s = json.dumps(self.state)
         self.write('state.json', s)
