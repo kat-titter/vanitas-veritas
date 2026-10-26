@@ -20,9 +20,6 @@
   #code { font-size:11.5px; letter-spacing:.01em; color:rgba(138,141,147,.82); }
   #code #pr { color:var(--bone); opacity:.92; }
   #code .oref { color:var(--gold); }                                  /* a face from the sink: the visitor is the current dream */
-  #turn { display:block; position:relative; height:1px; margin-top:9px; background:rgba(228,223,210,.10); }   /* one turn of the loop: fills until the words change */
-  #turn::after { content:''; position:absolute; left:0; top:0; bottom:0; width:calc(var(--t, 0)*100%); background:rgba(228,223,210,.45); }
-  #code.dry #turn { visibility:hidden; }                                   /* the words are the dream's; the code around them stays quiet */
   #code #grip { display:block; }
   #code .ln { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.55; }   /* two lines at most: the prompt, then the trace blended in */
   #code .tr { color:var(--bone); opacity:.48; }
@@ -48,7 +45,7 @@
 <canvas id="c" aria-label="A basin seen from above. Water runs from the tap to the drain, carrying a dream. Press to reach in; the space bar is the plug."></canvas>
 <h1 id="title">veritas</h1>
 <div id="dry"></div>
-<pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span><span id="turn"></span></pre>
+<pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span></pre>
 <div id="eye" hidden>
   <div id="ring" role="button" aria-label="hold for two seconds to lend your face to the next dream; let go to stop"></div><div id="say">hold to lend your face: one picture, never saved. the dream may look like you, and everyone watching sees it. let go to stop.</div>
 </div>
@@ -243,11 +240,17 @@ void main(){
 display: `
 uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
-uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass;
+uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip, uGlass, uTurn;
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
 uniform vec4 uBub[16]; uniform float uBs[16];       // uBs: each bubble's own seed, for its wobble and the way it tears                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
-const float NR = 72.;      // flutes per basin unit
+float caustic(vec2 p, float t){                 // light focused by the moving surface: a slow net, brightest where the dream is
+  vec2 i = p; float c = 1.;
+  for (int n = 0; n < 4; n++) { float tt = t*(1. - 3.5/float(n + 1));
+    i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x));
+    c += 1./length(vec2(p.x/(sin(i.x + tt)/0.005), p.y/(cos(i.y + tt)/0.005))); }
+  c = 1.17 - pow(c/4., 1.4); return pow(clamp(c, 0., 1.), 8.);
+}
 void main(){
   vec2 q = (gl_FragCoord.xy-uCenter)/uS;     // basin units, origin at the drain
   float r = length(q), aa = 1.5/uS;
@@ -257,8 +260,7 @@ void main(){
     vec2 hq = q-(uCursor-uCenter)/uS;
     float pool = smoothstep(0.045+0.05*uGrip, 0.012, length(hq))*uCursorOn*uHold;   // under the hand, the glass lies flat
     float L = (1.-pool*smoothstep(0., -0.08, sd))*uGlass;   // uGlass 0: the water without its ribbed glass and wet light
-    float fx = q.x*NR, fi = floor(fx), s = fx-fi, tooth = hash1(fi);
-    vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.14*L), q.y+(tooth-0.5)*0.002*L);   // ribbed glass: the dream reads through it
+    vec2 ql = q;                                                                             // a bare screen: the dream as it is
     { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
     float rimL = 0., film = 0., men = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
     for (int i = 0; i < 16; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
@@ -298,11 +300,10 @@ void main(){
     c += BONE*pow(max(dot(n,Hh),0.),40.)*0.22*mix(0.4, 1., L);
     vec3 glow = vec3(0.);
     for (int k = 0; k < 8; k++) { float a = float(k)*0.7854+0.3; glow += texture(uDye, p+0.034*vec2(cos(a),sin(a))).rgb; }
-    float lit = mix(1., 0.95+0.05*cos(6.28318*(s-0.30)), L);
-    float seam = 1.-0.06*L*smoothstep(0.30,0.5,abs(s-0.5));
-    float glass = pow(max(cos(6.28318*(s-0.30)),0.),14.)*L*0.3;
-    float bowl = mix(0.5,1.,smoothstep(0.,-0.10,sd))*(1.+0.10*dot(q/B, normalize(vec2(-0.6,0.8))));
+    float lit = 1., seam = 1., glass = 0.;
+    float bowl = mix(0.32,1.,smoothstep(0.,-0.07,sd))*(1.+0.12*dot(q/B, normalize(vec2(-0.6,0.8))));   // the water lies below the steel: its edge falls into shadow
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl + BONE*glass*(0.006+0.05*lum(c)) + glow/8.*0.04*lit*L;
+    b += BONE*0.10*caustic(ql*7. + 23., uTime*0.22)*(0.25 + lum(c))*smoothstep(0.,-0.05,sd)*L;   // light through moving water
     b *= 1. - 0.38*min(men, 1.)*L;                                                    // the bubbles live in the water: shadowed where it curves, lit only where the dream is
     b += (c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L + mix(vec3(0.83,0.57,0.31), BONE, 0.6)*0.04*film*lum(c);
     // the hand in the water: a bright edge round the palm, broken where the fingers part
@@ -327,16 +328,21 @@ void main(){
       // the plug: a brass disc over the hole while it is held shut
       float disc = smoothstep(RD*1.18+aa, RD*1.18-aa, r);
       vec3 brass = vec3(0.55,0.40,0.22)*(0.55+0.45*dot(normalize(vec3(q, 0.04)), normalize(vec3(-0.5,0.6,0.6))));
-      b = mix(b, brass*0.8, disc*uPlug); }
+      b = mix(b, brass*0.8, disc*uPlug);
+      if (uTurn >= 0.) {                                   // one turn of the loop: a gold arc fills round the drain, clockwise from the top, then begins again
+        float rc = RD*1.75, ring = exp(-pow((r - rc)/(0.0011 + aa*0.6), 2.));
+        float f = fract(atan(q.x, q.y)/6.28318 + 1.);
+        b += vec3(0.82,0.57,0.31)*ring*(0.85*step(f, uTurn)*smoothstep(0., 0.004, uTurn - f + 0.004) + 0.10); } }
     col = mix(col, b, smoothstep(0.002, -0.006, sd));
   }
   // rim: one quiet hairline, catching the light on the upper left
   float sd2 = sdBox(q);
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
   col *= 1.-0.75*dot(sc,sc);
-  float bez = smoothstep(aa*2.,0.,abs(sd2)-0.0003);                                        // one hairline
-  float sheen = 0.75+0.5*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
-  col = mix(col, BONE*0.78*sheen, bez*0.32);              // the rim drawn after the vignette, so the basin's edge reads
+  float lip = smoothstep(aa, 0., sd2 - 0.009)*smoothstep(-aa, 0., sd2);                 // the sink's steel lip, a few pixels wide
+  float sheen = 0.35 + 0.65*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
+  vec3 steel = vec3(0.10,0.105,0.11)*(0.7 + 0.6*sheen) + BONE*0.10*sheen*smoothstep(0.009, 0.0, abs(sd2 - 0.0012)/0.0012*0.009);
+  col = mix(col, steel, lip*0.9);                        // dark brushed steel, catching the light on the upper left
   o = vec4(max(col,0.),1.);
 }`,
 };
@@ -649,15 +655,13 @@ function render(){
   gl.uniform2f(u.uCursor, hand.x*d, (view.h-hand.y)*d); gl.uniform1f(u.uCursorOn, hand.on ? 1 : 0);
   gl.uniform2f(u.uTapQ, TAP[0]-0.5, TAP[1]-0.5); gl.uniform1f(u.uTime, simTime);
   gl.uniform1f(u.uGlass, GLASS); gl.uniform1f(u.uHold, holdAmt); gl.uniform1f(u.uGrip, grip); gl.uniform1f(u.uWater, water); gl.uniform1f(u.uPlug, plugAmt); gl.uniform1f(u.uDrip, drip);
-  gl.uniform4fv(u['uRQ[0]'], RQ); gl.uniform1f(u.uRN, rn);
+  gl.uniform4fv(u['uRQ[0]'], RQ); gl.uniform1f(u.uRN, rn); gl.uniform1f(u.uTurn, turnNow());
   draw(null);
 }
 
 let lastText = '';
-let turnShown = -1;
+const turnNow = () => (turn.at && water > 0.5 && live.prompt ? Math.min(1, (performance.now() - turn.at)/turn.len) : -1);   // drawn round the drain
 function words(){
-  const tt = turn.at ? Math.min(1, (performance.now() - turn.at)/turn.len) : 0;
-  if (Math.abs(tt - turnShown) > 0.002) { turnShown = tt; codeEl.style.setProperty('--t', tt.toFixed(3)); }
   const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : 'water = None';
   if (t !== lastText) {                               // two lines at most, rebuilt only when the words change
     lastText = t;
