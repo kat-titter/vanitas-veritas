@@ -420,7 +420,7 @@ else (function tick(){ poll().then((ok) => { pollWait = ok ? 1200 : Math.min(150
 // ---- one water: every basin shares its hands. A touch travels as an anonymous event over public Nostr relays: where a hand is
 // in the water, whether it grips, and whether it is at the sink. No accounts, nothing stored; relays pass it on and keep nothing.
 const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net'];
-const NKIND = 20777, NTAG = 'veritas-basin', SRC = params.has('sink') ? 'sink' : 'web';
+const NKIND = 20777, NTAG = 'veritas-basin', SRC = params.has('sink') ? 'sink' : params.has('hand') ? 'hand' : 'web';   // hand: a phone opened from the sink's QR code
 const net = { lu:0, lv:0, on:false, sk:null, pk:'', fin:null, socks:[], out:[], lastSend:0, wasDown:false, remote:new Map() };
 async function netStart(){
   if (params.has('solo')) return;
@@ -448,7 +448,7 @@ function receive(ev){
     if (Number.isFinite(u) && Number.isFinite(v) && Math.abs(u-0.5) < BX && Math.abs(v-0.5) < BY) r.q.push([u, v, now + 180 + i*150/c.p.length]); });
   if (r.q.length > 96) r.q.splice(0, r.q.length-96);
   const down = !!c.d; if (down && !r.down) r.t0 = now + 180;
-  r.down = down; r.src = c.s === 'sink' ? 'sink' : 'web'; r.last = now;
+  r.down = down; r.src = c.s === 'sink' || c.s === 'hand' ? c.s : 'web'; r.last = now;
   net.remote.set(ev.pubkey, r);
 }
 function send(force){
@@ -469,11 +469,12 @@ function others(){                                    // replay each other hand 
   for (const [k, r] of net.remote) {
     if (now-r.last > 4000 && !r.q.length) { net.remote.delete(k); continue; }
     let ix = 0, iy = 0;
-    while (r.q.length && r.q[0][2] <= now) { const [u, v] = r.q.shift(); if (r.px !== null) { ix += (u-r.px)*4; iy += (v-r.py)*4; } r.px = r.x = u; r.py = r.y = v; }
+    const k = r.src === 'hand' && SRC === 'sink' ? 8 : 4;   // a phone at the sink is the sink's own hand: it pushes the water there twice as hard
+    while (r.q.length && r.q[0][2] <= now) { const [u, v] = r.q.shift(); if (r.px !== null) { ix += (u-r.px)*k; iy += (v-r.py)*k; } r.px = r.x = u; r.py = r.y = v; }
     if (!r.down && now-r.last > 1200) r.px = r.py = null;
     if (rn >= 4 || (!r.down && now-r.last > 1200)) continue;
     const g = r.down && now >= r.t0 ? Math.exp(-(now-r.t0)/1700) : 0;
-    RH.set([r.x, r.y, cl(ix), cl(iy)], rn*4); RG[rn] = g; RQ.set([r.x-0.5, r.y-0.5, g, r.src === 'sink' ? 1 : 0], rn*4); rn++;
+    RH.set([r.x, r.y, cl(ix), cl(iy)], rn*4); RG[rn] = g; RQ.set([r.x-0.5, r.y-0.5, g, r.src === 'web' ? 0 : 1], rn*4);   // gold: a hand at the sink, or a phone in front of it rn++;
   }
 }
 
