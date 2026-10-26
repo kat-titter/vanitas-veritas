@@ -345,7 +345,9 @@ def main():
         f = finder.detectMultiScale(cv2.cvtColor(a, cv2.COLOR_RGB2GRAY), 1.1, 5, minSize=(60, 60))
         if len(f):
             x, y, w, h = max(f, key=lambda b: b[2]*b[3]); cx, cy, hh = x + w/2, y + h*0.55, h*2.1
-            im = im.crop((int(cx - hh*2/3), int(cy - hh/2), int(cx + hh*2/3), int(cy + hh/2)))
+            W0, H0 = im.size; bw = min(hh*4/3, W0, H0*4/3); bh = bw*3/4   # 4:3, inside the picture: past its edge would be black
+            l, t = min(max(cx - bw/2, 0), W0 - bw), min(max(cy - bh/2, 0), H0 - bh)
+            im = im.crop((int(l), int(t), int(l + bw), int(t + bh)))
         return fill(im).convert('L').convert('RGB')  # silver: skin would turn the whole frame gold
     pending = []                                    # a face from the sink, encoded, waiting for its dream; in memory only
     def take_face():

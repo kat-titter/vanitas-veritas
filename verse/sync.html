@@ -17,10 +17,15 @@
     color:var(--bone); pointer-events:none; }
   #code { position:fixed; left:28px; bottom:22px; margin:0; font:inherit; color:var(--dim); pointer-events:none; text-align:left;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 0 4px var(--ink), 0 0 2px var(--ink); transition:opacity .8s; }
-  #code #pr { color:var(--bone); }                                   /* the words are the dream's; the code around them stays quiet */
+  #code { font-size:11.5px; letter-spacing:.01em; color:rgba(138,141,147,.82); }
+  #code #pr { color:var(--bone); opacity:.92; }
+  #code .oref { color:var(--gold); }                                  /* a face from the sink: the visitor is the current dream */
+  #turn { display:block; position:relative; height:1px; margin-top:9px; background:rgba(228,223,210,.10); }   /* one turn of the loop: fills until the words change */
+  #turn::after { content:''; position:absolute; left:0; top:0; bottom:0; width:calc(var(--t, 0)*100%); background:rgba(228,223,210,.45); }
+  #code.dry #turn { visibility:hidden; }                                   /* the words are the dream's; the code around them stays quiet */
   #code #grip { display:block; }
   #code .ln { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.55; }   /* two lines at most: the prompt, then the trace blended in */
-  #code .tr { color:var(--bone); opacity:.62; }
+  #code .tr { color:var(--bone); opacity:.48; }
   #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
   body.nogpu #dry { display:block; }
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
@@ -43,7 +48,7 @@
 <canvas id="c" aria-label="A basin seen from above. Water runs from the tap to the drain, carrying a dream. Press to reach in; the space bar is the plug."></canvas>
 <h1 id="title">veritas</h1>
 <div id="dry"></div>
-<pre id="code"><span id="water">water = None</span><span id="grip"></span></pre>
+<pre id="code" class="dry"><span id="water">water = None</span><span id="grip"></span><span id="turn"></span></pre>
 <div id="eye" hidden>
   <div id="ring" role="button" aria-label="hold for two seconds to lend your face to the next dream; let go to stop"></div><div id="say">hold to lend your face: one picture, never saved. the dream may look like you, and everyone watching sees it. let go to stop.</div>
 </div>
@@ -253,7 +258,7 @@ void main(){
     float pool = smoothstep(0.045+0.05*uGrip, 0.012, length(hq))*uCursorOn*uHold;   // under the hand, the glass lies flat
     float L = (1.-pool*smoothstep(0., -0.08, sd))*uGlass;   // uGlass 0: the water without its ribbed glass and wet light
     float fx = q.x*NR, fi = floor(fx), s = fx-fi, tooth = hash1(fi);
-    vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.24*L), q.y+(tooth-0.5)*0.003*L);   // ribbed glass: the dream reads through it
+    vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.14*L), q.y+(tooth-0.5)*0.002*L);   // ribbed glass: the dream reads through it
     { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
     float rimL = 0., film = 0., men = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
     for (int i = 0; i < 16; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
@@ -325,13 +330,13 @@ void main(){
       b = mix(b, brass*0.8, disc*uPlug); }
     col = mix(col, b, smoothstep(0.002, -0.006, sd));
   }
-  // rim: two hairlines, and the light on the upper left of the ring
+  // rim: one quiet hairline, catching the light on the upper left
   float sd2 = sdBox(q);
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
   col *= 1.-0.75*dot(sc,sc);
-  float bez = smoothstep(aa*3.,0.,abs(sd2)-0.0006) + 0.55*smoothstep(aa*3.,0.,abs(sd2-0.011)-0.0004);
+  float bez = smoothstep(aa*2.,0.,abs(sd2)-0.0003);                                        // one hairline
   float sheen = 0.75+0.5*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
-  col = mix(col, BONE*0.78*sheen, bez*0.85);              // the rim drawn after the vignette, so the basin's edge reads
+  col = mix(col, BONE*0.78*sheen, bez*0.32);              // the rim drawn after the vignette, so the basin's edge reads
   o = vec4(max(col,0.),1.);
 }`,
 };
@@ -381,6 +386,7 @@ function draw(t){
 
 // ---- the spring: whatever it dreamed last, and whether it is still dreaming
 const live = { A:frameTex(), B:frameTex(), mix:1, every:2, seq:null, lastNew:-1e9, have:false, prompt:'', tap:true };
+const turn = { at:0, len:150e3 };                   // when the words last changed, and how long the last turn took
 const STALE = () => Math.max(20, 8*live.every)*1000;
 function upload(im){
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -410,7 +416,9 @@ async function poll(){
     if (j.seq === live.seq) return true;
     const first = live.seq === null; live.seq = j.seq;
     if (first && Date.now()/1000 - j.t > STALE()/1000) return true;     // a spring that stopped long ago: no water yet
-    live.every = Math.max(0.6, Math.min(8, +j.every || 2)); live.prompt = String(j.prompt || '').slice(0, 160);
+    live.every = Math.max(0.6, Math.min(8, +j.every || 2));
+    { const p = String(j.prompt || '').slice(0, 160), now = performance.now();
+      if (p !== live.prompt) { if (turn.at) turn.len = Math.max(30e3, Math.min(400e3, now - turn.at)); turn.at = live.prompt ? now : 0; live.prompt = p; } }
     const file = !BIG && j.small ? j.small : j.frame;                // 2560 x 1920 for big screens, 1280 x 960 otherwise
     const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) upload(im); };   // a slow old frame never lands after a newer one
     im.src = new URL(file, base).href;
@@ -645,16 +653,21 @@ function render(){
 }
 
 let lastText = '';
+let turnShown = -1;
 function words(){
+  const tt = turn.at ? Math.min(1, (performance.now() - turn.at)/turn.len) : 0;
+  if (Math.abs(tt - turnShown) > 0.002) { turnShown = tt; codeEl.style.setProperty('--t', tt.toFixed(3)); }
   const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : 'water = None';
   if (t !== lastText) {                               // two lines at most, rebuilt only when the words change
     lastText = t;
     if (water > 0.5 && live.prompt) {                  // the prompt on one line, the second prompt blended into it (after '~') on the next
       const [a, b] = live.prompt.split(' ~ '), mk = (cls, txt) => { const e = document.createElement('span'); e.className = cls; e.textContent = txt; return e; };
       waterEl.textContent = '';
-      const l1 = mk('ln', 'water = dream("'), pr = mk('', a); pr.id = 'pr'; l1.append(pr, b ? '' : '")'); waterEl.append(l1);
+      const face = a.endsWith(' --oref you'), l1 = mk('ln', 'water = dream("'), pr = mk('', face ? a.slice(0, -11) : a); pr.id = 'pr';
+      l1.append(pr); if (face) l1.append(' ', mk('oref', '--oref you')); l1.append(b ? '' : '")'); waterEl.append(l1);
       if (b) { const l2 = mk('ln', '~ '); l2.append(mk('tr', b), '")'); waterEl.append(l2); } }
     else waterEl.textContent = t;
+    codeEl.classList.toggle('dry', !(water > 0.5 && live.prompt));
     fitCode(); }
 }
 
