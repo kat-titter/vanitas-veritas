@@ -20,7 +20,7 @@
   #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
   body.nogpu #dry { display:block; }
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
-  body.doc h1 { display:none; }                                    /* in a document: the basin edge to edge */
+  h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }   /* the name is in the tab; the page shows only the water */
   body.doc #code { display:none; }                               /* the document shows the prompt beside the mirror */
   /* at vanitas, the camera's own place on the glass: held two seconds it looks once; the water itself never does */
   #eye { position:fixed; left:50%; bottom:5vh; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center;
@@ -227,6 +227,7 @@ uniform sampler2D uDye;
 uniform vec2 uCenter, uRes, uCursor, uTapQ;
 uniform float uS, uTime, uCursorOn, uHold, uGrip, uWater, uPlug, uDrip;
 uniform vec4 uRQ[4]; uniform float uRN;          // other hands: where (basin units), grip, and 1 if the hand is at the sink
+uniform vec4 uBub[7];                              // soap bubbles on the water: centre, radius, how present (they swell slowly, then pop)
 const vec3 BONE = vec3(0.95,0.91,0.82);
 const float NR = 72.;      // flutes per basin unit
 void main(){
@@ -241,6 +242,11 @@ void main(){
     float fx = q.x*NR, fi = floor(fx), s = fx-fi, tooth = hash1(fi);
     vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.24*L), q.y+(tooth-0.5)*0.003*L);   // ribbed glass: the dream reads through it
     { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
+    float rimL = 0., film = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
+    for (int i = 0; i < 7; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
+      vec2 dq = ql-bb.xy; float t = length(dq)/bb.z;
+      if (t < 1.) { ql = bb.xy + dq*mix(0.45, 1., t*t); film = max(film, bb.w*(1.-t*t)); }
+      rimL += bb.w*(smoothstep(0.05, 0., abs(t-0.96)) + 0.35*smoothstep(0.25, 0., abs(t-0.82))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a thin rim, and a soft catch-light on its upper left
     vec2 p = C+ql;
     vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);
     c = mix(c, c*c*(3.-2.*c), 0.25);
@@ -260,6 +266,7 @@ void main(){
     float glass = pow(max(cos(6.28318*(s-0.30)),0.),14.)*L*0.3;
     float bowl = mix(0.5,1.,smoothstep(0.,-0.10,sd))*(1.+0.10*dot(q/B, normalize(vec2(-0.6,0.8))));
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl + BONE*glass*(0.006+0.05*lum(c)) + glow/8.*0.04*lit*L;
+    b += BONE*0.24*min(rimL, 1.)*L + mix(vec3(0.83,0.57,0.31), BONE, 0.6)*0.05*film*(0.4+lum(c));   // the bubble's skin: a bright rim, a faint sheen
     // the hand in the water: a bright edge round the palm, broken where the fingers part
     { float hr = length(hq), rp = 0.034+0.012*uGrip;
       float fingers = smoothstep(0.2, 0.8, 0.5+0.5*cos(5.*atan(hq.y, hq.x)+0.6));
@@ -287,11 +294,11 @@ void main(){
   }
   // rim: two hairlines, and the light on the upper left of the ring
   float sd2 = sdBox(q);
-  float bez = 0.7*smoothstep(aa*3.,0.,abs(sd2)-0.0004) + 0.35*smoothstep(aa*3.,0.,abs(sd2-0.011)-0.0003);
-  float sheen = 0.6+0.6*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
-  col = mix(col, BONE*0.30*sheen, bez*0.45);
   vec2 sc = gl_FragCoord.xy/uRes-0.5;
   col *= 1.-0.75*dot(sc,sc);
+  float bez = smoothstep(aa*3.,0.,abs(sd2)-0.0006) + 0.55*smoothstep(aa*3.,0.,abs(sd2-0.011)-0.0004);
+  float sheen = 0.75+0.5*max(0., dot(normalize(q/B+1e-4), normalize(vec2(-0.6,0.8))));
+  col = mix(col, BONE*0.78*sheen, bez*0.85);              // the rim drawn after the vignette, so the basin's edge reads
   o = vec4(max(col,0.),1.);
 }`,
 };
@@ -505,7 +512,7 @@ addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(
 addEventListener('keyup', (e) => { if (e.code === 'Space') { if (SRC === 'sink') tap(true); else { plug = false; gulp = 1; } } });
 addEventListener('blur', () => { reach(false); if (plug) { plug = false; gulp = 1; } });
 
-const Q0 = 0.012, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
+const Q0 = 0.005, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
 function step(dt){
   const now = performance.now(), fresh = live.tap && live.have && now-live.lastNew < STALE();
   water += ((fresh ? 1 : 0)-water)*(1-Math.exp(-dt/(fresh ? 1.6 : 5)));
@@ -523,8 +530,8 @@ function step(dt){
 
   let u = use(P.curl); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(curl);
   u = use(P.force); bind(u.uVel, vel.read.tex); bind(u.uCurl, curl.tex);
-  gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uConf, 0.025); gl.uniform1f(u.uTime, simTime);
-  gl.uniform1f(u.uSwirl, 0.0014*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, 0.4*water*(1 + flood));
+  gl.uniform1f(u.uH, H); gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uConf, 0.01); gl.uniform1f(u.uTime, simTime);
+  gl.uniform1f(u.uSwirl, 0.0006*(0.4 + 0.6*Math.max(water, left))*(1 + 0.8*gulp)*(plug ? 0.3 : 1)); gl.uniform1f(u.uStream, 0.15*water*(1 + flood));
   gl.uniform2f(u.uStirPos, stir.x, stir.y); gl.uniform2f(u.uStirVel, stir.vx, stir.vy); gl.uniform2f(u.uTap, tap[0], tap[1]);
   gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06); gl.uniform2f(u.uGrabVel, hand.vx, hand.vy);
   others(); gl.uniform4fv(u['uRH[0]'], RH); gl.uniform1fv(u['uRG[0]'], RG); gl.uniform1f(u.uRN, rn);
@@ -537,17 +544,28 @@ function step(dt){
   for (let i = 0; i < PI_N; i++) { unit = 0; bind(u.uP, prs.read.tex); bind(u.uDiv, dvg.tex); draw(prs.write); prs.swap(); }
   u = use(P.project); bind(u.uP, prs.read.tex); bind(u.uVel, vel.read.tex); gl.uniform1f(u.uH, H); draw(vel.write); vel.swap();
   u = use(P.dye); bind(u.uVel, vel.read.tex); bind(u.uDye, dye.read.tex); bind(u.uImgA, live.A); bind(u.uImgB, live.B);
-  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.08 + 0.6*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2))); gl.uniform1f(u.uTapPour, 1.2*water);
+  gl.uniform1f(u.uDt, dt); gl.uniform1f(u.uMix, live.mix); gl.uniform1f(u.uPour, water*(0.05 + 0.3*Math.pow(0.5 + 0.5*Math.sin(simTime*2*Math.PI/60 - 1.2), 2))); gl.uniform1f(u.uTapPour, 0.5*water);
   gl.uniform1f(u.uFade, 0.015 + 0.10*(1-water)); gl.uniform2f(u.uTap, tap[0], tap[1]); gl.uniform4f(u.uGrab, hand.u, hand.v, grip, 0.06);
   draw(dye.write); dye.swap();
   flood *= Math.exp(-dt/2.5); gulp *= Math.exp(-dt/1.5);
   simTime += dt;
 }
 
+// soap bubbles: born one every few seconds, swell over half a minute (they bloom), hold, then pop; never more than seven
+const BUB = new Float32Array(28), bubs = []; let nextBub = 0;
+function blow(){
+  const t = performance.now()/1000;
+  if (t > nextBub && bubs.length < 7) { bubs.push({ x:(Math.random()*2-1)*BX*0.75, y:(Math.random()*2-1)*BY*0.75, R:0.05 + Math.random()*0.09, born:t, life:30 + Math.random()*30 });
+    nextBub = t + 5 + Math.random()*6; }
+  for (let i = bubs.length - 1; i >= 0; i--) if (t - bubs[i].born > bubs[i].life) bubs.splice(i, 1);
+  BUB.fill(0);
+  bubs.forEach((b, i) => { const a = (t - b.born)/b.life, grow = 1 - Math.pow(1 - Math.min(1, a/0.6), 3), pop = a > 0.94 ? (1 - a)/0.06 : 1;
+    BUB.set([b.x, b.y, b.R*grow*(a > 0.94 ? 1 + (a - 0.94)*2 : 1), Math.min(1, a*6)*pop], i*4); });
+}
 function render(){
   const pw = Math.round(view.w*view.dpr), ph = Math.round(view.h*view.dpr);
   if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; }
-  const d = view.dpr, u = use(P.display); bind(u.uDye, dye.read.tex);
+  blow(); const d = view.dpr, u = use(P.display); bind(u.uDye, dye.read.tex); gl.uniform4fv(u['uBub[0]'], BUB);
   gl.uniform2f(u.uCenter, view.cx*d, (view.h-view.cy)*d); gl.uniform2f(u.uRes, pw, ph); gl.uniform1f(u.uS, view.S*d);
   gl.uniform2f(u.uCursor, hand.x*d, (view.h-hand.y)*d); gl.uniform1f(u.uCursorOn, hand.on ? 1 : 0);
   gl.uniform2f(u.uTapQ, TAP[0]-0.5, TAP[1]-0.5); gl.uniform1f(u.uTime, simTime);
