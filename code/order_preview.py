@@ -32,14 +32,8 @@ CANDIDATES={
   "C_bloom_climax":[1,0,3,4,2,7,6,5],
 }
 
-def slerp(t,a,b,eps=1e-6):
-    af,bf=a.flatten(),b.flatten()
-    om=torch.acos(torch.clamp(torch.dot(af/af.norm(),bf/bf.norm()),-1+eps,1-eps));so=torch.sin(om)
-    if so.abs()<eps:return (1-t)*a+t*b
-    return (torch.sin((1-t)*om)/so)*a+(torch.sin(t*om)/so)*b
-def catmull(u,p0,p1,p2,p3):
-    u2,u3=u*u,u*u*u
-    return 0.5*((2*p1)+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3)
+sys.path.insert(0,HERE)
+from latent import slerp, catmull, Vae           # shared with the spring and the render
 
 _yy,_xx=np.mgrid[0:H,0:W]; _r=np.sqrt(((_xx-W/2)/(W/2))**2+((_yy-H/2)/(H/2))**2)
 VIG=(1-0.26*np.clip(_r-0.55,0,None)/0.65)[...,None]
@@ -53,15 +47,8 @@ def grade(x):
 print("loading VAE…")
 vae=AutoencoderKL.from_pretrained(MODEL,subfolder="vae",torch_dtype=torch.float32).to(device)
 vae.enable_slicing(); SCALE=vae.config.scaling_factor
-@torch.no_grad()
-def enc(p):
-    im=Image.open(p).convert("RGB").resize((W,H),Image.LANCZOS)
-    a=torch.from_numpy(np.asarray(im,np.float32)/127.5-1).permute(2,0,1).unsqueeze(0)
-    return vae.encode(a.to(device)).latent_dist.mean*SCALE
-@torch.no_grad()
-def dec(l):
-    im=((vae.decode(l/SCALE).sample.clamp(-1,1)+1)/2)[0].permute(1,2,0).cpu().numpy()
-    return (im*255)
+V=Vae(vae,device); dec=V.dec_array
+def enc(p): return V.enc(Image.open(p).convert("RGB").resize((W,H),Image.LANCZOS))
 
 srcs=sorted(glob.glob(os.path.join(SRC,"*.png")))
 print("source frames:",len(srcs))

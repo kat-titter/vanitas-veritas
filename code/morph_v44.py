@@ -64,15 +64,8 @@ VIG_STR     = 0.28   # grime vignette (dirty + focus + luxe)
 
 fresh = "--fresh" in sys.argv
 
-def slerp(t,a,b,eps=1e-6):
-    af,bf=a.flatten(),b.flatten()
-    om=torch.acos(torch.clamp(torch.dot(af/af.norm(),bf/bf.norm()),-1+eps,1-eps)); so=torch.sin(om)
-    if so.abs()<eps: return (1-t)*a+t*b
-    return (torch.sin((1-t)*om)/so)*a+(torch.sin(t*om)/so)*b
-
-def catmull(u,p0,p1,p2,p3):
-    u2,u3=u*u,u*u*u
-    return 0.5*((2*p1)+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3)
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from latent import slerp, catmull, Vae           # shared with the spring (identical to the functions this render was made with)
 
 _yy,_xx=np.mgrid[0:H,0:W]
 _r=np.sqrt(((_xx-W/2)/(W/2))**2+((_yy-H/2)/(H/2))**2)
@@ -104,14 +97,8 @@ pipe.set_progress_bar_config(disable=True)
 pipe.enable_attention_slicing(); pipe.vae.enable_slicing()
 vae,SCALE=pipe.vae,pipe.vae.config.scaling_factor
 
-@torch.no_grad()
-def enc_img(im):
-    a=torch.from_numpy(np.asarray(im.convert("RGB").resize((W,H),Image.LANCZOS),np.float32)/127.5-1)
-    return vae.encode(a.permute(2,0,1).unsqueeze(0).to(device)).latent_dist.mean*SCALE
-@torch.no_grad()
-def dec(l):
-    im=((vae.decode(l/SCALE).sample.clamp(-1,1)+1)/2)[0].permute(1,2,0).cpu().numpy()
-    return Image.fromarray((im*255).round().astype(np.uint8))
+V=Vae(vae,device); dec=V.dec
+def enc_img(im): return V.enc(im.convert("RGB").resize((W,H),Image.LANCZOS))   # stretched to 4:3, as this render did
 
 srcs=sorted(glob.glob(os.path.join(SRC,"*.png")))
 if SUBSET: srcs=[srcs[i] for i in SUBSET]      # v4.4 test: only the chosen frames

@@ -10,10 +10,10 @@
 // Then it looks for structure in how people played without deciding the groups in advance: k-means on standardised measures
 // of the finished plays, with the number of groups chosen by silhouette, each group described only by what sets it apart.
 //
-// From the repo root (from anywhere else, give the full path: ~/Claude/Projects/tiat_slop_2026/davos_2027/study/plays.mjs):
-//   node davos_2027/study/plays.mjs              all relays, finished plays clustered
-//   node davos_2027/study/plays.mjs --k 4        fix the number of groups
-//   node davos_2027/study/plays.mjs --tests      include test plays (?probe&study), to check the pipeline
+// From the repo root (from anywhere else, give the full path: ~/Claude/Projects/tiat_slop_2026/verse/study/plays.mjs):
+//   node verse/study/plays.mjs              all relays, finished plays clustered
+//   node verse/study/plays.mjs --k 4        fix the number of groups
+//   node verse/study/plays.mjs --tests      include test plays (?probe&study), to check the pipeline
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

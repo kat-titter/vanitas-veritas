@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, follow">
+<title>vanitas_veritas, black paper</title>
+<meta name="description" content="A white paper, in black: the thesis behind vanitas_veritas, a work in a sink by Kat Titterton. The water is a GPU dreaming; no water, no dream. vanitas, the sink, proposed for San Francisco, and veritas, the same basin on the web: one water.">
+<style>
+  :root { --acc:#c2a27a; --bone:#e4dfd2; --cool:#a9acb2; --ice:#a9c3d3; --ink:#030304; --dim:#8a8d93; --line:#1c1d21; --panel:#08080a;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--ink); color:var(--cool); font:14px/1.75 var(--mono); }
+  .wrap { max-width:900px; margin:0 auto; padding:7vh 16px 12vh; overflow-wrap:break-word; }
+  .head { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; }
+  .seal { flex:0 0 auto; width:150px; height:150px; }
+  .path { margin:0 0 6px; color:var(--dim); font-size:12px; }
+  .path::before { content:"// "; color:var(--acc); }
+  .path b { color:var(--acc); font-weight:400; }
+  h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
+  h1 i { font-style:normal; color:var(--acc); }
+  h2 i { font-style:normal; color:var(--bone); }
+  .lede { margin:22px 0 0; max-width:70ch; }
+  .tag { display:inline-block; margin:14px 0 0; color:var(--dim); font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
+  .short { margin:28px 0 0; padding:14px 16px; background:var(--panel); border-left:1px solid var(--acc); color:var(--bone); max-width:78ch; }
+  .short b, b { color:var(--bone); font-weight:400; }
+  .short b:first-child { color:var(--acc); }
+  .time { margin:12px 0 0; color:var(--dim); font-size:12.5px; letter-spacing:.06em; }
+  .time a { color:var(--bone); }
+  .toc { margin:20px 0 0; display:flex; flex-wrap:wrap; gap:4px 16px; font-size:12.5px; }
+  .toc a { color:var(--dim); text-decoration:none; border-bottom:1px dotted #3a3d44; }
+  .toc a:hover, .toc a:focus-visible { color:var(--bone); }
+  h2 { margin:64px 0 16px; font:400 11.5px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--acc);
+    padding-top:18px; border-top:1px solid var(--line); scroll-margin-top:20px; }
+  h3 { margin:26px 0 8px; font:400 14px/1.5 var(--mono); color:var(--bone); }
+  p { margin:0 0 12px; max-width:72ch; }
+  ul, ol { margin:0 0 14px; padding-left:22px; max-width:72ch; }
+  li { margin-bottom:7px; }
+  li::marker { color:var(--acc); }
+  a { color:var(--bone); text-underline-offset:3px; }
+  code { font:inherit; color:var(--bone); overflow-wrap:anywhere; }
+  .big { margin:6px 0 14px; font:400 20px/1.35 var(--mono); color:var(--bone); letter-spacing:.02em; }
+  .note { color:var(--dim); font-size:12.5px; }
+  .poem { margin:0 0 14px; padding:12px 16px; background:var(--panel); border-left:1px solid var(--acc); color:var(--bone); white-space:pre-wrap; font:inherit; }
+  .clue { margin:26px 0 0; color:var(--acc); font-size:12.5px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  dl.spec { margin:4px 0 14px; max-width:72ch; }
+  dl.spec dt { margin:18px 0 0; color:var(--bone); }
+  dl.spec dt::before { content:"// "; color:var(--acc); }
+  dl.spec dd { margin:3px 0 0; }
+  details.more { margin:4px 0 16px; max-width:76ch; }
+  details.more > summary { display:inline-block; cursor:pointer; list-style:none; color:var(--dim); font-size:12.5px; letter-spacing:.06em;
+    border-bottom:1px dotted #3a3d44; }
+  details.more > summary::-webkit-details-marker { display:none; }
+  details.more > summary::before { content:"+ "; color:var(--acc); }
+  details.more[open] > summary::before { content:"- "; }
+  details.more > summary:hover, details.more > summary:focus-visible { color:var(--bone); }
+  details.more > summary:focus-visible { outline:1px solid var(--acc); outline-offset:3px; }
+  details.more > .in { margin:12px 0 0; padding:2px 0 2px 14px; border-left:1px solid var(--line); }
+  details.more > .in > :last-child { margin-bottom:0; }
+  .ice { color:var(--ice); }
+  .tw { overflow-x:auto; margin:0 0 14px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; vertical-align:top; padding:9px 14px 9px 0; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:400; font-size:12px; }
+  td:first-child { color:var(--bone); }
+  .card { border:1px solid var(--line); padding:16px; background:var(--panel); margin:0 0 14px; max-width:76ch; }
+  .card h3 { margin-top:0; }
+  .card p:last-child { margin-bottom:0; }
+  sup.ref { font-size:9.5px; line-height:0; margin-left:1px; }
+  sup.ref a { color:var(--acc); text-decoration:none; }
+  sup.ref { color:var(--acc); }
+  ol.refs { font-size:12px; line-height:1.65; color:var(--dim); max-width:none; }
+  ol.refs li { margin-bottom:6px; scroll-margin-top:20px; }
+  ol.refs li:target { color:var(--bone); }
+  ol.refs a { color:var(--cool); word-break:break-word; }
+  .end { margin:56px 0 0; color:var(--acc); }
+  @media (max-width:560px) {
+    body { font-size:13.5px; } .big { font-size:17px; } h1 { font-size:20px; letter-spacing:.3em; }
+    .head { flex-direction:column-reverse; align-items:flex-start; gap:14px; }
+    .seal { width:112px; height:112px; }
+  }
+  @media (max-width:640px) {
+    table.stack { min-width:0; }
+    table.stack tr { display:block; padding:12px 0; border-bottom:1px solid var(--line); }
+    table.stack tr:first-child { display:none; }
+    table.stack td { display:block; width:auto !important; border:0; padding:2px 0; }
+    table.stack td[data-l]::before { content:attr(data-l) ": "; color:var(--dim); }
+  }
+  @media print {
+    body { background:#fff; color:#1a1a1a; font-size:11pt; }
+    .wrap { padding:0; max-width:none; }
+    .short, .poem, .card { background:none; }
+    .short, .poem { border-left-color:#6b5232; }
+    .card, th, td, h2 { border-color:#ccc; }
+    h1, b, .short, .short b, .poem, td:first-child, a, code, h3, .big, dl.spec dt { color:#000; }
+    h1 i, h2, h2 i, .clue, sup.ref, sup.ref a, .path, .path b, .short b:first-child, li::marker { color:#6b5232; }
+    .note, .time, .tag, th, ol.refs, ol.refs a, .toc a, details.more > summary { color:#444; }
+    .ice { color:#2b5d78; }
+    details.more > summary::before { content:""; }
+    details.more > .in { display:block; border-left-color:#ccc; }
+    h2, h3 { break-after:avoid; }
+    .card, tr { break-inside:avoid; }
+  }
+</style>
+<script>addEventListener('beforeprint', function () { document.querySelectorAll('details').forEach(function (d) { d.open = true; }); });</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="head">
+  <div>
+    <p class="path">macrofluidic</p>
+    <h1>vanitas<i>_</i>veritas</h1>
+    <span class="tag">black paper, october 2026</span>
+  </div>
+  <svg class="seal" viewBox="-100 -100 200 200" role="img" aria-label="A basin seen from above, a rectangle under ribbed glass: water from the tap at the top turns down to the drain in the middle, and a ring of light where a hand holds it">
+    <defs>
+      <pattern id="fl" width="6" height="200" patternUnits="userSpaceOnUse" x="-3" y="-100"><rect x="0" y="0" width=".6" height="200" fill="#e4dfd2" opacity=".08"/></pattern>
+      <clipPath id="bowl"><rect x="-88" y="-66" width="176" height="132" rx="7"/></clipPath>
+    </defs>
+    <rect x="-97" y="-75" width="194" height="150" rx="12" fill="none" stroke="#c2a27a" stroke-width=".9" stroke-dasharray=".6 5.2" opacity=".35"/>
+    <rect x="-93" y="-71" width="186" height="142" rx="10" fill="none" stroke="#c2a27a" stroke-width="1.5" stroke-dasharray=".9 3.1" opacity=".55"/>
+    <rect x="-88" y="-66" width="176" height="132" rx="7" fill="url(#fl)"/>
+    <rect x="-88" y="-66" width="176" height="132" rx="7" fill="none" stroke="#e4dfd2" stroke-width=".6" opacity=".32"/>
+    <g clip-path="url(#bowl)">
+    <path d="M28.1,-57.8 L35.2,-53.3 L41.5,-48.4 L46.9,-43.1 L51.3,-37.4 L54.8,-31.6 L57.4,-25.6 L59.1,-19.6 L59.9,-13.7 L59.8,-7.9 L58.9,-2.3 L57.2,3.1 L54.9,8.1 L51.9,12.7 L48.4,17.0 L44.4,20.7 L40.0,24.0 L35.3,26.8 L30.4,29.0 L25.3,30.8 L20.2,32.0 L15.0,32.8 L9.9,33.0 L5.0,32.8 L0.2,32.1 L-4.3,31.1 L-8.5,29.7 L-12.3,27.9 L-15.8,25.9 L-18.9,23.6 L-21.6,21.1 L-23.8,18.5 L-25.6,15.7 L-26.9,12.9 L-27.8,10.1 L-28.3,7.3 L-28.4,4.5 L-28.1,1.8 L-27.4,-0.8 L-26.3,-3.2 L-25.0,-5.5 L-23.4,-7.5 L-21.6,-9.4 L-19.6,-11.0 L-17.4,-12.4 L-15.1,-13.5 L-12.7,-14.4 L-10.2,-15.0 L-7.8,-15.5 L-5.4,-15.6 L-3.0,-15.6 L-0.7,-15.3 L1.4,-14.9 L3.5,-14.3 L5.4,-13.5 L7.1,-12.5 L8.6,-11.5 L9.9,-10.3 L11.0,-9.1 L11.9,-7.8 L12.6,-6.5" fill="none" stroke="#c2a27a" stroke-width="1.1" opacity="0.55"/>
+    <path d="M48.2,48.6 L39.8,51.3 L31.3,53.1 L22.8,54.1 L14.5,54.3 L6.4,53.8 L-1.3,52.6 L-8.6,50.7 L-15.4,48.3 L-21.7,45.3 L-27.3,41.8 L-32.2,38.0 L-36.4,33.8 L-39.9,29.4 L-42.7,24.9 L-44.8,20.2 L-46.1,15.5 L-46.7,10.9 L-46.7,6.3 L-46.0,2.0 L-44.7,-2.2 L-42.9,-6.2 L-40.6,-9.8 L-37.9,-13.1 L-34.8,-16.1 L-31.4,-18.6 L-27.7,-20.8 L-23.9,-22.6 L-19.9,-24.0 L-15.9,-25.0 L-11.9,-25.6 L-7.9,-25.8 L-4.1,-25.6 L-0.3,-25.1 L3.2,-24.3 L6.5,-23.2 L9.5,-21.9 L12.2,-20.3 L14.7,-18.5 L16.8,-16.6 L18.5,-14.5 L19.9,-12.4 L21.0,-10.2 L21.7,-8.0 L22.1,-5.8 L22.2,-3.6 L21.9,-1.5 L21.4,0.5 L20.6,2.4 L19.6,4.2 L18.3,5.8 L16.9,7.2 L15.3,8.5 L13.6,9.6 L11.8,10.5 L10.0,11.2 L8.1,11.7 L6.2,12.1 L4.3,12.2 L2.4,12.2 L0.6,12.0" fill="none" stroke="#e4dfd2" stroke-width="0.8" opacity="0.35"/>
+    <path d="M-76.7,8.7 L-75.4,1.6 L-73.1,-5.2 L-69.9,-11.6 L-66.0,-17.4 L-61.3,-22.8 L-56.1,-27.5 L-50.4,-31.6 L-44.3,-35.0 L-37.9,-37.8 L-31.3,-39.9 L-24.7,-41.4 L-18.1,-42.2 L-11.6,-42.4 L-5.3,-42.1 L0.8,-41.1 L6.5,-39.7 L11.8,-37.8 L16.7,-35.4 L21.1,-32.8 L25.0,-29.8 L28.3,-26.5 L31.1,-23.1 L33.3,-19.6 L34.9,-15.9 L36.0,-12.3 L36.5,-8.6 L36.5,-5.1 L36.0,-1.7 L35.0,1.6 L33.6,4.7 L31.8,7.5 L29.7,10.1 L27.3,12.4 L24.6,14.5 L21.8,16.2 L18.8,17.6 L15.7,18.7 L12.6,19.5 L9.4,19.9 L6.3,20.1 L3.3,20.0 L0.4,19.6 L-2.4,19.0 L-4.9,18.2 L-7.3,17.1 L-9.5,15.9 L-11.4,14.5 L-13.0,13.0 L-14.4,11.4 L-15.5,9.7 L-16.4,8.0 L-16.9,6.3 L-17.2,4.6 L-17.3,2.9 L-17.1,1.2 L-16.7,-0.3 L-16.1,-1.8 L-15.3,-3.2 L-14.4,-4.5 L-13.3,-5.6" fill="none" stroke="#c2a27a" stroke-width="0.7" opacity="0.3"/>
+    </g>
+    <circle cx="0" cy="-48" r="2.2" fill="#e4dfd2" opacity=".85"/>
+    <circle cx="0" cy="-48" r="6" fill="none" stroke="#e4dfd2" stroke-width=".5" opacity=".35"/>
+    <circle cx="44" cy="26" r="10" fill="none" stroke="#e4dfd2" stroke-width=".9" stroke-dasharray="7 3.5" opacity=".6"/>
+    <circle r="10.5" fill="#030304"/>
+    <circle r="11.2" fill="none" stroke="#f2e2c4" stroke-width=".6" opacity=".9"/>
+  </svg>
+</header>
+
+<p class="lede">This is the context for <i>vanitas_veritas</i>, a work in a sink by Kat Titterton. It stands in two places with one water:
+  <b>vanitas</b>, the sink, a stone basin in a room, proposed; and <b>veritas</b>, the same basin on the web. A white paper, in black.</p>
+
+<div class="short"><b>In short.</b> A sink you cannot wash your hands in. The water is a machine dreaming: a GPU writes a new vanitas prompt,
+  dreams it, and walks to the next, frame by frame, without end, and the frames pour from the tap to the drain. Reach in, and the dream goes where
+  your hand goes for a moment, then slips through your fingers, down the drain. Switch the GPU off and the water stops. No water, no dream. A touch
+  in vanitas moves the water in veritas, and a touch in veritas moves the water in vanitas. At vanitas, if you ask it to, a camera gives your face to the next dream.</div>
+<p class="time">six minutes to read. longer, if you open the folds.</p>
+
+<nav class="toc"><a href="#thesis">01 the thesis</a> <a href="#piece">02 veritas</a> <a href="#sink">03 vanitas</a> <a href="#keeps">04 what it keeps</a>
+  <a href="#roots">05 lineage</a> <a href="#where">06 where it goes</a> <a href="#next">07 what happens next</a> <a href="#who">08 who</a> <a href="#sources">sources</a></nav>
+
+<h2 id="thesis"><i>01</i> &nbsp;the thesis</h2>
+<p class="big">no water, no dream.</p>
+<p>Machines that dream at scale drink water: data centres evaporate it to stay cool, and one estimate puts the training of a single large
+  language model at 700,000 litres of fresh water<sup class="ref"><a href="#r1">1</a></sup>. Here the metaphor is plumbing. The water in the basin is a GPU dreaming. While it
+  dreams, the tap runs. Switch it off, and what is left runs to the drain and the basin stays dry.</p>
+<h3>why a sink.</h3>
+<p>Slop is everything but the kitchen sink, so the work brings the sink. The building was ready for it: under tiat&rsquo;s gallery on Powell
+  Street, where the work was first proposed, the basement keeps &ldquo;a slop station (an empty room with one metal sink)&rdquo;<sup class="ref"><a href="#r2">2</a></sup>,
+  found only after the sink was drawn. And San Francisco&rsquo;s tech has carried a sink before. On 26 October 2022, Elon Musk walked into
+  Twitter&rsquo;s headquarters with one in his arms, &ldquo;let that sink in&rdquo;, as his purchase of the company, now X, neared its close<sup class="ref"><a href="#r3">3</a></sup>.
+  A sink is where tech makes a joke of itself. This one does not let you wash your hands of it.</p>
+<h3>you can't wash your hands of it.</h3>
+<p>Vanitas still lifes, from Leiden in the early 1600s, pile up skulls, cut flowers and soap bubbles to say that everything you want is already
+  going<sup class="ref"><a href="#r4">4</a></sup>. This one never holds still long enough to want. Each dream is new, never repeated, and on its way down the drain. Reach in, and the
+  water under your hand goes where your hand goes; then it slips through your fingers. A sink you cannot wash your hands in, placed where people
+  wash their hands, says the rest without a word.</p>
+<h3>sink == sync</h3>
+<p>In 1665 Christiaan Huygens saw two clocks hung from one beam fall into a shared rhythm<sup class="ref"><a href="#r5">5</a></sup>. Here two basins hang from one spring.
+  vanitas and veritas drink the same dream at the same moment, and a hand in either moves the water in both. Their names are one swap of letters
+  apart<sup class="ref"><a href="#r6">6</a></sup>, as sink and sync are one sound apart: one water.</p>
+<p class="clue">water = gpu.dream()  # no gpu, no water</p>
+
+<h2 id="piece"><i>02</i> &nbsp;veritas</h2>
+<p>veritas is one web page, <code>sync.html</code>, open to anyone: a basin seen from above, a rectangle like the frames it carries, under ribbed glass, with a tap at the top and a drain in the middle. It
+  explains nothing about itself. Six things, for the record:</p>
+<dl class="spec">
+  <dt>the spring</dt>
+  <dd>A GPU that dreams without end. Each dream begins as a new prompt in the grammar of the Midjourney recipe Kat&rsquo;s stills came from,
+    <code>vanitas [flower, skull, soap bubble]</code>: three of the old symbols and a way of going, never the same words twice until all 808 have
+    been dreamed. It is dreamed out of the last dream, pulled back toward one of the eight pictures on her vanitas moodboard so the taste stays hers, with
+    open-source diffusion<sup class="ref"><a href="#r7">7</a></sup> made fast enough for a laptop<sup class="ref"><a href="#r8">8</a></sup>, and graded silver and amber like the sources. On the way to the next dream it
+    dreams three more places and glides through all of them, so forms melt into one another instead of fading. Every frame is drawn at 2560 by
+    1920: on Kat&rsquo;s Mac, a frame every two to three seconds. A picture Kat makes by hand in Midjourney and saves to the spring&rsquo;s folder
+    becomes its next dream.</dd>
+  <dt>the water</dt>
+  <dd>The frames pour in at the tap and run to the drain, carried by a stable-fluids solver<sup class="ref"><a href="#r9">9</a></sup> with a vortex at the hole. Every half minute or
+    so a dream comes into focus; then the water takes it apart again. Besides its name, the only words on the page are code: the prompt being dreamed,
+    <code>water = dream("vanitas [peony, skull, soap bubble], blooming")</code>, and the grip while you hold.</dd>
+  <dt>the hand</dt>
+  <dd>Press, and the water under your palm goes where your hand goes. The glass lies flat over it, and the moment you reached in stops changing.
+    The grip loosens by the second, <code>grip = 0.55</code> after one, the water leaks out between the fingers, and what you held slips down the
+    drain. The space bar is the plug: the drain closes and the dream pools, and when it opens, everything goes.</dd>
+  <dt>no water</dt>
+  <dd>When the spring stops, the tap closes; what is left runs to the drain, and the line reads <code>water = None</code>. A last drop, now and then.
+    Without WebGL2, the page shows an empty basin.</dd>
+  <dt>your face</dt>
+  <dd>Only at vanitas, and only if you ask. Touching the water never wakes the camera: it has its own place on the glass, an eye. Hold it for
+    two seconds; a ring fills, one line says what will happen, and letting go stops it. Then the camera opens for under a second, and that one
+    frame of your face goes to the spring as the reference for the next dream, the way Midjourney&rsquo;s omni reference takes a face. The line of
+    code says so: <code>--oref you</code>. A few seconds later the water is dreaming you, in every basin at once, and you go down the drain too.</dd>
+  <dt>one water</dt>
+  <dd>A hand in the water travels to every other basin as an anonymous event over public Nostr relays, and is replayed there a moment late: a
+    push, a grip, a thin ring of light. Gold, if the hand is at vanitas.</dd>
+</dl>
+<details class="more"><summary>under the glass</summary><div class="in">
+<p>One HTML page: no framework, no build step, no accounts. The solver runs on the visitor&rsquo;s own graphics card: the frames pour in as the
+  pigment, re-forming out of the newest frame, freshest where the tap lands. A grip pulls the water under the palm toward the hand&rsquo;s own motion,
+  except in five gaps where the fingers part. The spring is a short Python script around Stable Diffusion 1.5 with LCM-LoRA<sup class="ref"><a href="#r7">7</a>,<a href="#r8">8</a></sup>:
+  a dream takes about four seconds on an M5 laptop, and while the GPU dreams on, the laptop&rsquo;s Neural Engine enlarges each frame four times
+  with Real-ESRGAN, with a half-size copy for phones. It writes the newest frame and one small file saying what it
+  is; veritas asks for that file every second or so, and closes the tap when nothing new has come for twenty seconds.</p>
+</div></details>
+<p class="clue">while held: grip *= .55  # it slips</p>
+
+<h2 id="sink"><i>03</i> &nbsp;vanitas</h2>
+<p>veritas is the invitation; vanitas is the place. Proposed: a basalt column with the basin as its screen, under ribbed glass. The glass is a
+  touch screen, so a hand on it is a hand in the water, here and in veritas wherever it is open. Where a tap would stand, a small camera faces
+  whoever is there; it wakes only when someone holds its eye on the glass, and gives that face to the next dream. The lever is the tap: push it down and the spring rests, and the water runs out
+  in both; lift it, and it floods back. A QR code cut into its top opens veritas, so the water follows you out of the room. In full:
+  <a href="sink.html">vanitas</a>.</p>
+<p class="note">Status: proposed, not yet built. vanitas was first designed in 2026 for tiat&rsquo;s <i>Epistemologies of Slop</i> open call in San Francisco<sup class="ref"><a href="#r6">6</a></sup>,
+  as a steel utility sink with a self-portrait above it; that design is set aside for this one.</p>
+<details class="more"><summary>how it works, and what is proposed</summary><div class="in">
+<p>Behind the glass, a panel and a small computer run the same page as veritas, with touch through the glass. The camera&rsquo;s frame goes to the
+  spring with a key only vanitas holds, is used once in memory, and is never written down or compared with anyone. The camera keeps to what
+  data-protection regulators ask of a camera in a public room: a sign at eye level by the door and beside the sink, read before the lens can see
+  you; a gesture of its own, apart from touching the water; a light that shows when it looks; and the whole piece open to anyone who never
+  wakes it. Proposed with it: a few seconds in which a dream made from your face stays in the sink, where you can wash it away before it goes
+  to every basin, and a contact to take it down after.
+  Proposed, and the strongest form: a GPU in the plinth runs the spring, so vanitas is the spring, and the lever is the GPU&rsquo;s own switch.
+  Until vanitas stands, the spring runs on Kat&rsquo;s Mac.</p>
+<p>Texts, formats and a technical rider for hosts and juries are in the <a href="pitch.html">pitch kit</a>.</p>
+</div></details>
+<p class="clue">sink == sync  # one water</p>
+
+<h2 id="keeps"><i>04</i> &nbsp;what it keeps</h2>
+<p>Almost nothing. A hand in the water travels while it moves: where in the basin, whether it grips, and whether it is at vanitas. The relays
+  pass it on and keep nothing. There is no record of a play and no account. At vanitas, one frame of a face goes to the spring and is used once,
+  in memory; the dream made from it goes to every basin, like any other. The spring keeps its last sixty frames on its own
+  disk, deleting the oldest as it goes, and remembers only how far through its prompts it has dreamed.</p>
+<div class="tw"><table class="stack">
+  <tr><th>what</th><th>where it goes</th></tr>
+  <tr><td>a hand in the water</td><td data-l="where it goes">to every other basin, over public relays, for as long as it moves; not kept</td></tr>
+  <tr><td>a face at vanitas, if you hold the eye</td><td data-l="where it goes">to the spring, once, in memory; never written down. The dream made from it goes to every basin, where anyone watching can keep what they see</td></tr>
+  <tr><td>the dreams</td><td data-l="where it goes">from the spring to every basin; the spring keeps the last sixty frames, then lets them go</td></tr>
+  <tr><td>you</td><td data-l="where it goes"><span class="ice">nowhere.</span> No picture kept, no name, no record</td></tr>
+</table></div>
+<p class="note">The page&rsquo;s host, the relays, the spring&rsquo;s address and the server the page loads its relay library from are run by
+  others, or by Kat. Like any server a browser reaches, they see a connection&rsquo;s network address; the events themselves carry none.</p>
+<p class="clue">keep(nothing)  # the drain takes it</p>
+
+<h2 id="roots"><i>05</i> &nbsp;lineage</h2>
+<ul>
+  <li><b>The genre.</b> Vanitas: the skull, the cut flower, the soap bubble, all of it already going<sup class="ref"><a href="#r4">4</a></sup>.</li>
+  <li><b>The loop.</b> <i>Vanitas Veritas</i> (2026): eight pictures grown from Kat&rsquo;s self-portrait style code, melted into one another with
+    open-source diffusion, an eight-and-a-half-minute loop with no first frame and no last<sup class="ref"><a href="#r6">6</a></sup>. The spring is that loop, opened: it no longer
+    comes back.</li>
+  <li><b>The web pieces.</b> <a href="veritas.html">i</a>, <a href="veritas2.html">ii</a> and <a href="veritas3.html">iii</a>, September and October 2026, kept as they were. veritas is the fourth basin.</li>
+</ul>
+<details class="more"><summary>the science underneath</summary><div class="in">
+<p>Clocks that fall into step on a shared beam<sup class="ref"><a href="#r5">5</a></sup>; water that a computer can push around in real time without blowing
+  up<sup class="ref"><a href="#r9">9</a></sup>; pictures pulled out of noise in a few steps<sup class="ref"><a href="#r7">7</a>,<a href="#r8">8</a></sup>. The eye behind the piece is a neuroscientist&rsquo;s: things watched
+  under glass, never quite held.</p>
+</div></details>
+<p class="clue">homo = bulla  # man is a bubble</p>
+
+<h2 id="where"><i>06</i> &nbsp;where it goes</h2>
+<p>A first sink in San Francisco, among the people who build AI. Proposed. veritas can be anywhere; vanitas needs a room, and the first room should be
+  where the dreaming machines are made.</p>
+<p>Then wherever an open call takes it. These fit it, all public:</p>
+<ul>
+  <li><b>Black Rock City.</b> The BRC Honoraria fund interactive, sculptural work on the open playa; the letter of intent for 2027 is due
+    29 October 2026, 5 pm PDT<sup class="ref"><a href="#r10">10</a></sup>. A sink with no water, in a desert.</li>
+  <li><b>Gray Area, San Francisco.</b> The Cultural Incubator: four months of critiques, a mentor and a public showcase, for individuals and small
+    collectives in the Bay Area, in four tracks; this piece is Generative Media and Synthetic Realities at once<sup class="ref"><a href="#r11">11</a></sup>. And its exhibition
+    open calls, as they come.</li>
+  <li><b>Stochastic Labs, Berkeley.</b> A summer residency for artists, engineers and scientists; in 2026 its theme was liveness and agency, with
+    groups for artificial life and real-time AI. Its call has come each spring<sup class="ref"><a href="#r12">12</a></sup>.</li>
+  <li><b>Kala Art Institute, Berkeley.</b> The Kala Fellowship: a residency for artists working in and across media, with Kala&rsquo;s facilities and
+    a group show in the Kala Gallery at the end<sup class="ref"><a href="#r13">13</a></sup>.</li>
+  <li><b>Prix Ars Electronica, Linz.</b> Free to enter, online, with categories for animation and interactive art; its calls have opened in January
+    and closed in early March<sup class="ref"><a href="#r14">14</a></sup>.</li>
+</ul>
+<p class="clue">room = next(calls)  # san francisco first</p>
+
+<h2 id="next"><i>07</i> &nbsp;what happens next</h2>
+<div class="tw"><table class="stack">
+  <tr><th>when</th><th>what</th></tr>
+  <tr><td>now</td><td data-l="what">veritas and the spring are built and run together on Kat&rsquo;s Mac, and veritas is public whenever the spring runs, through a tunnel from that Mac. The published site shows iii until the spring has a lasting address.</td></tr>
+  <tr><td>vanitas, 2027</td><td data-l="what">Proposed: a first sink in San Francisco, one water with veritas. No room is confirmed yet.</td></tr>
+  <tr><td>a second sink, 2027 onward</td><td data-l="what">Proposed: another sink in another city, the same water. Sought through open calls.</td></tr>
+</table></div>
+<h3>in progress</h3>
+<ul>
+  <li>A lasting address for the spring, so veritas can take iii&rsquo;s place on the site.</li>
+  <li>The spring&rsquo;s taste: its prompts and grade tuned against her vanitas moodboard, dream by dream.</li>
+</ul>
+<h3>proposed</h3>
+<ul>
+  <li>A GPU in the plinth: vanitas becomes the spring, and veritas, wherever it is open, drinks from a room in San Francisco.</li>
+  <li>Editions: vanitas unique, veritas free.</li>
+</ul>
+<details class="more"><summary>for those who read closely</summary><div class="in">
+<ul>
+  <li>After the first room, the register is the museum&rsquo;s. Ian Cheng&rsquo;s <i>Emissaries</i>, live simulations that never repeat, was shown at MoMA PS1
+    in 2017<sup class="ref"><a href="#r15">15</a></sup>. The Whitney&rsquo;s artport commissioned web works to mark sunrise and sunset in New York each day, from 2009 to
+    2024<sup class="ref"><a href="#r16">16</a></sup>. Live software can hold a museum room; <i>vanitas_veritas</i> adds the hand, and a tap anyone in the room can close.</li>
+</ul>
+</div></details>
+<p class="clue">sink.pair()  # a second sink, one water</p>
+
+<h2 id="who"><i>08</i> &nbsp;who is behind it</h2>
+<p><i>macrofluidic</i> is the name Kat Titterton signs her code-poems with; one was signed <code>macrofluidic &times; midjourney</code>. This one is
+  signed with every hand in the water.</p>
+<div class="card"><h3>Kat Titterton, San Francisco</h3>
+  <p>Generative artist: <i>Bare Metal</i>, a solo generative-art exhibit at Human Tech Week, San Francisco, 2025<sup class="ref"><a href="#r17">17</a></sup>; <i>Vanitas Veritas</i>,
+    2026<sup class="ref"><a href="#r6">6</a></sup>; code-poems as macrofluidic. Also a scientist in imaging, signal and machine learning, trained in cellular
+    neuroscience and mathematical systems biology: expansion microscopy at MIT&rsquo;s Synthetic Neurobiology Group; the Cell Painting screens
+    behind two of the largest such datasets, at Axiom Bio; tau-aggregation screens and microfluidic neuron-culture devices at AbbVie; eight
+    peer-reviewed papers<sup class="ref"><a href="#r17">17</a></sup>. A freediver: she knows what a breath of water costs.</p></div>
+<p>The work: <a href="sync.html">veritas</a>, and <a href="sink.html">vanitas</a>, proposed. For hosts and juries: the <a href="pitch.html">pitch kit</a>. Contact:
+  <a href="https://macrofluidic.me">macrofluidic.me</a>.</p>
+<p class="clue end">return we  # every hand in the water</p>
+
+<h2 id="sources"><i>&middot;</i> &nbsp;sources</h2>
+<ol class="refs">
+  <li id="r1">Li, P., Yang, J., Islam, M. A., &amp; Ren, S. (2023). Making AI less &ldquo;thirsty&rdquo;: Uncovering and addressing the secret water footprint of AI models. <i>arXiv</i>:2304.03271. <a href="https://arxiv.org/abs/2304.03271">arxiv.org/abs/2304.03271</a></li>
+  <li id="r2">Hayes, C. (2025, October 2). A place for TIAT. <i>Gazetteer SF</i>. <a href="https://sf.gazetteer.co/a-place-for-tiat">sf.gazetteer.co/a-place-for-tiat</a></li>
+  <li id="r3">Feiner, L. (2022, October 26). Elon Musk carried a sink into Twitter on Wednesday as deal nears close. <i>CNBC</i>, via NBC Bay Area. <a href="https://www.nbcbayarea.com/news/business/money-report/elon-musk-carried-a-sink-into-twitter-on-wednesday-as-deal-nears-close/3059644/">nbcbayarea.com</a></li>
+  <li id="r4">Vanitas. (n.d.). In <i>Wikipedia</i>. Retrieved 15 October 2026. <a href="https://en.wikipedia.org/wiki/Vanitas">en.wikipedia.org/wiki/Vanitas</a></li>
+  <li id="r5">Bennett, M., Schatz, M. F., Rockwood, H., &amp; Wiesenfeld, K. (2002). Huygens&rsquo;s clocks. <i>Proceedings of the Royal Society of London. Series A</i>, 458(2019), 563&ndash;579. <a href="https://doi.org/10.1098/rspa.2001.0888">doi:10.1098/rspa.2001.0888</a></li>
+  <li id="r6">Titterton, K. (2026). <i>Vanitas Veritas</i>: submission, web and build guide for tiat&rsquo;s <i>Epistemologies of Slop</i> open call. <a href="https://kat-titter.github.io/vanitas-veritas/">kat-titter.github.io/vanitas-veritas</a></li>
+  <li id="r7">Rombach, R., Blattmann, A., Lorenz, D., Esser, P., &amp; Ommer, B. (2022). High-resolution image synthesis with latent diffusion models. In <i>2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</i> (pp. 10674&ndash;10685). IEEE. <a href="https://doi.org/10.1109/CVPR52688.2022.01042">doi:10.1109/CVPR52688.2022.01042</a></li>
+  <li id="r8">Luo, S., Tan, Y., Patil, S., Gu, D., von Platen, P., Passos, A., Huang, L., Li, J., &amp; Zhao, H. (2023). LCM-LoRA: A universal Stable-Diffusion acceleration module. <i>arXiv</i>:2311.05556. <a href="https://arxiv.org/abs/2311.05556">arxiv.org/abs/2311.05556</a></li>
+  <li id="r9">Stam, J. (1999). Stable fluids. In <i>Proceedings of the 26th Annual Conference on Computer Graphics and Interactive Techniques (SIGGRAPH &rsquo;99)</i> (pp. 121&ndash;128). ACM. <a href="https://doi.org/10.1145/311535.311548">doi:10.1145/311535.311548</a></li>
+  <li id="r10">Burning Man Project. (n.d.). <i>BRC Honoraria</i>. Retrieved 25 October 2026. <a href="https://burningman.org/brc-honoraria/">burningman.org/brc-honoraria</a></li>
+  <li id="r11">Gray Area Foundation for the Arts. (n.d.). <i>Cultural Incubator</i>. Retrieved 25 October 2026. <a href="https://grayarea.org/create/cultural-incubator/">grayarea.org/create/cultural-incubator</a></li>
+  <li id="r12">NYU ITP. (2026, May 26). Open call for Stochastic Labs, deadline May 31st. Retrieved 25 October 2026. <a href="https://itp.nyu.edu/opportunities/2026/05/26/call-open-call-for-stochastic-labs-deadline-may-31st/">itp.nyu.edu/opportunities</a></li>
+  <li id="r13">Kala Art Institute. (n.d.). <i>Residencies</i>: the Kala Fellowship. Retrieved 25 October 2026. <a href="https://www.kala.org/residencies/">kala.org/residencies</a></li>
+  <li id="r14">Ars Electronica. (n.d.). <i>Prix Ars Electronica</i>: open call. Retrieved 25 October 2026. <a href="https://ars.electronica.art/prix/en/opencall">ars.electronica.art/prix</a></li>
+  <li id="r15">The Museum of Modern Art. (2017). <i>Ian Cheng: Emissaries</i>, MoMA PS1, 9 April&ndash;24 September 2017. <a href="https://www.moma.org/calendar/exhibitions/3656">moma.org</a></li>
+  <li id="r16">Whitney Museum of American Art. (n.d.). Sunrise/Sunset commissions, artport, 2009&ndash;2024. <a href="https://whitney.org/artport/commissions/sunrise-sunset">whitney.org</a></li>
+  <li id="r17">Titterton, K. (2026). Curriculum vitae. <a href="https://kat-titter.github.io/kat-titter/cv.html">kat-titter.github.io/kat-titter/cv.html</a></li>
+</ol>
+<p class="note">Checked on 25 October 2026. What is marked proposed is planned, not confirmed.</p>
+</div>
+</body>
+</html>

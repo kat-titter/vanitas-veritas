@@ -11,3 +11,4 @@ code/models/
 __pycache__/
 *.pyc
 research/
+spring_feed/

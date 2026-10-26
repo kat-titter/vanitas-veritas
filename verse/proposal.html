@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vanitas_veritas/proposal</title>
+<meta name="description" content="The first proposal for vanitas_veritas, 29 September 2026, updated: the thesis, veritas and the spring as built, what is in progress, and what is proposed: vanitas, a first sink in San Francisco, one water with veritas.">
+<style>
+  :root { --acc:#c2a27a; --bone:#e4dfd2; --cool:#a9acb2; --ink:#030304; --dim:#8a8d93; --line:#1c1d21; --panel:#08080a;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ink); color:var(--cool); font:13px/1.8 var(--mono); }
+  .wrap { max-width:860px; margin:0 auto; padding:7vh 20px 12vh; overflow-wrap:break-word; }
+  .top { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px 16px; margin:0 0 6px; }
+  .path { margin:0; color:var(--dim); font-size:12px; }
+  .path::before { content:"// "; color:var(--acc); }
+  h1 { margin:0; font:400 24px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase; color:var(--bone); }
+  h1 i, h2 i { font-style:normal; color:var(--acc); }
+  .lede { margin:14px 0 0; max-width:62ch; }
+  .tag { color:var(--dim); font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
+  h2 { margin:64px 0 16px; font:400 11px/1.6 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--acc);
+    padding-top:18px; border-top:1px solid var(--line); }
+  h3 { margin:0 0 6px; font:400 13px/1.5 var(--mono); color:var(--bone); }
+  h3 span { color:var(--acc); margin-right:10px; }
+  h3.st { margin:24px 0 8px; color:var(--acc); }
+  p { margin:0 0 12px; max-width:68ch; }
+  b { color:var(--bone); font-weight:400; }
+  a { color:var(--bone); text-underline-offset:3px; }
+  code { font:inherit; color:var(--bone); overflow-wrap:anywhere; }
+  .study { display:block; width:100%; height:min(75vw,640px); border:1px solid var(--line); background:#000; }
+  .open { margin:10px 0 0; font-size:12.5px; color:var(--dim); }
+  pre { margin:0 0 14px; padding:12px 16px; background:var(--panel); border-left:1px solid var(--acc);
+    font:inherit; color:var(--cool); overflow-x:auto; }
+  pre .c { color:var(--bone); }
+  pre i { font-style:normal; color:var(--acc); }
+  .cols { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin:0 0 14px; }
+  .card { border:1px solid var(--line); padding:16px; background:var(--panel); }
+  .card p:last-child { margin-bottom:0; }
+  .card small { display:block; margin-top:8px; color:var(--dim); font-size:12px; line-height:1.6; }
+  ul { margin:0 0 12px; padding-left:20px; max-width:68ch; }
+  li { margin-bottom:6px; }
+  li::marker { color:var(--acc); }
+  table { width:100%; border-collapse:collapse; margin:0 0 14px; }
+  th, td { text-align:left; vertical-align:top; padding:9px 12px 9px 0; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:400; font-size:12px; }
+  td:first-child { color:var(--bone); white-space:nowrap; }
+  table.refs td:first-child { white-space:normal; min-width:10ch; }
+  .tw { overflow-x:auto; }
+  .note { color:var(--dim); font-size:12.5px; }
+  sup.ref { font-size:11px; line-height:0; margin-left:1px; }
+  sup.ref a { color:var(--acc); text-decoration:none; }
+  sup.ref + sup.ref::before { content:","; color:var(--acc); }
+  ol.refs { margin:0 0 12px; padding-left:22px; font-size:12px; line-height:1.65; color:var(--dim); }
+  ol.refs li { margin-bottom:6px; }
+  ol.refs li:target { color:var(--bone); }
+  ol.refs a { color:var(--cool); word-break:break-word; }
+  @media (max-width:520px) { h1 { font-size:20px; letter-spacing:.3em; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <p class="path">vanitas_veritas/proposal</p>
+    <span class="tag">proposal&emsp;29.09.2026&emsp;updated 25.10.2026</span>
+  </div>
+  <h1>vanitas<i>_</i>veritas</h1>
+  <p class="lede">Working notes for a piece by Kat Titterton: a sink you can't wash your hands in, in two places with one water.
+    vanitas, the sink, is a stone basin in a room, proposed; veritas is the same basin on the web, built. It starts from the <a href="../">Vanitas / Veritas</a> loop, 2026,
+    and asks what happens when the loop is opened: when the water is a machine dreaming, and nothing it dreams comes back.</p>
+  <p class="note" style="margin-top:12px">The seed of 29 September, updated. What is not built is marked in progress or proposed. The work: <a href="sync.html">veritas</a>. The context: the <a href="blackpaper.html">black paper</a>.</p>
+
+  <h2><i>00</i> &nbsp;thesis</h2>
+  <ul>
+    <li><b>no water, no dream.</b> Machines that dream drink water: one estimate puts the training of a single large language model at 700,000 litres of fresh water<sup class="ref"><a href="#r1">1</a></sup>.
+      Here the metaphor is plumbing. The water in the basin is a GPU dreaming; switch it off and the tap closes.</li>
+    <li><b>why a sink.</b> Slop is everything but the kitchen sink. Under tiat's gallery the basement keeps &ldquo;a slop station (an empty room with one metal sink)&rdquo;<sup class="ref"><a href="#r2">2</a></sup>.
+      On 26 October 2022 Elon Musk carried a sink into Twitter's headquarters, &ldquo;let that sink in&rdquo;<sup class="ref"><a href="#r3">3</a></sup>.</li>
+    <li><b>you can't wash your hands of it.</b> A sink you cannot wash your hands in. Reach in and the dream goes where your hand goes, then slips through your fingers, down the drain.</li>
+    <li><b>sink == sync.</b> Two clocks on one beam fall into step (Huygens)<sup class="ref"><a href="#r4">4</a></sup>. Two basins hang from one spring: a hand in either moves the water in both.
+      vanitas and veritas are one swap of letters apart, as sink and sync are one sound apart: one water.</li>
+  </ul>
+  <div class="tw"><table>
+    <tr><td>the spring</td><td>a GPU dreaming without end: <code>code/spring.py</code>, on Kat's Mac for now.</td></tr>
+    <tr><td>the water</td><td>its frames, from the tap to the drain.</td></tr>
+    <tr><td>veritas</td><td>the same basin, on the web. Built.</td></tr>
+    <tr><td>vanitas</td><td>the sink, in stone. Proposed.</td></tr>
+  </table></div>
+
+  <h2><i>01</i> &nbsp;the piece</h2>
+  <iframe class="study" src="sync.html" title="veritas" loading="lazy"></iframe>
+  <p class="open"><a href="sync.html">open it full size -&gt;</a></p>
+  <p class="note">On the published site the tap is dry until the spring has a lasting address: <code>water = None</code>. While the spring runs on Kat's Mac, the frames pour there and, through a tunnel, for anyone with its address.
+    The earlier web pieces, <a href="veritas.html">i</a> (29 September), <a href="veritas2.html">ii</a> (5 October) and <a href="veritas3.html">iii</a> (15 October), are kept as they were.</p>
+  <p style="margin-top:18px">A basin seen from above, a 4:3 rectangle with rounded corners like the frames it carries, under ribbed glass, with a tap at the top and a drain in the middle.
+    The spring writes a new prompt in the grammar of Kat's Midjourney recipe, <code>vanitas [flower, skull, soap bubble]</code>, never the same words twice until all 808 are used;
+    dreams it out of the last dream, pulled back toward her vanitas moodboard; and dreams three more places on the way to the next, gliding through them, a frame every two to three seconds, each 2560 by 1920.
+    The frames pour from the tap to the drain, and besides its name, the only words are code: the prompt, and the grip while you hold. Press, and the water under your hand moves with it, then slips through your fingers.
+    The space bar is the plug. When the spring stops, the tap closes and the basin drains.</p>
+
+  <h2><i>01b</i> &nbsp;built, in progress, proposed</h2>
+  <h3 class="st">built</h3>
+  <ul>
+    <li><b>The spring.</b> <code>code/spring.py</code>: Stable Diffusion 1.5 with LCM-LoRA<sup class="ref"><a href="#r5">5</a></sup><sup class="ref"><a href="#r6">6</a></sup>, graded with the palette lock the sources were graded with.
+      A dream takes about four seconds on an M5 laptop; the laptop's Neural Engine enlarges every frame four times with Real-ESRGAN while the GPU dreams on. It keeps its last sixty frames and how far through its prompts it has dreamed.</li>
+    <li><b>veritas.</b> One page that pours whatever the spring dreamed last, through a stable-fluids solver<sup class="ref"><a href="#r7">7</a></sup>, and closes the tap when nothing new has come for twenty seconds.</li>
+    <li><b>One water.</b> A touch in any basin travels as an anonymous, ephemeral event over public Nostr relays and moves the water in every other basin: a push, a grip, a thin ring of light; gold if the hand is on vanitas. Nothing is stored.</li>
+    <li><b>vanitas, in software.</b> veritas in its vanitas mode: touching the water never opens the camera; holding its own eye on the glass for two seconds does, for under a second, and sends one frame of a face to the spring, with a key, as the reference for the next dream,
+      the open-model version of Midjourney's omni reference. The line of code then ends <code>--oref you</code>. The frame is used once in memory and never written down.
+      The space bar is the lever: down, the spring rests and every basin drains; up, it floods back.</li>
+  </ul>
+  <h3 class="st">in progress</h3>
+  <ul>
+    <li><b>A lasting address for the spring.</b> Today veritas is public through a tunnel from Kat's Mac whenever the spring runs; the site shows iii until the address lasts.</li>
+    <li><b>The spring's taste.</b> Its prompts and grade tuned against her vanitas moodboard, dream by dream.</li>
+  </ul>
+  <h3 class="st">proposed</h3>
+  <ul>
+    <li><b>vanitas.</b> A first sink in San Francisco: a basalt column with the basin as its screen, under ribbed glass that answers a touch; a small camera where a tap would stand;
+      a lever that is the tap; a QR code cut into its top that opens veritas (<a href="sink.html">its page</a>, <a href="#format">04b</a>).</li>
+    <li><b>The GPU in the plinth.</b> vanitas becomes the spring, the lever its own switch, and veritas, wherever it is open, drinks from a room in San Francisco.</li>
+    <li><b>A second sink.</b> Another city, the same water.</li>
+  </ul>
+
+  <h2><i>02</i> &nbsp;what style makes sense</h2>
+  <p><b>The lenticular.</b> Ridged glass over a picture and the ridged plastic on a 2000s holo trading card
+    are the same optical object. One is a lens you look through; the other is a collectible you tilt. A lenticular shows two pictures
+    from one surface depending on where you stand, which is already the whole premise of vanitas_veritas.</p>
+  <div class="tw"><table>
+    <tr><td>surface</td><td>ribbed glass over the water; grain</td></tr>
+    <tr><td>colour</td><td>ink, bone and gold, with ice; the dreams graded silver and amber like the sources</td></tr>
+    <tr><td>language</td><td>one line of code: the prompt being dreamed</td></tr>
+    <tr><td>object</td><td>vanitas, a stone basin whose screen is the water</td></tr>
+    <tr><td>time</td><td>never the same twice; a frame every two to three seconds, until the tap closes</td></tr>
+  </table></div>
+  <p>September's rules: signs are drawn with one stroke weight, like pictograms on a 2003 device. Fluid is cel-shaded with an inked
+    contour and one hard highlight, so it reads as cartoon, then given real grain and a soft second highlight so it does not quite.
+    No periodic waves. Colour arrives only in a pour or in the foil.</p>
+  <p><b>Third pass, after "weird, mysterious, apocalyptic, shamanistic":</b> the drawn sink becomes a scrying basin. Same lens, same signs, but staged as a rite.
+    The disc is a black sun with a fibrous corona that brightens on the beat. Ash rises. Ember and ice are the only colours, one pour at a time. Fog crosses the rim and the glass is scratched.
+    Space is the other material: the disc is cropped by the edge of the screen and the words sit small in what is left.</p>
+  <p><b>Where it went.</b> The black sun became the drain. Ash, fog and the ring of cuts were dropped.
+    The disc became a rectangle, 4:3 like the dreams, and the colour now comes only from what the spring dreams.</p>
+
+  <h2><i>02b</i> &nbsp;references looked at</h2>
+  <div class="tw"><table class="refs">
+    <tr><th>site</th><th>what it does</th><th>what I took</th></tr>
+    <tr><td><a href="https://rose-engine.org/signalis/">Signalis</a></td><td>Near-black, one red, a thin wireframe emblem, small crosses marking empty space, a poem before any product copy.</td>
+      <td>One accent. Registration crosses in the void. Poem first.</td></tr>
+    <tr><td><a href="https://tunicgame.com/">Tunic</a></td><td>An unreadable script set directly above and below the readable title.</td>
+      <td>The title is held between two lines of the script.</td></tr>
+    <tr><td><a href="https://kentuckyroutezero.com/">Kentucky Route Zero</a></td><td>Pure black, one emblem built from a few stepped grey shapes, italic mono tagline.</td>
+      <td>Stepped greys in the corona and the title. One italic line. More black.</td></tr>
+    <tr><td><a href="https://science.nasa.gov/mission/voyager/golden-record-cover/">Voyager Golden Record cover</a></td><td>Instructions for a reader with no shared language: binary cuts around a disc, a pulsar map, pictures built from vertical lines, a circle to check you decoded it right.</td>
+      <td>The ring of cuts (in i) carried a real message. Rays counted out from the drain. The fluted lens is the record's vertical picture lines.</td></tr>
+    <tr><td><a href="https://cari.institute/aesthetics/y2k-aesthetic">CARI: Y2K aesthetic</a></td><td>A catalogue of the period: silver, gloss, gradients, blobby objects.</td>
+      <td>Confirms the fluid treatment: silver, glossy, blobby, inked.</td></tr>
+  </table></div>
+  <p class="note">Also opened: 100r.co (hand-drawn and white, less relevant, though their August log is about ciphers).</p>
+
+  <h2 id="program"><i>03</i> &nbsp;the program</h2>
+<pre><span class="c"># no gpu, no water</span>
+water = gpu.dream()
+<span class="c"># reach in, and it slips</span>
+while held: grip *= .55
+<span class="c"># the drain takes it</span>
+keep(nothing)
+<span class="c"># one water</span>
+sink == sync</pre>
+
+  <h2><i>04</i> &nbsp;six ways in</h2>
+  <div class="cols">
+    <div class="card"><h3><span>a</span>two basins</h3>
+      <p>Proposed: two sinks, one water, side by side or in two cities. Hands already travel between basins over public relays; a second sink would join them.</p>
+      <small>Two parties who cannot wash their hands without the other feeling it.</small></div>
+    <div class="card"><h3><span>b</span>the cards</h3>
+      <p>Lenticular cards, the word vanitas at one tilt and veritas at the other.</p>
+      <small>In September, eight signs issued as a set.</small></div>
+    <div class="card"><h3><span>c</span>liquidity pool</h3>
+      <p>The basin taken literally. Each visitor adds one drop of pigment. It circulates, dilutes, and never leaves. By the end the pool is
+        the colour of everyone who came. The colour on the last day is the work.</p>
+      <small>Liquidity, trickle-down, and who gets to wash their hands.</small></div>
+    <div class="card"><h3><span>d</span>null address</h3>
+      <p>The null address is where tokens are sent to be burned.
+        A drain makes the same promise. Here the promise is broken: whatever is burned into the drain comes back out of the tap.</p>
+      <small>Mechanic: burn to pour.</small></div>
+    <div class="card"><h3><span>e</span>hold</h3>
+      <p>Built, in another form: a hand in any basin moves the water in every other. Two handles on one sink, too far apart for one person, stays an idea.</p></div>
+    <div class="card"><h3><span>f</span>snowmelt</h3>
+      <p>No screen. Real water, a small pump, a fluted acrylic disc over a lit basin, pigment dosed on the heartbeat.
+        The water is snow collected outside the venue on the first day and returned on the last.</p>
+      <small>Hardest to build, easiest to explain.</small></div>
+  </div>
+  <p>In September the recommendation was <b>a + b</b>. Where it went: <b>e</b> is built, as one water between basins. A second sink (<b>a</b>) is proposed for after the first.
+    <b>b</b>, <b>c</b>, <b>d</b> and <b>f</b> stay ideas.</p>
+
+  <h2 id="format"><i>04b</i> &nbsp;format</h2>
+  <p><b>One work in two places, one water. veritas is the invitation; vanitas is the place; a hand in either moves the water in both.</b></p>
+  <div class="tw"><table>
+    <tr><th>stage</th><th>format</th><th>why</th></tr>
+    <tr><td>now</td><td>Built: veritas and the spring, run together on Kat's Mac; veritas is public through a tunnel whenever the spring runs.</td><td>It is the invitation.</td></tr>
+    <tr><td>first sink</td><td>San Francisco, proposed: vanitas in stone, one water with veritas (<a href="sink.html">its page</a>). No room is confirmed.</td>
+      <td>It is the place, where the dreaming machines are made.</td></tr>
+    <tr><td>then</td><td>Wherever an open call takes it, proposed: vanitas in an exhibition; a second sink in another city, the same water.</td><td>The first sink is the proof, not the build.</td></tr>
+  </table></div>
+  <ul>
+    <li><b>Not a video.</b> The water never repeats, and the hand has to be live. A render would be a recording of the piece.</li>
+    <li><b>Not real water.</b> The water is the dream; vanitas stays dry.</li>
+    <li><b>Not a room-scale projection.</b> One basin, where people wash their hands.</li>
+    <li><b>The AI is the water.</b> Open-source diffusion dreams every frame while you watch, pulled back toward Kat's vanitas moodboard. No language model runs: the prompts come from one fixed grammar.</li>
+    <li><b>Editions, proposed.</b> vanitas unique, veritas free.</li>
+  </ul>
+
+  <h2><i>05</i> &nbsp;build notes</h2>
+  <p><b>What the page is, technically.</b> veritas is one HTML page, no framework, no build step, no accounts. WebGL2.
+    One small library, nostr-tools, carries the hands between basins over public relays.</p>
+  <ul>
+    <li><b>Basin:</b> a stable-fluids solver (semi-Lagrangian advection, 36 pressure passes, 24 on phones) on a 256&sup2; grid, in a 4:3 rectangle with rounded corners,
+      with a source at the tap and a vortex at the drain, and a 1024&sup2; dye field (768&sup2; on phones, up to 2048&sup2; on large screens). The dye is the picture: the frames pour in as the pigment,
+      re-forming out of the newest frame, freshest where the tap lands.</li>
+    <li><b>The hand:</b> a grip pulls the water under the palm toward the hand's own motion, except in five gaps where the fingers part, and loosens by the second (<code>grip = 0.55</code> after one).
+      Under the hand the glass lies flat and the moment you reached in stops changing.</li>
+    <li><b>The plug:</b> the space bar closes the drain and the dream pools; when it opens, everything goes.</li>
+    <li><b>The tap:</b> veritas asks the spring for its newest frame every second or so. When nothing new has come for twenty seconds, the tap closes, what is left runs to the drain,
+      and the line reads <code>water = None</code>. Without WebGL2 the page shows an empty basin.</li>
+    <li><b>The spring:</b> <code>code/spring.py</code>, Stable Diffusion 1.5 with LCM-LoRA at 640&times;480, ten steps, guidance 1.5, ten walk frames between two dreams.
+      Frames land in <code>spring_feed/</code>, outside git, beside one small file that says what is newest.</li>
+    <li><b>One water:</b> ephemeral Nostr events (kind 20777, tag <code>veritas-basin</code>) over three public relays, carrying where a hand is, whether it grips, and whether it is on vanitas.
+      <code>?solo</code> keeps a basin to itself.</li>
+    <li><b>The face (vanitas only):</b> with <code>?spring=&hellip;&amp;sink&amp;camera&amp;key=&hellip;</code>, holding the camera's eye for two seconds takes one frame, at most once every twenty seconds; touching the water never does. The spring finds the largest face,
+      crops it 4:3, grades it like the sources and dreams from it once. It is never written to disk.</li>
+  </ul>
+  <p><b>Toward the installation.</b></p>
+  <ul>
+    <li>vanitas, proposed and not yet built (<a href="sink.html">its page</a>), seals <b>ribbed glass</b> over a touch screen. The glass gets the lens look optically, with no shader.</li>
+    <li>Built in the page: the vanitas mode, the basin edge to edge, the space bar as the lever. Proposed for vanitas: a sensor on the lever that holds the space bar while it is down.</li>
+  </ul>
+
+  <h2><i>06</i> &nbsp;where we stand</h2>
+  <ul>
+    <li><b>The shortest ritual in the room.</b> One reach. It fits between anything, and nothing leaves with you.</li>
+    <li><b>Put it where they wash their hands.</b> A sink you cannot wash your hands in says the rest without a word.</li>
+    <li><b>Live data, but ours is a machine dreaming.</b> And every hand, anywhere, reaches every basin.</li>
+    <li><b>Faces: given, not borrowed.</b> The dreams lean toward the artist's own frames; in vanitas, a face is given by holding the camera's eye, dreamed once, and let go.</li>
+    <li><b>Duration as material.</b> 808 prompts before the words come round again.</li>
+    <li><b>Let it stop.</b> Most installations run for the show and loop. This one stops when the GPU does, and anyone at vanitas can stop it.</li>
+  </ul>
+
+  <h2><i>07</i> &nbsp;sources</h2>
+  <ol class="refs">
+    <li id="r1">Li, P., Yang, J., Islam, M. A., &amp; Ren, S. (2023). Making AI less &ldquo;thirsty&rdquo;: Uncovering and addressing the secret water footprint of AI models. <i>arXiv</i>:2304.03271. <a href="https://arxiv.org/abs/2304.03271">arxiv.org/abs/2304.03271</a></li>
+    <li id="r2">Hayes, C. (2025, October 2). A place for TIAT. <i>Gazetteer SF</i>. <a href="https://sf.gazetteer.co/a-place-for-tiat">sf.gazetteer.co/a-place-for-tiat</a></li>
+    <li id="r3">Feiner, L. (2022, October 26). Elon Musk carried a sink into Twitter on Wednesday as deal nears close. <i>CNBC</i>, via NBC Bay Area. <a href="https://www.nbcbayarea.com/news/business/money-report/elon-musk-carried-a-sink-into-twitter-on-wednesday-as-deal-nears-close/3059644/">nbcbayarea.com</a></li>
+    <li id="r4">Bennett, M., Schatz, M. F., Rockwood, H., &amp; Wiesenfeld, K. (2002). Huygens&rsquo;s clocks. <i>Proceedings of the Royal Society of London. Series A</i>, 458(2019), 563&ndash;579. <a href="https://doi.org/10.1098/rspa.2001.0888">doi:10.1098/rspa.2001.0888</a></li>
+    <li id="r5">Rombach, R., Blattmann, A., Lorenz, D., Esser, P., &amp; Ommer, B. (2022). High-resolution image synthesis with latent diffusion models. In <i>2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)</i> (pp. 10674&ndash;10685). IEEE. <a href="https://doi.org/10.1109/CVPR52688.2022.01042">doi:10.1109/CVPR52688.2022.01042</a></li>
+    <li id="r6">Luo, S., Tan, Y., Patil, S., Gu, D., von Platen, P., Passos, A., Huang, L., Li, J., &amp; Zhao, H. (2023). LCM-LoRA: A universal Stable-Diffusion acceleration module. <i>arXiv</i>:2311.05556. <a href="https://arxiv.org/abs/2311.05556">arxiv.org/abs/2311.05556</a></li>
+    <li id="r7">Stam, J. (1999). Stable fluids. In <i>Proceedings of the 26th Annual Conference on Computer Graphics and Interactive Techniques (SIGGRAPH &rsquo;99)</i> (pp. 121&ndash;128). ACM. <a href="https://doi.org/10.1145/311535.311548">doi:10.1145/311535.311548</a></li>
+  </ol>
+
+</div>
+</body>
+</html>

@@ -1,11 +1,11 @@
 """Build veritas.html: one file with its images inlined, so it opens from disk or a link.
 
-    python3 davos_2027/build.py
+    python3 verse/build.py
 
 Reads  video/veritas_loop_v45_4k.mp4   (gitignored): 24 stills taken evenly round the loop; for veritas3, the 32 anchors
        the loop was dreamed through (code/morph_v45_sr.py: 32 anchors, 190 frames apart, Catmull-Rom between them).
        If the loop is missing, falls back to the eight harmonized stills in source/harmonized/.
-Writes davos_2027/veritas.html          (gitignored: it carries the images).
+Writes verse/veritas.html          (gitignored: it carries the images).
 """
 import base64, glob, io, json, os, subprocess, sys, tempfile
 from PIL import Image

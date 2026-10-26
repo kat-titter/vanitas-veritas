@@ -13,11 +13,12 @@ import os, sys, glob, math, time, subprocess, torch, numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter
 from diffusers import AutoencoderKL
-from spandrel import ModelLoader
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from latent import catmull                       # shared with the spring
+from upscale import esrgan_gpu                   # Real-ESRGAN x4, fp16 on the GPU
 
 HERE=os.path.dirname(os.path.abspath(__file__)); ROOT=os.path.dirname(HERE)
 CACHE=os.path.join(HERE,"anchors_final.pt")
-SR_W=os.path.join(HERE,"models","RealESRGAN_x4plus.pth")
 OUT=os.path.join(ROOT,"video","veritas_loop_v45_"+( "4k" if len(sys.argv)<=2 else sys.argv[2])+".mp4")
 PROG=os.path.join(ROOT,"_archive",".prog_sr")
 MODEL="stable-diffusion-v1-5/stable-diffusion-v1-5"
@@ -33,9 +34,6 @@ COOL=(0.93,0.98,1.09); GOLD_TONE=(1.22,0.80,0.30); WARM_SCALE=40.0
 # finish (post-ESRGAN, full res)
 GRAIN=4.0; VIG_STR=0.28
 
-def catmull(u,p0,p1,p2,p3):
-    u2,u3=u*u,u*u*u
-    return 0.5*((2*p1)+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3)
 
 def grade_color(x):                    # x: HxWx3 float 0..255 (640x480)
     warm=np.clip((x[...,0:1]-x[...,2:3])/WARM_SCALE,0,1)
@@ -58,8 +56,7 @@ def grade_finish(x):                   # x: OHxOWx3 float 0..255
 print("loading VAE + Real-ESRGAN…")
 vae=AutoencoderKL.from_pretrained(MODEL,subfolder="vae",torch_dtype=torch.float32).to(device)
 vae.enable_slicing(); SCALE=vae.config.scaling_factor
-sr=ModelLoader().load_from_file(SR_W).to(device).eval()
-sr.model.half()                        # fp16 ESRGAN (2x faster, fits memory)
+esrgan=esrgan_gpu(device)              # HxWx3 float 0..255 -> OHxOWx3 float 0..255 (fp16: 2x faster, fits memory)
 
 @torch.no_grad()
 def decode_batch(lats):                # list of [1,4,h,w] -> list of HxWx3 float 0..255
@@ -67,11 +64,6 @@ def decode_batch(lats):                # list of [1,4,h,w] -> list of HxWx3 floa
     im=((vae.decode(t/SCALE).sample.clamp(-1,1)+1)/2)
     return [(im[i].permute(1,2,0).cpu().numpy()*255) for i in range(im.shape[0])]
 
-@torch.no_grad()
-def esrgan(frame640):                  # HxWx3 float 0..255 -> OHxOWx3 float 0..255
-    t=torch.from_numpy(frame640/255).permute(2,0,1).unsqueeze(0).to(device,torch.float16)
-    o=sr(t)[0].float().clamp(0,1).permute(1,2,0).cpu().numpy()*255
-    return o
 
 anchors=[a.to(device) for a in torch.load(CACHE)]; K=len(anchors)
 total=K*M

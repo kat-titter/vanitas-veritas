@@ -1,15 +1,15 @@
 # vanitas_veritas
 
-we need a new biology. A sink you can't wash your hands in: AI-made vanitas
-pictures drain and come back as copies of copies. Hold still, and it clears.
-Hold together, and it is true. One work in two places: the basin game, live on
-the web, and a real sink (proposed) that runs the same page where the drain
-should be.
+A sink you can't wash your hands in. Its water is a GPU dreaming: a new
+vanitas prompt, dreamed and walked into the next, never the same twice,
+pouring from the tap to the drain. Reach in and it slips through your fingers.
+Switch the GPU off: no water, no dream. One work in two places with one water:
+vanitas, the sink (a stone basin, proposed; first designed in 2026 as a
+stainless-steel sink for tiat), and veritas, the same basin on the web.
 
-- [the piece](https://kat-titter.github.io/vanitas_veritas_verse/)
-- [the macroverse](https://kat-titter.github.io/vanitas_veritas_verse/macroverse.html)
 - [the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html)
-- [the sink](https://kat-titter.github.io/vanitas_veritas_verse/sink.html) (proposed)
+- [vanitas](https://kat-titter.github.io/vanitas_veritas_verse/sink.html) (proposed)
+- [the live web piece](https://kat-titter.github.io/vanitas_veritas_verse/) (iii, the earlier web piece, until veritas is on the web)
 
 Kat Titterton (macrofluidic)
 
@@ -17,48 +17,68 @@ Kat Titterton (macrofluidic)
 
 ## Thesis
 
-we need a new biology: new forms of life, the uncanny in-between (life and
-death, species), emergence, softness.
+no water, no dream: the water in the basin is a GPU dreaming. While it dreams,
+the tap runs; switch it off and the basin drains.
 
-you can't wash your hands of it: nothing drains away, and everyone stands at
-the same sink.
+you can't wash your hands of it: reach in, and the water under your hand goes
+where your hand goes, then slips through your fingers, down the drain.
 
-sink == sync: when enough people hold still at once, the title turns from
-vanitas to veritas.
+sink == sync: vanitas and veritas hang from one spring, and a hand in either
+moves the water in both. The two names are one swap of letters apart, as
+`sink` and `sync` are one sound apart: one water.
 
-## veri+as iii
+## The spring and veritas
 
-One web page, no framework, no server of its own. Hold still and the glass
-clears. Seven hidden stars each grow a named new form of life from two
-pictures, and how you play pushes the culture on the rim. The program is a
-primer, then a poem, in Python. At the end your youniverse is read back to
-you, kept on your device and sendable as a link that carries no picture.
+`code/spring.py` is the spring: Stable Diffusion 1.5 with LCM-LoRA on a GPU,
+for now Kat's Mac. It writes a new prompt in the grammar of the Midjourney
+recipe `vanitas [flower, skull, soap bubble]`, never repeating until all 808
+are used, and dreams it pulled back toward Kat's vanitas moodboard
+(`source/moodboard/`). On the way to the next dream it dreams three more places
+and glides through all of them on one Catmull-Rom path (the walk of the v44
+loop), so forms melt instead of fading. Every frame is enlarged to 2560×1920 by
+Real-ESRGAN on the Mac's Neural Engine while the GPU dreams on, with a 1280×960
+copy for phones: a frame every two to three seconds. A picture Kat makes by hand
+in Midjourney and saves to `source/mj_inbox/` becomes the next dream, with the
+prompt read from its own metadata (nothing here calls Midjourney). Frames land
+in `spring_feed/`, outside git, beside the key only vanitas holds.
 
-The macroverse is everyone's youniverses on one live map.
+`verse/sync.html` is veritas: a 4:3 rectangle with rounded corners, like the
+frames. Press, and the water under your hand moves
+with it, then slips away (`grip = 0.55` after one second). The space bar is
+the plug. When the spring stops, the tap closes and the basin drains
+(`water = None`). A touch in any basin travels as an anonymous, ephemeral
+event over public Nostr relays and moves the water in every other basin.
 
-**The study.** Each play on the published page leaves one anonymous record on
-public Nostr relays (NIP-78), with no picture. `?nostudy` or Global
-Privacy Control keeps a play out. `node davos_2027/study/plays.mjs` reads the
-records. Details are in
-[the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html#keeps).
+```bash
+caffeinate -i python3 code/spring.py            # then open http://127.0.0.1:8770/
+caffeinate -i python3 code/spring.py --public   # and to everyone: a quick tunnel from this Mac, address printed
+```
 
-**Versions.** i and ii (`veritas.html`, `veritas2.html`) are kept as they were.
-iii is live. `proposal.html` is archived in favour of the black paper.
+veritas and the spring are built and run together on Kat's Mac, and veritas is
+public whenever the spring runs with `--public` (a Cloudflare quick tunnel; the
+address changes each time). The published site shows the earlier piece, iii,
+until the spring has a lasting address. The earlier web pieces, i, ii and iii,
+are kept as they were.
 
-**The sink (proposed).** The same page in a real basin: a monolith of stone
-with the basin as its screen, under fluted glass. Holding the faucet lever is
-the hold; it never runs water. Through the relays, a hold at either place would
-be felt at both. A first sink is proposed for San Francisco, then wherever an
-open call takes it; nothing is built or confirmed. The design is in
-[the sink](https://kat-titter.github.io/vanitas_veritas_verse/sink.html). The 2026 sink for
-tiat's open call (`documents/`) is kept as an archive.
+**vanitas (proposed).** A basalt column with the basin as its screen, under
+ribbed glass that answers a touch. A small camera where a tap would stand,
+woken only when someone holds its eye on the glass for two seconds (touching
+the water never wakes it), gives one frame of a face to the next dream, used
+once and never written down.
+The lever is the tap: down, the spring rests and the water runs out in vanitas
+and in every veritas. A QR code cut into the basalt opens veritas. vanitas is
+proposed first for San Francisco; nothing physical is built or confirmed, though
+its mode in veritas is built. The design is
+in [sink.html](https://kat-titter.github.io/vanitas_veritas_verse/sink.html).
+The 2026 design of vanitas for tiat's open call, a stainless-steel sink under a
+self-portrait, is in `documents/`.
 
 ---
 
 ## The loop (2026)
 
-Where the work began. Its 32 dreamed anchors are the 32 pictures veri+as iii
-grows its forms of life from.
+Where the work began. The spring is this loop, opened: it no longer comes
+back. Its eight source frames are the frames the water leans toward.
 
 ### 1. The artifact
 
@@ -288,10 +308,11 @@ vanitas-veritas/
 ├── README.md, README.html         this document
 ├── LICENSE
 ├── index.html                     the loop's landing page (Submission, Web, Build Guide)
-├── davos_2027/                    veri+as iii (live), i and ii, the black paper, the pitch,
-│                                  the macroverse, the sink doc, the study reader
-├── documents/                     the 2026 tiat submission bundle, kept as an archive (Submission, Build Guide, Web; self-contained HTML + assets)
-├── code/                          the loop's pipeline
+├── verse/                         veritas (sync.html), the doc for vanitas (sink.html), the black paper,
+│                                  the pitch, the proposal; i, ii and iii, kept as they were
+├── documents/                     the tiat submission bundle (Submission, Build Guide, Web; self-contained HTML + assets)
+├── code/                          the spring, and the loop's pipeline
+├── spring_feed/                   the spring's frames and the key only vanitas holds (local only)
 ├── video/                         the final render + basin loop
 ├── research/                      vanitas paper, references, ref images
 ├── source/                        source artwork (veritas frames + harmonized + self-portraits)
@@ -299,26 +320,29 @@ vanitas-veritas/
 └── _archive/                      superseded versions, frames, logs (kept, not deleted)
 ```
 
-`video/`, `source/`, `research/`, `_order_tests/`, `_archive/`, `code/models/`
-and the cached anchors stay local. They are not in the public repo.
+`video/`, `source/`, `research/`, `_order_tests/`, `_archive/`, `code/models/`,
+`spring_feed/` and the cached anchors stay local. They are not in the public repo.
 
 ### Key files
 
 | Path | Role |
 |---|---|
-| `davos_2027/veritas3.html` | **veri+as iii**, the live piece |
-| `davos_2027/veritas3.src.html` | its source; `davos_2027/build.py` inlines the loop's 32 anchors to make `veritas3.html` |
-| `davos_2027/blackpaper.html` | the black paper |
-| `davos_2027/pitch.html` | the pitch kit |
-| `davos_2027/sink.html` | the sink, redesigned (proposed) |
-| `davos_2027/macroverse.html` | the macroverse |
-| `davos_2027/study/plays.mjs` | reads the study records |
-| `davos_2027/veritas.html`, `veritas2.html` | i and ii, kept as they were |
-| `davos_2027/proposal.html` | the first proposal (archived) |
+| `code/spring.py` | **the spring**: dreams without end and serves veritas at http://127.0.0.1:8770/ (`--public` opens a tunnel) |
+| `code/latent.py` | the latent toolkit the spring and the render share: slerp, Catmull-Rom, the VAE's way in and out |
+| `code/upscale.py` | Real-ESRGAN 4×: on the Neural Engine for the spring (its own process), on the GPU for the render |
+| `source/moodboard/` | the spring's taste: eight pictures from Kat's vanitas moodboard (local only) |
+| `source/mj_inbox/` | Midjourney pictures Kat saves by hand; each becomes the next dream once (local only) |
+| `verse/sync.html` | **veritas**, the basin on the web; inside vanitas, `sync.html?spring=<feed>&sink&camera&key=<spring_feed/key>` |
+| `spring_feed/` | the spring's last sixty frames, `now.json`, and `key`, which only vanitas holds (local only) |
+| `verse/blackpaper.html` | the black paper |
+| `verse/pitch.html` | the pitch kit |
+| `verse/sink.html` | the doc for vanitas, redesigned (proposed) |
+| `verse/proposal.html` | the first proposal, 29 September, updated |
+| `verse/veritas.html`, `veritas2.html`, `veritas3.html` | i, ii and iii, kept as they were; iii is on the site until the spring has a lasting address |
 | `index.html` | the loop's landing page |
-| `documents/Vanitas Veritas - Submission.dc.html` | the 2026 tiat submission (archive; self-contained HTML) |
-| `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (archive; the sink is now `davos_2027/sink.html`) |
-| `documents/Vanitas Veritas - Web.dc.html` | the 2026 web doc (archive) |
+| `documents/Vanitas Veritas - Submission.dc.html` | the tiat submission (self-contained HTML) |
+| `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (the first design of vanitas; the basalt one is `verse/sink.html`) |
+| `documents/Vanitas Veritas - Web.dc.html` | the tiat web doc |
 | `documents/assets/` | images/video the docs embed |
 | `video/veritas_loop_v45_4k.mp4` | **the final render**, 2560×1920, 8:27 (local only) |
 | `video/veritas_final_v44.mp4` | the earlier 1920×1440 cut (local only) |
@@ -329,17 +353,12 @@ and the cached anchors stay local. They are not in the public repo.
 | `code/morph_v45_sr.py` | **the final render**: reuses anchors, decodes slow loop, Real-ESRGAN 4× → 2560×1920 |
 | `code/morph_v44.py` | the dreamed-anchors engine (dreams and caches the anchors; 1920×1440 path) |
 | `code/anchors_final.pt` | cached dreamed anchor latents, the expensive, reusable part (local only) |
-| `code/models/RealESRGAN_x4plus.pth` | super-res weights, open-source (local only) |
-| `code/morph_v3.py` | the v4 engine (earlier grade, superseded by v44) |
-| `code/morph_loop.py` | the earliest per-frame engine (superseded; kept for history) |
-| `code/preview_recipe.py` | one transition with an early recipe, for fast iteration (kept for history) |
+| `code/models/RealESRGAN_x4plus.pth` | super-res weights, open-source; `upscale.py` builds the Neural Engine copy beside it (local only) |
+| `code/archive/` | earlier experiments kept for the record: morph_loop, morph_v3, preview_recipe, dream_test and its grid, liquify |
 | `code/order_preview.py` | **fast loop-order iteration**: VAE-only morph proxy (~1 min/candidate) |
 | `code/harmonize.py` | **palette/warmth/contrast harmonizer**: unifies the veritas frames + self-portraits |
 | `source/harmonized/` | full-res harmonized versions of the whole set (local only) |
 | `source/IMG_6975.jpeg`, `source/…wash_your_hands…png` | the **self-portraits**, real + mirror (local only) |
-| `code/dream_test.py` | the 3×3 style grid-search harness |
-| `code/liquify.py` | the rejected displacement experiment (kept for history) |
-| `code/dream_styles_grid.png` | the grid-search result image |
 | `_archive/` | old renders (v1 to v4.4), frame dumps, logs, superseded checkpoints (local only) |
 
 ---
@@ -348,16 +367,17 @@ and the cached anchors stay local. They are not in the public repo.
 
 ```bash
 pip install --user torch diffusers transformers accelerate safetensors \
-                   peft spandrel imageio imageio-ffmpeg scipy pillow
+                   peft spandrel coremltools imageio imageio-ffmpeg scipy pillow opencv-python
 python3 code/morph_v44.py --fresh   # dream anchors + render (omit --fresh to reuse cache)
 python3 code/morph_v45_sr.py        # the final render: cached anchors, Real-ESRGAN 4×, 2560×1920
-python3 davos_2027/build.py davos_2027/veritas3.src.html davos_2027/veritas3.html   # veri+as iii
+caffeinate -i python3 code/spring.py   # the spring, dreaming without end; veritas at http://127.0.0.1:8770/
 ```
 
-The loop needs the eight source frames in `source/veritas/`. The final render
-needs the cached anchors and the Real-ESRGAN weights in `code/models/`. The
-build takes the 32 anchors from the final render. None of these are in the
-public repo.
+The loop needs the eight source frames in `source/veritas/`; the spring leans
+toward `source/moodboard/` and falls back to them. `--public` needs
+`cloudflared` on the path or in `~/.local/bin/`. The
+final render needs the cached anchors and the Real-ESRGAN weights in
+`code/models/`. None of these are in the public repo.
 
 Tunable knobs at the top of `morph_v44.py`: `D` (anchor density / uniqueness),
 `M` (frames per gap → loop length & slowness), `LOW_STR`/`HIGH_STR`
