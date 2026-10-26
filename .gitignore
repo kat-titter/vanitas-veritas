@@ -12,3 +12,4 @@ __pycache__/
 *.pyc
 research/
 spring_feed/
+verse/_archive/

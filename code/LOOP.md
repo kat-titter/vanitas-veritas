@@ -339,7 +339,7 @@ vanitas-veritas/
 | `verse/pitch.html` | the pitch kit |
 | `verse/sink.html` | the doc for vanitas, redesigned (proposed) |
 | `verse/proposal.html` | the first proposal, 29 September, updated |
-| `verse/veritas.html`, `veritas2.html`, `veritas3.html` | i, ii and iii, kept as they were; iii is on the site until the spring has a lasting address |
+| `verse/_archive/` (local, gitignored) | i, ii and iii, retired 2026-10-26 |
 | `index.html` | the loop's landing page |
 | `documents/Vanitas Veritas - Submission.dc.html` | the tiat submission (self-contained HTML) |
 | `documents/Vanitas Veritas - Build Guide.dc.html` | the 2026 electronics guide (the first design of vanitas; the basalt one is `verse/sink.html`) |
