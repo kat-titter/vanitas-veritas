@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Publish the pages to their own address, kat-titter.github.io/vanitas_veritas_verse/: veritas (sync.html) as index.html
+# Publish the pages to their own address, kat-titter.github.io/veritas/: veritas (sync.html) as index.html
 # and at its own name, with the black paper beside it. The earlier web pieces (i, ii, iii, the macroverse and
 # the basalt sink page) are retired: kept locally in verse/_archive/, never published; any left there are removed.
 #   python3 verse/deploy_verse.py                 every page as it is on disk
@@ -11,7 +11,7 @@
 import pathlib, re, subprocess, sys
 
 HERE = pathlib.Path(__file__).resolve().parent
-DEST = pathlib.Path.home() / 'Claude/Projects/vanitas_veritas_verse'
+DEST = pathlib.Path.home() / 'Claude/Projects/veritas'
 args = set(sys.argv[1:])
 
 def read(name, committed=False):
@@ -28,7 +28,7 @@ for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html',
     if (DEST / old).exists(): (DEST / old).unlink()
 if (HERE / 'sync.html').exists(): pages['sync.html'] = read('sync.html', C)     # veritas: one water with vanitas
 
-NEW = 'https://kat-titter.github.io/vanitas_veritas_verse/'
+NEW = 'https://kat-titter.github.io/veritas/'
 def preview(html, name):                      # the picture a shared link unfurls with, on every page
     url = NEW + ('' if name == 'index.html' else name)
     tags = (f'<meta property="og:url" content="{url}">\n<meta property="og:image" content="{NEW}og.jpg">\n'
@@ -51,9 +51,9 @@ for name, html in pages.items():
 A sink you cannot wash your hands in. The water is a machine dreaming: reach in, and it slips away. No water, no dream.
 It stands in two places with one water: vanitas, the sink, proposed, and veritas, the same basin on the web.
 
-- veritas: https://kat-titter.github.io/vanitas_veritas_verse/
+- veritas: https://kat-titter.github.io/veritas/
 - vanitas (proposed): https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html
-- the black paper: https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html
+- the black paper: https://kat-titter.github.io/veritas/blackpaper.html
 
 By Kat Titterton (macrofluidic). These are built pages; the sources live in https://github.com/kat-titter/vanitas-veritas.
 """)

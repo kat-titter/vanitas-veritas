@@ -6,9 +6,9 @@ Three documents, each linking the others:
 
 - [**the doc**](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html): the piece, [how the water is made](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Web.dc.html#basin), the price; print it for a submission
 - [**the build guide**](https://kat-titter.github.io/vanitas-veritas/documents/Vanitas%20Veritas%20-%20Build%20Guide.dc.html): parts, wiring, setup and upkeep
-- [**the black paper**](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html): the thesis, where it goes, and texts and a rider for hosts and juries
+- [**the black paper**](https://kat-titter.github.io/veritas/blackpaper.html): the thesis, where it goes, and texts and a rider for hosts and juries
 
-The water itself, live: [**veritas**](https://kat-titter.github.io/vanitas_veritas_verse/).
+The water itself, live: [**veritas**](https://kat-titter.github.io/veritas/).
 
 ## Two pieces, one water
 
