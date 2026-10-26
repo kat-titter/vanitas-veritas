@@ -15,8 +15,11 @@
   canvas { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:crosshair; }
   h1 { position:fixed; left:28px; top:22px; margin:0; font:400 20px/1.1 var(--mono); letter-spacing:.42em; text-transform:uppercase;
     color:var(--bone); pointer-events:none; }
-  #code { position:fixed; left:28px; bottom:22px; margin:0; font:inherit; color:var(--bone); opacity:.85; pointer-events:none;
-    white-space:pre-wrap; max-width:calc(100vw - 56px); text-shadow:0 0 3px rgba(3,3,4,.9); }
+  #code { position:fixed; left:28px; bottom:22px; margin:0; font:inherit; color:var(--dim); pointer-events:none; text-align:center;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 0 4px var(--ink), 0 0 2px var(--ink); transition:opacity .8s; }
+  #code #pr { color:var(--bone); }                                   /* the words are the dream's; the code around them stays quiet */
+  #code #grip { display:block; }
+  #code.two { white-space:normal; text-wrap:balance; line-height:1.5; }
   #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
   body.nogpu #dry { display:block; }
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
@@ -32,7 +35,7 @@
   #say { max-width:min(420px, 80vw); text-align:center; color:var(--bone); opacity:0; transition:opacity .25s; pointer-events:none;
     text-shadow:0 0 3px rgba(3,3,4,.9); }
   #eye.on #say { opacity:.9; }
-  @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } #code { left:16px; bottom:16px; max-width:calc(100vw - 32px); } }
+  @media (max-width:600px) { h1 { left:16px; top:16px; font-size:16px; } }
 </style>
 </head>
 <body>
@@ -50,7 +53,7 @@
 // latent space to the next, frame by frame; every frame pours in at the tap and runs to the drain. No GPU, no water, no dream.
 // Reach in, and the water under your hand goes where your hand goes, for a moment; then it slips through your fingers, down the drain.
 const canvas = document.getElementById('c'), title = document.getElementById('title');
-const waterEl = document.getElementById('water'), gripEl = document.getElementById('grip'), dry = document.getElementById('dry');
+const waterEl = document.getElementById('water'), gripEl = document.getElementById('grip'), codeEl = document.getElementById('code'), dry = document.getElementById('dry');
 const params = new URLSearchParams(location.search);
 if (params.has('sink')) document.body.classList.add('sink');
 if (params.has('doc')) document.body.classList.add('doc');
@@ -68,6 +71,13 @@ function layout(){
   view.S = Math.min(fit[0]*w/(2*BX), fit[1]*h/(2*BY)); view.cx = w/2; view.cy = h/2;
   const hw = BX*view.S, hh = BY*view.S;
   Object.assign(dry.style, { left:`${view.cx - hw}px`, top:`${view.cy - hh}px`, width:`${2*hw}px`, height:`${2*hh}px` });
+  Object.assign(codeEl.style, { left:`${view.cx - hw}px`, width:`${2*hw}px`, top:`${view.cy + hh + Math.min(28, (h/2 - hh)*0.35)}px`, bottom:'auto' });
+  fitCode();
+}
+function fitCode(){                                   // one line, as wide as the basin at most: the type shrinks to fit; below 10 px (a phone), two balanced lines instead
+  codeEl.style.fontSize = ''; codeEl.classList.remove('two');
+  const base = parseFloat(getComputedStyle(codeEl).fontSize), w = codeEl.clientWidth, line = waterEl.getBoundingClientRect().width;
+  if (line > w && w > 0) { const f = base*w/line*0.98; if (f >= 10) codeEl.style.fontSize = f + 'px'; else { codeEl.classList.add('two'); codeEl.style.fontSize = '11px'; } }
 }
 layout();
 { const px = 2*BX*view.S*view.dpr;              // a 4K screen gets the spring's full frames and water fine enough to show them
@@ -242,23 +252,28 @@ void main(){
     float fx = q.x*NR, fi = floor(fx), s = fx-fi, tooth = hash1(fi);
     vec2 ql = vec2(mix(q.x, (fi+0.5+(s-0.5)*0.46)/NR, 0.24*L), q.y+(tooth-0.5)*0.003*L);   // ribbed glass: the dream reads through it
     { float rl = length(ql); ql += ql/max(rl, 1e-4)*0.00085/max(rl, RD*0.9); }    // light bent round the hole
-    float rimL = 0., film = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
+    float rimL = 0., film = 0., men = 0.;                                                   // through a bubble the dream swells and bends: you see a form, barely
     for (int i = 0; i < 16; i++) { vec4 bb = uBub[i]; if (bb.z <= 0.) continue;
       vec2 dq = ql-bb.xy; float an = atan(dq.y, dq.x), sd_ = uBs[i];
       float wob = 1. + 0.14*sin(2.*an + sd_*6.3 + uTime*0.55) + 0.08*sin(3.*an + sd_*17. - uTime*0.4) + 0.05*sin(5.*an + sd_*29. + uTime*0.9);   // never round: a glob that wobbles
       float t = length(dq)/(bb.z*wob);
-      if (bb.w < 0.) {                                                            // popping: the skin tears; uneven droplets fly, some far, some not at all
-        float k = -bb.w, tear = smoothstep(0.1, 0.9, 0.5 + 0.5*sin(an*3. + sd_*40.)*sin(an*5. - sd_*23.));
-        rimL += 1.4*k*tear*smoothstep(0.09, 0., abs(t-1.));                       // shreds of the old skin
-        for (int j = 0; j < 3; j++) {                                             // droplets in 16 sectors, three rings of chance
+      if (bb.w < 0.) {                                                            // popping, slowly: the skin tears, droplets spill and slow, and it all melts back into the water
+        float k = -bb.w, gone = 1. - k, ease = 1. - (1. - gone)*(1. - gone);
+        if (t < 1.) ql = bb.xy + dq*mix(1., mix(0.38, 1., ease), 1. - t*t);       // the dome sinks back into the picture
+        float tear = smoothstep(0.15, 0.95, 0.5 + 0.5*sin(an*3. + sd_*40. + gone*2.)*sin(an*5. - sd_*23.));
+        men += k*0.6*smoothstep(0.35, 0., abs(t - 1.1 - 0.15*ease));               // the ring of the surface, spreading and flattening
+        rimL += 0.9*k*tear*smoothstep(0.12 + 0.1*ease, 0., abs(t - 1. - 0.25*ease)); // shreds of the old skin, sliding outward
+        for (int j = 0; j < 3; j++) {                                             // droplets in 16 sectors: some fly, most fall short, all slow and blur as they melt
           float n = 16., sec = floor((an + 3.14159)*n/6.28318), h = fract(sin(sec*12.99 + sd_*78.23 + float(j)*31.7)*43758.5);
-          if (h < 0.45) continue;
-          float ca = (sec + 0.5 + (h - 0.7)*0.6)/n*6.28318 - 3.14159, rr = (0.9 + (1.2*h + 0.3*float(j))*(1. - k))*bb.z;
-          float dd = length(dq - vec2(cos(ca), sin(ca))*rr), sz = bb.z*(0.025 + 0.06*fract(h*7.3))*(0.4 + 0.6*k);
-          rimL += 1.6*k*smoothstep(sz, sz*0.3, dd); }
+          if (h < 0.4) continue;
+          float ca = (sec + 0.5 + (h - 0.7)*0.6)/n*6.28318 - 3.14159, rr = (0.95 + (0.9*h*h + 0.25*float(j))*ease)*bb.z;
+          float dd = length(dq - vec2(cos(ca), sin(ca))*rr), sz = bb.z*(0.03 + 0.07*fract(h*7.3))*(0.6 + 0.9*ease);
+          rimL += 1.2*k*smoothstep(sz, sz*0.2, dd); }
         continue; }
-      if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.45, bb.w), 1., t*t); film = max(film, bb.w*(1.-t*t)); }
-      rimL += bb.w*(smoothstep(0.05, 0., abs(t-0.96)) + 0.35*smoothstep(0.25, 0., abs(t-0.82))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a thin rim, and a soft catch-light on its upper left
+      if (t < 1.) { ql = bb.xy + dq*mix(mix(1., 0.38, bb.w), 1., t*t*t); film = max(film, bb.w*(1.-t*t)); }   // a dome of the dream itself, swollen
+      else if (t < 1.3) ql -= dq/max(length(dq), 1e-4)*bb.z*0.05*bb.w*(1.3-t);                                   // the surface pulled up round it
+      men += bb.w*smoothstep(0.32, 0., abs(t-1.1));                                                        // the meniscus: a soft dark ring where the water curves down
+      rimL += bb.w*(0.55*smoothstep(0.16, 0., abs(t-0.93)) + 0.4*smoothstep(0.35, 0., abs(t-0.7))*smoothstep(-0.2, 0.6, dot(normalize(dq+1e-5), vec2(-0.6,0.8)))); }   // a soft rim and a catch-light, lit by the dream's own colour
     vec2 p = C+ql;
     vec3 c = clamp(texture(uDye, p).rgb, 0., 1.);
     c = mix(c, c*c*(3.-2.*c), 0.25);
@@ -278,7 +293,8 @@ void main(){
     float glass = pow(max(cos(6.28318*(s-0.30)),0.),14.)*L*0.3;
     float bowl = mix(0.5,1.,smoothstep(0.,-0.10,sd))*(1.+0.10*dot(q/B, normalize(vec2(-0.6,0.8))));
     vec3 b = vec3(0.0012,0.0013,0.0016) + c*lit*seam*bowl + BONE*glass*(0.006+0.05*lum(c)) + glow/8.*0.04*lit*L;
-    b += BONE*0.24*min(rimL, 1.)*L + mix(vec3(0.83,0.57,0.31), BONE, 0.6)*0.05*film*(0.4+lum(c));   // the bubble's skin: a bright rim, a faint sheen
+    b *= 1. - 0.38*min(men, 1.)*L;                                                    // the bubbles live in the water: shadowed where it curves, lit only where the dream is
+    b += (c*0.38 + BONE*0.04*lum(c))*min(rimL, 1.2)*L + mix(vec3(0.83,0.57,0.31), BONE, 0.6)*0.04*film*lum(c);
     // the hand in the water: a bright edge round the palm, broken where the fingers part
     { float hr = length(hq), rp = 0.034+0.012*uGrip;
       float fingers = smoothstep(0.2, 0.8, 0.5+0.5*cos(5.*atan(hq.y, hq.x)+0.6));
@@ -568,10 +584,10 @@ function step(dt){
 // Only while the water runs; never more than sixteen.
 const NB = 16, BUB = new Float32Array(NB*4), BS = new Float32Array(NB), bubs = []; let nextBub = 0, lastBub = 0;
 const vents = [0, 1, 2].map(() => ({ x:(Math.random()*2-1)*BX*0.6, y:(Math.random()*2-1)*BY*0.6, a:Math.random()*6.283 }));   // a cauldron: bubbles keep coming up where it is hottest
-const POP = 0.45;
+const POP = 1.6;                                      // a slow pop: about a second and a half to melt back
 function popBub(b, t){ if (b.pop) return; b.pop = t;
   const dl = Math.hypot(b.x, b.y) || 1;                              // a small splash where it broke
-  stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.08*b.x/dl; stir.vy += 0.08*b.y/dl; }
+  stir.x = 0.5 + b.x; stir.y = 0.5 + b.y; stir.vx += 0.12*b.x/dl + 0.05*(Math.random() - 0.5); stir.vy += 0.12*b.y/dl + 0.05*(Math.random() - 0.5); }
 function popAt(u, v){ const t = performance.now()/1000; let hit = false;
   bubs.forEach((b) => { if (!b.pop && Math.hypot(u-0.5-b.x, v-0.5-b.y) < b.r*1.1) { popBub(b, t); hit = true; } }); return hit; }
 function blow(){
@@ -596,7 +612,7 @@ function blow(){
     const rise = Math.min(1, age/Math.min(7, b.life*0.25)), up = rise*rise*(3 - 2*rise);          // surfacing: the first seven seconds
     const bloom = 1 - Math.pow(1 - Math.min(1, a/0.6), 3);
     b.r = b.R*(0.12 + 0.88*Math.max(up*0.55, bloom));
-    if (b.pop) { const k = Math.min(1, (t - b.pop)/POP); BUB.set([b.x, b.y, b.r*(1 + 0.7*Math.sqrt(k)), -(1 - k)], i*4); }
+    if (b.pop) { const k = Math.min(1, (t - b.pop)/POP); BUB.set([b.x, b.y, b.r*(1 + 0.35*Math.sqrt(k)), -Math.pow(1 - k, 0.8)], i*4); }
     else BUB.set([b.x, b.y, b.r, 0.08 + 0.92*up], i*4); });
 }
 function render(){
@@ -615,7 +631,11 @@ let lastText = '';
 function words(){
   const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : 'water = None';
   const g = hand.down ? `\ngrip = ${grip.toFixed(2)}` : '';
-  if (t + g !== lastText) { lastText = t + g; waterEl.textContent = t; gripEl.textContent = g; }
+  if (t + g !== lastText) {
+    lastText = t + g; gripEl.textContent = g.trim();
+    if (water > 0.5 && live.prompt) { waterEl.textContent = 'water = dream("'; const pr = document.createElement('span'); pr.id = 'pr'; pr.textContent = live.prompt; waterEl.append(pr, '")'); }
+    else waterEl.textContent = t;
+    fitCode(); }
 }
 
 let last = performance.now();

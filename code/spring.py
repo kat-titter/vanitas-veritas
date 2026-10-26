@@ -37,7 +37,8 @@ INBOX = os.path.join(ROOT, 'source', 'mj_inbox')
 TASTE = [os.path.join(ROOT, 'source', 'moodboard', '*.webp'), os.path.join(ROOT, 'source', 'veritas', '*.png')]  # the first that has any
 SHOWN = re.compile(r'^/feed/(now\.json|f\d{6}(?:_s)?\.jpg)$')   # all a basin may fetch: never the key, never state.json
 W, H, STEPS, GUID = 640, 480, 10, 1.5                   # frame size; LCM steps of a dream; guidance
-WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.55, .62, .55), 8   # waypoints: where on the way; how hard; steps
+DREAM_S = (.26, .37)                                   # how hard a dream pulls toward its words: low, so the subject only half-surfaces (uncanny)
+WP_F, WP_STR, WP_STEPS = (.25, .5, .75), (.40, .46, .40), 8   # waypoints: where on the way; how hard; steps
 WP_STR_MJ = (.55, .5, .4)                               # heading to her own Midjourney picture: dream less near it, so it arrives
 SEG = 12                                                # frames from one knot to the next: 48 a dream, about two minutes, so the
                                                         # change is just perceptible (you have to watch closely to see it move)
@@ -333,7 +334,7 @@ def main():
                 p = sd_prompt(words)
                 return Knot(z=taste[pull], words=words, E=embed(p)[0], pull=pull, seed=seed_of(k), key=True, mj=True, prompt=p)
         with feed.lock: words, prompt = next(words_of)
-        pull, s = None, rng.uniform(0.42, 0.58)
+        pull, s = None, rng.uniform(*DREAM_S)
         if ref is not None:                         # someone at the sink: their face is the reference for this dream, once
             pending.clear()
             if 'a face' not in prompt: prompt = prompt.replace('vanitas, ', 'vanitas, a face, eyes closed, ', 1)
