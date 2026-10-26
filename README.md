@@ -22,7 +22,7 @@
 | 04 | the dream | Stable Diffusion 1.5 + LCM-LoRA, image to image from the last dream, pulled toward a moodboard picture; fp16 on the GPU | about 4 s |
 | 05 | the walk | three dreamed waypoints and one Catmull-Rom path; 48 frames from dream to dream | about 2 min |
 | 06 | upscaling | Real-ESRGAN x4plus as Core ML on the Neural Engine, 640 × 480 to 2560 × 1920 | 0.76 s |
-| 07 | the water | stable fluids in WebGL2 in the viewer's browser; the frame is the dye | a frame every 2.5 s |
+| 07 | the water | stable fluids in WebGL2 in the viewer's browser; the frame is the dye | a frame every 2.5 to 3.5 s |
 
 ## 3. Kept small, kept running
 
@@ -32,7 +32,7 @@ Everything runs on one Apple M5 laptop with 16 GB. Each choice was measured ther
 - **Memory handed back** after every dream and stretch: the process went from 10 GB to 5.8 GB.
 - **The upscaler in its own process**, on the Neural Engine: Core ML holds Python's lock, so it cannot share one with the dreaming.
 - **No black frames**: attention slicing turns fp16 dreams to NaN on Apple GPUs, so it is off, and an empty dream raises instead of pouring.
-- **It keeps flowing**: a GPU error restarts from the last dream; a stalled upscaler gives a plainly enlarged frame and restarts; six frames wait in a queue poured every 2.5 s.
+- **It keeps flowing**: a GPU error restarts from the last dream; a stalled upscaler gives a plainly enlarged frame and restarts; six frames wait in a queue poured every 2.5 to 3.5 s.
 - **Little kept**: the last 60 frames on disk; prompts walked by a stride, never stored; the place in them survives a restart.
 - **Little shown**: the spring serves only the page, the newest-frame note and the frames, never its key or its state.
 

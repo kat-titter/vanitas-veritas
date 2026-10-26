@@ -11,7 +11,7 @@ stainless-steel sink for tiat), and veritas, the same basin on the web.
 
 - [the black paper](https://kat-titter.github.io/vanitas_veritas_verse/blackpaper.html)
 - [vanitas](https://kat-titter.github.io/vanitas_veritas_verse/sink.html) (proposed)
-- [the live web piece](https://kat-titter.github.io/vanitas_veritas_verse/) (iii, the earlier web piece, until veritas is on the web)
+- [veritas, live](https://kat-titter.github.io/vanitas-veritas/verse/sync.html) (finds the spring through verse/spring.json)
 
 Kat Titterton (macrofluidic)
 
@@ -57,9 +57,9 @@ caffeinate -i python3 code/sink.py --public   # and to everyone: a quick tunnel 
 
 veritas and the spring are built and run together on Kat's Mac, and veritas is
 public whenever the spring runs with `--public` (a Cloudflare quick tunnel; the
-address changes each time). The published site shows the earlier piece, iii,
-until the spring has a lasting address. The earlier web pieces, i, ii and iii,
-are kept as they were.
+address changes each time, and sink.py writes it to verse/spring.json, so the
+plain veritas address always finds the water). The earlier web pieces, i, ii and
+iii, are kept as they were.
 
 **vanitas (proposed).** A basalt column with the basin as its screen, under
 ribbed glass that answers a touch. A small camera where a tap would stand,

@@ -86,7 +86,7 @@ layout();
 { const px = 2*BX*view.S*view.dpr;              // a 4K screen gets the spring's full frames and water fine enough to show them
   DYE = SMALL ? 768 : px > 1800 ? 2048 : px > 1200 ? 1536 : 1024; BIG = px > 1400; }
 
-const gl = canvas.getContext('webgl2', { alpha:false, antialias:false, depth:false, stencil:false });
+const gl = canvas.getContext('webgl2', { alpha:false, antialias:false, depth:false, stencil:false, preserveDrawingBuffer:params.has('snap') });   // ?snap: the documents capture stills of the layers
 if (!gl || !gl.getExtension('EXT_color_buffer_float')) {           // no GPU: the tap is dry
   document.body.classList.add('nogpu'); addEventListener('resize', layout); return;
 }
@@ -404,7 +404,7 @@ async function poll(){
     if (first && Date.now()/1000 - j.t > STALE()/1000) return true;     // a spring that stopped long ago: no water yet
     live.every = Math.max(0.6, Math.min(8, +j.every || 2)); live.prompt = String(j.prompt || '').slice(0, 160);
     const file = !BIG && j.small ? j.small : j.frame;                // 2560 x 1920 for big screens, 1280 x 960 otherwise
-    const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => upload(im); im.src = new URL(file, base).href;
+    const im = new Image(); im.crossOrigin = 'anonymous'; const s = j.seq; im.onload = () => { if (s === live.seq) upload(im); };   // a slow old frame never lands after a newer one im.src = new URL(file, base).href;
     return true;
   } catch (e) { return false; }
 }
@@ -545,7 +545,7 @@ function tap(on){
 }
 addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { if (SRC === 'sink') tap(false); else plug = true; } } });
 addEventListener('keyup', (e) => { if (e.code === 'Space') { if (SRC === 'sink') tap(true); else { plug = false; gulp = 1; } } });
-addEventListener('blur', () => { reach(false); if (plug) { plug = false; gulp = 1; } });
+addEventListener('blur', () => { reach(false); if (lever) tap(true); if (plug) { plug = false; gulp = 1; } });   // a lost window never leaves the sink off
 
 const Q0 = 0.005, H = 1/SIM;                         // a slow pour: the water moves just enough to notice up close
 function step(dt){
@@ -638,9 +638,8 @@ function render(){
 let lastText = '';
 function words(){
   const t = water > 0.5 && live.prompt ? `water = dream("${live.prompt}")` : 'water = None';
-  const g = hand.down ? `\ngrip = ${grip.toFixed(2)}` : '';
-  if (t + g !== lastText) {
-    lastText = t + g; gripEl.textContent = g.trim();
+  if (t !== lastText) {                               // two lines at most, rebuilt only when the words change
+    lastText = t;
     if (water > 0.5 && live.prompt) {                  // the prompt on one line, the second prompt blended into it (after '~') on the next
       const [a, b] = live.prompt.split(' ~ '), mk = (cls, txt) => { const e = document.createElement('span'); e.className = cls; e.textContent = txt; return e; };
       waterEl.textContent = '';
@@ -657,11 +656,13 @@ function frame(now){
   plugAmt += ((plug ? 1 : 0)-plugAmt)*(1-Math.exp(-dt/0.15));
   if (dt > 0) step(dt);
   render(); words(); send(false);
-  requestAnimationFrame(frame);
+  nextFrame(frame);
 }
 addEventListener('resize', layout);
+window.__snap = (q) => canvas.toDataURL('image/jpeg', q || 0.82);
 window.__basin = { get t(){ return simTime; }, get water(){ return water; }, get seq(){ return live.seq; }, get grip(){ return grip; }, get prompt(){ return live.prompt; }, get have(){ return live.have; }, get others(){ return net.remote.size; }, get net(){ return net.socks.filter((x) => x.open).length; } };
-requestAnimationFrame(frame);
+const nextFrame = params.has('snap') ? (f) => setTimeout(() => f(performance.now()), 16) : requestAnimationFrame;   // ?snap runs on timers, so stills render even off screen
+nextFrame(frame);
 netStart();
 })();
 </script>

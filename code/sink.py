@@ -20,7 +20,8 @@
 #   python3 code/sink.py --sheet 8            eight dreams on one contact sheet and one walk, timed, then stop
 #   python3 code/sink.py --dry                serve veritas with no GPU: the water off
 #   --public                                    and open it to everyone: a Cloudflare quick tunnel from this Mac (no account;
-#                                               the address is printed, and changes each time); needs cloudflared
+#                                               the address is printed, and changes each time); needs cloudflared. Each new
+#                                               address is written to verse/spring.json through gh (SPRING_POINTER=0: don't)
 #   --lan                                       let the sink on the same network drink (binds 0.0.0.0)
 #   --inbox DIR                                 take Midjourney images from DIR instead of source/mj_inbox/
 # At vanitas, veritas runs with ?sink&camera&key=<spring_feed/key>. Touching the water never opens the camera: it has its own place on
@@ -69,7 +70,7 @@ GLASS = {'soap bubble': 'clear glass soap bubble'}       # her bubbles are clear
 def prompts(state):
     """Functionally endless prompts: three subjects (hers, at most one other vanitas object), in an order, a mood and sometimes a
     light. The space is walked by a stride that visits every prompt once, in a scrambled order, without storing it; the place in
-    it survives a restart. At a dream every two minutes it would take years to come round (len_prompts() says how many)."""
+    it survives a restart. At a dream every two minutes it would take years to come round."""
     trios = [c for c in itertools.combinations(CORE + NOTES, 3) if sum(x in NOTES for x in c) <= 1
              and any(x in c for x in ('skull', 'soap bubble')) and any(x in c for x in CORE[:4] + ['skull'])]
     orders = list(itertools.permutations(range(3)))
@@ -80,6 +81,8 @@ def prompts(state):
         return a, r.randrange(N)
     if 'stride' not in state:                           # each life draws its own walk from the machine's entropy, kept so a restart
         state['stride'] = stride(random.Random(state.get('life', 7)) if state.get('i') else random.SystemRandom())   # never repeats a prompt
+    if state.get('N', N) != N: state['stride'] = stride(random.SystemRandom())   # the grammar changed: a new walk that fits it
+    state['N'] = N
     a, b = state['stride']
     while True:
         if state['i'] and state['i'] % N == 0:
@@ -88,11 +91,6 @@ def prompts(state):
         x, li = divmod(x, len(LIGHT)); x, mi = divmod(x, len(MOODS)); ti, oi = divmod(x, len(orders))
         c = [trios[ti][j] for j in orders[oi]]; m = MOODS[mi] + (' ' + LIGHT[li] if LIGHT[li] else '')
         yield f"vanitas [{', '.join(c)}], {m}", f"vanitas, {', '.join(GLASS.get(y, y) for y in c)}, {m}, {STYLE}"
-
-def len_prompts():
-    trios = [c for c in itertools.combinations(CORE + NOTES, 3) if sum(x in NOTES for x in c) <= 1
-             and any(x in c for x in ('skull', 'soap bubble')) and any(x in c for x in CORE[:4] + ['skull'])]
-    return len(trios)*6*len(MOODS)*len(LIGHT)
 
 def mj_words(im):
     """The words of a Midjourney image, from its own metadata: the prompt before the first --parameter, or 'vanitas'."""
@@ -159,7 +157,8 @@ class Feed:
         self.lock = threading.Lock()                    # the dreaming thread changes the state while the pouring thread saves it
         try: self.state = json.load(open(os.path.join(FEED, 'state.json')))
         except Exception: self.state = {'i': 0, 'life': 7}
-        self.seq = self.state.get('seq', 0)
+        on_disk = [int(f[1:7]) for f in os.listdir(FEED) if re.fullmatch(r'f\d{6}\.jpg', f)]
+        self.seq = max([self.state.get('seq', 0)] + on_disk)   # never reuse a frame name: browsers keep frames as immutable
     def put(self, img, words): self.publish(self.prepare(img, words))
     def prepare(self, img, words):                  # the files first: the 4K frame and its small copy
         self.seq += 1; big, small = f'f{self.seq:06d}.jpg', f'f{self.seq:06d}_s.jpg'
@@ -201,7 +200,7 @@ def serve(port, lan):
                 self.send_response(403); self.end_headers(); return
             data = self.rfile.read(n)
             if path == '/feed/face': FACES[:] = [data]
-            else: TAP['on'] = data.strip() != b'off'; TAP['changed'] = True
+            else: TAP['on'] = data.strip() != b'off'
             self.send_response(204); self.end_headers()
         def do_OPTIONS(self):
             self.send_response(204); self.send_header('Access-Control-Allow-Methods', 'POST'); self.send_header('Access-Control-Allow-Headers', 'X-Face-Key'); self.end_headers()
@@ -239,6 +238,7 @@ def tunnel(port):
         for line in pr.stderr:                              # cloudflared repeats its address on every reconnect: point once per address
             m = re.search(r'https://[a-z0-9-]+\.trycloudflare\.com', line)
             if m and m.group(0) != last: last = m.group(0); print(f'veritas, public: {last}/', flush=True); point(last + '/feed/')
+        print('public: the tunnel closed; stopping so the spring can start again with a new one', flush=True); os._exit(1)
     threading.Thread(target=read, daemon=True).start()
 
 def point(feed):
@@ -251,7 +251,7 @@ def point(feed):
     try:
         cur = subprocess.run([gh, 'api', api, '--jq', '.sha + " " + .content'], capture_output=True, text=True, timeout=30).stdout.split(' ', 1)
         sha = cur[0].strip() if cur and cur[0] else ''
-        if len(cur) > 1 and base64.b64decode(cur[1].replace('\\n', '').strip() or b'').decode(errors='ignore') == body: print('public basin already points here', flush=True); return
+        if len(cur) > 1 and base64.b64decode(cur[1].strip() or b'').decode(errors='ignore') == body: print('public basin already points here', flush=True); return
         r = subprocess.run([gh, 'api', '-X', 'PUT', api, '-f', 'message=spring: where the water is now', '-f', 'content=' + base64.b64encode(body.encode()).decode()]
                            + (['-f', f'sha={sha}'] if sha else []), capture_output=True, text=True, timeout=30)
         print('public basin points here' if r.returncode == 0 else f'public basin: could not point here ({r.stderr.strip()[:120]})', flush=True)
@@ -306,6 +306,7 @@ def main():
     for f in next((fs for fs in (sorted(glob.glob(g)) for g in TASTE) if fs), []):
         data = open(f, 'rb').read(); add_taste(Image.open(io.BytesIO(data)), hashlib.sha1(data).hexdigest())
     print(f'taste: {len(taste)} of her images', flush=True)
+    if not taste: sys.exit('no taste: put her pictures in source/moodboard (or source/veritas) first')
     feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
     if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
         for rp, u in list(feed.state.get('mj_used', {}).items())[-32:]:

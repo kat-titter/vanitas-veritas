@@ -66,6 +66,7 @@ class Upscaler:
         ctx = mp.get_context('spawn'); self.conn, child = ctx.Pipe()
         self.proc = ctx.Process(target=_work, args=(child,), daemon=True); self.proc.start()
         self.how = self.conn.recv() if self.conn.poll(180) else 'not started'
+        if self.how == 'not started': self.proc.kill()   # a late reply would be read as the next frame's answer
         print(f'upscale: Real-ESRGAN x4 on the {self.how}', flush=True)
     def write(self, im, big, small):
         from PIL import Image
@@ -77,7 +78,7 @@ class Upscaler:
         print('upscale: failed; this frame enlarged plainly, the upscaler restarted', flush=True)
         out = im.resize((im.width*4, im.height*4), Image.LANCZOS); out.save(big, quality=86)
         out.resize((im.width*2, im.height*2), Image.LANCZOS).save(small, quality=86)
-        try: self.proc.kill()
+        try: self.proc.kill(); self.conn.close()
         except Exception: pass
         self.start()
 
