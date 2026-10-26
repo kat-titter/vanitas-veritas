@@ -20,6 +20,8 @@
   #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
   body.nogpu #dry { display:block; }
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
+  body.doc h1 { display:none; }                                    /* in a document: the basin edge to edge, the prompt inside it */
+  body.doc #code { left:5%; right:5%; bottom:4%; max-width:none; text-align:center; font-size:clamp(5px, 1.9vw, 14px); line-height:1.5; }
   /* at vanitas, the camera's own place on the glass: held two seconds it looks once; the water itself never does */
   #eye { position:fixed; left:50%; bottom:5vh; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center;
     gap:10px; pointer-events:none; }
@@ -51,6 +53,7 @@ const canvas = document.getElementById('c'), title = document.getElementById('ti
 const waterEl = document.getElementById('water'), gripEl = document.getElementById('grip'), dry = document.getElementById('dry');
 const params = new URLSearchParams(location.search);
 if (params.has('sink')) document.body.classList.add('sink');
+if (params.has('doc')) document.body.classList.add('doc');
 const SPRING_HOME = '';                           // the spring's public address, once it has one; until then, on the web, the water is off
 const SPRING = params.has('spring') ? (params.get('spring') || 'feed/') : SPRING_HOME;
 const SMALL = Math.min(innerWidth, innerHeight) < 600 || matchMedia('(pointer: coarse)').matches;
@@ -61,7 +64,7 @@ const TAP = [0.5, 0.5 + 0.27];
 const view = { w:1, h:1, cx:0, cy:0, S:1, dpr:1 };
 function layout(){
   const w = innerWidth, h = innerHeight; view.w = w; view.h = h; view.dpr = Math.min(2, devicePixelRatio || 1);
-  const fit = params.has('sink') ? [1, 1] : w < 600 ? [0.94, 0.62] : [0.80, 0.74];   // in the stone the hole masks the edge; on the web, room for the words
+  const fit = params.has('sink') || params.has('doc') ? [1, 1] : w < 600 ? [0.94, 0.62] : [0.80, 0.74];   // in the stone the hole masks the edge; on the web, room for the words
   view.S = Math.min(fit[0]*w/(2*BX), fit[1]*h/(2*BY)); view.cx = w/2; view.cy = h/2;
   const hw = BX*view.S, hh = BY*view.S;
   Object.assign(dry.style, { left:`${view.cx - hw}px`, top:`${view.cy - hh}px`, width:`${2*hw}px`, height:`${2*hh}px` });
