@@ -19,7 +19,8 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 0 4px var(--ink), 0 0 2px var(--ink); transition:opacity .8s; }
   #code #pr { color:var(--bone); }                                   /* the words are the dream's; the code around them stays quiet */
   #code #grip { display:block; }
-  #code.two { white-space:normal; text-wrap:balance; line-height:1.5; }
+  #code .ln { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.55; }   /* two lines at most: the prompt, then the trace blended in */
+  #code .tr { color:var(--bone); opacity:.62; }
   #dry { display:none; position:fixed; border:1px solid rgba(228,223,210,.30); border-radius:3.5%/4.6%; }
   body.nogpu #dry { display:block; }
   body.sink h1, body.sink #code { display:none; }                  /* in the stone: only the water */
@@ -75,10 +76,11 @@ function layout(){
   Object.assign(codeEl.style, { left:`${view.cx - hw}px`, width:`${2*hw}px`, top:`${view.cy + hh + Math.min(28, (h/2 - hh)*0.35)}px`, bottom:'auto' });
   fitCode();
 }
-function fitCode(){                                   // one line, as wide as the basin at most: the type shrinks to fit; below 10 px (a phone), two balanced lines instead
-  codeEl.style.fontSize = ''; codeEl.classList.remove('two');
-  const base = parseFloat(getComputedStyle(codeEl).fontSize), w = codeEl.clientWidth, line = waterEl.getBoundingClientRect().width;
-  if (line > w && w > 0) { const f = base*w/line*0.98; if (f >= 10) codeEl.style.fontSize = f + 'px'; else { codeEl.classList.add('two'); codeEl.style.fontSize = '11px'; } }
+function fitCode(){                                   // two lines at most, as wide as the basin: the type shrinks to fit, to 10 px; past that a line ends in an ellipsis
+  codeEl.style.fontSize = '';
+  const base = parseFloat(getComputedStyle(codeEl).fontSize), w = codeEl.clientWidth, lines = [...waterEl.querySelectorAll('.ln')];
+  const line = lines.length ? Math.max(...lines.map((l) => l.scrollWidth)) : waterEl.getBoundingClientRect().width;
+  if (line > w && w > 0) codeEl.style.fontSize = Math.max(10, base*w/line*0.98) + 'px';
 }
 layout();
 { const px = 2*BX*view.S*view.dpr;              // a 4K screen gets the spring's full frames and water fine enough to show them
@@ -639,7 +641,11 @@ function words(){
   const g = hand.down ? `\ngrip = ${grip.toFixed(2)}` : '';
   if (t + g !== lastText) {
     lastText = t + g; gripEl.textContent = g.trim();
-    if (water > 0.5 && live.prompt) { waterEl.textContent = 'water = dream("'; const pr = document.createElement('span'); pr.id = 'pr'; pr.textContent = live.prompt; waterEl.append(pr, '")'); }
+    if (water > 0.5 && live.prompt) {                  // the prompt on one line, the second prompt blended into it (after '~') on the next
+      const [a, b] = live.prompt.split(' ~ '), mk = (cls, txt) => { const e = document.createElement('span'); e.className = cls; e.textContent = txt; return e; };
+      waterEl.textContent = '';
+      const l1 = mk('ln', 'water = dream("'), pr = mk('', a); pr.id = 'pr'; l1.append(pr, b ? '' : '")'); waterEl.append(l1);
+      if (b) { const l2 = mk('ln', '~ '); l2.append(mk('tr', b), '")'); waterEl.append(l2); } }
     else waterEl.textContent = t;
     fitCode(); }
 }
