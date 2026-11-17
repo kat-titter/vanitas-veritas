@@ -51,6 +51,7 @@ The moodboard lives in `source/moodboard/` and the Real-ESRGAN weights in `code/
 | path | what it is |
 |---|---|
 | [`code/sink.py`](code/sink.py) | the spring: dreams, walks, upscales, pours, serves veritas |
+| [`code/refill.py`](code/refill.py) | the daily refill: one batch of water a day, dreamed on a CPU out of yesterday's, for the reservoir veritas pours while the spring sleeps |
 | [`code/upscale.py`](code/upscale.py) | Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop |
 | [`code/latent.py`](code/latent.py), [`code/harmonize.py`](code/harmonize.py) | slerp, Catmull-Rom and the VAE's way in and out; the palette lock |
 | [`code/setup_sink.sh`](code/setup_sink.sh), [`code/sink.sh`](code/sink.sh) | the sink's computer: install once, then run for good |

@@ -1,0 +1,10 @@
+# what code/refill.py needs on a Linux CPU (a GitHub runner): the spring's own pins (code/setup_sink.sh), torch without CUDA
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.8.0+cpu
+diffusers==0.36.0
+transformers==4.57.6
+accelerate==1.10.1
+peft==0.17.1
+safetensors==0.7.0
+pillow==11.3.0
+numpy==2.0.2
