@@ -424,27 +424,11 @@ def light_watch(looks):
         drift[0] = drift[0] + 1 if far else 0; return l, w
     return drift, watch
 
-def main():
-    a = parse_args()
-    serve_basin(a)
-
-    t_wake = time.time()
-    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
+def walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed, EF, NEF, dream_lat, OREF):
+    """The walk's three moves: keyframe (where it heads next), detour (how the way there bends) and waypoint (a place on the way,
+    dreamed). The words come from words_of, the picks from rng; a face from take_face turns a dream toward the one at the sink."""
     import torch
-    from PIL import Image
-    from harmonize import harmonize                 # the palette lock the sources were graded with
-    from latent import slerp, catmull               # the curves of the walk
-    from upscale import Upscaler
-    def along(win, s):                              # the point s knots past win[1] on the path through win
-        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
-
-    taste, taste_h, looks, add_taste = learn_taste(enc)
-    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
-    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
-        recall_midjourney(feed, taste_h, add_taste)
-    take_face = watch_faces(enc, ip_of, OREF)
-    drift, watch = light_watch(looks)
-
+    from latent import slerp                         # the curves of the walk
     def keyframe(K, k, inbox=None):
         """Where the walk heads next: the face at the sink if one is waiting, else her newest Midjourney image, else a new dream."""
         ref = take_face()
@@ -487,6 +471,30 @@ def main():
         ip, w = (ib, OREF_W) if ib is not None else (ia, OREF_W*(1 - f)) if ia is not None else (None, 0.)   # toward a face: at once; away: fading
         z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed, ip, w, NEF if ip is not None else None)
         return Knot(z=z, words=B.words, key=False, mj=False)
+    return keyframe, detour, waypoint
+
+def main():
+    a = parse_args()
+    serve_basin(a)
+
+    t_wake = time.time()
+    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
+    import torch
+    from PIL import Image
+    from harmonize import harmonize                 # the palette lock the sources were graded with
+    from latent import catmull
+    from upscale import Upscaler
+    def along(win, s):                              # the point s knots past win[1] on the path through win
+        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
+
+    taste, taste_h, looks, add_taste = learn_taste(enc)
+    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
+    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
+        recall_midjourney(feed, taste_h, add_taste)
+    take_face = watch_faces(enc, ip_of, OREF)
+    drift, watch = light_watch(looks)
+
+    keyframe, detour, waypoint = walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed, EF, NEF, dream_lat, OREF)
     k = feed.state['i']; pull0 = rng.randrange(len(taste))
     K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
     print(f'awake in {time.time() - t_wake:.0f}s', flush=True)
