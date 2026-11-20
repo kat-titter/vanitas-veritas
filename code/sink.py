@@ -473,51 +473,37 @@ def walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed
         return Knot(z=z, words=B.words, key=False, mj=False)
     return keyframe, detour, waypoint
 
-def main():
-    a = parse_args()
-    serve_basin(a)
-
-    t_wake = time.time()
-    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
-    import torch
+def contact_sheet(a, K0, k, keyframe, detour, waypoint, dec, looks):
+    """--sheet N: N dreams on one contact sheet, and one walk strip from the first still to the first dream, each step timed."""
     from PIL import Image
     from harmonize import harmonize                 # the palette lock the sources were graded with
     from latent import catmull
-    from upscale import Upscaler
     def along(win, s):                              # the point s knots past win[1] on the path through win
         m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
+    out = a.out or FEED; os.makedirs(out, exist_ok=True); keys, tt = [K0], []
+    for j in range(a.sheet):
+        t0 = time.time(); keys.append(keyframe(keys[-1], k + j)); tt.append(time.time() - t0); l, w = look(dec(keys[-1].z))
+        print(f'{tt[-1]:.1f}s  {keys[-1].words}   (light {l:.0f}, warm {w:.3f})', flush=True)
+    print(f'hers: light {min(x[0] for x in looks):.0f} to {max(x[0] for x in looks):.0f}, warm {min(x[1] for x in looks):.3f} to '
+          f'{max(x[1] for x in looks):.3f}, mean {sum(x[1] for x in looks)/len(looks):.3f}', flush=True)
+    A, B = keys[0], keys[1]; det, tw, ws, dt, strip = detour(A, B)[0], [], [], [], []
+    for n in range(3): t0 = time.time(); ws.append(waypoint(A, B, det, n).z); tw.append(time.time() - t0)
+    after = waypoint(B, keys[2], detour(B, keys[2])[0], 0).z if len(keys) > 2 else B.z
+    win = [A.z, A.z] + ws + [B.z, after]                # one walk, to judge the in-between: the first still to the first dream
+    for i in range(4*SEG + 1): t0 = time.time(); strip.append(harmonize(dec(along(win, i/SEG)))); dt.append(time.time() - t0)
+    every = (sum(tt)/len(tt) + sum(tw) + 4*SEG*sum(dt)/len(dt))/(4*SEG)
+    print(f'waypoints {" ".join(f"{x:.1f}" for x in tw)}s, decode {sum(dt)/len(dt):.2f}s: {every:.2f}s a frame; light at the dream '
+          f'{look(strip[-1])[0]:.0f}, the frame before {look(strip[-2])[0]:.0f}', flush=True)
+    s = Image.new('RGB', (len(strip)*240, 180)); [s.paste(f.resize((240, 180)), (i*240, 0)) for i, f in enumerate(strip)]; s.save(os.path.join(out, 'walk.jpg'), quality=85)
+    cols = 4; sh = Image.new('RGB', (cols*320, -(-a.sheet//cols)*240))
+    for i, K in enumerate(keys[1:]): sh.paste(harmonize(dec(K.z)).resize((320, 240)), ((i % cols)*320, (i//cols)*240))
+    sh.save(os.path.join(out, 'sheet.jpg'), quality=85); print(f'dream: {sum(tt)/len(tt):.1f}s on average; sheet in {out}', flush=True); return
 
-    taste, taste_h, looks, add_taste = learn_taste(enc)
-    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
-    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
-        recall_midjourney(feed, taste_h, add_taste)
-    take_face = watch_faces(enc, ip_of, OREF)
-    drift, watch = light_watch(looks)
-
-    keyframe, detour, waypoint = walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed, EF, NEF, dream_lat, OREF)
-    k = feed.state['i']; pull0 = rng.randrange(len(taste))
-    K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
-    print(f'awake in {time.time() - t_wake:.0f}s', flush=True)
-    if a.sheet:
-        out = a.out or FEED; os.makedirs(out, exist_ok=True); keys, tt = [K0], []
-        for j in range(a.sheet):
-            t0 = time.time(); keys.append(keyframe(keys[-1], k + j)); tt.append(time.time() - t0); l, w = look(dec(keys[-1].z))
-            print(f'{tt[-1]:.1f}s  {keys[-1].words}   (light {l:.0f}, warm {w:.3f})', flush=True)
-        print(f'hers: light {min(x[0] for x in looks):.0f} to {max(x[0] for x in looks):.0f}, warm {min(x[1] for x in looks):.3f} to '
-              f'{max(x[1] for x in looks):.3f}, mean {sum(x[1] for x in looks)/len(looks):.3f}', flush=True)
-        A, B = keys[0], keys[1]; det, tw, ws, dt, strip = detour(A, B)[0], [], [], [], []
-        for n in range(3): t0 = time.time(); ws.append(waypoint(A, B, det, n).z); tw.append(time.time() - t0)
-        after = waypoint(B, keys[2], detour(B, keys[2])[0], 0).z if len(keys) > 2 else B.z
-        win = [A.z, A.z] + ws + [B.z, after]                # one walk, to judge the in-between: the first still to the first dream
-        for i in range(4*SEG + 1): t0 = time.time(); strip.append(harmonize(dec(along(win, i/SEG)))); dt.append(time.time() - t0)
-        every = (sum(tt)/len(tt) + sum(tw) + 4*SEG*sum(dt)/len(dt))/(4*SEG)
-        print(f'waypoints {" ".join(f"{x:.1f}" for x in tw)}s, decode {sum(dt)/len(dt):.2f}s: {every:.2f}s a frame; light at the dream '
-              f'{look(strip[-1])[0]:.0f}, the frame before {look(strip[-2])[0]:.0f}', flush=True)
-        s = Image.new('RGB', (len(strip)*240, 180)); [s.paste(f.resize((240, 180)), (i*240, 0)) for i, f in enumerate(strip)]; s.save(os.path.join(out, 'walk.jpg'), quality=85)
-        cols = 4; sh = Image.new('RGB', (cols*320, -(-a.sheet//cols)*240))
-        for i, K in enumerate(keys[1:]): sh.paste(harmonize(dec(K.z)).resize((320, 240)), ((i % cols)*320, (i//cols)*240))
-        sh.save(os.path.join(out, 'sheet.jpg'), quality=85); print(f'dream: {sum(tt)/len(tt):.1f}s on average; sheet in {out}', flush=True); return
-
+def open_tap(a, feed, K0, dec):
+    """The live water's plumbing: her Midjourney inbox, the upscaler, and a thread that pours frames at an even pace; the first
+    still goes in at once. Returns the inbox, the frame queue, the GPU seconds a frame (ema) and the pace it sets (cadence)."""
+    from harmonize import harmonize
+    from upscale import Upscaler
     inbox = Inbox(os.path.abspath(a.inbox) if a.inbox else INBOX, feed.state, feed.lock); os.makedirs(inbox.path, exist_ok=True)
     feed.up = Upscaler()
     frames, ema = queue.Queue(QMAX), [2.3]            # ema: GPU seconds per frame, measured each dream
@@ -541,6 +527,13 @@ def main():
     feed.every = CAD[1]                             # the first frames take ~18 s to come: a slow first beat keeps the basin from draining
     K = K0; feed.put(harmonize(dec(K.z)), 'vanitas'); print(f'the water is on; Midjourney images from {inbox.path}', flush=True)
     threading.Thread(target=pour, daemon=True).start()
+    return inbox, frames, ema, cadence
+
+def flow(K, k, keyframe, detour, waypoint, dec, take_face, watch, OREF, dev, inbox, frames, ema, cadence):
+    """The water, forever: the next keyframe, its waypoints, and every frame of the curve through them into the queue. A face
+    arriving or leaving turns the walk where it is (Cut); a GPU error starts it again from the last dream."""
+    import torch
+    from latent import catmull
     knots, seg, first, cycle, measured, jump = [K], 0, True, 0, False, [False]   # knots in path order: ... w3, K, w1, w2, w3, K' ...; stretch seg: knots[seg] to [seg+1]
     while True:
         try:
@@ -589,6 +582,27 @@ def main():
             print(f'the spring stumbled ({e!r}); on again from the last dream', flush=True)
             if dev == 'mps': torch.mps.empty_cache()
             time.sleep(1); knots, seg, first = [K], 0, True
+
+def main():
+    a = parse_args()
+    serve_basin(a)
+
+    t_wake = time.time()
+    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
+    taste, taste_h, looks, add_taste = learn_taste(enc)
+    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
+    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
+        recall_midjourney(feed, taste_h, add_taste)
+    take_face = watch_faces(enc, ip_of, OREF)
+    drift, watch = light_watch(looks)
+    keyframe, detour, waypoint = walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed, EF, NEF, dream_lat, OREF)
+    k = feed.state['i']; pull0 = rng.randrange(len(taste))
+    K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
+    print(f'awake in {time.time() - t_wake:.0f}s', flush=True)
+    if a.sheet:
+        return contact_sheet(a, K0, k, keyframe, detour, waypoint, dec, looks)
+    inbox, frames, ema, cadence = open_tap(a, feed, K0, dec)
+    flow(K0, k, keyframe, detour, waypoint, dec, take_face, watch, OREF, dev, inbox, frames, ema, cadence)
 
 
 if __name__ == '__main__':
