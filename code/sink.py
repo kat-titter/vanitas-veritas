@@ -319,18 +319,14 @@ def look(im):                                   # mean light, and how much of th
 
 def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
 
-def main():
-    a = parse_args()
-    serve_basin(a)
-
-    t_wake = time.time()
+def wake():
+    """The dreaming model on the GPU (SD 1.5 + LCM-LoRA; IP-Adapter for a face, if it loads) and its ways in and out: dec and enc
+    (latent to picture and back), ip_of (a face as a reference), embed (words), the fixed words E0, EF, NEF, and dream_lat (one dream)."""
     os.environ.setdefault('HF_HUB_OFFLINE', '1')
-    import numpy as np, torch
+    import torch
     from PIL import Image
     from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler
-    from harmonize import harmonize                 # the palette lock the sources were graded with
-    from latent import slerp, catmull, Vae          # the curves of the walk, and the VAE's way in and out
-    from upscale import Upscaler
+    from latent import Vae                          # the VAE's way in and out
     dev = 'mps' if torch.backends.mps.is_available() else 'cuda' if torch.cuda.is_available() else 'cpu'
     pipe = StableDiffusionImg2ImgPipeline.from_pretrained('stable-diffusion-v1-5/stable-diffusion-v1-5', torch_dtype=torch.float32,
                                                           safety_checker=None, requires_safety_checker=False)
@@ -347,14 +343,35 @@ def main():
     def ip_of(im):                                  # a face's reference, as the dream's attention sees it; computed once per face
         return pipe.prepare_ip_adapter_image_embeds(im, None, dev, 1, GUID > 1)
     NOIP = ip_of(Image.new('RGB', (224, 224), (128, 128, 128))) if OREF else None   # no face: the adapter is there, weighted 0
-
     def enc(im): return V.enc(fill(im))
-    def along(win, s):                              # the point s knots past win[1] on the path through win
-        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
     @torch.no_grad()
     def embed(prompt): return pipe.encode_prompt(prompt, dev, 1, True, NEG)
     E0, NE = embed(sd_prompt('vanitas'))            # the negative is the same for every dream
     EF, NEF = pipe.encode_prompt(STATUE + ', ' + STYLE, dev, 1, True, NEG + NEG_FACE)   # and a face's own words, kept clean
+    def dream_lat(init, E, s, steps, seed, ip=None, w=0., ne=None):   # img2img in latent space: no encode on the way in, no decode on the way out
+        g = torch.Generator(device=dev).manual_seed(seed)
+        more = {}
+        if OREF: pipe.set_ip_adapter_scale(w if ip is not None else 0.); more = {'ip_adapter_image_embeds': ip if ip is not None else NOIP}
+        z = pipe(prompt_embeds=E, negative_prompt_embeds=NE if ne is None else ne, image=init, strength=s, num_inference_steps=steps,
+                 guidance_scale=GUID, generator=g, output_type='latent', **more).images.float()
+        if dev == 'mps': torch.mps.empty_cache()
+        if not torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
+        return z
+    return dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat
+
+def main():
+    a = parse_args()
+    serve_basin(a)
+
+    t_wake = time.time()
+    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
+    import numpy as np, torch
+    from PIL import Image
+    from harmonize import harmonize                 # the palette lock the sources were graded with
+    from latent import slerp, catmull               # the curves of the walk
+    from upscale import Upscaler
+    def along(win, s):                              # the point s knots past win[1] on the path through win
+        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
 
     taste, taste_h, looks = [], {}, []              # her images as latents, ungraded; the grade comes once, when a frame is shown
     def add_taste(im, h):
@@ -403,15 +420,6 @@ def main():
         far = not (min(x[0] for x in looks) - 8 <= l <= max(x[0] for x in looks) + 8 and min(x[1] for x in looks) <= w <= max(x[1] for x in looks))
         drift[0] = drift[0] + 1 if far else 0; return l, w
 
-    def dream_lat(init, E, s, steps, seed, ip=None, w=0., ne=None):   # img2img in latent space: no encode on the way in, no decode on the way out
-        g = torch.Generator(device=dev).manual_seed(seed)
-        more = {}
-        if OREF: pipe.set_ip_adapter_scale(w if ip is not None else 0.); more = {'ip_adapter_image_embeds': ip if ip is not None else NOIP}
-        z = pipe(prompt_embeds=E, negative_prompt_embeds=NE if ne is None else ne, image=init, strength=s, num_inference_steps=steps,
-                 guidance_scale=GUID, generator=g, output_type='latent', **more).images.float()
-        if dev == 'mps': torch.mps.empty_cache()
-        if not torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
-        return z
     def keyframe(K, k, inbox=None):
         """Where the walk heads next: the face at the sink if one is waiting, else her newest Midjourney image, else a new dream."""
         ref = take_face()
