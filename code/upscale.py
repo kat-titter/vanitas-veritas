@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Real-ESRGAN x4: a graded 640 x 480 frame becomes 2560 x 1920, as the final loop was made (morph_v45_sr.py), from
+# Real-ESRGAN x4: a graded 640 x 480 frame becomes 2560 x 1920, as the final loop was made (loop_render.py), from
 # code/models/RealESRGAN_x4plus.pth. The spring runs it in a process of its own on the Mac's Neural Engine (Core ML), so the
 # GPU keeps dreaming; the render runs it on the GPU (esrgan_gpu).
 #   python3 code/upscale.py        build the Neural Engine copy of the model once (code/models/, outside git; ~20 s)

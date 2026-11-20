@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-morph_v45_sr — final render, MAX QUALITY.
+loop_render — final render, MAX QUALITY.
 
 Reuses the cached 32 dreamed anchors (no re-dream), Catmull-decodes the slow
 loop (M=190 -> 6080 frames, ~8:30), and runs Real-ESRGAN 4x on every frame for

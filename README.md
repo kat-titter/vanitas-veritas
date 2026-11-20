@@ -54,7 +54,7 @@ The moodboard lives in `source/moodboard/` and the Real-ESRGAN weights in `code/
 | [`code/upscale.py`](code/upscale.py) | Real-ESRGAN x4: Neural Engine for the spring, GPU for the loop |
 | [`code/latent.py`](code/latent.py), [`code/harmonize.py`](code/harmonize.py) | slerp, Catmull-Rom and the VAE's way in and out; the palette lock |
 | [`code/setup_sink.sh`](code/setup_sink.sh), [`code/sink.sh`](code/sink.sh) | the sink's computer: install once, then run for good |
-| [`code/morph_v44.py`](code/morph_v44.py), [`code/morph_v45_sr.py`](code/morph_v45_sr.py), [`code/order_preview.py`](code/order_preview.py) | the 2026 loop the spring grew from (rendered with the `render-loop` skill in `.claude/skills/`) |
+| [`code/loop_dream.py`](code/loop_dream.py), [`code/loop_render.py`](code/loop_render.py), [`code/order_preview.py`](code/order_preview.py) | the 2026 loop the spring grew from (rendered with the `render-loop` skill in `.claude/skills/`) |
 | [`verse/sync.html`](verse/sync.html) | veritas: one page, WebGL2, no build step |
 | [`verse/blackpaper.html`](verse/blackpaper.html), [`verse/deploy_verse.py`](verse/deploy_verse.py) | the black paper, and the script that publishes it and veritas at their short address |
 | [`documents/`](documents/) | the doc and the build guide, with their pictures |
