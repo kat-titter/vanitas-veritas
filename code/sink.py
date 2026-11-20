@@ -290,7 +290,19 @@ def point(feed):
         call('PUT', put); print('public basin points here', flush=True)
     except Exception as e: print(f'public basin: could not point here ({e})', flush=True)
 
-# ---- the spring's run: main() at the bottom reads as the recipe; each step above it does one job, in the order it runs
+# ---- the spring's run: three small helpers, then the steps of main() in the order they run; main() at the bottom is the recipe
+def fill(im):                                   # crop to 4:3, never stretch
+    from PIL import Image
+    im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
+    l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
+
+def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
+    import numpy as np
+    x = np.asarray(im.convert('RGB'), np.float32)
+    return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
+
+def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
+
 def parse_args():
     ap = argparse.ArgumentParser(); ap.add_argument('--sheet', type=int, default=0)
     ap.add_argument('--out', default=''); ap.add_argument('--inbox', default='')
@@ -306,18 +318,6 @@ def serve_basin(a):
     if a.dry:
         print('no GPU: the water is off', flush=True)
         while True: time.sleep(3600)
-
-def fill(im):                                   # crop to 4:3, never stretch
-    from PIL import Image
-    im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
-    l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
-
-def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
-    import numpy as np
-    x = np.asarray(im.convert('RGB'), np.float32)
-    return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
-
-def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
 
 def wake():
     """The dreaming model on the GPU (SD 1.5 + LCM-LoRA; IP-Adapter for a face, if it loads) and its ways in and out: dec and enc
