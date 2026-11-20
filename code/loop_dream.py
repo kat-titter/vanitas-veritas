@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-morph_v3 — "Dreamed Anchors + Smooth Drift"
+loop_dream — "Dreamed Anchors + Smooth Drift"
 
 Decouple LOOK from MOTION:
   * Dream a sparse ring of ANCHOR latents around the loop. At source positions

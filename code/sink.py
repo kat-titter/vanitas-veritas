@@ -5,7 +5,7 @@
 # words twice until all of them have been dreamed; dreamed out of the last dream, pulled back toward one of her vanitas
 # images (her vanitas moodboard, source/moodboard/; her eight stills if it is missing) so the taste stays hers. On the way from
 # one dream to the next the spring dreams three more places (waypoints, on a curve bent toward a third of her images), then
-# glides through all of them on one smooth latent path (Catmull-Rom, the walk of the morph_v44 loop; the waypoints share the noise
+# glides through all of them on one smooth latent path (Catmull-Rom, the walk of loop_dream.py; the waypoints share the noise
 # of the dream they lead to): forms melt and re-form instead of ghosting. Every frame is decoded from that path, graded once with the palette lock
 # the sources were graded with (harmonize.py), and made 2560 x 1920 by Real-ESRGAN on the Neural Engine (upscale.py), with a
 # 1280 x 960 copy for small screens. Frames are poured at an even pace into spring_feed/ (outside git) beside now.json; the
