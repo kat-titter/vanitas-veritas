@@ -359,20 +359,10 @@ def wake():
         return z
     return dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat
 
-def main():
-    a = parse_args()
-    serve_basin(a)
-
-    t_wake = time.time()
-    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
-    import numpy as np, torch
+def learn_taste(enc):
+    """Her images as latents (taste), each one's place by its picture's hash (taste_h), and their light and warmth (looks), from
+    the first of TASTE that has any; add_taste(im, h) adds one more. With none, the spring stops here."""
     from PIL import Image
-    from harmonize import harmonize                 # the palette lock the sources were graded with
-    from latent import slerp, catmull               # the curves of the walk
-    from upscale import Upscaler
-    def along(win, s):                              # the point s knots past win[1] on the path through win
-        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
-
     taste, taste_h, looks = [], {}, []              # her images as latents, ungraded; the grade comes once, when a frame is shown
     def add_taste(im, h):
         im = fill(im); taste_h[h] = len(taste); taste.append(enc(im)); looks.append(look(im)); return taste_h[h]
@@ -380,13 +370,22 @@ def main():
         data = open(f, 'rb').read(); add_taste(Image.open(io.BytesIO(data)), hashlib.sha1(data).hexdigest())
     print(f'taste: {len(taste)} of her images', flush=True)
     if not taste: sys.exit('no taste: put her pictures in source/moodboard (or source/veritas) first')
-    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
-    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
-        for rp, u in list(feed.state.get('mj_used', {}).items())[-32:]:
-            try:
-                st = os.stat(rp)
-                if u[2] not in taste_h and [st.st_size, st.st_mtime_ns] == u[:2]: add_taste(Image.open(rp), u[2])
-            except Exception: pass
+    return taste, taste_h, looks, add_taste
+
+def recall_midjourney(feed, taste_h, add_taste):
+    """Her Midjourney pictures from earlier runs (the last 32 that state.json remembers) back into the taste, if their files are unchanged."""
+    from PIL import Image
+    for rp, u in list(feed.state.get('mj_used', {}).items())[-32:]:
+        try:
+            st = os.stat(rp)
+            if u[2] not in taste_h and [st.st_size, st.st_mtime_ns] == u[:2]: add_taste(Image.open(rp), u[2])
+        except Exception: pass
+
+def watch_faces(enc, ip_of, OREF):
+    """The sink's camera: take_face() is the face in front of the sink now, encoded (a latent, and a reference for the IP-Adapter),
+    or None. In memory only."""
+    import numpy as np
+    from PIL import Image
     import cv2
     finder = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     def face_of(data):                              # the largest face, with room round it, as a 4:3 picture; the middle if none is found
@@ -414,11 +413,37 @@ def main():
             except Exception as e: print(f'a face at the sink could not be used ({e})', flush=True)
         if pending and time.time() - FACE_SEEN['sent'] >= FACE_TTL: pending.clear()   # the camera stopped looking: they have gone
         return pending[0] if pending else None
+    return take_face
+
+def light_watch(looks):
+    """watch(im) measures a dream's light and warmth against the range of hers; drift[0] counts the dreams in a row that left it."""
     drift = [0]                                     # dreams in a row whose light or warmth left the range of her images
     def watch(im):                                  # too dark, too bright, too gold or no copper at all: pull harder toward hers
         l, w = look(im)
         far = not (min(x[0] for x in looks) - 8 <= l <= max(x[0] for x in looks) + 8 and min(x[1] for x in looks) <= w <= max(x[1] for x in looks))
         drift[0] = drift[0] + 1 if far else 0; return l, w
+    return drift, watch
+
+def main():
+    a = parse_args()
+    serve_basin(a)
+
+    t_wake = time.time()
+    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
+    import torch
+    from PIL import Image
+    from harmonize import harmonize                 # the palette lock the sources were graded with
+    from latent import slerp, catmull               # the curves of the walk
+    from upscale import Upscaler
+    def along(win, s):                              # the point s knots past win[1] on the path through win
+        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
+
+    taste, taste_h, looks, add_taste = learn_taste(enc)
+    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
+    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
+        recall_midjourney(feed, taste_h, add_taste)
+    take_face = watch_faces(enc, ip_of, OREF)
+    drift, watch = light_watch(looks)
 
     def keyframe(K, k, inbox=None):
         """Where the walk heads next: the face at the sink if one is waiting, else her newest Midjourney image, else a new dream."""
