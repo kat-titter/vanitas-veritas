@@ -58,6 +58,7 @@ The moodboard lives in `source/moodboard/` and the Real-ESRGAN weights in `code/
 | [`verse/sync.html`](verse/sync.html) | veritas: one page, WebGL2, no build step |
 | [`verse/blackpaper.html`](verse/blackpaper.html), [`verse/deploy_verse.py`](verse/deploy_verse.py) | the black paper, and the script that publishes it and veritas at their short address |
 | [`documents/`](documents/) | the doc and the build guide, with their pictures |
+| [`documents/web_copies.py`](documents/web_copies.py) | the doc's pictures as web copies under 1 MB, sized to how large each one shows; the full-size masters live in `source/doc_masters/` (local only) |
 
 ## Colophon
 
