@@ -192,6 +192,9 @@ class Feed:
 FACES = []                                          # at most one face waiting, in memory only
 FACE_SEEN = {'at': 0., 'sent': 0.}                  # when a frame from the sink's camera last came, and when one last held a face
 TAP = {'on': True}                                  # the sink's lever: down, generation stops, no data flows, and every basin drains
+def wait_tap():
+    while not TAP['on']: time.sleep(0.25)
+
 def face_key():
     os.makedirs(FEED, exist_ok=True); f = os.path.join(FEED, 'key')
     if not os.path.exists(f): open(f, 'w').write(secrets.token_urlsafe(18))
@@ -287,17 +290,38 @@ def point(feed):
         call('PUT', put); print('public basin points here', flush=True)
     except Exception as e: print(f'public basin: could not point here ({e})', flush=True)
 
-def main():
+# ---- the spring's run: main() at the bottom reads as the recipe; each step above it does one job, in the order it runs
+def parse_args():
     ap = argparse.ArgumentParser(); ap.add_argument('--sheet', type=int, default=0)
     ap.add_argument('--out', default=''); ap.add_argument('--inbox', default='')
     ap.add_argument('--dry', action='store_true'); ap.add_argument('--lan', action='store_true'); ap.add_argument('--port', type=int, default=8770)
     ap.add_argument('--public', action='store_true')
     a = ap.parse_args()
+    return a
+
+def serve_basin(a):
+    """veritas, the web basin, from this Mac (and through a tunnel with --public); with --dry that is all, forever: the water off."""
     if not a.sheet: serve(a.port, a.lan)
     if a.public and not a.sheet: tunnel(a.port)
     if a.dry:
         print('no GPU: the water is off', flush=True)
         while True: time.sleep(3600)
+
+def fill(im):                                   # crop to 4:3, never stretch
+    from PIL import Image
+    im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
+    l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
+
+def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
+    import numpy as np
+    x = np.asarray(im.convert('RGB'), np.float32)
+    return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
+
+def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
+
+def main():
+    a = parse_args()
+    serve_basin(a)
 
     t_wake = time.time()
     os.environ.setdefault('HF_HUB_OFFLINE', '1')
@@ -324,9 +348,6 @@ def main():
         return pipe.prepare_ip_adapter_image_embeds(im, None, dev, 1, GUID > 1)
     NOIP = ip_of(Image.new('RGB', (224, 224), (128, 128, 128))) if OREF else None   # no face: the adapter is there, weighted 0
 
-    def fill(im):                                   # crop to 4:3, never stretch
-        im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
-        l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
     def enc(im): return V.enc(fill(im))
     def along(win, s):                              # the point s knots past win[1] on the path through win
         m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
@@ -334,9 +355,6 @@ def main():
     def embed(prompt): return pipe.encode_prompt(prompt, dev, 1, True, NEG)
     E0, NE = embed(sd_prompt('vanitas'))            # the negative is the same for every dream
     EF, NEF = pipe.encode_prompt(STATUE + ', ' + STYLE, dev, 1, True, NEG + NEG_FACE)   # and a face's own words, kept clean
-    def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
-        x = np.asarray(im.convert('RGB'), np.float32)
-        return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
 
     taste, taste_h, looks = [], {}, []              # her images as latents, ungraded; the grade comes once, when a frame is shown
     def add_taste(im, h):
@@ -385,7 +403,6 @@ def main():
         far = not (min(x[0] for x in looks) - 8 <= l <= max(x[0] for x in looks) + 8 and min(x[1] for x in looks) <= w <= max(x[1] for x in looks))
         drift[0] = drift[0] + 1 if far else 0; return l, w
 
-    def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
     def dream_lat(init, E, s, steps, seed, ip=None, w=0., ne=None):   # img2img in latent space: no encode on the way in, no decode on the way out
         g = torch.Generator(device=dev).manual_seed(seed)
         more = {}
@@ -479,8 +496,6 @@ def main():
                 if not TAP['on']: feed.rest()
                 feed.publish(rec); due = time.time() + cadence()
             except Exception as e: print(f'pour: {e}', flush=True); time.sleep(1)
-    def wait_tap():
-        while not TAP['on']: time.sleep(0.25)
 
     feed.every = CAD[1]                             # the first frames take ~18 s to come: a slow first beat keeps the basin from draining
     K = K0; feed.put(harmonize(dec(K.z)), 'vanitas'); print(f'the water is on; Midjourney images from {inbox.path}', flush=True)
