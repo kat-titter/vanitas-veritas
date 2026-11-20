@@ -192,6 +192,9 @@ class Feed:
 FACES = []                                          # at most one face waiting, in memory only
 FACE_SEEN = {'at': 0., 'sent': 0.}                  # when a frame from the sink's camera last came, and when one last held a face
 TAP = {'on': True}                                  # the sink's lever: down, generation stops, no data flows, and every basin drains
+def wait_tap():
+    while not TAP['on']: time.sleep(0.25)
+
 def face_key():
     os.makedirs(FEED, exist_ok=True); f = os.path.join(FEED, 'key')
     if not os.path.exists(f): open(f, 'w').write(secrets.token_urlsafe(18))
@@ -287,26 +290,43 @@ def point(feed):
         call('PUT', put); print('public basin points here', flush=True)
     except Exception as e: print(f'public basin: could not point here ({e})', flush=True)
 
-def main():
+# ---- the spring's run: three small helpers, then the steps of main() in the order they run; main() at the bottom is the recipe
+def fill(im):                                   # crop to 4:3, never stretch
+    from PIL import Image
+    im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
+    l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
+
+def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
+    import numpy as np
+    x = np.asarray(im.convert('RGB'), np.float32)
+    return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
+
+def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
+
+def parse_args():
     ap = argparse.ArgumentParser(); ap.add_argument('--sheet', type=int, default=0)
     ap.add_argument('--out', default=''); ap.add_argument('--inbox', default='')
     ap.add_argument('--dry', action='store_true'); ap.add_argument('--lan', action='store_true'); ap.add_argument('--port', type=int, default=8770)
     ap.add_argument('--public', action='store_true')
     a = ap.parse_args()
+    return a
+
+def serve_basin(a):
+    """veritas, the web basin, from this Mac (and through a tunnel with --public); with --dry that is all, forever: the water off."""
     if not a.sheet: serve(a.port, a.lan)
     if a.public and not a.sheet: tunnel(a.port)
     if a.dry:
         print('no GPU: the water is off', flush=True)
         while True: time.sleep(3600)
 
-    t_wake = time.time()
+def wake():
+    """The dreaming model on the GPU (SD 1.5 + LCM-LoRA; IP-Adapter for a face, if it loads) and its ways in and out: dec and enc
+    (latent to picture and back), ip_of (a face as a reference), embed (words), the fixed words E0, EF, NEF, and dream_lat (one dream)."""
     os.environ.setdefault('HF_HUB_OFFLINE', '1')
-    import numpy as np, torch
+    import torch
     from PIL import Image
     from diffusers import StableDiffusionImg2ImgPipeline, LCMScheduler
-    from harmonize import harmonize                 # the palette lock the sources were graded with
-    from latent import slerp, catmull, Vae          # the curves of the walk, and the VAE's way in and out
-    from upscale import Upscaler
+    from latent import Vae                          # the VAE's way in and out
     dev = 'mps' if torch.backends.mps.is_available() else 'cuda' if torch.cuda.is_available() else 'cpu'
     pipe = StableDiffusionImg2ImgPipeline.from_pretrained('stable-diffusion-v1-5/stable-diffusion-v1-5', torch_dtype=torch.float32,
                                                           safety_checker=None, requires_safety_checker=False)
@@ -323,21 +343,26 @@ def main():
     def ip_of(im):                                  # a face's reference, as the dream's attention sees it; computed once per face
         return pipe.prepare_ip_adapter_image_embeds(im, None, dev, 1, GUID > 1)
     NOIP = ip_of(Image.new('RGB', (224, 224), (128, 128, 128))) if OREF else None   # no face: the adapter is there, weighted 0
-
-    def fill(im):                                   # crop to 4:3, never stretch
-        im = im.convert('RGB'); w, h = im.size; s = max(W/w, H/h); im = im.resize((round(w*s), round(h*s)), Image.LANCZOS)
-        l, t = (im.width - W)//2, (im.height - H)//2; return im.crop((l, t, l + W, t + H))
     def enc(im): return V.enc(fill(im))
-    def along(win, s):                              # the point s knots past win[1] on the path through win
-        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
     @torch.no_grad()
     def embed(prompt): return pipe.encode_prompt(prompt, dev, 1, True, NEG)
     E0, NE = embed(sd_prompt('vanitas'))            # the negative is the same for every dream
     EF, NEF = pipe.encode_prompt(STATUE + ', ' + STYLE, dev, 1, True, NEG + NEG_FACE)   # and a face's own words, kept clean
-    def look(im):                                   # mean light, and how much of the picture is warm (R - B > 40)
-        x = np.asarray(im.convert('RGB'), np.float32)
-        return float((0.299*x[..., 0] + 0.587*x[..., 1] + 0.114*x[..., 2]).mean()), float(((x[..., 0] - x[..., 2]) > 40).mean())
+    def dream_lat(init, E, s, steps, seed, ip=None, w=0., ne=None):   # img2img in latent space: no encode on the way in, no decode on the way out
+        g = torch.Generator(device=dev).manual_seed(seed)
+        more = {}
+        if OREF: pipe.set_ip_adapter_scale(w if ip is not None else 0.); more = {'ip_adapter_image_embeds': ip if ip is not None else NOIP}
+        z = pipe(prompt_embeds=E, negative_prompt_embeds=NE if ne is None else ne, image=init, strength=s, num_inference_steps=steps,
+                 guidance_scale=GUID, generator=g, output_type='latent', **more).images.float()
+        if dev == 'mps': torch.mps.empty_cache()
+        if not torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
+        return z
+    return dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat
 
+def learn_taste(enc):
+    """Her images as latents (taste), each one's place by its picture's hash (taste_h), and their light and warmth (looks), from
+    the first of TASTE that has any; add_taste(im, h) adds one more. With none, the spring stops here."""
+    from PIL import Image
     taste, taste_h, looks = [], {}, []              # her images as latents, ungraded; the grade comes once, when a frame is shown
     def add_taste(im, h):
         im = fill(im); taste_h[h] = len(taste); taste.append(enc(im)); looks.append(look(im)); return taste_h[h]
@@ -345,13 +370,22 @@ def main():
         data = open(f, 'rb').read(); add_taste(Image.open(io.BytesIO(data)), hashlib.sha1(data).hexdigest())
     print(f'taste: {len(taste)} of her images', flush=True)
     if not taste: sys.exit('no taste: put her pictures in source/moodboard (or source/veritas) first')
-    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
-    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
-        for rp, u in list(feed.state.get('mj_used', {}).items())[-32:]:
-            try:
-                st = os.stat(rp)
-                if u[2] not in taste_h and [st.st_size, st.st_mtime_ns] == u[:2]: add_taste(Image.open(rp), u[2])
-            except Exception: pass
+    return taste, taste_h, looks, add_taste
+
+def recall_midjourney(feed, taste_h, add_taste):
+    """Her Midjourney pictures from earlier runs (the last 32 that state.json remembers) back into the taste, if their files are unchanged."""
+    from PIL import Image
+    for rp, u in list(feed.state.get('mj_used', {}).items())[-32:]:
+        try:
+            st = os.stat(rp)
+            if u[2] not in taste_h and [st.st_size, st.st_mtime_ns] == u[:2]: add_taste(Image.open(rp), u[2])
+        except Exception: pass
+
+def watch_faces(enc, ip_of, OREF):
+    """The sink's camera: take_face() is the face in front of the sink now, encoded (a latent, and a reference for the IP-Adapter),
+    or None. In memory only."""
+    import numpy as np
+    from PIL import Image
     import cv2
     finder = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     def face_of(data):                              # the largest face, with room round it, as a 4:3 picture; the middle if none is found
@@ -379,22 +413,22 @@ def main():
             except Exception as e: print(f'a face at the sink could not be used ({e})', flush=True)
         if pending and time.time() - FACE_SEEN['sent'] >= FACE_TTL: pending.clear()   # the camera stopped looking: they have gone
         return pending[0] if pending else None
+    return take_face
+
+def light_watch(looks):
+    """watch(im) measures a dream's light and warmth against the range of hers; drift[0] counts the dreams in a row that left it."""
     drift = [0]                                     # dreams in a row whose light or warmth left the range of her images
     def watch(im):                                  # too dark, too bright, too gold or no copper at all: pull harder toward hers
         l, w = look(im)
         far = not (min(x[0] for x in looks) - 8 <= l <= max(x[0] for x in looks) + 8 and min(x[1] for x in looks) <= w <= max(x[1] for x in looks))
         drift[0] = drift[0] + 1 if far else 0; return l, w
+    return drift, watch
 
-    def seed_of(k): return secrets.randbits(62)    # a noise of its own for every dream, drawn fresh (one shared noise imprints one picture on all)
-    def dream_lat(init, E, s, steps, seed, ip=None, w=0., ne=None):   # img2img in latent space: no encode on the way in, no decode on the way out
-        g = torch.Generator(device=dev).manual_seed(seed)
-        more = {}
-        if OREF: pipe.set_ip_adapter_scale(w if ip is not None else 0.); more = {'ip_adapter_image_embeds': ip if ip is not None else NOIP}
-        z = pipe(prompt_embeds=E, negative_prompt_embeds=NE if ne is None else ne, image=init, strength=s, num_inference_steps=steps,
-                 guidance_scale=GUID, generator=g, output_type='latent', **more).images.float()
-        if dev == 'mps': torch.mps.empty_cache()
-        if not torch.isfinite(z).all(): raise RuntimeError('a dream came out empty')   # never pour black water
-        return z
+def walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed, EF, NEF, dream_lat, OREF):
+    """The walk's three moves: keyframe (where it heads next), detour (how the way there bends) and waypoint (a place on the way,
+    dreamed). The words come from words_of, the picks from rng; a face from take_face turns a dream toward the one at the sink."""
+    import torch
+    from latent import slerp                         # the curves of the walk
     def keyframe(K, k, inbox=None):
         """Where the walk heads next: the face at the sink if one is waiting, else her newest Midjourney image, else a new dream."""
         ref = take_face()
@@ -437,29 +471,39 @@ def main():
         ip, w = (ib, OREF_W) if ib is not None else (ia, OREF_W*(1 - f)) if ia is not None else (None, 0.)   # toward a face: at once; away: fading
         z = dream_lat(init, torch.lerp(A.E, B.E, f), (WP_STR_MJ if B.mj else WP_STR)[n], WP_STEPS, B.seed, ip, w, NEF if ip is not None else None)
         return Knot(z=z, words=B.words, key=False, mj=False)
-    k = feed.state['i']; pull0 = rng.randrange(len(taste))
-    K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
-    print(f'awake in {time.time() - t_wake:.0f}s', flush=True)
-    if a.sheet:
-        out = a.out or FEED; os.makedirs(out, exist_ok=True); keys, tt = [K0], []
-        for j in range(a.sheet):
-            t0 = time.time(); keys.append(keyframe(keys[-1], k + j)); tt.append(time.time() - t0); l, w = look(dec(keys[-1].z))
-            print(f'{tt[-1]:.1f}s  {keys[-1].words}   (light {l:.0f}, warm {w:.3f})', flush=True)
-        print(f'hers: light {min(x[0] for x in looks):.0f} to {max(x[0] for x in looks):.0f}, warm {min(x[1] for x in looks):.3f} to '
-              f'{max(x[1] for x in looks):.3f}, mean {sum(x[1] for x in looks)/len(looks):.3f}', flush=True)
-        A, B = keys[0], keys[1]; det, tw, ws, dt, strip = detour(A, B)[0], [], [], [], []
-        for n in range(3): t0 = time.time(); ws.append(waypoint(A, B, det, n).z); tw.append(time.time() - t0)
-        after = waypoint(B, keys[2], detour(B, keys[2])[0], 0).z if len(keys) > 2 else B.z
-        win = [A.z, A.z] + ws + [B.z, after]                # one walk, to judge the in-between: the first still to the first dream
-        for i in range(4*SEG + 1): t0 = time.time(); strip.append(harmonize(dec(along(win, i/SEG)))); dt.append(time.time() - t0)
-        every = (sum(tt)/len(tt) + sum(tw) + 4*SEG*sum(dt)/len(dt))/(4*SEG)
-        print(f'waypoints {" ".join(f"{x:.1f}" for x in tw)}s, decode {sum(dt)/len(dt):.2f}s: {every:.2f}s a frame; light at the dream '
-              f'{look(strip[-1])[0]:.0f}, the frame before {look(strip[-2])[0]:.0f}', flush=True)
-        s = Image.new('RGB', (len(strip)*240, 180)); [s.paste(f.resize((240, 180)), (i*240, 0)) for i, f in enumerate(strip)]; s.save(os.path.join(out, 'walk.jpg'), quality=85)
-        cols = 4; sh = Image.new('RGB', (cols*320, -(-a.sheet//cols)*240))
-        for i, K in enumerate(keys[1:]): sh.paste(harmonize(dec(K.z)).resize((320, 240)), ((i % cols)*320, (i//cols)*240))
-        sh.save(os.path.join(out, 'sheet.jpg'), quality=85); print(f'dream: {sum(tt)/len(tt):.1f}s on average; sheet in {out}', flush=True); return
+    return keyframe, detour, waypoint
 
+def contact_sheet(a, K0, k, keyframe, detour, waypoint, dec, looks):
+    """--sheet N: N dreams on one contact sheet, and one walk strip from the first still to the first dream, each step timed."""
+    from PIL import Image
+    from harmonize import harmonize                 # the palette lock the sources were graded with
+    from latent import catmull
+    def along(win, s):                              # the point s knots past win[1] on the path through win
+        m = min(int(s), len(win) - 4); return catmull(s - m, *win[m:m + 4])
+    out = a.out or FEED; os.makedirs(out, exist_ok=True); keys, tt = [K0], []
+    for j in range(a.sheet):
+        t0 = time.time(); keys.append(keyframe(keys[-1], k + j)); tt.append(time.time() - t0); l, w = look(dec(keys[-1].z))
+        print(f'{tt[-1]:.1f}s  {keys[-1].words}   (light {l:.0f}, warm {w:.3f})', flush=True)
+    print(f'hers: light {min(x[0] for x in looks):.0f} to {max(x[0] for x in looks):.0f}, warm {min(x[1] for x in looks):.3f} to '
+          f'{max(x[1] for x in looks):.3f}, mean {sum(x[1] for x in looks)/len(looks):.3f}', flush=True)
+    A, B = keys[0], keys[1]; det, tw, ws, dt, strip = detour(A, B)[0], [], [], [], []
+    for n in range(3): t0 = time.time(); ws.append(waypoint(A, B, det, n).z); tw.append(time.time() - t0)
+    after = waypoint(B, keys[2], detour(B, keys[2])[0], 0).z if len(keys) > 2 else B.z
+    win = [A.z, A.z] + ws + [B.z, after]                # one walk, to judge the in-between: the first still to the first dream
+    for i in range(4*SEG + 1): t0 = time.time(); strip.append(harmonize(dec(along(win, i/SEG)))); dt.append(time.time() - t0)
+    every = (sum(tt)/len(tt) + sum(tw) + 4*SEG*sum(dt)/len(dt))/(4*SEG)
+    print(f'waypoints {" ".join(f"{x:.1f}" for x in tw)}s, decode {sum(dt)/len(dt):.2f}s: {every:.2f}s a frame; light at the dream '
+          f'{look(strip[-1])[0]:.0f}, the frame before {look(strip[-2])[0]:.0f}', flush=True)
+    s = Image.new('RGB', (len(strip)*240, 180)); [s.paste(f.resize((240, 180)), (i*240, 0)) for i, f in enumerate(strip)]; s.save(os.path.join(out, 'walk.jpg'), quality=85)
+    cols = 4; sh = Image.new('RGB', (cols*320, -(-a.sheet//cols)*240))
+    for i, K in enumerate(keys[1:]): sh.paste(harmonize(dec(K.z)).resize((320, 240)), ((i % cols)*320, (i//cols)*240))
+    sh.save(os.path.join(out, 'sheet.jpg'), quality=85); print(f'dream: {sum(tt)/len(tt):.1f}s on average; sheet in {out}', flush=True); return
+
+def open_tap(a, feed, K0, dec):
+    """The live water's plumbing: her Midjourney inbox, the upscaler, and a thread that pours frames at an even pace; the first
+    still goes in at once. Returns the inbox, the frame queue, the GPU seconds a frame (ema) and the pace it sets (cadence)."""
+    from harmonize import harmonize
+    from upscale import Upscaler
     inbox = Inbox(os.path.abspath(a.inbox) if a.inbox else INBOX, feed.state, feed.lock); os.makedirs(inbox.path, exist_ok=True)
     feed.up = Upscaler()
     frames, ema = queue.Queue(QMAX), [2.3]            # ema: GPU seconds per frame, measured each dream
@@ -479,12 +523,17 @@ def main():
                 if not TAP['on']: feed.rest()
                 feed.publish(rec); due = time.time() + cadence()
             except Exception as e: print(f'pour: {e}', flush=True); time.sleep(1)
-    def wait_tap():
-        while not TAP['on']: time.sleep(0.25)
 
     feed.every = CAD[1]                             # the first frames take ~18 s to come: a slow first beat keeps the basin from draining
     K = K0; feed.put(harmonize(dec(K.z)), 'vanitas'); print(f'the water is on; Midjourney images from {inbox.path}', flush=True)
     threading.Thread(target=pour, daemon=True).start()
+    return inbox, frames, ema, cadence
+
+def flow(K, k, keyframe, detour, waypoint, dec, take_face, watch, OREF, dev, inbox, frames, ema, cadence):
+    """The water, forever: the next keyframe, its waypoints, and every frame of the curve through them into the queue. A face
+    arriving or leaving turns the walk where it is (Cut); a GPU error starts it again from the last dream."""
+    import torch
+    from latent import catmull
     knots, seg, first, cycle, measured, jump = [K], 0, True, 0, False, [False]   # knots in path order: ... w3, K, w1, w2, w3, K' ...; stretch seg: knots[seg] to [seg+1]
     while True:
         try:
@@ -533,6 +582,27 @@ def main():
             print(f'the spring stumbled ({e!r}); on again from the last dream', flush=True)
             if dev == 'mps': torch.mps.empty_cache()
             time.sleep(1); knots, seg, first = [K], 0, True
+
+def main():
+    a = parse_args()
+    serve_basin(a)
+
+    t_wake = time.time()
+    dev, OREF, dec, enc, ip_of, embed, E0, EF, NEF, dream_lat = wake()
+    taste, taste_h, looks, add_taste = learn_taste(enc)
+    feed = Feed(); words_of = prompts(feed.state); rng = random.SystemRandom()   # weights and picks from the machine's entropy: no two runs alike
+    if not a.sheet:                                 # her Midjourney images from earlier runs stay in the taste
+        recall_midjourney(feed, taste_h, add_taste)
+    take_face = watch_faces(enc, ip_of, OREF)
+    drift, watch = light_watch(looks)
+    keyframe, detour, waypoint = walk(feed, words_of, rng, taste, taste_h, add_taste, drift, take_face, embed, EF, NEF, dream_lat, OREF)
+    k = feed.state['i']; pull0 = rng.randrange(len(taste))
+    K0 = Knot(z=taste[pull0], words='vanitas', E=E0, pull=pull0, seed=seed_of(k - 1), key=True, mj=False, prompt=sd_prompt('vanitas'))
+    print(f'awake in {time.time() - t_wake:.0f}s', flush=True)
+    if a.sheet:
+        return contact_sheet(a, K0, k, keyframe, detour, waypoint, dec, looks)
+    inbox, frames, ema, cadence = open_tap(a, feed, K0, dec)
+    flow(K0, k, keyframe, detour, waypoint, dec, take_face, watch, OREF, dev, inbox, frames, ema, cadence)
 
 
 if __name__ == '__main__':
