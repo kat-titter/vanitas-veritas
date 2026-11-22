@@ -7,7 +7,7 @@
 #                                                 it reads HEAD:verse/, so it works only once the move to verse/ is committed)
 # The link preview (og.jpg, 1200x630: the piece itself with its title) and the home-screen icon (apple-touch-icon.png, the tab icon's
 # SVG drawn at 180 px) live only in the published repo, never here (no binaries in the source repo); the tags that point at them are
-# added at publish time. The tab icon itself is no file: its SVG sits inline in each page's <head>.
+# added at publish time, with the tab icon: verse/icon.svg, inline in each page's <head> (so no file on the site).
 #   add --push to commit and push (otherwise it only writes the files)
 #   VERITAS_DEST=<folder> writes into another checkout of the published repo (a branch's worktree) instead of ~/Claude/Projects/veritas
 import os, pathlib, re, subprocess, sys
@@ -31,11 +31,13 @@ for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html',
 if (HERE / 'sync.html').exists(): pages['sync.html'] = read('sync.html', C)     # veritas: one water with vanitas
 
 NEW = 'https://kat-titter.github.io/veritas/'
+ICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,'      # the tab icon, one file: the basin from above, turning into the eye
+        + (HERE / 'icon.svg').read_text().strip().replace('#', '%23').replace('<', '%3C').replace('>', '%3E') + '">\n')
 def preview(html, name):                      # the picture a shared link unfurls with, on every page
     url = NEW + ('' if name == 'index.html' else name)
     tags = (f'<meta property="og:url" content="{url}">\n<meta property="og:image" content="{NEW}og.jpg">\n'
             '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
-            f'<meta name="twitter:image" content="{NEW}og.jpg">\n<link rel="apple-touch-icon" href="{NEW}apple-touch-icon.png">\n')
+            f'<meta name="twitter:image" content="{NEW}og.jpg">\n{ICON}<link rel="apple-touch-icon" href="{NEW}apple-touch-icon.png">\n')
     html = re.sub(r'<meta name="twitter:card" content="[^"]*">\n?', '', html)
     if 'property="og:title"' not in html:
         title = re.search(r'<title>(.*?)</title>', html)
@@ -58,6 +60,7 @@ It stands in two places with one water: vanitas, the sink, proposed, and veritas
 - the black paper: https://kat-titter.github.io/veritas/blackpaper.html
 
 By Kat Titterton (macrofluidic). These are built pages; the sources live in https://github.com/kat-titter/vanitas-veritas.
+Two are kept by hand: about.html and dry_season.html forward to [s[i/y]n[k][w]hole (kat-titter/currents-2027) and wear its icon.
 """)
 print('wrote', ', '.join(sorted(pages)), 'to', DEST)
 if '--push' in args:
