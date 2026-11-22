@@ -9,7 +9,7 @@ a native 2560x1920 output (vs lanczos upscale).
 Grade order is split so the "clean + dirty" texture survives super-res:
     colour grade @640  ->  ESRGAN 4x  ->  grain + vignette @2560
 """
-import os, sys, glob, math, time, subprocess, torch, numpy as np
+import os, sys, time, subprocess, torch, numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter
 from diffusers import AutoencoderKL

@@ -10,7 +10,7 @@ the gooey dream quality is identical across orderings, so order is all that vari
 Usage:  python3 order_preview.py            # renders all CANDIDATES
         python3 order_preview.py 1 0 4 3 2 7 6 5   # render one custom order
 """
-import os, sys, glob, math, subprocess, torch, numpy as np
+import os, sys, glob, subprocess, torch, numpy as np
 from PIL import Image
 from diffusers import AutoencoderKL
 
@@ -33,7 +33,7 @@ CANDIDATES={
 }
 
 sys.path.insert(0,HERE)
-from latent import slerp, catmull, Vae           # shared with the spring and the render
+from latent import catmull, Vae                  # shared with the spring and the render
 
 _yy,_xx=np.mgrid[0:H,0:W]; _r=np.sqrt(((_xx-W/2)/(W/2))**2+((_yy-H/2)/(H/2))**2)
 VIG=(1-0.26*np.clip(_r-0.55,0,None)/0.65)[...,None]
