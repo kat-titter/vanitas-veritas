@@ -5,13 +5,15 @@
 #   python3 verse/deploy_verse.py                 every page as it is on disk
 #   python3 verse/deploy_verse.py --committed     every page as last committed here (while the working tree is being edited;
 #                                                 it reads HEAD:verse/, so it works only once the move to verse/ is committed)
-# The link preview (og.jpg, 1200x630, about 60 KB: an image from iii on ink) lives only in the published repo, never here
-# (no binaries in the source repo); the meta tags that point at it are added at publish time.
+# The link preview (og.jpg, 1200x630: the piece itself with its title) and the home-screen icon (apple-touch-icon.png, the tab icon's
+# SVG drawn at 180 px) live only in the published repo, never here (no binaries in the source repo); the tags that point at them are
+# added at publish time. The tab icon itself is no file: its SVG sits inline in each page's <head>.
 #   add --push to commit and push (otherwise it only writes the files)
-import pathlib, re, subprocess, sys
+#   VERITAS_DEST=<folder> writes into another checkout of the published repo (a branch's worktree) instead of ~/Claude/Projects/veritas
+import os, pathlib, re, subprocess, sys
 
 HERE = pathlib.Path(__file__).resolve().parent
-DEST = pathlib.Path.home() / 'Claude/Projects/veritas'
+DEST = pathlib.Path(os.environ.get('VERITAS_DEST') or pathlib.Path.home() / 'Claude/Projects/veritas')
 args = set(sys.argv[1:])
 
 def read(name, committed=False):
@@ -33,7 +35,7 @@ def preview(html, name):                      # the picture a shared link unfurl
     url = NEW + ('' if name == 'index.html' else name)
     tags = (f'<meta property="og:url" content="{url}">\n<meta property="og:image" content="{NEW}og.jpg">\n'
             '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
-            f'<meta name="twitter:image" content="{NEW}og.jpg">\n')
+            f'<meta name="twitter:image" content="{NEW}og.jpg">\n<link rel="apple-touch-icon" href="{NEW}apple-touch-icon.png">\n')
     html = re.sub(r'<meta name="twitter:card" content="[^"]*">\n?', '', html)
     if 'property="og:title"' not in html:
         title = re.search(r'<title>(.*?)</title>', html)
