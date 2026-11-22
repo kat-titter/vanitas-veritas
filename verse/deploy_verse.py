@@ -31,7 +31,7 @@ for old in ['macroverse.html', 'veritas.html', 'veritas2.html', 'veritas3.html',
 if (HERE / 'sync.html').exists(): pages['sync.html'] = read('sync.html', C)     # veritas: one water with vanitas
 
 NEW = 'https://kat-titter.github.io/veritas/'
-ICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,'      # the tab icon, one file: the basin from above, turning into the eye
+ICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,'      # the tab icon, one file: the folded sky, a constellation's facets in the page's gold
         + (HERE / 'icon.svg').read_text().strip().replace('#', '%23').replace('<', '%3C').replace('>', '%3E') + '">\n')
 def preview(html, name):                      # the picture a shared link unfurls with, on every page
     url = NEW + ('' if name == 'index.html' else name)
